@@ -1,0 +1,246 @@
+import { useEffect, useState } from 'react';
+import { useParams, Link } from 'react-router-dom';
+import { AppLayout } from '@/components/layout/AppLayout';
+import { LifePlanTable } from '@/components/life-plan/LifePlanTable';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
+import { Loader2, ArrowLeft, Pencil, Save, X } from 'lucide-react';
+import { LifeArea } from '@/lib/constants';
+
+interface LifePlan {
+  id: string;
+  title: string;
+  motto: string | null;
+}
+
+interface Goal {
+  id: string;
+  life_plan_id: string;
+  period_year: number;
+  age: number;
+  area: LifeArea;
+  goal_text: string;
+  is_completed: boolean;
+}
+
+export default function ConsultaDetalhes() {
+  const { id } = useParams<{ id: string }>();
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [loading, setLoading] = useState(true);
+  const [plan, setPlan] = useState<LifePlan | null>(null);
+  const [goals, setGoals] = useState<Goal[]>([]);
+  const [editingTitle, setEditingTitle] = useState(false);
+  const [editTitle, setEditTitle] = useState('');
+  const [editMotto, setEditMotto] = useState('');
+
+  useEffect(() => {
+    if (user && id) {
+      loadPlan();
+    }
+  }, [user, id]);
+
+  const loadPlan = async () => {
+    try {
+      const { data: planData, error: planError } = await supabase
+        .from('life_plans')
+        .select('*')
+        .eq('id', id)
+        .eq('user_id', user!.id)
+        .single();
+
+      if (planError) throw planError;
+
+      setPlan(planData);
+      setEditTitle(planData.title);
+      setEditMotto(planData.motto || '');
+
+      const { data: goalsData, error: goalsError } = await supabase
+        .from('life_goals')
+        .select('*')
+        .eq('life_plan_id', id)
+        .order('period_year', { ascending: true });
+
+      if (goalsError) throw goalsError;
+
+      setGoals(goalsData as Goal[]);
+    } catch (error) {
+      console.error('Error loading plan:', error);
+      toast({
+        title: 'Erro ao carregar plano',
+        description: 'Não foi possível carregar o plano de vida.',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUpdateGoal = async (goalId: string, updates: Partial<Goal>) => {
+    try {
+      const { error } = await supabase
+        .from('life_goals')
+        .update(updates)
+        .eq('id', goalId);
+
+      if (error) throw error;
+
+      setGoals(goals.map(g => g.id === goalId ? { ...g, ...updates } : g));
+    } catch (error: any) {
+      toast({
+        title: 'Erro ao atualizar',
+        description: error.message,
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleDeleteGoal = async (goalId: string) => {
+    try {
+      const { error } = await supabase
+        .from('life_goals')
+        .delete()
+        .eq('id', goalId);
+
+      if (error) throw error;
+
+      setGoals(goals.filter(g => g.id !== goalId));
+      toast({ title: 'Meta excluída!' });
+    } catch (error: any) {
+      toast({
+        title: 'Erro ao excluir',
+        description: error.message,
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleAddGoal = async (goal: Omit<Goal, 'id'>) => {
+    try {
+      const { data, error } = await supabase
+        .from('life_goals')
+        .insert({
+          ...goal,
+          user_id: user!.id,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      setGoals([...goals, data as Goal]);
+    } catch (error: any) {
+      toast({
+        title: 'Erro ao adicionar',
+        description: error.message,
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleSaveTitle = async () => {
+    try {
+      const { error } = await supabase
+        .from('life_plans')
+        .update({ title: editTitle, motto: editMotto || null })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setPlan({ ...plan!, title: editTitle, motto: editMotto || null });
+      setEditingTitle(false);
+      toast({ title: 'Plano atualizado!' });
+    } catch (error: any) {
+      toast({
+        title: 'Erro ao atualizar',
+        description: error.message,
+        variant: 'destructive',
+      });
+    }
+  };
+
+  if (loading) {
+    return (
+      <AppLayout>
+        <div className="flex items-center justify-center h-64">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        </div>
+      </AppLayout>
+    );
+  }
+
+  if (!plan) {
+    return (
+      <AppLayout>
+        <div className="text-center py-16">
+          <h2 className="text-xl font-semibold text-foreground mb-4">Plano não encontrado</h2>
+          <Link to="/consulta">
+            <Button>Voltar para consulta</Button>
+          </Link>
+        </div>
+      </AppLayout>
+    );
+  }
+
+  return (
+    <AppLayout>
+      <div className="space-y-6 animate-fade-in">
+        <div className="flex items-center gap-4">
+          <Link to="/consulta">
+            <Button variant="ghost" size="icon">
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+          </Link>
+          
+          {editingTitle ? (
+            <div className="flex-1 space-y-2">
+              <div className="flex items-center gap-2">
+                <Input
+                  value={editTitle}
+                  onChange={(e) => setEditTitle(e.target.value)}
+                  className="text-2xl font-bold"
+                />
+                <Button size="icon" onClick={handleSaveTitle}>
+                  <Save className="w-4 h-4" />
+                </Button>
+                <Button size="icon" variant="ghost" onClick={() => setEditingTitle(false)}>
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+              <Input
+                value={editMotto}
+                onChange={(e) => setEditMotto(e.target.value)}
+                placeholder="Lema (opcional)"
+                className="text-muted-foreground"
+              />
+            </div>
+          ) : (
+            <div className="flex-1">
+              <div className="flex items-center gap-2">
+                <h1 className="text-3xl font-bold text-foreground">{plan.title}</h1>
+                <Button size="icon" variant="ghost" onClick={() => setEditingTitle(true)}>
+                  <Pencil className="w-4 h-4" />
+                </Button>
+              </div>
+              {plan.motto && (
+                <p className="text-muted-foreground italic">"{plan.motto}"</p>
+              )}
+            </div>
+          )}
+        </div>
+
+        <LifePlanTable
+          goals={goals}
+          onUpdateGoal={handleUpdateGoal}
+          onDeleteGoal={handleDeleteGoal}
+          onAddGoal={handleAddGoal}
+          lifePlanId={plan.id}
+          editable={true}
+        />
+      </div>
+    </AppLayout>
+  );
+}
