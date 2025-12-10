@@ -4,7 +4,8 @@ import {
   FileText, 
   Search, 
   Scale, 
-  User
+  User,
+  Settings
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -13,7 +14,7 @@ const navItems = [
   { path: '/cadastro', label: 'Novo', icon: FileText },
   { path: '/consulta', label: 'Planos', icon: Search },
   { path: '/balanco', label: 'Balanço', icon: Scale },
-  { path: '/perfil', label: 'Perfil', icon: User },
+  { path: '/meus-dados', label: 'Dados', icon: User },
 ];
 
 export function BottomNav() {

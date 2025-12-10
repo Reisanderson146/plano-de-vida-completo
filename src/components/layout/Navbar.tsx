@@ -126,13 +126,13 @@ export function Navbar() {
                 </div>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
-                  <Link to="/perfil" className="flex items-center cursor-pointer">
+                  <Link to="/meus-dados" className="flex items-center cursor-pointer">
                     <User className="w-4 h-4 mr-2" />
-                    Meu Perfil
+                    Meus Dados
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link to="/perfil" className="flex items-center cursor-pointer">
+                  <Link to="/configuracoes" className="flex items-center cursor-pointer">
                     <Settings className="w-4 h-4 mr-2" />
                     Configurações
                   </Link>
