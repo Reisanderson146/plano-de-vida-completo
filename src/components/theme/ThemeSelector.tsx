@@ -1,7 +1,7 @@
 import React from 'react';
 import { THEMES, Theme } from '@/lib/themes';
 import { cn } from '@/lib/utils';
-import { Check, Palette } from 'lucide-react';
+import { Check } from 'lucide-react';
 
 interface ThemeSelectorProps {
   selectedTheme: string;
@@ -11,12 +11,7 @@ interface ThemeSelectorProps {
 export function ThemeSelector({ selectedTheme, onThemeChange }: ThemeSelectorProps) {
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-        <Palette className="w-4 h-4" />
-        <span>Escolha seu tema</span>
-      </div>
-      
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
         {THEMES.map((theme) => (
           <ThemeCard
             key={theme.id}
@@ -41,40 +36,55 @@ function ThemeCard({ theme, isSelected, onClick }: ThemeCardProps) {
     <button
       onClick={onClick}
       className={cn(
-        'relative p-3 rounded-xl border-2 transition-all duration-200',
-        'hover:scale-[1.02] hover:shadow-md',
+        'group relative p-3 rounded-xl border-2 transition-all duration-300',
+        'hover:scale-[1.03] hover:shadow-lg',
         'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
         isSelected
-          ? 'border-primary bg-primary/5 shadow-sm'
-          : 'border-border bg-card hover:border-primary/50'
+          ? 'border-primary shadow-md ring-2 ring-primary/20'
+          : 'border-border bg-card hover:border-primary/40'
       )}
     >
-      {/* Color Preview */}
-      <div className="flex gap-1 mb-2">
-        <div
-          className="h-6 w-6 rounded-full shadow-sm"
-          style={{ backgroundColor: theme.preview.primary }}
+      {/* Color Preview Orbs */}
+      <div className="relative h-12 mb-3 rounded-lg overflow-hidden">
+        <div 
+          className="absolute inset-0 opacity-90"
+          style={{ 
+            background: `linear-gradient(135deg, ${theme.preview.primary} 0%, ${theme.preview.accent} 50%, ${theme.preview.secondary} 100%)` 
+          }}
         />
-        <div
-          className="h-6 w-6 rounded-full shadow-sm"
-          style={{ backgroundColor: theme.preview.accent }}
-        />
-        <div
-          className="h-6 w-6 rounded-full shadow-sm border border-border"
-          style={{ backgroundColor: theme.preview.secondary }}
-        />
+        <div className="absolute inset-0 flex items-center justify-center gap-1.5">
+          <div
+            className="h-7 w-7 rounded-full shadow-lg ring-2 ring-white/30 transition-transform group-hover:scale-110"
+            style={{ backgroundColor: theme.preview.primary }}
+          />
+          <div
+            className="h-5 w-5 rounded-full shadow-md ring-2 ring-white/20 transition-transform group-hover:scale-110 delay-75"
+            style={{ backgroundColor: theme.preview.accent }}
+          />
+          <div
+            className="h-4 w-4 rounded-full shadow ring-1 ring-white/10 transition-transform group-hover:scale-110 delay-100"
+            style={{ backgroundColor: theme.preview.secondary }}
+          />
+        </div>
       </div>
 
       {/* Theme Info */}
       <div className="text-left">
-        <p className="font-medium text-sm text-foreground">{theme.name}</p>
-        <p className="text-xs text-muted-foreground line-clamp-1">{theme.description}</p>
+        <p className={cn(
+          "font-semibold text-sm transition-colors",
+          isSelected ? "text-primary" : "text-foreground"
+        )}>
+          {theme.name}
+        </p>
+        <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">
+          {theme.description}
+        </p>
       </div>
 
       {/* Selected Indicator */}
       {isSelected && (
-        <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
-          <Check className="w-3 h-3 text-primary-foreground" />
+        <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-primary flex items-center justify-center shadow-lg animate-scale-in">
+          <Check className="w-3.5 h-3.5 text-primary-foreground" />
         </div>
       )}
     </button>
