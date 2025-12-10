@@ -1,5 +1,5 @@
 import { useTheme } from 'next-themes';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Moon, Sun, Monitor } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { applyTheme } from '@/lib/themes';
@@ -16,10 +16,21 @@ export function DarkModeToggle() {
   useEffect(() => {
     if (mounted) {
       const savedColorTheme = localStorage.getItem('plano-vida-theme') || 'default';
-      // Small delay to ensure the class has been applied
       setTimeout(() => applyTheme(savedColorTheme), 50);
     }
   }, [resolvedTheme, mounted]);
+
+  const handleThemeChange = useCallback((newTheme: string) => {
+    // Add transitioning class for smooth animation
+    document.documentElement.classList.add('theme-transitioning');
+    
+    setTheme(newTheme);
+    
+    // Remove class after transition completes
+    setTimeout(() => {
+      document.documentElement.classList.remove('theme-transitioning');
+    }, 350);
+  }, [setTheme]);
 
   if (!mounted) {
     return (
@@ -46,7 +57,7 @@ export function DarkModeToggle() {
         return (
           <button
             key={option.value}
-            onClick={() => setTheme(option.value)}
+            onClick={() => handleThemeChange(option.value)}
             className={cn(
               'flex items-center justify-center w-8 h-8 rounded-md transition-all duration-200',
               'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1',
