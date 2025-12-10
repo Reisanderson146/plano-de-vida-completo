@@ -50,6 +50,7 @@ interface PeriodRow {
 export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, lifePlanId, editable = false }: LifePlanTableProps) {
   const [editingCell, setEditingCell] = useState<string | null>(null);
   const [editValue, setEditValue] = useState('');
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [addingRow, setAddingRow] = useState(false);
   const [newRowYear, setNewRowYear] = useState(new Date().getFullYear());
   const [newRowAge, setNewRowAge] = useState(30);
@@ -82,18 +83,22 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, li
   const handleStartEdit = (goal: Goal) => {
     setEditingCell(goal.id);
     setEditValue(goal.goal_text);
+    setEditDialogOpen(true);
   };
 
-  const handleSaveEdit = async (goalId: string) => {
-    await onUpdateGoal(goalId, { goal_text: editValue });
+  const handleSaveEdit = async () => {
+    if (!editingCell) return;
+    await onUpdateGoal(editingCell, { goal_text: editValue });
     setEditingCell(null);
     setEditValue('');
+    setEditDialogOpen(false);
     toast({ title: 'Meta atualizada!' });
   };
 
   const handleCancelEdit = () => {
     setEditingCell(null);
     setEditValue('');
+    setEditDialogOpen(false);
   };
 
   const handleToggleComplete = async (goal: Goal) => {
@@ -191,27 +196,17 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, li
                         </div>
                         
                         {goal ? (
-                          isEditing ? (
-                            <div className="space-y-2">
-                              <Textarea value={editValue} onChange={(e) => setEditValue(e.target.value)} maxLength={1000} className="text-sm bg-background min-h-[80px]" />
-                              <div className="flex gap-2">
-                                <Button size="sm" onClick={() => handleSaveEdit(goal.id)}><Save className="w-3 h-3 mr-1" />Salvar</Button>
-                                <Button size="sm" variant="ghost" onClick={handleCancelEdit}>Cancelar</Button>
+                          <div className="flex items-start justify-between gap-2">
+                            <p className={cn("text-sm text-foreground flex-1 whitespace-pre-wrap", goal.is_completed && "line-through opacity-70")}>
+                              {goal.goal_text || <span className="italic text-muted-foreground">Sem meta definida</span>}
+                            </p>
+                            {editable && (
+                              <div className="flex gap-1 flex-shrink-0">
+                                <Button size="icon" variant="ghost" onClick={() => handleStartEdit(goal)} className="h-7 w-7"><Pencil className="w-3 h-3" /></Button>
+                                <Button size="icon" variant="ghost" onClick={() => onDeleteGoal(goal.id)} className="h-7 w-7"><Trash2 className="w-3 h-3 text-destructive" /></Button>
                               </div>
-                            </div>
-                          ) : (
-                            <div className="flex items-start justify-between gap-2">
-                              <p className={cn("text-sm text-foreground flex-1 whitespace-pre-wrap", goal.is_completed && "line-through opacity-70")}>
-                                {goal.goal_text || <span className="italic text-muted-foreground">Sem meta definida</span>}
-                              </p>
-                              {editable && (
-                                <div className="flex gap-1 flex-shrink-0">
-                                  <Button size="icon" variant="ghost" onClick={() => handleStartEdit(goal)} className="h-7 w-7"><Pencil className="w-3 h-3" /></Button>
-                                  <Button size="icon" variant="ghost" onClick={() => onDeleteGoal(goal.id)} className="h-7 w-7"><Trash2 className="w-3 h-3 text-destructive" /></Button>
-                                </div>
-                              )}
-                            </div>
-                          )
+                            )}
+                          </div>
                         ) : editable && (
                           <Button variant="ghost" size="sm" className="w-full text-muted-foreground h-8 text-xs" onClick={() => { setAddGoalDialog({ year: period.year, age: period.age, area: area.id }); setNewGoalText(''); }}>
                             <Plus className="w-3 h-3 mr-1" />Adicionar
@@ -255,34 +250,21 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, li
               <td className="font-medium text-foreground px-4 py-3">{period.age}</td>
               {LIFE_AREAS.map((area) => {
                 const goal = period.goals[area.id];
-                const isEditing = goal && editingCell === goal.id;
                 
                 return (
                   <td key={area.id} className="p-2" style={{ backgroundColor: `${getAreaColor(area.id)}15` }}>
                     {goal ? (
-                      <div className="space-y-2">
-                        {isEditing ? (
-                          <div className="space-y-2">
-                            <Textarea value={editValue} onChange={(e) => setEditValue(e.target.value)} maxLength={1000} className="text-sm bg-background min-h-[80px]" />
-                            <div className="flex gap-1">
-                              <Button size="sm" onClick={() => handleSaveEdit(goal.id)}><Save className="w-3 h-3" /></Button>
-                              <Button size="sm" variant="ghost" onClick={handleCancelEdit}><X className="w-3 h-3" /></Button>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="flex items-start gap-2">
-                            <Checkbox checked={goal.is_completed} onCheckedChange={() => handleToggleComplete(goal)} className="mt-1" />
-                            <div className="flex-1">
-                              <p className={cn("text-sm text-foreground whitespace-pre-wrap", goal.is_completed && "line-through opacity-70")}>
-                                {goal.goal_text || <span className="italic text-muted-foreground">Sem meta definida</span>}
-                              </p>
-                            </div>
-                            {editable && (
-                              <div className="flex gap-1">
-                                <Button size="icon" variant="ghost" onClick={() => handleStartEdit(goal)}><Pencil className="w-3 h-3" /></Button>
-                                <Button size="icon" variant="ghost" onClick={() => onDeleteGoal(goal.id)}><Trash2 className="w-3 h-3 text-destructive" /></Button>
-                              </div>
-                            )}
+                      <div className="flex items-start gap-2">
+                        <Checkbox checked={goal.is_completed} onCheckedChange={() => handleToggleComplete(goal)} className="mt-1" />
+                        <div className="flex-1">
+                          <p className={cn("text-sm text-foreground whitespace-pre-wrap", goal.is_completed && "line-through opacity-70")}>
+                            {goal.goal_text || <span className="italic text-muted-foreground">Sem meta definida</span>}
+                          </p>
+                        </div>
+                        {editable && (
+                          <div className="flex gap-1">
+                            <Button size="icon" variant="ghost" onClick={() => handleStartEdit(goal)}><Pencil className="w-3 h-3" /></Button>
+                            <Button size="icon" variant="ghost" onClick={() => onDeleteGoal(goal.id)}><Trash2 className="w-3 h-3 text-destructive" /></Button>
                           </div>
                         )}
                       </div>
@@ -345,6 +327,21 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, li
           <DialogFooter>
             <Button variant="ghost" onClick={() => setAddGoalDialog(null)}>Cancelar</Button>
             <Button onClick={handleAddGoalConfirm}>Adicionar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Goal Dialog */}
+      <Dialog open={editDialogOpen} onOpenChange={(open) => !open && handleCancelEdit()}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Editar Meta</DialogTitle>
+          </DialogHeader>
+          <Textarea value={editValue} onChange={(e) => setEditValue(e.target.value)} placeholder="Digite sua meta (até 1000 caracteres)" maxLength={1000} className="min-h-[120px]" />
+          <p className="text-xs text-muted-foreground">{editValue.length}/1000 caracteres</p>
+          <DialogFooter>
+            <Button variant="ghost" onClick={handleCancelEdit}>Cancelar</Button>
+            <Button onClick={handleSaveEdit}>Salvar</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
