@@ -3,7 +3,7 @@ import {
   LayoutDashboard, 
   FileText, 
   Search, 
-  BarChart3, 
+  Scale, 
   User
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -12,7 +12,7 @@ const navItems = [
   { path: '/', label: 'Início', icon: LayoutDashboard },
   { path: '/cadastro', label: 'Novo', icon: FileText },
   { path: '/consulta', label: 'Planos', icon: Search },
-  { path: '/relatorios', label: 'Relatório', icon: BarChart3 },
+  { path: '/balanco', label: 'Balanço', icon: Scale },
   { path: '/perfil', label: 'Perfil', icon: User },
 ];
 

@@ -11,6 +11,7 @@ import Cadastro from "./pages/Cadastro";
 import Consulta from "./pages/Consulta";
 import ConsultaDetalhes from "./pages/ConsultaDetalhes";
 import Relatorios from "./pages/Relatorios";
+import Balanco from "./pages/Balanco";
 import Anotacoes from "./pages/Anotacoes";
 import Perfil from "./pages/Perfil";
 import NotFound from "./pages/NotFound";
@@ -45,6 +46,7 @@ function AppRoutes() {
       <Route path="/consulta" element={<ProtectedRoute><Consulta /></ProtectedRoute>} />
       <Route path="/consulta/:id" element={<ProtectedRoute><ConsultaDetalhes /></ProtectedRoute>} />
       <Route path="/relatorios" element={<ProtectedRoute><Relatorios /></ProtectedRoute>} />
+      <Route path="/balanco" element={<ProtectedRoute><Balanco /></ProtectedRoute>} />
       <Route path="/anotacoes" element={<ProtectedRoute><Anotacoes /></ProtectedRoute>} />
       <Route path="/perfil" element={<ProtectedRoute><Perfil /></ProtectedRoute>} />
       <Route path="*" element={<NotFound />} />
