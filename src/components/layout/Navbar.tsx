@@ -18,7 +18,6 @@ import {
   FileText, 
   Search, 
   BarChart3, 
-  StickyNote, 
   Scale,
   LogOut,
   User,
@@ -33,7 +32,6 @@ const navItems = [
   { path: '/consulta', label: 'Consulta', icon: Search },
   { path: '/relatorios', label: 'Relatórios', icon: BarChart3 },
   { path: '/balanco', label: 'Balanço', icon: Scale },
-  { path: '/anotacoes', label: 'Anotações', icon: StickyNote },
 ];
 
 export function Navbar() {

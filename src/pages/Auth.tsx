@@ -7,13 +7,26 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Target } from 'lucide-react';
+import { Loader2, Target, Heart, Brain, Users, Briefcase, Wallet, Dumbbell, Sparkles, Eye, EyeOff } from 'lucide-react';
+
+const AREA_ICONS = [
+  { icon: Sparkles, color: 'text-purple-400' },
+  { icon: Brain, color: 'text-blue-400' },
+  { icon: Heart, color: 'text-pink-400' },
+  { icon: Users, color: 'text-orange-400' },
+  { icon: Wallet, color: 'text-green-400' },
+  { icon: Briefcase, color: 'text-amber-400' },
+  { icon: Dumbbell, color: 'text-red-400' },
+];
 
 export default function Auth() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -45,10 +58,20 @@ export default function Auth() {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    
     if (password.length < 6) {
       toast({
         title: 'Senha muito curta',
         description: 'A senha deve ter pelo menos 6 caracteres',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      toast({
+        title: 'Senhas não coincidem',
+        description: 'A senha e a confirmação devem ser iguais',
         variant: 'destructive',
       });
       return;
@@ -76,36 +99,68 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
-      <div className="w-full max-w-md animate-fade-in">
-        <div className="text-center mb-6 sm:mb-8">
-          <div className="inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 rounded-2xl gradient-hero mb-3 sm:mb-4">
-            <Target className="w-7 h-7 sm:w-8 sm:h-8 text-primary-foreground" />
+    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-primary/10 flex flex-col items-center justify-center p-4 relative overflow-hidden">
+      {/* Decorative background elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary/10 rounded-full blur-3xl" />
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-primary/10 rounded-full blur-3xl" />
+        
+        {/* Floating area icons */}
+        {AREA_ICONS.map((item, index) => {
+          const Icon = item.icon;
+          return (
+            <div
+              key={index}
+              className={`absolute hidden sm:block ${item.color} opacity-20 animate-pulse`}
+              style={{
+                top: `${15 + (index * 12)}%`,
+                left: index % 2 === 0 ? `${5 + (index * 2)}%` : 'auto',
+                right: index % 2 !== 0 ? `${5 + (index * 2)}%` : 'auto',
+                animationDelay: `${index * 0.3}s`,
+              }}
+            >
+              <Icon className="w-8 h-8 lg:w-10 lg:h-10" />
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="w-full max-w-md animate-fade-in relative z-10">
+        {/* Logo and title */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl gradient-hero mb-4 shadow-xl shadow-primary/20">
+            <Target className="w-10 h-10 text-primary-foreground" />
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Plano de Vida</h1>
-          <p className="text-sm sm:text-base text-muted-foreground mt-2">
+          <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-2">
+            Plano de Vida
+          </h1>
+          <p className="text-muted-foreground">
             Organize suas metas nas 7 áreas da vida
           </p>
         </div>
 
-        <Card className="shadow-lg">
-          <CardHeader className="pb-4 sm:pb-6">
-            <CardTitle className="text-lg sm:text-xl">Acesse sua conta</CardTitle>
-            <CardDescription className="text-sm">
-              Entre ou crie sua conta para começar
+        <Card className="shadow-2xl border-border/50 backdrop-blur-sm bg-card/95">
+          <CardHeader className="pb-4 text-center">
+            <CardTitle className="text-xl">Bem-vindo!</CardTitle>
+            <CardDescription>
+              Entre ou crie sua conta para começar sua jornada
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="signin" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 mb-4 sm:mb-6">
-                <TabsTrigger value="signin" className="text-sm">Entrar</TabsTrigger>
-                <TabsTrigger value="signup" className="text-sm">Cadastrar</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-2 mb-6 h-12">
+                <TabsTrigger value="signin" className="text-sm font-medium h-10">
+                  Entrar
+                </TabsTrigger>
+                <TabsTrigger value="signup" className="text-sm font-medium h-10">
+                  Cadastrar
+                </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="signin">
-                <form onSubmit={handleSignIn} className="space-y-4">
+              <TabsContent value="signin" className="mt-0">
+                <form onSubmit={handleSignIn} className="space-y-5">
                   <div className="space-y-2">
-                    <Label htmlFor="signin-email" className="text-sm">Email</Label>
+                    <Label htmlFor="signin-email">Email</Label>
                     <Input
                       id="signin-email"
                       type="email"
@@ -113,32 +168,41 @@ export default function Auth() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
-                      className="h-11 sm:h-10"
+                      className="h-12"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signin-password" className="text-sm">Senha</Label>
-                    <Input
-                      id="signin-password"
-                      type="password"
-                      placeholder="••••••••"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                      className="h-11 sm:h-10"
-                    />
+                    <Label htmlFor="signin-password">Senha</Label>
+                    <div className="relative">
+                      <Input
+                        id="signin-password"
+                        type={showPassword ? "text" : "password"}
+                        placeholder="••••••••"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        className="h-12 pr-12"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                      </button>
+                    </div>
                   </div>
-                  <Button type="submit" className="w-full h-11 sm:h-10" disabled={loading}>
-                    {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                  <Button type="submit" className="w-full h-12 text-base font-semibold" disabled={loading}>
+                    {loading && <Loader2 className="w-5 h-5 mr-2 animate-spin" />}
                     Entrar
                   </Button>
                 </form>
               </TabsContent>
 
-              <TabsContent value="signup">
+              <TabsContent value="signup" className="mt-0">
                 <form onSubmit={handleSignUp} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="signup-name" className="text-sm">Nome completo</Label>
+                    <Label htmlFor="signup-name">Nome completo</Label>
                     <Input
                       id="signup-name"
                       type="text"
@@ -146,11 +210,11 @@ export default function Auth() {
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
                       required
-                      className="h-11 sm:h-10"
+                      className="h-12"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signup-email" className="text-sm">Email</Label>
+                    <Label htmlFor="signup-email">Email</Label>
                     <Input
                       id="signup-email"
                       type="email"
@@ -158,24 +222,58 @@ export default function Auth() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
-                      className="h-11 sm:h-10"
+                      className="h-12"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signup-password" className="text-sm">Senha</Label>
-                    <Input
-                      id="signup-password"
-                      type="password"
-                      placeholder="Mínimo 6 caracteres"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                      minLength={6}
-                      className="h-11 sm:h-10"
-                    />
+                    <Label htmlFor="signup-password">Senha</Label>
+                    <div className="relative">
+                      <Input
+                        id="signup-password"
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Mínimo 6 caracteres"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        minLength={6}
+                        className="h-12 pr-12"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                      </button>
+                    </div>
                   </div>
-                  <Button type="submit" className="w-full h-11 sm:h-10" disabled={loading}>
-                    {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-confirm-password">Confirmar Senha</Label>
+                    <div className="relative">
+                      <Input
+                        id="signup-confirm-password"
+                        type={showConfirmPassword ? "text" : "password"}
+                        placeholder="Digite a senha novamente"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        required
+                        minLength={6}
+                        className="h-12 pr-12"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                      </button>
+                    </div>
+                    {confirmPassword && password !== confirmPassword && (
+                      <p className="text-xs text-destructive mt-1">As senhas não coincidem</p>
+                    )}
+                  </div>
+                  <Button type="submit" className="w-full h-12 text-base font-semibold" disabled={loading}>
+                    {loading && <Loader2 className="w-5 h-5 mr-2 animate-spin" />}
                     Criar conta
                   </Button>
                 </form>
@@ -183,6 +281,11 @@ export default function Auth() {
             </Tabs>
           </CardContent>
         </Card>
+
+        {/* Footer */}
+        <p className="text-center text-xs text-muted-foreground mt-6">
+          Ao continuar, você concorda com nossos termos de uso
+        </p>
       </div>
     </div>
   );
