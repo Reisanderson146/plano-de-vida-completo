@@ -157,6 +157,36 @@ export type Database = {
         }
         Relationships: []
       }
+      user_area_customizations: {
+        Row: {
+          area_id: string
+          created_at: string
+          custom_color: string | null
+          custom_label: string | null
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          area_id: string
+          created_at?: string
+          custom_color?: string | null
+          custom_label?: string | null
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          area_id?: string
+          created_at?: string
+          custom_color?: string | null
+          custom_label?: string | null
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
