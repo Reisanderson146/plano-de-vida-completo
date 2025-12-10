@@ -12,10 +12,11 @@ import { useExportReport } from '@/hooks/useExportReport';
 import { LIFE_AREAS, AREA_HEX_COLORS } from '@/lib/constants';
 import { Loader2, Target, CheckCircle2, AlertTriangle, TrendingDown, Plus, FileText, FileSpreadsheet, Folder, User, Users, Baby } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell, LabelList } from 'recharts';
-import { format } from 'date-fns';
+import { format, startOfYear, endOfYear } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Badge } from '@/components/ui/badge';
-import { YearFilter, getYearRange, getFilterLabel } from '@/components/filters/YearFilter';
+import { DateRangeFilter, getYearRangeFromDateRange } from '@/components/filters/DateRangeFilter';
+import { DateRange } from 'react-day-picker';
 
 interface AreaStats {
   area: string;
@@ -63,8 +64,10 @@ export default function Balanco() {
   const { exportToPDF, exportToExcel } = useExportReport();
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<AreaStats[]>([]);
-  const [availableYears, setAvailableYears] = useState<number[]>([]);
-  const [selectedYearFilter, setSelectedYearFilter] = useState<string>('current');
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({
+    from: startOfYear(new Date()),
+    to: endOfYear(new Date())
+  });
   const [plans, setPlans] = useState<LifePlan[]>([]);
   const [selectedPlanId, setSelectedPlanId] = useState<string>('');
   const [balanceNotes, setBalanceNotes] = useState<BalanceNote[]>([]);
@@ -85,7 +88,7 @@ export default function Balanco() {
     if (user && selectedPlanId) {
       loadData();
     }
-  }, [user, selectedYearFilter, selectedPlanId]);
+  }, [user, dateRange, selectedPlanId]);
 
   const loadPlans = async () => {
     if (!user) return;
@@ -115,18 +118,6 @@ export default function Balanco() {
     setLoading(true);
 
     try {
-      // Fetch all goals to get available years for selected plan
-      const { data: allGoals } = await supabase
-        .from('life_goals')
-        .select('period_year')
-        .eq('user_id', user.id)
-        .eq('life_plan_id', selectedPlanId);
-
-      if (allGoals) {
-        const uniqueYears = [...new Set(allGoals.map(g => g.period_year))].sort((a, b) => a - b);
-        setAvailableYears(uniqueYears);
-      }
-
       // Fetch goals based on filters
       let query = supabase
         .from('life_goals')
@@ -134,8 +125,8 @@ export default function Balanco() {
         .eq('user_id', user.id)
         .eq('life_plan_id', selectedPlanId);
 
-      // Apply year range filter
-      const yearRange = getYearRange(selectedYearFilter);
+      // Apply year range filter from date range
+      const yearRange = getYearRangeFromDateRange(dateRange);
       if (yearRange.min !== undefined) {
         query = query.gte('period_year', yearRange.min);
       }
@@ -163,14 +154,14 @@ export default function Balanco() {
 
       setStats(areaStats);
 
-      // Fetch balance notes
-      const filterLabel = getFilterLabel(selectedYearFilter);
+      // Fetch balance notes based on date range
+      const filterLabel = getDateRangeLabel(dateRange);
       const yearPrefix = `[Balanço ${filterLabel}]`;
       const { data: notes } = await supabase
         .from('notes')
         .select('id, title, content, created_at')
         .eq('user_id', user.id)
-        .like('title', selectedYearFilter === 'all' ? '[Balanço%' : `${yearPrefix}%`)
+        .like('title', !dateRange?.from ? '[Balanço%' : `${yearPrefix}%`)
         .order('created_at', { ascending: false });
 
       setBalanceNotes(notes || []);
@@ -181,11 +172,20 @@ export default function Balanco() {
     }
   };
 
+  const getDateRangeLabel = (range: DateRange | undefined): string => {
+    if (!range?.from) return 'Todos os períodos';
+    if (!range.to) return format(range.from, 'yyyy', { locale: ptBR });
+    const fromYear = range.from.getFullYear();
+    const toYear = range.to.getFullYear();
+    if (fromYear === toYear) return `${fromYear}`;
+    return `${fromYear} - ${toYear}`;
+  };
+
   const saveBalanceNote = async () => {
     if (!user || !newNoteContent.trim()) return;
 
     setSavingNote(true);
-    const filterLabel = getFilterLabel(selectedYearFilter);
+    const filterLabel = getDateRangeLabel(dateRange);
     const title = newNoteTitle.trim() || `Reflexão de ${format(new Date(), 'dd/MM/yyyy')}`;
     const fullTitle = `[Balanço ${filterLabel}] ${title}`;
 
@@ -244,7 +244,7 @@ export default function Balanco() {
   const handleExport = (formatType: 'pdf' | 'excel') => {
     const exportData = {
       title: 'Balanço - Plano de Vida',
-      subtitle: `Período: ${getFilterLabel(selectedYearFilter)}`,
+      subtitle: `Período: ${getDateRangeLabel(dateRange)}`,
       areas: stats,
       totalGoals,
       completedGoals,
@@ -320,11 +320,10 @@ export default function Balanco() {
               </SelectContent>
             </Select>
 
-            {/* Year Filter */}
-            <YearFilter
-              value={selectedYearFilter}
-              onChange={setSelectedYearFilter}
-              availableYears={availableYears}
+            {/* Date Range Filter */}
+            <DateRangeFilter
+              value={dateRange}
+              onChange={setDateRange}
             />
 
             {/* Export Buttons */}
@@ -364,7 +363,7 @@ export default function Balanco() {
                 {selectedPlan.member_name && ` - ${selectedPlan.member_name}`}
               </Badge>
               <Badge variant="outline">
-                {getFilterLabel(selectedYearFilter)}
+                {getDateRangeLabel(dateRange)}
               </Badge>
             </div>
           )}
@@ -436,7 +435,7 @@ export default function Balanco() {
               <Target className="w-5 h-5 text-primary" />
               Análise por Área
               <Badge variant="outline" className="ml-auto font-normal">
-                {getFilterLabel(selectedYearFilter)}
+                {getDateRangeLabel(dateRange)}
               </Badge>
             </CardTitle>
           </CardHeader>

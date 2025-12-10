@@ -11,7 +11,10 @@ import { useAuth } from '@/hooks/useAuth';
 import { Loader2, Target, Folder, User, Users, Baby } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { YearFilter, getYearRange, getFilterLabel } from '@/components/filters/YearFilter';
+import { DateRangeFilter, getYearRangeFromDateRange } from '@/components/filters/DateRangeFilter';
+import { DateRange } from 'react-day-picker';
+import { format, startOfYear, endOfYear } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 type AreaStats = Record<LifeArea, { total: number; completed: number }>;
 
@@ -42,8 +45,10 @@ export default function Dashboard() {
   });
   const [plans, setPlans] = useState<LifePlan[]>([]);
   const [selectedPlanId, setSelectedPlanId] = useState<string>('');
-  const [selectedYearFilter, setSelectedYearFilter] = useState<string>('current');
-  const [availableYears, setAvailableYears] = useState<number[]>([]);
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({
+    from: startOfYear(new Date()),
+    to: endOfYear(new Date())
+  });
   const [hasPlans, setHasPlans] = useState(false);
 
   useEffect(() => {
@@ -56,7 +61,7 @@ export default function Dashboard() {
     if (user && selectedPlanId) {
       loadStats();
     }
-  }, [user, selectedPlanId, selectedYearFilter]);
+  }, [user, selectedPlanId, dateRange]);
 
   const loadPlans = async () => {
     try {
@@ -86,27 +91,15 @@ export default function Dashboard() {
     if (!selectedPlanId) return;
     
     try {
-      // First get available years for this plan
-      const { data: allGoals } = await supabase
-        .from('life_goals')
-        .select('period_year')
-        .eq('user_id', user!.id)
-        .eq('life_plan_id', selectedPlanId);
-
-      if (allGoals) {
-        const uniqueYears = [...new Set(allGoals.map(g => g.period_year))].sort((a, b) => a - b);
-        setAvailableYears(uniqueYears);
-      }
-
-      // Build query with year filter
+      // Build query with date range filter
       let query = supabase
         .from('life_goals')
         .select('area, is_completed, period_year')
         .eq('user_id', user!.id)
         .eq('life_plan_id', selectedPlanId);
 
-      // Apply year range filter
-      const yearRange = getYearRange(selectedYearFilter);
+      // Apply year range filter from date range
+      const yearRange = getYearRangeFromDateRange(dateRange);
       if (yearRange.min !== undefined) {
         query = query.gte('period_year', yearRange.min);
       }
@@ -214,11 +207,10 @@ export default function Dashboard() {
             </SelectContent>
           </Select>
 
-          {/* Year Filter */}
-          <YearFilter
-            value={selectedYearFilter}
-            onChange={setSelectedYearFilter}
-            availableYears={availableYears}
+          {/* Date Range Filter */}
+          <DateRangeFilter
+            value={dateRange}
+            onChange={setDateRange}
           />
         </div>
 
@@ -235,7 +227,11 @@ export default function Dashboard() {
               {selectedPlan.member_name && ` - ${selectedPlan.member_name}`}
             </Badge>
             <Badge variant="outline">
-              {getFilterLabel(selectedYearFilter)}
+              {dateRange?.from 
+                ? dateRange.to 
+                  ? `${format(dateRange.from, 'dd/MM/yy', { locale: ptBR })} - ${format(dateRange.to, 'dd/MM/yy', { locale: ptBR })}`
+                  : format(dateRange.from, 'dd/MM/yyyy', { locale: ptBR })
+                : 'Todos os períodos'}
             </Badge>
           </div>
         )}
@@ -260,7 +256,9 @@ export default function Dashboard() {
             <div className="flex items-center justify-between">
               <CardTitle className="text-lg sm:text-xl">Visão Geral do Progresso</CardTitle>
               <Badge variant="outline" className="font-normal">
-                {getFilterLabel(selectedYearFilter)}
+                {dateRange?.from 
+                  ? `${format(dateRange.from, 'yyyy', { locale: ptBR })}${dateRange.to && dateRange.to.getFullYear() !== dateRange.from.getFullYear() ? ` - ${format(dateRange.to, 'yyyy', { locale: ptBR })}` : ''}`
+                  : 'Todos'}
               </Badge>
             </div>
           </CardHeader>
