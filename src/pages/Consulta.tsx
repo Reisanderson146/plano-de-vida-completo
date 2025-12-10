@@ -3,10 +3,12 @@ import { Link } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { Loader2, FileText, ChevronRight, Plus, Trash2 } from 'lucide-react';
+import { Loader2, FileText, ChevronRight, Plus, Trash2, User, Users, Baby, Filter } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,16 +25,39 @@ interface LifePlan {
   id: string;
   title: string;
   motto: string | null;
+  plan_type: string;
+  member_name: string | null;
   created_at: string;
   goals_count: number;
   completed_count: number;
 }
+
+const PLAN_TYPE_CONFIG = {
+  individual: { 
+    label: 'Individual', 
+    icon: User, 
+    color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' 
+  },
+  familiar: { 
+    label: 'Familiar', 
+    icon: Users, 
+    color: 'bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400' 
+  },
+  filho: { 
+    label: 'Filho(a)', 
+    icon: Baby, 
+    color: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' 
+  },
+};
+
+type FilterType = 'todos' | 'individual' | 'familiar' | 'filho';
 
 export default function Consulta() {
   const { user } = useAuth();
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [plans, setPlans] = useState<LifePlan[]>([]);
+  const [filter, setFilter] = useState<FilterType>('todos');
 
   useEffect(() => {
     if (user) {
@@ -100,6 +125,17 @@ export default function Consulta() {
     }
   };
 
+  const filteredPlans = filter === 'todos' 
+    ? plans 
+    : plans.filter(p => p.plan_type === filter);
+
+  const filterOptions: { value: FilterType; label: string }[] = [
+    { value: 'todos', label: 'Todos' },
+    { value: 'individual', label: 'Individual' },
+    { value: 'familiar', label: 'Familiar' },
+    { value: 'filho', label: 'Filhos' },
+  ];
+
   if (loading) {
     return (
       <AppLayout>
@@ -128,6 +164,24 @@ export default function Consulta() {
           </Link>
         </div>
 
+        {/* Filter */}
+        {plans.length > 0 && (
+          <div className="flex items-center gap-2 overflow-x-auto pb-2 -mx-3 px-3 sm:mx-0 sm:px-0 scrollbar-hide">
+            <Filter className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+            {filterOptions.map((option) => (
+              <Button
+                key={option.value}
+                variant={filter === option.value ? "default" : "outline"}
+                size="sm"
+                onClick={() => setFilter(option.value)}
+                className="flex-shrink-0"
+              >
+                {option.label}
+              </Button>
+            ))}
+          </div>
+        )}
+
         {plans.length === 0 ? (
           <Card className="shadow-lg">
             <CardContent className="flex flex-col items-center justify-center py-12 sm:py-16 px-4">
@@ -146,21 +200,48 @@ export default function Consulta() {
               </Link>
             </CardContent>
           </Card>
+        ) : filteredPlans.length === 0 ? (
+          <Card className="shadow-lg">
+            <CardContent className="flex flex-col items-center justify-center py-12 px-4">
+              <Filter className="w-12 h-12 text-muted-foreground mb-4" />
+              <h3 className="text-lg font-semibold text-foreground mb-2 text-center">
+                Nenhum plano encontrado
+              </h3>
+              <p className="text-sm text-muted-foreground text-center">
+                Não há planos do tipo "{filterOptions.find(f => f.value === filter)?.label}"
+              </p>
+            </CardContent>
+          </Card>
         ) : (
           <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-            {plans.map((plan) => {
+            {filteredPlans.map((plan) => {
               const percentage = plan.goals_count > 0
                 ? Math.round((plan.completed_count / plan.goals_count) * 100)
                 : 0;
+
+              const typeConfig = PLAN_TYPE_CONFIG[plan.plan_type as keyof typeof PLAN_TYPE_CONFIG] 
+                || PLAN_TYPE_CONFIG.individual;
+              const TypeIcon = typeConfig.icon;
 
               return (
                 <Card key={plan.id} className="shadow-lg hover:shadow-xl transition-shadow">
                   <CardHeader className="pb-2 sm:pb-4">
                     <div className="flex items-start justify-between gap-2">
-                      <div className="flex-1 min-w-0">
+                      <div className="flex-1 min-w-0 space-y-2">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <Badge className={cn("flex items-center gap-1 text-xs", typeConfig.color)}>
+                            <TypeIcon className="w-3 h-3" />
+                            {typeConfig.label}
+                          </Badge>
+                          {plan.member_name && (
+                            <Badge variant="outline" className="text-xs">
+                              {plan.member_name}
+                            </Badge>
+                          )}
+                        </div>
                         <CardTitle className="text-base sm:text-lg truncate">{plan.title}</CardTitle>
                         {plan.motto && (
-                          <CardDescription className="mt-1 italic text-xs sm:text-sm line-clamp-2">
+                          <CardDescription className="italic text-xs sm:text-sm line-clamp-2">
                             "{plan.motto}"
                           </CardDescription>
                         )}

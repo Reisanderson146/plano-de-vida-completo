@@ -68,7 +68,9 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          member_name: string | null
           motto: string | null
+          plan_type: string
           title: string
           updated_at: string
           user_id: string
@@ -76,7 +78,9 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
+          member_name?: string | null
           motto?: string | null
+          plan_type?: string
           title?: string
           updated_at?: string
           user_id: string
@@ -84,7 +88,9 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
+          member_name?: string | null
           motto?: string | null
+          plan_type?: string
           title?: string
           updated_at?: string
           user_id?: string
