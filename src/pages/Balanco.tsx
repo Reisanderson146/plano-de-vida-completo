@@ -10,12 +10,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { useExportReport } from '@/hooks/useExportReport';
 import { LIFE_AREAS, AREA_HEX_COLORS } from '@/lib/constants';
-import { Loader2, Target, CheckCircle2, AlertTriangle, TrendingDown, Plus, FileText, Calendar, FileSpreadsheet, Folder, User, Users, Baby } from 'lucide-react';
+import { Loader2, Target, CheckCircle2, AlertTriangle, TrendingDown, Plus, FileText, FileSpreadsheet, Folder, User, Users, Baby } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell, LabelList } from 'recharts';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
+import { YearFilter, getYearRange, getFilterLabel } from '@/components/filters/YearFilter';
 
 interface AreaStats {
   area: string;
@@ -45,15 +45,6 @@ const PLAN_TYPE_CONFIG = {
   filho: { label: 'Filho(a)', icon: Baby },
 };
 
-// Year filter options
-const YEAR_FILTER_OPTIONS = [
-  { value: 'current', label: 'Ano Atual' },
-  { value: 'all', label: 'Todos os Anos' },
-  { value: '1-3', label: '1 a 3 Anos' },
-  { value: '4-6', label: '4 a 6 Anos' },
-  { value: '7-10', label: '7 a 10 Anos' },
-];
-
 const getStatusColor = (percentage: number) => {
   if (percentage >= 70) return '#22c55e';
   if (percentage >= 40) return '#eab308';
@@ -72,7 +63,7 @@ export default function Balanco() {
   const { exportToPDF, exportToExcel } = useExportReport();
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<AreaStats[]>([]);
-  const [years, setYears] = useState<number[]>([]);
+  const [availableYears, setAvailableYears] = useState<number[]>([]);
   const [selectedYearFilter, setSelectedYearFilter] = useState<string>('current');
   const [plans, setPlans] = useState<LifePlan[]>([]);
   const [selectedPlanId, setSelectedPlanId] = useState<string>('');
@@ -109,7 +100,6 @@ export default function Balanco() {
       if (error) throw error;
 
       setPlans(data || []);
-      // Auto-select first plan if exists
       if (data && data.length > 0) {
         setSelectedPlanId(data[0].id);
       }
@@ -118,37 +108,6 @@ export default function Balanco() {
     } finally {
       setLoading(false);
     }
-  };
-
-  // Get the year range based on filter selection
-  const getYearRange = (filter: string): { min?: number; max?: number } => {
-    switch (filter) {
-      case 'current':
-        return { min: currentYear, max: currentYear };
-      case '1-3':
-        return { min: currentYear, max: currentYear + 2 };
-      case '4-6':
-        return { min: currentYear + 3, max: currentYear + 5 };
-      case '7-10':
-        return { min: currentYear + 6, max: currentYear + 9 };
-      case 'all':
-      default:
-        return {};
-    }
-  };
-
-  const getFilterLabel = () => {
-    const option = YEAR_FILTER_OPTIONS.find(o => o.value === selectedYearFilter);
-    if (!option) return '';
-    
-    if (selectedYearFilter === 'current') {
-      return `${currentYear}`;
-    }
-    if (selectedYearFilter === 'all') {
-      return 'Todos os anos';
-    }
-    const range = getYearRange(selectedYearFilter);
-    return `${range.min} - ${range.max}`;
   };
 
   const loadData = async () => {
@@ -165,7 +124,7 @@ export default function Balanco() {
 
       if (allGoals) {
         const uniqueYears = [...new Set(allGoals.map(g => g.period_year))].sort((a, b) => a - b);
-        setYears(uniqueYears);
+        setAvailableYears(uniqueYears);
       }
 
       // Fetch goals based on filters
@@ -205,13 +164,13 @@ export default function Balanco() {
       setStats(areaStats);
 
       // Fetch balance notes
-      const yearForNotes = selectedYearFilter === 'current' ? currentYear.toString() : selectedYearFilter;
-      const yearPrefix = selectedYearFilter !== 'all' ? `[Balanço ${yearForNotes}]` : '[Balanço';
+      const filterLabel = getFilterLabel(selectedYearFilter);
+      const yearPrefix = `[Balanço ${filterLabel}]`;
       const { data: notes } = await supabase
         .from('notes')
         .select('id, title, content, created_at')
         .eq('user_id', user.id)
-        .like('title', `${yearPrefix}%`)
+        .like('title', selectedYearFilter === 'all' ? '[Balanço%' : `${yearPrefix}%`)
         .order('created_at', { ascending: false });
 
       setBalanceNotes(notes || []);
@@ -226,9 +185,9 @@ export default function Balanco() {
     if (!user || !newNoteContent.trim()) return;
 
     setSavingNote(true);
-    const year = selectedYearFilter === 'current' ? currentYear : selectedYearFilter;
+    const filterLabel = getFilterLabel(selectedYearFilter);
     const title = newNoteTitle.trim() || `Reflexão de ${format(new Date(), 'dd/MM/yyyy')}`;
-    const fullTitle = `[Balanço ${year}] ${title}`;
+    const fullTitle = `[Balanço ${filterLabel}] ${title}`;
 
     try {
       const { error } = await supabase.from('notes').insert({
@@ -285,7 +244,7 @@ export default function Balanco() {
   const handleExport = (formatType: 'pdf' | 'excel') => {
     const exportData = {
       title: 'Balanço - Plano de Vida',
-      subtitle: `Período: ${getFilterLabel()}`,
+      subtitle: `Período: ${getFilterLabel(selectedYearFilter)}`,
       areas: stats,
       totalGoals,
       completedGoals,
@@ -333,12 +292,12 @@ export default function Balanco() {
         <div className="flex flex-col gap-4">
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Fechando para Balanço</h1>
-            <p className="text-muted-foreground mt-1">Analise seu progresso por plano e período</p>
+            <p className="text-muted-foreground mt-1">Analise seu progresso anual por plano e período</p>
           </div>
 
           {/* Filters Row */}
           <div className="flex flex-col sm:flex-row gap-3">
-            {/* Plan Filter - Required selection */}
+            {/* Plan Filter */}
             <Select value={selectedPlanId} onValueChange={setSelectedPlanId}>
               <SelectTrigger className="w-full sm:w-[250px]">
                 <Folder className="w-4 h-4 mr-2 flex-shrink-0" />
@@ -361,34 +320,12 @@ export default function Balanco() {
               </SelectContent>
             </Select>
 
-            {/* Year Range Filter */}
-            <Select value={selectedYearFilter} onValueChange={setSelectedYearFilter}>
-              <SelectTrigger className="w-full sm:w-[200px]">
-                <Calendar className="w-4 h-4 mr-2 flex-shrink-0" />
-                <SelectValue placeholder="Filtrar período" />
-              </SelectTrigger>
-              <SelectContent>
-                {YEAR_FILTER_OPTIONS.map(option => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                    {option.value === 'current' && ` (${currentYear})`}
-                  </SelectItem>
-                ))}
-                {/* Individual years */}
-                {years.length > 0 && (
-                  <>
-                    <div className="px-2 py-1.5 text-xs text-muted-foreground font-medium border-t mt-1 pt-2">
-                      Anos Específicos
-                    </div>
-                    {years.map(year => (
-                      <SelectItem key={year} value={year.toString()}>
-                        {year}
-                      </SelectItem>
-                    ))}
-                  </>
-                )}
-              </SelectContent>
-            </Select>
+            {/* Year Filter */}
+            <YearFilter
+              value={selectedYearFilter}
+              onChange={setSelectedYearFilter}
+              availableYears={availableYears}
+            />
 
             {/* Export Buttons */}
             <div className="flex gap-2 sm:ml-auto">
@@ -426,9 +363,8 @@ export default function Balanco() {
                 {selectedPlan.title}
                 {selectedPlan.member_name && ` - ${selectedPlan.member_name}`}
               </Badge>
-              <Badge variant="outline" className="flex items-center gap-1">
-                <Calendar className="w-3 h-3" />
-                {getFilterLabel()}
+              <Badge variant="outline">
+                {getFilterLabel(selectedYearFilter)}
               </Badge>
             </div>
           )}
@@ -500,7 +436,7 @@ export default function Balanco() {
               <Target className="w-5 h-5 text-primary" />
               Análise por Área
               <Badge variant="outline" className="ml-auto font-normal">
-                {getFilterLabel()}
+                {getFilterLabel(selectedYearFilter)}
               </Badge>
             </CardTitle>
           </CardHeader>
