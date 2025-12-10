@@ -369,7 +369,7 @@ export default function Cadastro() {
                     <input
                       ref={fileInputRef}
                       type="file"
-                      accept=".xlsx,.xls,.pdf"
+                      accept=".xlsx,.xls,.csv,.txt"
                       onChange={handleFileSelect}
                       className="hidden"
                       id="file-import"
@@ -378,7 +378,7 @@ export default function Cadastro() {
                       {importing ? (
                         <div className="flex flex-col items-center gap-2">
                           <Loader2 className="w-8 h-8 animate-spin text-primary" />
-                          <span className="text-sm text-muted-foreground">Processando arquivo...</span>
+                          <span className="text-sm text-muted-foreground">Processando arquivo com IA...</span>
                         </div>
                       ) : (
                         <div className="flex flex-col items-center gap-2">
@@ -387,16 +387,16 @@ export default function Cadastro() {
                             Clique para importar arquivo
                           </span>
                           <span className="text-xs text-muted-foreground">
-                            Suporta Excel (.xlsx, .xls) ou PDF
+                            Suporta Excel (.xlsx, .xls), CSV ou TXT
                           </span>
-                          <div className="flex gap-2 mt-2">
+                          <div className="flex gap-3 mt-2">
                             <div className="flex items-center gap-1 text-xs text-muted-foreground">
                               <FileSpreadsheet className="w-4 h-4" />
                               Excel
                             </div>
                             <div className="flex items-center gap-1 text-xs text-muted-foreground">
                               <FileText className="w-4 h-4" />
-                              PDF
+                              CSV/TXT
                             </div>
                           </div>
                         </div>
