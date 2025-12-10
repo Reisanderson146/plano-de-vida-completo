@@ -74,9 +74,9 @@ export function useExportReport() {
     yPosition += 5;
 
     const tableData = data.areas.map(area => {
-      let status = '🔴 Melhorar';
-      if (area.percentage >= 70) status = '🟢 Bom';
-      else if (area.percentage >= 40) status = '🟡 Atenção';
+      let status = 'Melhorar';
+      if (area.percentage >= 70) status = 'Bom';
+      else if (area.percentage >= 40) status = 'Atencao';
 
       return [
         area.label,
