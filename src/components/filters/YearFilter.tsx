@@ -38,10 +38,13 @@ export function YearFilter({
       onChange(year.toString());
       setIsOpen(false);
     } else {
-      if (!startYear || (startYear && endYear)) {
+      // Range mode: first click sets start, second click sets end
+      if (startYear === null || (startYear !== null && endYear !== null && startYear !== endYear)) {
+        // Start fresh range selection
         setStartYear(year);
-        setEndYear(year);
-      } else {
+        setEndYear(null as any);
+      } else if (startYear !== null && (endYear === null || startYear === endYear)) {
+        // Second click: set end year
         if (year < startYear) {
           setEndYear(startYear);
           setStartYear(year);
@@ -54,7 +57,9 @@ export function YearFilter({
 
   const applyRangeFilter = () => {
     if (startYear && endYear) {
-      onChange(`${startYear}-${endYear}`);
+      const minYear = Math.min(startYear, endYear);
+      const maxYear = Math.max(startYear, endYear);
+      onChange(`${minYear}-${maxYear}`);
       setIsOpen(false);
     }
   };
@@ -184,7 +189,7 @@ export function YearFilter({
             {filterType === 'range' && (
               <div className="mt-3 space-y-2">
                 <div className="text-xs text-muted-foreground text-center">
-                  {startYear && endYear && startYear !== endYear 
+                  {startYear && endYear
                     ? `${Math.min(startYear, endYear)} até ${Math.max(startYear, endYear)}`
                     : startYear 
                       ? `Selecione o ano final`
@@ -194,7 +199,7 @@ export function YearFilter({
                   size="sm"
                   className="w-full"
                   onClick={applyRangeFilter}
-                  disabled={!startYear || !endYear || startYear === endYear}
+                  disabled={!startYear || !endYear}
                 >
                   Aplicar Intervalo
                 </Button>
