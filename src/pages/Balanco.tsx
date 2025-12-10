@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { useExportReport } from '@/hooks/useExportReport';
-import { LIFE_AREAS } from '@/lib/constants';
+import { LIFE_AREAS, AREA_HEX_COLORS } from '@/lib/constants';
 import { Loader2, Target, CheckCircle2, AlertTriangle, TrendingDown, Plus, FileText, Calendar, FileSpreadsheet } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell, LabelList } from 'recharts';
 import { format } from 'date-fns';
@@ -29,16 +29,6 @@ interface BalanceNote {
   content: string;
   created_at: string;
 }
-
-const AREA_HEX_COLORS: Record<string, string> = {
-  espiritual: '#8b5cf6',
-  intelectual: '#3b82f6',
-  familiar: '#ec4899',
-  social: '#f97316',
-  financeiro: '#22c55e',
-  profissional: '#06b6d4',
-  saude: '#ef4444',
-};
 
 const getStatusColor = (percentage: number) => {
   if (percentage >= 70) return '#22c55e'; // Verde
