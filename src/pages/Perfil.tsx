@@ -8,8 +8,9 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Camera, Save, User, Calendar, Mail, Palette } from 'lucide-react';
+import { Loader2, Camera, Save, User, Calendar, Mail, Palette, Moon } from 'lucide-react';
 import { ThemeSelector } from '@/components/theme/ThemeSelector';
+import { DarkModeToggle } from '@/components/theme/DarkModeToggle';
 import { applyTheme, initializeTheme } from '@/lib/themes';
 
 interface Profile {
@@ -265,7 +266,25 @@ export default function Perfil() {
             </CardTitle>
             <CardDescription>Escolha o estilo visual do seu Plano de Vida</CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-6">
+            {/* Dark Mode Toggle */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-muted">
+                  <Moon className="w-4 h-4 text-muted-foreground" />
+                </div>
+                <div>
+                  <p className="font-medium text-sm">Modo de Exibição</p>
+                  <p className="text-xs text-muted-foreground">Claro, escuro ou automático</p>
+                </div>
+              </div>
+              <DarkModeToggle />
+            </div>
+
+            {/* Divider */}
+            <div className="border-t border-border" />
+
+            {/* Color Theme Selector */}
             <ThemeSelector
               selectedTheme={selectedTheme}
               onThemeChange={handleThemeChange}
