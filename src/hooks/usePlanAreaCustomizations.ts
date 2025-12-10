@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
 import { LIFE_AREAS, AREA_HEX_COLORS, LifeArea } from '@/lib/constants';
 
 export interface AreaCustomization {
@@ -16,22 +15,21 @@ export interface CustomizedArea {
   hexColor: string;
 }
 
-export function useAreaCustomizations() {
-  const { user } = useAuth();
+export function usePlanAreaCustomizations(lifePlanId: string | undefined) {
   const [customizations, setCustomizations] = useState<AreaCustomization[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchCustomizations = useCallback(async () => {
-    if (!user) {
+    if (!lifePlanId) {
       setLoading(false);
       return;
     }
 
     try {
       const { data, error } = await supabase
-        .from('user_area_customizations')
+        .from('plan_area_customizations')
         .select('area_id, custom_label, custom_color')
-        .eq('user_id', user.id);
+        .eq('life_plan_id', lifePlanId);
 
       if (error) throw error;
       setCustomizations((data as AreaCustomization[]) || []);
@@ -40,25 +38,25 @@ export function useAreaCustomizations() {
     } finally {
       setLoading(false);
     }
-  }, [user]);
+  }, [lifePlanId]);
 
   useEffect(() => {
     fetchCustomizations();
   }, [fetchCustomizations]);
 
   const saveCustomization = async (areaId: LifeArea, label: string | null, color: string | null) => {
-    if (!user) return;
+    if (!lifePlanId) return;
 
     try {
       const { error } = await supabase
-        .from('user_area_customizations')
+        .from('plan_area_customizations')
         .upsert({
-          user_id: user.id,
+          life_plan_id: lifePlanId,
           area_id: areaId,
           custom_label: label,
           custom_color: color,
         }, {
-          onConflict: 'user_id,area_id'
+          onConflict: 'life_plan_id,area_id'
         });
 
       if (error) throw error;
@@ -69,14 +67,42 @@ export function useAreaCustomizations() {
     }
   };
 
+  const saveAllCustomizations = async (planId: string, areas: Array<{ id: LifeArea; label: string; color: string }>) => {
+    try {
+      const toInsert = areas
+        .filter(area => {
+          const defaultArea = LIFE_AREAS.find(a => a.id === area.id);
+          const defaultColor = AREA_HEX_COLORS[area.id];
+          return area.label !== defaultArea?.label || area.color !== defaultColor;
+        })
+        .map(area => ({
+          life_plan_id: planId,
+          area_id: area.id,
+          custom_label: area.label,
+          custom_color: area.color,
+        }));
+
+      if (toInsert.length > 0) {
+        const { error } = await supabase
+          .from('plan_area_customizations')
+          .upsert(toInsert, { onConflict: 'life_plan_id,area_id' });
+
+        if (error) throw error;
+      }
+    } catch (error) {
+      console.error('Error saving all area customizations:', error);
+      throw error;
+    }
+  };
+
   const resetCustomization = async (areaId: LifeArea) => {
-    if (!user) return;
+    if (!lifePlanId) return;
 
     try {
       const { error } = await supabase
-        .from('user_area_customizations')
+        .from('plan_area_customizations')
         .delete()
-        .eq('user_id', user.id)
+        .eq('life_plan_id', lifePlanId)
         .eq('area_id', areaId);
 
       if (error) throw error;
@@ -86,18 +112,6 @@ export function useAreaCustomizations() {
       throw error;
     }
   };
-
-  const getCustomizedAreas = useCallback((): CustomizedArea[] => {
-    return LIFE_AREAS.map((area) => {
-      const customization = customizations.find((c) => c.area_id === area.id);
-      return {
-        id: area.id,
-        label: customization?.custom_label || area.label,
-        color: area.color,
-        hexColor: customization?.custom_color || AREA_HEX_COLORS[area.id],
-      };
-    });
-  }, [customizations]);
 
   const getAreaLabel = useCallback((areaId: LifeArea): string => {
     const customization = customizations.find((c) => c.area_id === areaId);
@@ -114,8 +128,8 @@ export function useAreaCustomizations() {
     customizations,
     loading,
     saveCustomization,
+    saveAllCustomizations,
     resetCustomization,
-    getCustomizedAreas,
     getAreaLabel,
     getAreaColor,
     refetch: fetchCustomizations,

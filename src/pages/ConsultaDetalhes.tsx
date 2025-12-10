@@ -7,8 +7,17 @@ import { Input } from '@/components/ui/input';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, ArrowLeft, Pencil, Save, X } from 'lucide-react';
-import { LifeArea } from '@/lib/constants';
+import { Loader2, ArrowLeft, Pencil, Save, X, Settings } from 'lucide-react';
+import { LIFE_AREAS, AREA_HEX_COLORS, LifeArea } from '@/lib/constants';
+import { AreaCustomizationEditor, AreaConfig } from '@/components/life-plan/AreaCustomizationEditor';
+import { usePlanAreaCustomizations } from '@/hooks/usePlanAreaCustomizations';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 interface LifePlan {
   id: string;
@@ -30,12 +39,41 @@ export default function ConsultaDetalhes() {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
   const { toast } = useToast();
+  const { customizations, saveAllCustomizations, refetch: refetchCustomizations } = usePlanAreaCustomizations(id);
+  
   const [loading, setLoading] = useState(true);
   const [plan, setPlan] = useState<LifePlan | null>(null);
   const [goals, setGoals] = useState<Goal[]>([]);
   const [editingTitle, setEditingTitle] = useState(false);
   const [editTitle, setEditTitle] = useState('');
   const [editMotto, setEditMotto] = useState('');
+  const [areasDialogOpen, setAreasDialogOpen] = useState(false);
+  const [areaConfigs, setAreaConfigs] = useState<AreaConfig[]>(
+    LIFE_AREAS.map(a => ({ id: a.id, label: a.label, color: AREA_HEX_COLORS[a.id] }))
+  );
+  const [areasOpen, setAreasOpen] = useState(true);
+
+  useEffect(() => {
+    if (user && id) {
+      loadPlan();
+    }
+  }, [user, id]);
+
+  // Update area configs when customizations are loaded
+  useEffect(() => {
+    if (customizations.length > 0) {
+      setAreaConfigs(
+        LIFE_AREAS.map(a => {
+          const custom = customizations.find(c => c.area_id === a.id);
+          return {
+            id: a.id,
+            label: custom?.custom_label || a.label,
+            color: custom?.custom_color || AREA_HEX_COLORS[a.id],
+          };
+        })
+      );
+    }
+  }, [customizations]);
 
   useEffect(() => {
     if (user && id) {
@@ -162,6 +200,21 @@ export default function ConsultaDetalhes() {
     }
   };
 
+  const handleSaveAreaConfigs = async () => {
+    try {
+      await saveAllCustomizations(id!, areaConfigs);
+      await refetchCustomizations();
+      setAreasDialogOpen(false);
+      toast({ title: 'Áreas atualizadas!' });
+    } catch (error: any) {
+      toast({
+        title: 'Erro ao atualizar áreas',
+        description: error.message,
+        variant: 'destructive',
+      });
+    }
+  };
+
   if (loading) {
     return (
       <AppLayout>
@@ -230,6 +283,11 @@ export default function ConsultaDetalhes() {
               )}
             </div>
           )}
+          
+          <Button variant="outline" size="sm" onClick={() => setAreasDialogOpen(true)} className="flex-shrink-0">
+            <Settings className="w-4 h-4 mr-1" />
+            <span className="hidden sm:inline">Personalizar Áreas</span>
+          </Button>
         </div>
 
         <LifePlanTable
@@ -240,6 +298,25 @@ export default function ConsultaDetalhes() {
           lifePlanId={plan.id}
           editable={true}
         />
+
+        {/* Areas Customization Dialog */}
+        <Dialog open={areasDialogOpen} onOpenChange={setAreasDialogOpen}>
+          <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Personalizar Áreas do Plano</DialogTitle>
+            </DialogHeader>
+            <AreaCustomizationEditor
+              areas={areaConfigs}
+              onAreasChange={setAreaConfigs}
+              isOpen={areasOpen}
+              onOpenChange={setAreasOpen}
+            />
+            <DialogFooter>
+              <Button variant="ghost" onClick={() => setAreasDialogOpen(false)}>Cancelar</Button>
+              <Button onClick={handleSaveAreaConfigs}>Salvar Alterações</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </AppLayout>
   );

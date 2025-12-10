@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -8,9 +8,8 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Camera, Save, User, Calendar, Mail, Palette, RotateCcw } from 'lucide-react';
-import { LIFE_AREAS, AREA_HEX_COLORS, LifeArea } from '@/lib/constants';
-import { useAreaCustomizations } from '@/hooks/useAreaCustomizations';
+import { Loader2, Camera, Save, User, Calendar, Mail } from 'lucide-react';
+import { useState as useStateEffect, useEffect } from 'react';
 
 interface Profile {
   id: string;
@@ -19,22 +18,10 @@ interface Profile {
   avatar_url: string | null;
 }
 
-const COLOR_PRESETS = [
-  '#8b5cf6', '#7c3aed', '#6d28d9', // Purple
-  '#3b82f6', '#2563eb', '#1d4ed8', // Blue
-  '#ec4899', '#db2777', '#be185d', // Pink
-  '#f97316', '#ea580c', '#c2410c', // Orange
-  '#22c55e', '#16a34a', '#15803d', // Green
-  '#06b6d4', '#0891b2', '#0e7490', // Cyan
-  '#ef4444', '#dc2626', '#b91c1c', // Red
-  '#f59e0b', '#d97706', '#b45309', // Amber
-];
-
 export default function MeusDados() {
   const { user } = useAuth();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { customizations, saveCustomization, resetCustomization, loading: areasLoading, refetch } = useAreaCustomizations();
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -43,11 +30,6 @@ export default function MeusDados() {
   const [fullName, setFullName] = useState('');
   const [birthYear, setBirthYear] = useState('');
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-  
-  // Area customization state
-  const [editingArea, setEditingArea] = useState<LifeArea | null>(null);
-  const [areaLabel, setAreaLabel] = useState('');
-  const [areaColor, setAreaColor] = useState('');
 
   useEffect(() => {
     if (user) {
@@ -198,51 +180,10 @@ export default function MeusDados() {
     return 'U';
   };
 
-  const handleEditArea = (areaId: LifeArea) => {
-    const customization = customizations.find(c => c.area_id === areaId);
-    const defaultArea = LIFE_AREAS.find(a => a.id === areaId);
-    
-    setEditingArea(areaId);
-    setAreaLabel(customization?.custom_label || defaultArea?.label || '');
-    setAreaColor(customization?.custom_color || AREA_HEX_COLORS[areaId]);
-  };
-
-  const handleSaveArea = async () => {
-    if (!editingArea) return;
-
-    try {
-      await saveCustomization(editingArea, areaLabel || null, areaColor || null);
-      toast({ title: 'Área personalizada salva!' });
-      setEditingArea(null);
-    } catch (error) {
-      toast({
-        title: 'Erro ao salvar',
-        description: 'Não foi possível salvar a personalização.',
-        variant: 'destructive',
-      });
-    }
-  };
-
-  const handleResetArea = async (areaId: LifeArea) => {
-    try {
-      await resetCustomization(areaId);
-      toast({ title: 'Área restaurada ao padrão!' });
-      if (editingArea === areaId) {
-        setEditingArea(null);
-      }
-    } catch (error) {
-      toast({
-        title: 'Erro ao restaurar',
-        description: 'Não foi possível restaurar a área.',
-        variant: 'destructive',
-      });
-    }
-  };
-
   const currentYear = new Date().getFullYear();
   const calculatedAge = birthYear ? currentYear - parseInt(birthYear) : null;
 
-  if (loading || areasLoading) {
+  if (loading) {
     return (
       <AppLayout>
         <div className="flex items-center justify-center min-h-[400px]">
@@ -380,109 +321,6 @@ export default function MeusDados() {
                 )}
               </Button>
             </div>
-          </CardContent>
-        </Card>
-
-        {/* Areas Customization Card */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Palette className="w-5 h-5 text-primary" />
-              Personalização das Áreas
-            </CardTitle>
-            <CardDescription>Personalize os nomes e cores das áreas do seu plano de vida</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {LIFE_AREAS.map((area) => {
-              const customization = customizations.find(c => c.area_id === area.id);
-              const displayLabel = customization?.custom_label || area.label;
-              const displayColor = customization?.custom_color || AREA_HEX_COLORS[area.id];
-              const isEditing = editingArea === area.id;
-
-              return (
-                <div key={area.id} className="border rounded-lg p-3">
-                  {isEditing ? (
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-2 mb-2">
-                        <div
-                          className="w-4 h-4 rounded-full flex-shrink-0"
-                          style={{ backgroundColor: areaColor }}
-                        />
-                        <span className="text-sm font-medium">Editando: {area.label}</span>
-                      </div>
-                      
-                      <div>
-                        <Label className="text-xs text-muted-foreground">Nome da área</Label>
-                        <Input
-                          value={areaLabel}
-                          onChange={(e) => setAreaLabel(e.target.value)}
-                          placeholder={area.label}
-                          maxLength={30}
-                          className="mt-1"
-                        />
-                      </div>
-
-                      <div>
-                        <Label className="text-xs text-muted-foreground">Cor</Label>
-                        <div className="flex items-center gap-2 mt-1">
-                          <input
-                            type="color"
-                            value={areaColor}
-                            onChange={(e) => setAreaColor(e.target.value)}
-                            className="w-10 h-10 rounded cursor-pointer border-0"
-                          />
-                          <div className="flex flex-wrap gap-1">
-                            {COLOR_PRESETS.map((color) => (
-                              <button
-                                key={color}
-                                onClick={() => setAreaColor(color)}
-                                className={`w-6 h-6 rounded-full transition-transform hover:scale-110 ${areaColor === color ? 'ring-2 ring-offset-2 ring-primary' : ''}`}
-                                style={{ backgroundColor: color }}
-                              />
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex gap-2">
-                        <Button size="sm" onClick={handleSaveArea}>
-                          <Save className="w-3 h-3 mr-1" />
-                          Salvar
-                        </Button>
-                        <Button size="sm" variant="ghost" onClick={() => setEditingArea(null)}>
-                          Cancelar
-                        </Button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div
-                          className="w-8 h-8 rounded-full flex-shrink-0"
-                          style={{ backgroundColor: displayColor }}
-                        />
-                        <div>
-                          <p className="font-medium text-sm">{displayLabel}</p>
-                          {customization && (
-                            <p className="text-xs text-muted-foreground">Original: {area.label}</p>
-                          )}
-                        </div>
-                      </div>
-                      <div className="flex gap-1">
-                        <Button size="sm" variant="ghost" onClick={() => handleEditArea(area.id)}>
-                          Editar
-                        </Button>
-                        {customization && (
-                          <Button size="sm" variant="ghost" onClick={() => handleResetArea(area.id)}>
-                            <RotateCcw className="w-3 h-3" />
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
           </CardContent>
         </Card>
       </div>

@@ -11,8 +11,10 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { useImportPlan } from '@/hooks/useImportPlan';
 import { Loader2, Plus, User, Users, Baby, Upload, FileSpreadsheet, FileText, X, CheckCircle2, AlertTriangle } from 'lucide-react';
-import { LIFE_AREAS, LifeArea } from '@/lib/constants';
+import { LIFE_AREAS, AREA_HEX_COLORS, LifeArea } from '@/lib/constants';
 import { cn } from '@/lib/utils';
+import { AreaCustomizationEditor, AreaConfig } from '@/components/life-plan/AreaCustomizationEditor';
+import { usePlanAreaCustomizations } from '@/hooks/usePlanAreaCustomizations';
 
 const PLAN_TYPES = [
   { 
@@ -50,6 +52,7 @@ export default function Cadastro() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { importFile } = useImportPlan();
+  const { saveAllCustomizations } = usePlanAreaCustomizations(undefined);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [loading, setLoading] = useState(false);
@@ -66,6 +69,12 @@ export default function Cadastro() {
   const [importedGoals, setImportedGoals] = useState<ImportedGoal[]>([]);
   const [importWarnings, setImportWarnings] = useState<string[]>([]);
   const [useImportedData, setUseImportedData] = useState(false);
+
+  // Area customization state
+  const [areasOpen, setAreasOpen] = useState(false);
+  const [areaConfigs, setAreaConfigs] = useState<AreaConfig[]>(
+    LIFE_AREAS.map(a => ({ id: a.id, label: a.label, color: AREA_HEX_COLORS[a.id] }))
+  );
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -138,6 +147,9 @@ export default function Cadastro() {
         .insert(goalsToInsert);
 
       if (goalsError) throw goalsError;
+
+      // Save area customizations
+      await saveAllCustomizations(plan.id, areaConfigs);
 
       toast({
         title: 'Plano criado com sucesso!',
@@ -481,14 +493,26 @@ export default function Cadastro() {
                 </div>
               )}
 
+              {/* Area Customization */}
+              <div className="pt-4 border-t">
+                <AreaCustomizationEditor
+                  areas={areaConfigs}
+                  onAreasChange={setAreaConfigs}
+                  isOpen={areasOpen}
+                  onOpenChange={setAreasOpen}
+                />
+              </div>
+
               <div className="pt-4 border-t">
                 <h4 className="font-medium text-foreground mb-2 text-sm sm:text-base">Áreas que serão criadas:</h4>
                 <div className="flex flex-wrap gap-2">
-                  {LIFE_AREAS.map((area) => (
+                  {areaConfigs.map((area) => (
                     <span
                       key={area.id}
-                      className={`px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium bg-area-${area.id} text-foreground`}
+                      className="px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium text-foreground"
+                      style={{ backgroundColor: `${area.color}30` }}
                     >
+                      <span className="inline-block w-2 h-2 rounded-full mr-1" style={{ backgroundColor: area.color }} />
                       {area.label}
                     </span>
                   ))}

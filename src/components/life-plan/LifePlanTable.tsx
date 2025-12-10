@@ -5,10 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Pencil, Save, X, Plus, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
-import { LIFE_AREAS, LifeArea } from '@/lib/constants';
+import { LIFE_AREAS, AREA_HEX_COLORS, LifeArea } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
-import { useAreaCustomizations } from '@/hooks/useAreaCustomizations';
+import { usePlanAreaCustomizations } from '@/hooks/usePlanAreaCustomizations';
 import {
   Collapsible,
   CollapsibleContent,
@@ -57,7 +57,7 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, li
   const [addGoalDialog, setAddGoalDialog] = useState<{ year: number; age: number; area: LifeArea } | null>(null);
   const [newGoalText, setNewGoalText] = useState('');
   const { toast } = useToast();
-  const { getAreaLabel, getAreaColor } = useAreaCustomizations();
+  const { getAreaLabel, getAreaColor } = usePlanAreaCustomizations(lifePlanId);
 
   // Group goals by period
   const periodsMap = new Map<string, PeriodRow>();

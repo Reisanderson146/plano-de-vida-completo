@@ -127,6 +127,44 @@ export type Database = {
         }
         Relationships: []
       }
+      plan_area_customizations: {
+        Row: {
+          area_id: string
+          created_at: string
+          custom_color: string | null
+          custom_label: string | null
+          id: string
+          life_plan_id: string
+          updated_at: string
+        }
+        Insert: {
+          area_id: string
+          created_at?: string
+          custom_color?: string | null
+          custom_label?: string | null
+          id?: string
+          life_plan_id: string
+          updated_at?: string
+        }
+        Update: {
+          area_id?: string
+          created_at?: string
+          custom_color?: string | null
+          custom_label?: string | null
+          id?: string
+          life_plan_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "plan_area_customizations_life_plan_id_fkey"
+            columns: ["life_plan_id"]
+            isOneToOne: false
+            referencedRelation: "life_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -154,36 +192,6 @@ export type Database = {
           id?: string
           is_blocked?: boolean
           updated_at?: string
-        }
-        Relationships: []
-      }
-      user_area_customizations: {
-        Row: {
-          area_id: string
-          created_at: string
-          custom_color: string | null
-          custom_label: string | null
-          id: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          area_id: string
-          created_at?: string
-          custom_color?: string | null
-          custom_label?: string | null
-          id?: string
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          area_id?: string
-          created_at?: string
-          custom_color?: string | null
-          custom_label?: string | null
-          id?: string
-          updated_at?: string
-          user_id?: string
         }
         Relationships: []
       }
