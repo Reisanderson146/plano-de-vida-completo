@@ -2,10 +2,13 @@ import { useEffect, useState } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ProgressChart } from '@/components/dashboard/ProgressChart';
+import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useExportReport } from '@/hooks/useExportReport';
+import { useToast } from '@/hooks/use-toast';
 import { LIFE_AREAS, LifeArea } from '@/lib/constants';
-import { Loader2, TrendingUp, TrendingDown, Target, CheckCircle2 } from 'lucide-react';
+import { Loader2, TrendingUp, TrendingDown, Target, CheckCircle2, Download, FileText, FileSpreadsheet } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
 type AreaStats = Record<LifeArea, { total: number; completed: number }>;
@@ -22,6 +25,8 @@ const AREA_HEX_COLORS: Record<LifeArea, string> = {
 
 export default function Relatorios() {
   const { user } = useAuth();
+  const { exportToPDF, exportToExcel } = useExportReport();
+  const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<AreaStats>({
     espiritual: { total: 0, completed: 0 },
@@ -117,14 +122,73 @@ export default function Relatorios() {
     ? Math.round((completedGoals / totalGoals) * 100) 
     : 0;
 
+  const handleExport = (format: 'pdf' | 'excel') => {
+    const exportData = {
+      title: 'Relatório de Progresso',
+      subtitle: 'Plano de Vida - Análise Completa',
+      areas: LIFE_AREAS.map(area => ({
+        area: area.id,
+        label: area.label,
+        total: stats[area.id].total,
+        completed: stats[area.id].completed,
+        percentage: stats[area.id].total > 0
+          ? Math.round((stats[area.id].completed / stats[area.id].total) * 100)
+          : 0,
+      })),
+      totalGoals,
+      completedGoals,
+      overallPercentage,
+    };
+
+    try {
+      if (format === 'pdf') {
+        exportToPDF(exportData);
+      } else {
+        exportToExcel(exportData);
+      }
+      toast({
+        title: 'Exportação concluída!',
+        description: `Relatório exportado em ${format.toUpperCase()} com sucesso.`,
+      });
+    } catch (error) {
+      toast({
+        title: 'Erro na exportação',
+        description: 'Não foi possível exportar o relatório.',
+        variant: 'destructive',
+      });
+    }
+  };
+
   return (
     <AppLayout>
       <div className="space-y-4 sm:space-y-8 animate-fade-in">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-1 sm:mb-2">Relatórios</h1>
-          <p className="text-sm sm:text-base text-muted-foreground">
-            Análise detalhada do seu progresso
-          </p>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-1 sm:mb-2">Relatórios</h1>
+            <p className="text-sm sm:text-base text-muted-foreground">
+              Análise detalhada do seu progresso
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleExport('pdf')}
+              className="flex items-center gap-2"
+            >
+              <FileText className="w-4 h-4" />
+              <span className="hidden sm:inline">Exportar</span> PDF
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleExport('excel')}
+              className="flex items-center gap-2"
+            >
+              <FileSpreadsheet className="w-4 h-4" />
+              <span className="hidden sm:inline">Exportar</span> Excel
+            </Button>
+          </div>
         </div>
 
         <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4">

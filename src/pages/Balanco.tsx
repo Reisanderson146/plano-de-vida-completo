@@ -8,8 +8,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
+import { useExportReport } from '@/hooks/useExportReport';
 import { LIFE_AREAS } from '@/lib/constants';
-import { Loader2, Target, CheckCircle2, AlertTriangle, TrendingDown, Plus, FileText, Calendar } from 'lucide-react';
+import { Loader2, Target, CheckCircle2, AlertTriangle, TrendingDown, Plus, FileText, Calendar, FileSpreadsheet } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell, LabelList } from 'recharts';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -54,6 +55,7 @@ const getStatusLabel = (percentage: number) => {
 export default function Balanco() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { exportToPDF, exportToExcel } = useExportReport();
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<AreaStats[]>([]);
   const [years, setYears] = useState<number[]>([]);
@@ -187,6 +189,44 @@ export default function Balanco() {
     .filter(s => s.percentage < 40 && s.total > 0)
     .sort((a, b) => a.percentage - b.percentage);
 
+  const overallPercentage = totalGoals > 0 
+    ? Math.round((completedGoals / totalGoals) * 100) 
+    : 0;
+
+  const handleExport = (formatType: 'pdf' | 'excel') => {
+    const exportData = {
+      title: 'Balanço - Plano de Vida',
+      subtitle: selectedYear !== 'all' ? `Período: ${selectedYear}` : 'Todos os períodos',
+      areas: stats,
+      totalGoals,
+      completedGoals,
+      overallPercentage,
+      notes: balanceNotes.map(note => ({
+        title: note.title.replace(/^\[Balanço \d+\] /, ''),
+        content: note.content,
+        date: format(new Date(note.created_at), 'dd/MM/yyyy', { locale: ptBR }),
+      })),
+    };
+
+    try {
+      if (formatType === 'pdf') {
+        exportToPDF(exportData);
+      } else {
+        exportToExcel(exportData);
+      }
+      toast({
+        title: 'Exportação concluída!',
+        description: `Balanço exportado em ${formatType.toUpperCase()} com sucesso.`,
+      });
+    } catch (error) {
+      toast({
+        title: 'Erro na exportação',
+        description: 'Não foi possível exportar o balanço.',
+        variant: 'destructive',
+      });
+    }
+  };
+
   if (loading) {
     return (
       <AppLayout>
@@ -207,21 +247,45 @@ export default function Balanco() {
             <p className="text-muted-foreground mt-1">Analise seu progresso por período</p>
           </div>
 
-          {/* Year Filter */}
-          <Select value={selectedYear} onValueChange={setSelectedYear}>
-            <SelectTrigger className="w-full sm:w-[180px]">
-              <Calendar className="w-4 h-4 mr-2" />
-              <SelectValue placeholder="Filtrar por ano" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos os anos</SelectItem>
-              {years.map(year => (
-                <SelectItem key={year} value={year.toString()}>
-                  {year}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="flex flex-col sm:flex-row gap-2">
+            {/* Year Filter */}
+            <Select value={selectedYear} onValueChange={setSelectedYear}>
+              <SelectTrigger className="w-full sm:w-[180px]">
+                <Calendar className="w-4 h-4 mr-2" />
+                <SelectValue placeholder="Filtrar por ano" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos os anos</SelectItem>
+                {years.map(year => (
+                  <SelectItem key={year} value={year.toString()}>
+                    {year}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {/* Export Buttons */}
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleExport('pdf')}
+                className="flex items-center gap-2"
+              >
+                <FileText className="w-4 h-4" />
+                PDF
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleExport('excel')}
+                className="flex items-center gap-2"
+              >
+                <FileSpreadsheet className="w-4 h-4" />
+                Excel
+              </Button>
+            </div>
+          </div>
         </div>
 
         {/* Summary Cards */}
