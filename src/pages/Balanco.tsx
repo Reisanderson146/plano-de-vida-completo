@@ -10,10 +10,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { useExportReport } from '@/hooks/useExportReport';
 import { LIFE_AREAS, AREA_HEX_COLORS } from '@/lib/constants';
-import { Loader2, Target, CheckCircle2, AlertTriangle, TrendingDown, Plus, FileText, Calendar, FileSpreadsheet } from 'lucide-react';
+import { Loader2, Target, CheckCircle2, AlertTriangle, TrendingDown, Plus, FileText, Calendar, FileSpreadsheet, Folder, User, Users, Baby } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell, LabelList } from 'recharts';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
 
 interface AreaStats {
   area: string;
@@ -30,10 +32,23 @@ interface BalanceNote {
   created_at: string;
 }
 
+interface LifePlan {
+  id: string;
+  title: string;
+  plan_type: string;
+  member_name: string | null;
+}
+
+const PLAN_TYPE_CONFIG = {
+  individual: { label: 'Individual', icon: User },
+  familiar: { label: 'Familiar', icon: Users },
+  filho: { label: 'Filho(a)', icon: Baby },
+};
+
 const getStatusColor = (percentage: number) => {
-  if (percentage >= 70) return '#22c55e'; // Verde
-  if (percentage >= 40) return '#eab308'; // Amarelo
-  return '#ef4444'; // Vermelho
+  if (percentage >= 70) return '#22c55e';
+  if (percentage >= 40) return '#eab308';
+  return '#ef4444';
 };
 
 const getStatusLabel = (percentage: number) => {
@@ -50,6 +65,8 @@ export default function Balanco() {
   const [stats, setStats] = useState<AreaStats[]>([]);
   const [years, setYears] = useState<number[]>([]);
   const [selectedYear, setSelectedYear] = useState<string>('all');
+  const [plans, setPlans] = useState<LifePlan[]>([]);
+  const [selectedPlanId, setSelectedPlanId] = useState<string>('all');
   const [balanceNotes, setBalanceNotes] = useState<BalanceNote[]>([]);
   const [newNoteTitle, setNewNoteTitle] = useState('');
   const [newNoteContent, setNewNoteContent] = useState('');
@@ -58,9 +75,36 @@ export default function Balanco() {
 
   useEffect(() => {
     if (user) {
+      loadPlans();
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (user && plans.length > 0) {
       loadData();
     }
-  }, [user, selectedYear]);
+  }, [user, selectedYear, selectedPlanId, plans]);
+
+  const loadPlans = async () => {
+    if (!user) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('life_plans')
+        .select('id, title, plan_type, member_name')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      setPlans(data || []);
+      if (data && data.length > 0) {
+        setSelectedPlanId('all');
+      }
+    } catch (error) {
+      console.error('Error loading plans:', error);
+    }
+  };
 
   const loadData = async () => {
     if (!user) return;
@@ -68,21 +112,31 @@ export default function Balanco() {
 
     try {
       // Fetch all goals to get available years
-      const { data: allGoals } = await supabase
+      let yearsQuery = supabase
         .from('life_goals')
         .select('period_year')
         .eq('user_id', user.id);
+
+      if (selectedPlanId !== 'all') {
+        yearsQuery = yearsQuery.eq('life_plan_id', selectedPlanId);
+      }
+
+      const { data: allGoals } = await yearsQuery;
 
       if (allGoals) {
         const uniqueYears = [...new Set(allGoals.map(g => g.period_year))].sort((a, b) => a - b);
         setYears(uniqueYears);
       }
 
-      // Fetch goals based on filter
+      // Fetch goals based on filters
       let query = supabase
         .from('life_goals')
         .select('*')
         .eq('user_id', user.id);
+
+      if (selectedPlanId !== 'all') {
+        query = query.eq('life_plan_id', selectedPlanId);
+      }
 
       if (selectedYear !== 'all') {
         query = query.eq('period_year', parseInt(selectedYear));
@@ -183,6 +237,8 @@ export default function Balanco() {
     ? Math.round((completedGoals / totalGoals) * 100) 
     : 0;
 
+  const selectedPlan = plans.find(p => p.id === selectedPlanId);
+
   const handleExport = (formatType: 'pdf' | 'excel') => {
     const exportData = {
       title: 'Balanço - Plano de Vida',
@@ -217,7 +273,7 @@ export default function Balanco() {
     }
   };
 
-  if (loading) {
+  if (loading && plans.length === 0) {
     return (
       <AppLayout>
         <div className="min-h-[60vh] flex items-center justify-center">
@@ -229,19 +285,44 @@ export default function Balanco() {
 
   return (
     <AppLayout>
-      <div className="space-y-6">
+      <div className="space-y-6 max-w-6xl mx-auto">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex flex-col gap-4">
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Fechando para Balanço</h1>
-            <p className="text-muted-foreground mt-1">Analise seu progresso por período</p>
+            <p className="text-muted-foreground mt-1">Analise seu progresso por plano e período</p>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-2">
+          {/* Filters Row */}
+          <div className="flex flex-col sm:flex-row gap-3">
+            {/* Plan Filter */}
+            <Select value={selectedPlanId} onValueChange={setSelectedPlanId}>
+              <SelectTrigger className="w-full sm:w-[220px]">
+                <Folder className="w-4 h-4 mr-2 flex-shrink-0" />
+                <SelectValue placeholder="Selecione o plano" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos os planos</SelectItem>
+                {plans.map(plan => {
+                  const config = PLAN_TYPE_CONFIG[plan.plan_type as keyof typeof PLAN_TYPE_CONFIG] || PLAN_TYPE_CONFIG.individual;
+                  const PlanIcon = config.icon;
+                  return (
+                    <SelectItem key={plan.id} value={plan.id}>
+                      <div className="flex items-center gap-2">
+                        <PlanIcon className="w-4 h-4" />
+                        <span>{plan.title}</span>
+                        {plan.member_name && <span className="text-muted-foreground">({plan.member_name})</span>}
+                      </div>
+                    </SelectItem>
+                  );
+                })}
+              </SelectContent>
+            </Select>
+
             {/* Year Filter */}
             <Select value={selectedYear} onValueChange={setSelectedYear}>
               <SelectTrigger className="w-full sm:w-[180px]">
-                <Calendar className="w-4 h-4 mr-2" />
+                <Calendar className="w-4 h-4 mr-2 flex-shrink-0" />
                 <SelectValue placeholder="Filtrar por ano" />
               </SelectTrigger>
               <SelectContent>
@@ -255,82 +336,98 @@ export default function Balanco() {
             </Select>
 
             {/* Export Buttons */}
-            <div className="flex gap-2">
+            <div className="flex gap-2 sm:ml-auto">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => handleExport('pdf')}
-                className="flex items-center gap-2"
+                className="flex-1 sm:flex-none"
               >
-                <FileText className="w-4 h-4" />
+                <FileText className="w-4 h-4 mr-2" />
                 PDF
               </Button>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => handleExport('excel')}
-                className="flex items-center gap-2"
+                className="flex-1 sm:flex-none"
               >
-                <FileSpreadsheet className="w-4 h-4" />
+                <FileSpreadsheet className="w-4 h-4 mr-2" />
                 Excel
               </Button>
             </div>
           </div>
+
+          {/* Selected Plan Badge */}
+          {selectedPlan && (
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">Analisando:</span>
+              <Badge variant="secondary" className="flex items-center gap-1">
+                {(() => {
+                  const config = PLAN_TYPE_CONFIG[selectedPlan.plan_type as keyof typeof PLAN_TYPE_CONFIG] || PLAN_TYPE_CONFIG.individual;
+                  const PlanIcon = config.icon;
+                  return <PlanIcon className="w-3 h-3" />;
+                })()}
+                {selectedPlan.title}
+                {selectedPlan.member_name && ` - ${selectedPlan.member_name}`}
+              </Badge>
+            </div>
+          )}
         </div>
 
         {/* Summary Cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <Card className="bg-card/50 backdrop-blur-sm border-border/50">
-            <CardContent className="p-4">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-primary/10">
-                  <Target className="w-5 h-5 text-primary" />
+                <div className="p-2 sm:p-3 rounded-xl bg-primary/10">
+                  <Target className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground">Total de Metas</p>
-                  <p className="text-xl font-bold">{totalGoals}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">Total de Metas</p>
+                  <p className="text-xl sm:text-2xl font-bold">{totalGoals}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
           <Card className="bg-card/50 backdrop-blur-sm border-border/50">
-            <CardContent className="p-4">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-green-500/10">
-                  <CheckCircle2 className="w-5 h-5 text-green-500" />
+                <div className="p-2 sm:p-3 rounded-xl bg-green-500/10">
+                  <CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6 text-green-500" />
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground">Concluídas</p>
-                  <p className="text-xl font-bold">{completedGoals}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">Concluídas</p>
+                  <p className="text-xl sm:text-2xl font-bold">{completedGoals}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
           <Card className="bg-card/50 backdrop-blur-sm border-border/50">
-            <CardContent className="p-4">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-green-500/10">
-                  <CheckCircle2 className="w-5 h-5 text-green-500" />
+                <div className="p-2 sm:p-3 rounded-xl bg-green-500/10">
+                  <CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6 text-green-500" />
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground">Áreas Boas</p>
-                  <p className="text-xl font-bold text-green-500">{goodAreas}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">Áreas Boas</p>
+                  <p className="text-xl sm:text-2xl font-bold text-green-500">{goodAreas}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
           <Card className="bg-card/50 backdrop-blur-sm border-border/50">
-            <CardContent className="p-4">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-red-500/10">
-                  <TrendingDown className="w-5 h-5 text-red-500" />
+                <div className="p-2 sm:p-3 rounded-xl bg-red-500/10">
+                  <TrendingDown className="w-5 h-5 sm:w-6 sm:h-6 text-red-500" />
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground">Precisam Melhorar</p>
-                  <p className="text-xl font-bold text-red-500">{needsImprovementAreas}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">Precisam Melhorar</p>
+                  <p className="text-xl sm:text-2xl font-bold text-red-500">{needsImprovementAreas}</p>
                 </div>
               </div>
             </CardContent>
@@ -340,16 +437,20 @@ export default function Balanco() {
         {/* Analysis Chart */}
         <Card className="bg-card/50 backdrop-blur-sm border-border/50">
           <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
+            <CardTitle className="text-lg sm:text-xl flex items-center gap-2">
               <BarChart className="w-5 h-5" />
               Análise por Área
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {totalGoals === 0 ? (
+            {loading ? (
+              <div className="h-[350px] flex items-center justify-center">
+                <Loader2 className="w-8 h-8 animate-spin text-primary" />
+              </div>
+            ) : totalGoals === 0 ? (
               <div className="text-center py-12 text-muted-foreground">
                 <Target className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                <p>Nenhuma meta encontrada para o período selecionado.</p>
+                <p>Nenhuma meta encontrada para os filtros selecionados.</p>
               </div>
             ) : (
               <div className="h-[350px] sm:h-[400px]">
@@ -399,7 +500,7 @@ export default function Balanco() {
         {areasNeedingAttention.length > 0 && (
           <Card className="bg-red-500/5 border-red-500/20">
             <CardHeader className="pb-3">
-              <CardTitle className="text-lg flex items-center gap-2 text-red-600 dark:text-red-400">
+              <CardTitle className="text-lg sm:text-xl flex items-center gap-2 text-red-600 dark:text-red-400">
                 <AlertTriangle className="w-5 h-5" />
                 Áreas que Precisam de Atenção
               </CardTitle>
@@ -407,7 +508,7 @@ export default function Balanco() {
             <CardContent>
               <ul className="space-y-2">
                 {areasNeedingAttention.map(area => (
-                  <li key={area.area} className="flex items-center justify-between p-3 rounded-lg bg-background/50">
+                  <li key={area.area} className="flex items-center justify-between p-3 sm:p-4 rounded-lg bg-background/50">
                     <div className="flex items-center gap-3">
                       <div 
                         className="w-3 h-3 rounded-full" 
@@ -428,7 +529,7 @@ export default function Balanco() {
         {/* Balance Notes Section */}
         <Card className="bg-card/50 backdrop-blur-sm border-border/50">
           <CardHeader className="flex flex-row items-center justify-between pb-3">
-            <CardTitle className="text-lg flex items-center gap-2">
+            <CardTitle className="text-lg sm:text-xl flex items-center gap-2">
               <FileText className="w-5 h-5" />
               Anotações do Balanço
             </CardTitle>
