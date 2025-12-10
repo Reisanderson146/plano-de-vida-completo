@@ -10,11 +10,12 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { Loader2, Users, UserCheck, UserX, Shield, TrendingUp, Calendar, FileText, Target, ChevronDown, ChevronUp, Eye } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, Cell, PieChart, Pie, Legend } from 'recharts';
-import { format, subMonths, startOfMonth, endOfMonth } from 'date-fns';
+import { format, subMonths, startOfMonth, endOfMonth, startOfYear, endOfYear } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { AREA_COLORS, AREA_HEX_COLORS } from '@/lib/constants';
-import { YearFilter, getYearRange, getFilterLabel } from '@/components/filters/YearFilter';
+import { DateRangeFilter, getYearRangeFromDateRange } from '@/components/filters/DateRangeFilter';
+import { DateRange } from 'react-day-picker';
 
 interface UserProfile {
   id: string;
@@ -66,8 +67,10 @@ export default function Admin() {
   const [goalsByArea, setGoalsByArea] = useState<GoalsByArea[]>([]);
   
   // Filtros
-  const [yearFilter, setYearFilter] = useState('current');
-  const [availableYears, setAvailableYears] = useState<number[]>([]);
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({
+    from: startOfYear(new Date()),
+    to: endOfYear(new Date())
+  });
   
   // Modal de detalhes
   const [selectedUserPlans, setSelectedUserPlans] = useState<UserPlan[] | null>(null);
@@ -86,7 +89,7 @@ export default function Admin() {
         loadData();
       }
     }
-  }, [isAdmin, adminLoading, navigate, yearFilter]);
+  }, [isAdmin, adminLoading, navigate, dateRange]);
 
   const loadData = async () => {
     setLoading(true);
@@ -128,19 +131,8 @@ export default function Admin() {
       if (plansError) throw plansError;
       setTotalPlans(plans?.length || 0);
 
-      // Fetch all goals - first get all to determine available years
-      const { data: allGoals, error: allGoalsError } = await supabase
-        .from('life_goals')
-        .select('period_year');
-
-      if (allGoalsError) throw allGoalsError;
-
-      // Get available years
-      const years = [...new Set(allGoals?.map(g => g.period_year) || [])].sort((a, b) => b - a);
-      setAvailableYears(years);
-
-      // Apply year filter to goals query
-      const yearRange = getYearRange(yearFilter);
+      // Apply date range filter to goals query
+      const yearRange = getYearRangeFromDateRange(dateRange);
       let goalsQuery = supabase.from('life_goals').select('*');
       
       if (yearRange.min !== undefined) {
@@ -308,16 +300,12 @@ export default function Admin() {
             </div>
           </div>
           
-          {/* Year Filter */}
+          {/* Date Range Filter */}
           <div className="flex items-center gap-2">
-            <YearFilter
-              value={yearFilter}
-              onChange={setYearFilter}
-              availableYears={availableYears}
+            <DateRangeFilter
+              value={dateRange}
+              onChange={setDateRange}
             />
-            <Badge variant="secondary" className="whitespace-nowrap">
-              {getFilterLabel(yearFilter)}
-            </Badge>
           </div>
         </div>
 

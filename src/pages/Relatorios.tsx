@@ -145,6 +145,15 @@ export default function Relatorios() {
     }
   };
 
+  const getDateRangeLabel = (range: DateRange | undefined): string => {
+    if (!range?.from) return 'Todos os períodos';
+    if (!range.to) return format(range.from, 'yyyy', { locale: ptBR });
+    const fromYear = range.from.getFullYear();
+    const toYear = range.to.getFullYear();
+    if (fromYear === toYear) return `${fromYear}`;
+    return `${fromYear} - ${toYear}`;
+  };
+
   const barChartData = LIFE_AREAS.map((area) => ({
     name: area.label,
     area: area.id,
@@ -172,7 +181,7 @@ export default function Relatorios() {
   const handleExport = (format: 'pdf' | 'excel') => {
     const exportData = {
       title: 'Relatório de Progresso',
-      subtitle: `${selectedPlan?.title || 'Plano de Vida'} - ${getFilterLabel(selectedYearFilter)}`,
+      subtitle: `${selectedPlan?.title || 'Plano de Vida'} - ${getDateRangeLabel(dateRange)}`,
       areas: LIFE_AREAS.map(area => ({
         area: area.id,
         label: area.label,
@@ -252,11 +261,10 @@ export default function Relatorios() {
             </SelectContent>
           </Select>
 
-          {/* Year Filter */}
-          <YearFilter
-            value={selectedYearFilter}
-            onChange={setSelectedYearFilter}
-            availableYears={availableYears}
+          {/* Date Range Filter */}
+          <DateRangeFilter
+            value={dateRange}
+            onChange={setDateRange}
           />
 
           {/* Export Buttons */}
@@ -295,7 +303,7 @@ export default function Relatorios() {
               {selectedPlan.member_name && ` - ${selectedPlan.member_name}`}
             </Badge>
             <Badge variant="outline">
-              {getFilterLabel(selectedYearFilter)}
+              {getDateRangeLabel(dateRange)}
             </Badge>
           </div>
         )}
@@ -360,7 +368,7 @@ export default function Relatorios() {
               <div className="flex items-center justify-between">
                 <CardTitle className="text-base sm:text-lg">Progresso por Área</CardTitle>
                 <Badge variant="outline" className="font-normal text-xs">
-                  {getFilterLabel(selectedYearFilter)}
+                  {getDateRangeLabel(dateRange)}
                 </Badge>
               </div>
             </CardHeader>
@@ -401,7 +409,7 @@ export default function Relatorios() {
               <div className="flex items-center justify-between">
                 <CardTitle className="text-base sm:text-lg">Visão Radar</CardTitle>
                 <Badge variant="outline" className="font-normal text-xs">
-                  {getFilterLabel(selectedYearFilter)}
+                  {getDateRangeLabel(dateRange)}
                 </Badge>
               </div>
             </CardHeader>
@@ -417,7 +425,7 @@ export default function Relatorios() {
             <div className="flex items-center justify-between">
               <CardTitle className="text-base sm:text-lg">Progresso Geral</CardTitle>
               <Badge variant="outline" className="font-normal text-xs">
-                {getFilterLabel(selectedYearFilter)}
+                {getDateRangeLabel(dateRange)}
               </Badge>
             </div>
           </CardHeader>
@@ -457,8 +465,8 @@ export default function Relatorios() {
                 </h3>
                 <p className="text-sm sm:text-base text-muted-foreground">
                   {totalGoals > 0 
-                    ? `Você completou ${completedGoals} de ${totalGoals} metas em ${getFilterLabel(selectedYearFilter)}.`
-                    : `Nenhuma meta encontrada para ${getFilterLabel(selectedYearFilter)}. Tente selecionar outro período.`
+                    ? `Você completou ${completedGoals} de ${totalGoals} metas em ${getDateRangeLabel(dateRange)}.`
+                    : `Nenhuma meta encontrada para ${getDateRangeLabel(dateRange)}. Tente selecionar outro período.`
                   }
                   {overallPercentage < 50 && totalGoals > 0 && ' Foque nas áreas que precisam de mais atenção.'}
                 </p>
