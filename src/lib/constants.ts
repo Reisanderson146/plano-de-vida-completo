@@ -29,3 +29,14 @@ export const AREA_BORDER_COLORS: Record<LifeArea, string> = {
   profissional: 'border-area-profissional',
   saude: 'border-area-saude',
 };
+
+// Hex colors for charts and visualizations
+export const AREA_HEX_COLORS: Record<LifeArea, string> = {
+  espiritual: '#8b5cf6',    // Purple
+  intelectual: '#3b82f6',   // Blue
+  familiar: '#ec4899',      // Pink
+  social: '#f97316',        // Orange
+  financeiro: '#22c55e',    // Green
+  profissional: '#06b6d4',  // Cyan
+  saude: '#ef4444',         // Red
+};

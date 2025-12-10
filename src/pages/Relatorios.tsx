@@ -7,21 +7,11 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useExportReport } from '@/hooks/useExportReport';
 import { useToast } from '@/hooks/use-toast';
-import { LIFE_AREAS, LifeArea } from '@/lib/constants';
+import { LIFE_AREAS, LifeArea, AREA_HEX_COLORS } from '@/lib/constants';
 import { Loader2, TrendingUp, TrendingDown, Target, CheckCircle2, Download, FileText, FileSpreadsheet } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
 type AreaStats = Record<LifeArea, { total: number; completed: number }>;
-
-const AREA_HEX_COLORS: Record<LifeArea, string> = {
-  espiritual: '#a8d5f7',
-  intelectual: '#d4b8e8',
-  familiar: '#f5c2d1',
-  social: '#a8e0f7',
-  financeiro: '#b8e6c4',
-  profissional: '#f5e8a8',
-  saude: '#a8e6d5',
-};
 
 export default function Relatorios() {
   const { user } = useAuth();

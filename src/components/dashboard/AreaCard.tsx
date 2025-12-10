@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils';
 import { CheckCircle2, XCircle } from 'lucide-react';
-import { AREA_COLORS, LifeArea } from '@/lib/constants';
+import { AREA_COLORS, AREA_HEX_COLORS, LifeArea } from '@/lib/constants';
 
 interface AreaCardProps {
   area: LifeArea;
@@ -12,6 +12,7 @@ interface AreaCardProps {
 export function AreaCard({ area, label, total, completed }: AreaCardProps) {
   const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
   const isComplete = percentage >= 80;
+  const areaColor = AREA_HEX_COLORS[area];
 
   return (
     <div className={cn(
@@ -33,11 +34,11 @@ export function AreaCard({ area, label, total, completed }: AreaCardProps) {
         </div>
         <div className="w-full bg-background/50 rounded-full h-1.5 sm:h-2">
           <div 
-            className={cn(
-              "h-full rounded-full transition-all duration-500",
-              isComplete ? "bg-success" : "bg-destructive"
-            )}
-            style={{ width: `${percentage}%` }}
+            className="h-full rounded-full transition-all duration-500"
+            style={{ 
+              width: `${percentage}%`,
+              backgroundColor: areaColor 
+            }}
           />
         </div>
       </div>
