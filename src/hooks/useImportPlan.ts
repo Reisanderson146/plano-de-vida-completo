@@ -1,5 +1,5 @@
 import * as XLSX from 'xlsx';
-import { LIFE_AREAS, LifeArea } from '@/lib/constants';
+import { LifeArea } from '@/lib/constants';
 
 interface ImportedGoal {
   year: number;
@@ -174,119 +174,17 @@ export function useImportPlan() {
     return result;
   };
 
-  const parsePDF = async (file: File): Promise<ImportResult> => {
-    const result: ImportResult = {
+  const parsePDF = async (_file: File): Promise<ImportResult> => {
+    // PDF parsing requires complex libraries that have compatibility issues
+    // Recommend Excel format for best results
+    return {
       success: false,
       goals: [],
-      errors: [],
+      errors: [
+        'A importação de PDF não está disponível no momento. Por favor, use um arquivo Excel (.xlsx ou .xls) para importar seu plano de vida. O formato Excel oferece melhor precisão na extração de dados.',
+      ],
       warnings: [],
     };
-
-    try {
-      // Dynamically import pdfjs
-      const pdfjsLib = await import('pdfjs-dist');
-      pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
-
-      const data = await file.arrayBuffer();
-      const pdf = await pdfjsLib.getDocument({ data }).promise;
-      
-      let fullText = '';
-      
-      for (let i = 1; i <= pdf.numPages; i++) {
-        const page = await pdf.getPage(i);
-        const content = await page.getTextContent();
-        const pageText = content.items
-          .map((item: any) => item.str)
-          .join(' ');
-        fullText += pageText + '\n';
-      }
-
-      // Try to parse the text content
-      const lines = fullText.split('\n').filter(l => l.trim());
-      
-      let currentArea: LifeArea | null = null;
-      let currentYear: number | null = null;
-      let currentAge: number | null = null;
-
-      for (const line of lines) {
-        const trimmed = line.trim();
-        if (!trimmed) continue;
-
-        // Check if line is an area header
-        const areaMatch = normalizeAreaName(trimmed);
-        if (areaMatch) {
-          currentArea = areaMatch;
-          continue;
-        }
-
-        // Check if line contains year/age pattern like "2024 (30 anos)" or "Ano: 2024"
-        const yearAgeMatch = trimmed.match(/(\d{4})\s*(?:\((\d+)\s*anos?\))?/i);
-        if (yearAgeMatch) {
-          currentYear = parseInt(yearAgeMatch[1]);
-          if (yearAgeMatch[2]) {
-            currentAge = parseInt(yearAgeMatch[2]);
-          }
-          continue;
-        }
-
-        const yearOnlyMatch = trimmed.match(/^(?:ano[:\s]*)?(\d{4})$/i);
-        if (yearOnlyMatch) {
-          currentYear = parseInt(yearOnlyMatch[1]);
-          continue;
-        }
-
-        const ageOnlyMatch = trimmed.match(/^(?:idade[:\s]*)?(\d+)\s*anos?$/i);
-        if (ageOnlyMatch) {
-          currentAge = parseInt(ageOnlyMatch[1]);
-          continue;
-        }
-
-        // If we have context and the line looks like a goal
-        if (currentArea && currentYear && trimmed.length > 3) {
-          // Skip if it's just a number or very short
-          if (!/^\d+$/.test(trimmed)) {
-            result.goals.push({
-              year: currentYear,
-              age: currentAge || (currentYear - new Date().getFullYear() + 30),
-              area: currentArea,
-              goalText: trimmed,
-            });
-          }
-        }
-      }
-
-      // If structured parsing didn't work well, try line-by-line pattern matching
-      if (result.goals.length === 0) {
-        // Pattern: "Área: Meta para ano X"
-        for (const line of lines) {
-          for (const areaInfo of LIFE_AREAS) {
-            const pattern = new RegExp(`${areaInfo.label}[:\\s]+(.+)`, 'i');
-            const match = line.match(pattern);
-            if (match) {
-              const goalText = match[1].trim();
-              const yearMatch = goalText.match(/(\d{4})/);
-              result.goals.push({
-                year: yearMatch ? parseInt(yearMatch[1]) : new Date().getFullYear(),
-                age: 30,
-                area: areaInfo.id,
-                goalText: goalText.replace(/\d{4}/, '').trim() || goalText,
-              });
-            }
-          }
-        }
-      }
-
-      if (result.goals.length > 0) {
-        result.success = true;
-        result.warnings.push('PDFs podem ter limitações na extração de dados. Revise as metas importadas.');
-      } else {
-        result.errors.push('Não foi possível extrair metas do PDF. Tente usar um arquivo Excel para melhores resultados.');
-      }
-    } catch (error: any) {
-      result.errors.push(`Erro ao processar PDF: ${error.message}`);
-    }
-
-    return result;
   };
 
   const importFile = async (file: File): Promise<ImportResult> => {
