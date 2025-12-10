@@ -1,13 +1,15 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
+import { Logo } from '@/components/Logo';
 import { 
   LayoutDashboard, 
   FileText, 
   Search, 
   BarChart3, 
   StickyNote, 
-  LogOut
+  LogOut,
+  User
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -24,22 +26,16 @@ export function Navbar() {
   const location = useLocation();
 
   return (
-    <nav className="gradient-hero shadow-lg sticky top-0 z-50">
+    <nav className="gradient-hero shadow-lg sticky top-0 z-50 backdrop-blur-sm">
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-14 sm:h-16">
-          <div className="flex items-center">
-            <Link to="/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-primary-foreground/20 flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-sm sm:text-lg">PV</span>
-              </div>
-              <span className="text-primary-foreground font-semibold text-base sm:text-xl hidden sm:block">
-                Plano de Vida
-              </span>
-            </Link>
-          </div>
+        <div className="flex items-center justify-between h-16 sm:h-[72px]">
+          <Link to="/" className="flex items-center">
+            <Logo size="sm" showText={true} className="sm:hidden" />
+            <Logo size="md" showText={true} className="hidden sm:flex" />
+          </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-1">
+          <div className="hidden md:flex items-center space-x-1 bg-white/10 backdrop-blur-sm rounded-full px-2 py-1.5">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
@@ -48,10 +44,10 @@ export function Navbar() {
                   key={item.path}
                   to={item.path}
                   className={cn(
-                    "flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-200",
+                    "flex items-center space-x-2 px-4 py-2 rounded-full transition-all duration-300",
                     isActive 
-                      ? "bg-primary-foreground/20 text-primary-foreground" 
-                      : "text-primary-foreground/70 hover:text-primary-foreground hover:bg-primary-foreground/10"
+                      ? "bg-white/25 text-white shadow-md" 
+                      : "text-white/80 hover:text-white hover:bg-white/15"
                   )}
                 >
                   <Icon className="w-4 h-4" />
@@ -61,15 +57,18 @@ export function Navbar() {
             })}
           </div>
 
-          <div className="flex items-center space-x-2 sm:space-x-4">
-            <span className="text-primary-foreground/70 text-xs sm:text-sm hidden sm:block truncate max-w-[150px]">
-              {user?.email}
-            </span>
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="hidden sm:flex items-center gap-2 bg-white/10 rounded-full px-3 py-1.5">
+              <User className="w-4 h-4 text-white/80" />
+              <span className="text-white/90 text-sm truncate max-w-[120px]">
+                {user?.email?.split('@')[0]}
+              </span>
+            </div>
             <Button
               variant="ghost"
               size="sm"
               onClick={signOut}
-              className="text-primary-foreground/70 hover:text-primary-foreground hover:bg-primary-foreground/10 px-2 sm:px-3"
+              className="text-white/80 hover:text-white hover:bg-white/15 rounded-full px-3 sm:px-4"
             >
               <LogOut className="w-4 h-4 sm:mr-2" />
               <span className="hidden sm:inline">Sair</span>
