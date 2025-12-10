@@ -9,13 +9,10 @@ import { useAdmin } from '@/hooks/useAdmin';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { Loader2, Users, UserCheck, UserX, Shield, TrendingUp, Calendar, FileText, Target, ChevronDown, ChevronUp, Eye, ShieldCheck, ShieldOff } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, Cell, PieChart, Pie, Legend } from 'recharts';
-import { format, subMonths, startOfMonth, endOfMonth, startOfYear, endOfYear } from 'date-fns';
+import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, Cell } from 'recharts';
+import { format, subMonths, startOfMonth, endOfMonth } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
-import { AREA_COLORS, AREA_HEX_COLORS } from '@/lib/constants';
-import { DateRangeFilter, getYearRangeFromDateRange } from '@/components/filters/DateRangeFilter';
-import { DateRange } from 'react-day-picker';
 
 interface UserProfile {
   id: string;
@@ -41,11 +38,6 @@ interface UserPlan {
   completed_count: number;
 }
 
-interface GoalsByArea {
-  area: string;
-  total: number;
-  completed: number;
-}
 
 export default function Admin() {
   const { user } = useAuth();
@@ -65,15 +57,6 @@ export default function Admin() {
   
   // Estatísticas gerais
   const [totalPlans, setTotalPlans] = useState(0);
-  const [totalGoals, setTotalGoals] = useState(0);
-  const [completedGoals, setCompletedGoals] = useState(0);
-  const [goalsByArea, setGoalsByArea] = useState<GoalsByArea[]>([]);
-  
-  // Filtros
-  const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: startOfYear(new Date()),
-    to: endOfYear(new Date())
-  });
   
   // Modal de detalhes
   const [selectedUserPlans, setSelectedUserPlans] = useState<UserPlan[] | null>(null);
@@ -92,7 +75,7 @@ export default function Admin() {
         loadData();
       }
     }
-  }, [isAdmin, adminLoading, navigate, dateRange]);
+  }, [isAdmin, adminLoading, navigate]);
 
   const loadData = async () => {
     setLoading(true);
@@ -149,43 +132,6 @@ export default function Admin() {
 
       if (plansError) throw plansError;
       setTotalPlans(plans?.length || 0);
-
-      // Apply date range filter to goals query
-      const yearRange = getYearRangeFromDateRange(dateRange);
-      let goalsQuery = supabase.from('life_goals').select('*');
-      
-      if (yearRange.min !== undefined) {
-        goalsQuery = goalsQuery.gte('period_year', yearRange.min);
-      }
-      if (yearRange.max !== undefined) {
-        goalsQuery = goalsQuery.lte('period_year', yearRange.max);
-      }
-
-      const { data: goals, error: goalsError } = await goalsQuery;
-
-      if (goalsError) throw goalsError;
-      
-      setTotalGoals(goals?.length || 0);
-      setCompletedGoals(goals?.filter(g => g.is_completed).length || 0);
-
-      // Calculate goals by area
-      const areaStats: Record<string, { total: number; completed: number }> = {};
-      goals?.forEach(goal => {
-        if (!areaStats[goal.area]) {
-          areaStats[goal.area] = { total: 0, completed: 0 };
-        }
-        areaStats[goal.area].total++;
-        if (goal.is_completed) {
-          areaStats[goal.area].completed++;
-        }
-      });
-
-      const areaData = Object.entries(areaStats).map(([area, data]) => ({
-        area,
-        total: data.total,
-        completed: data.completed,
-      }));
-      setGoalsByArea(areaData);
 
     } catch (error: any) {
       console.error('Error loading admin data:', error);
@@ -353,7 +299,7 @@ export default function Admin() {
   const totalUsers = users.length;
   const activeUsers = users.filter(u => !u.is_blocked).length;
   const blockedUsers = users.filter(u => u.is_blocked).length;
-  const completionRate = totalGoals > 0 ? Math.round((completedGoals / totalGoals) * 100) : 0;
+  const adminCount = users.filter(u => u.isAdmin).length;
 
   return (
     <AppLayout>
@@ -368,14 +314,6 @@ export default function Admin() {
               <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Painel Administrativo</h1>
               <p className="text-muted-foreground">Gerencie usuários e visualize estatísticas</p>
             </div>
-          </div>
-          
-          {/* Date Range Filter */}
-          <div className="flex items-center gap-2">
-            <DateRangeFilter
-              value={dateRange}
-              onChange={setDateRange}
-            />
           </div>
         </div>
 
@@ -424,8 +362,8 @@ export default function Admin() {
           </Card>
         </div>
 
-        {/* Stats Cards - Row 2: Plans & Goals */}
-        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+        {/* Stats Cards - Row 2: Plans & Admins */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Card className="bg-card/50 backdrop-blur-sm border-border/50">
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
@@ -443,134 +381,127 @@ export default function Admin() {
           <Card className="bg-card/50 backdrop-blur-sm border-border/50">
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-orange-500/10">
-                  <Target className="w-5 h-5 text-orange-500" />
+                <div className="p-2 rounded-xl bg-amber-500/10">
+                  <Shield className="w-5 h-5 text-amber-500" />
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground">Total de Metas</p>
-                  <p className="text-2xl font-bold">{totalGoals}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-card/50 backdrop-blur-sm border-border/50">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-emerald-500/10">
-                  <Target className="w-5 h-5 text-emerald-500" />
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Metas Concluídas</p>
-                  <p className="text-2xl font-bold text-emerald-500">{completedGoals}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-card/50 backdrop-blur-sm border-border/50">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-cyan-500/10">
-                  <TrendingUp className="w-5 h-5 text-cyan-500" />
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Taxa de Conclusão</p>
-                  <p className="text-2xl font-bold">{completionRate}%</p>
+                  <p className="text-xs text-muted-foreground">Administradores</p>
+                  <p className="text-2xl font-bold text-amber-600">{adminCount}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Charts Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {/* Registration Chart */}
-          <Card className="bg-card/50 backdrop-blur-sm border-border/50">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg flex items-center gap-2">
-                <TrendingUp className="w-5 h-5" />
-                Cadastros por Mês
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="h-[250px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={monthlyStats}>
-                    <XAxis dataKey="month" tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }} />
-                    <YAxis tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }} allowDecimals={false} />
-                    <Tooltip 
-                      formatter={(value) => [value, 'Cadastros']}
-                      contentStyle={{
-                        backgroundColor: 'hsl(var(--card))',
-                        border: '1px solid hsl(var(--border))',
-                        borderRadius: 'var(--radius)',
-                      }}
-                    />
-                    <Bar dataKey="count" radius={[4, 4, 0, 0]}>
-                      {monthlyStats.map((_, index) => (
-                        <Cell key={`cell-${index}`} fill="hsl(var(--primary))" />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </CardContent>
-          </Card>
+        {/* Registration Chart - Full Width */}
+        <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <TrendingUp className="w-5 h-5" />
+              Cadastros de Usuários por Mês
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-[250px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={monthlyStats}>
+                  <XAxis dataKey="month" tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }} />
+                  <YAxis tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }} allowDecimals={false} />
+                  <Tooltip 
+                    formatter={(value) => [value, 'Usuários Cadastrados']}
+                    contentStyle={{
+                      backgroundColor: 'hsl(var(--card))',
+                      border: '1px solid hsl(var(--border))',
+                      borderRadius: 'var(--radius)',
+                    }}
+                  />
+                  <Bar dataKey="count" radius={[4, 4, 0, 0]}>
+                    {monthlyStats.map((_, index) => (
+                      <Cell key={`cell-${index}`} fill="hsl(var(--primary))" />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
 
-          {/* Goals by Area Chart */}
-          <Card className="bg-card/50 backdrop-blur-sm border-border/50">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Target className="w-5 h-5" />
-                Metas por Área
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="h-[250px]">
-                {goalsByArea.length > 0 ? (
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={goalsByArea}
-                        dataKey="total"
-                        nameKey="area"
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={50}
-                        outerRadius={80}
-                        label={({ area, total }) => `${area}: ${total}`}
-                        labelLine={false}
-                      >
-                        {goalsByArea.map((entry) => (
-                          <Cell 
-                            key={`cell-${entry.area}`} 
-                            fill={AREA_HEX_COLORS[entry.area] || 'hsl(var(--primary))'} 
-                          />
-                        ))}
-                      </Pie>
-                      <Tooltip 
-                        formatter={(value, name, props) => [
-                          `${value} metas (${props.payload.completed} concluídas)`,
-                          props.payload.area
-                        ]}
-                        contentStyle={{
-                          backgroundColor: 'hsl(var(--card))',
-                          border: '1px solid hsl(var(--border))',
-                          borderRadius: 'var(--radius)',
-                        }}
-                      />
-                    </PieChart>
-                  </ResponsiveContainer>
-                ) : (
-                  <div className="h-full flex items-center justify-center text-muted-foreground">
-                    <p>Nenhuma meta cadastrada</p>
+        {/* Admin Management Section */}
+        <Card className="bg-card/50 backdrop-blur-sm border-border/50 border-amber-500/30">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg flex items-center gap-2 text-amber-600">
+              <Shield className="w-5 h-5" />
+              Gerenciar Administradores
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground mb-4">
+              Conceda ou remova permissões de administrador para outros usuários.
+            </p>
+            {users.filter(u => u.id !== user?.id).length === 0 ? (
+              <div className="text-center py-4 text-muted-foreground">
+                <Shield className="w-10 h-10 mx-auto mb-2 opacity-50" />
+                <p>Nenhum outro usuário cadastrado.</p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {users.filter(u => u.id !== user?.id).map((userProfile) => (
+                  <div 
+                    key={userProfile.id} 
+                    className={`flex items-center justify-between gap-3 p-3 rounded-lg border ${
+                      userProfile.isAdmin 
+                        ? 'border-amber-500/30 bg-amber-500/5' 
+                        : 'border-border bg-background/50'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                        userProfile.isAdmin ? 'bg-amber-500/20' : 'bg-muted'
+                      }`}>
+                        {userProfile.isAdmin ? (
+                          <Shield className="w-4 h-4 text-amber-600" />
+                        ) : (
+                          <Users className="w-4 h-4 text-muted-foreground" />
+                        )}
+                      </div>
+                      <div>
+                        <p className="font-medium text-sm">{userProfile.full_name || 'Sem nome'}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {userProfile.isAdmin ? 'Administrador' : 'Usuário comum'}
+                        </p>
+                      </div>
+                    </div>
+                    <Button
+                      variant={userProfile.isAdmin ? "outline" : "default"}
+                      size="sm"
+                      onClick={() => setAdminConfirmDialog({
+                        userId: userProfile.id,
+                        userName: userProfile.full_name || 'Sem nome',
+                        isAdmin: userProfile.isAdmin || false
+                      })}
+                      disabled={updatingAdminRole === userProfile.id}
+                      className={userProfile.isAdmin ? 'border-amber-500/50 text-amber-600 hover:bg-amber-500/10' : ''}
+                    >
+                      {updatingAdminRole === userProfile.id ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : userProfile.isAdmin ? (
+                        <>
+                          <ShieldOff className="w-4 h-4 mr-1" />
+                          Remover
+                        </>
+                      ) : (
+                        <>
+                          <ShieldCheck className="w-4 h-4 mr-1" />
+                          Tornar Admin
+                        </>
+                      )}
+                    </Button>
                   </div>
-                )}
+                ))}
               </div>
-            </CardContent>
-          </Card>
-        </div>
+            )}
+          </CardContent>
+        </Card>
 
         {/* Users List */}
         <Card className="bg-card/50 backdrop-blur-sm border-border/50">
@@ -642,53 +573,26 @@ export default function Admin() {
                         </Button>
                         
                         {userProfile.id !== user?.id && (
-                          <>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => setAdminConfirmDialog({
-                                userId: userProfile.id,
-                                userName: userProfile.full_name || 'Sem nome',
-                                isAdmin: userProfile.isAdmin || false
-                              })}
-                              disabled={updatingAdminRole === userProfile.id}
-                              className={userProfile.isAdmin ? 'border-amber-500/50 text-amber-600 hover:bg-amber-500/10' : ''}
-                            >
-                              {updatingAdminRole === userProfile.id ? (
-                                <Loader2 className="w-4 h-4 animate-spin" />
-                              ) : userProfile.isAdmin ? (
-                                <>
-                                  <ShieldOff className="w-4 h-4 mr-1" />
-                                  Remover Admin
-                                </>
-                              ) : (
-                                <>
-                                  <ShieldCheck className="w-4 h-4 mr-1" />
-                                  Tornar Admin
-                                </>
-                              )}
-                            </Button>
-                            <Button
-                              variant={userProfile.is_blocked ? "default" : "destructive"}
-                              size="sm"
-                              onClick={() => toggleUserBlock(userProfile.id, userProfile.is_blocked)}
-                              disabled={updatingUser === userProfile.id}
-                            >
-                              {updatingUser === userProfile.id ? (
-                                <Loader2 className="w-4 h-4 animate-spin" />
-                              ) : userProfile.is_blocked ? (
-                                <>
-                                  <UserCheck className="w-4 h-4 mr-1" />
-                                  Desbloquear
-                                </>
-                              ) : (
-                                <>
-                                  <UserX className="w-4 h-4 mr-1" />
-                                  Bloquear
-                                </>
-                              )}
-                            </Button>
-                          </>
+                          <Button
+                            variant={userProfile.is_blocked ? "default" : "destructive"}
+                            size="sm"
+                            onClick={() => toggleUserBlock(userProfile.id, userProfile.is_blocked)}
+                            disabled={updatingUser === userProfile.id}
+                          >
+                            {updatingUser === userProfile.id ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : userProfile.is_blocked ? (
+                              <>
+                                <UserCheck className="w-4 h-4 mr-1" />
+                                Desbloquear
+                              </>
+                            ) : (
+                              <>
+                                <UserX className="w-4 h-4 mr-1" />
+                                Bloquear
+                              </>
+                            )}
+                          </Button>
                         )}
                       </div>
                     </div>
