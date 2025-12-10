@@ -12,7 +12,10 @@ import { useToast } from '@/hooks/use-toast';
 import { LIFE_AREAS, LifeArea, AREA_HEX_COLORS } from '@/lib/constants';
 import { Loader2, TrendingUp, TrendingDown, Target, CheckCircle2, FileText, FileSpreadsheet, Folder, User, Users, Baby } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
-import { YearFilter, getYearRange, getFilterLabel } from '@/components/filters/YearFilter';
+import { DateRangeFilter, getYearRangeFromDateRange } from '@/components/filters/DateRangeFilter';
+import { DateRange } from 'react-day-picker';
+import { format, startOfYear, endOfYear } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 type AreaStats = Record<LifeArea, { total: number; completed: number }>;
 
@@ -45,8 +48,10 @@ export default function Relatorios() {
   });
   const [plans, setPlans] = useState<LifePlan[]>([]);
   const [selectedPlanId, setSelectedPlanId] = useState<string>('');
-  const [selectedYearFilter, setSelectedYearFilter] = useState<string>('current');
-  const [availableYears, setAvailableYears] = useState<number[]>([]);
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({
+    from: startOfYear(new Date()),
+    to: endOfYear(new Date())
+  });
   const [totalGoals, setTotalGoals] = useState(0);
   const [completedGoals, setCompletedGoals] = useState(0);
 
@@ -60,7 +65,7 @@ export default function Relatorios() {
     if (user && selectedPlanId) {
       loadStats();
     }
-  }, [user, selectedPlanId, selectedYearFilter]);
+  }, [user, selectedPlanId, dateRange]);
 
   const loadPlans = async () => {
     try {
@@ -87,27 +92,15 @@ export default function Relatorios() {
     if (!selectedPlanId) return;
 
     try {
-      // First get available years for this plan
-      const { data: allGoals } = await supabase
-        .from('life_goals')
-        .select('period_year')
-        .eq('user_id', user!.id)
-        .eq('life_plan_id', selectedPlanId);
-
-      if (allGoals) {
-        const uniqueYears = [...new Set(allGoals.map(g => g.period_year))].sort((a, b) => a - b);
-        setAvailableYears(uniqueYears);
-      }
-
-      // Build query with year filter
+      // Build query with date range filter
       let query = supabase
         .from('life_goals')
         .select('area, is_completed, period_year')
         .eq('user_id', user!.id)
         .eq('life_plan_id', selectedPlanId);
 
-      // Apply year range filter
-      const yearRange = getYearRange(selectedYearFilter);
+      // Apply year range filter from date range
+      const yearRange = getYearRangeFromDateRange(dateRange);
       if (yearRange.min !== undefined) {
         query = query.gte('period_year', yearRange.min);
       }
