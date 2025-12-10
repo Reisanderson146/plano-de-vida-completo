@@ -1,6 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { useAdmin } from '@/hooks/useAdmin';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/Logo';
@@ -21,7 +22,8 @@ import {
   Scale,
   LogOut,
   User,
-  Settings
+  Settings,
+  Shield
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -36,6 +38,7 @@ const navItems = [
 
 export function Navbar() {
   const { signOut, user } = useAuth();
+  const { isAdmin } = useAdmin();
   const location = useLocation();
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [fullName, setFullName] = useState<string | null>(null);
@@ -136,6 +139,17 @@ export function Navbar() {
                     Configurações
                   </Link>
                 </DropdownMenuItem>
+                {isAdmin && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link to="/admin" className="flex items-center cursor-pointer text-primary">
+                        <Shield className="w-4 h-4 mr-2" />
+                        Painel Admin
+                      </Link>
+                    </DropdownMenuItem>
+                  </>
+                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={signOut} className="text-destructive focus:text-destructive cursor-pointer">
                   <LogOut className="w-4 h-4 mr-2" />
