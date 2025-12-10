@@ -25,6 +25,7 @@ import {
   Shield
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { NotificationBell } from '@/components/notifications/NotificationBell';
 
 const navItems = [
   { path: '/', label: 'Dashboard', icon: LayoutDashboard },
@@ -105,6 +106,7 @@ export function Navbar() {
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3">
+            <NotificationBell />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="flex items-center gap-2 bg-white/10 hover:bg-white/20 transition-colors rounded-full p-1 pr-3 sm:pr-4">
