@@ -1,66 +1,229 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calendar } from 'lucide-react';
-
-export interface YearFilterOption {
-  value: string;
-  label: string;
-}
-
-// Standard year filter options
-export const YEAR_FILTER_OPTIONS: YearFilterOption[] = [
-  { value: 'current', label: 'Ano Atual' },
-  { value: 'all', label: 'Todos os Anos' },
-  { value: '1-3', label: '1 a 3 Anos' },
-  { value: '4-6', label: '4 a 6 Anos' },
-  { value: '7-10', label: '7 a 10 Anos' },
-];
+import { Button } from '@/components/ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface YearFilterProps {
   value: string;
   onChange: (value: string) => void;
   availableYears?: number[];
   className?: string;
-  showSpecificYears?: boolean;
 }
 
 export function YearFilter({ 
   value, 
   onChange, 
   availableYears = [], 
-  className = '',
-  showSpecificYears = true 
+  className = ''
 }: YearFilterProps) {
   const currentYear = new Date().getFullYear();
+  const [isOpen, setIsOpen] = useState(false);
+  const [filterType, setFilterType] = useState<'single' | 'range'>('single');
+  const [startYear, setStartYear] = useState(currentYear);
+  const [endYear, setEndYear] = useState(currentYear);
+  const [yearPickerBase, setYearPickerBase] = useState(Math.floor(currentYear / 12) * 12);
+
+  // Generate years for the picker (12 years at a time)
+  const pickerYears = Array.from({ length: 12 }, (_, i) => yearPickerBase + i);
+
+  const handleQuickSelect = (type: string) => {
+    onChange(type);
+    setIsOpen(false);
+  };
+
+  const handleYearSelect = (year: number) => {
+    if (filterType === 'single') {
+      onChange(year.toString());
+      setIsOpen(false);
+    } else {
+      if (!startYear || (startYear && endYear)) {
+        setStartYear(year);
+        setEndYear(year);
+      } else {
+        if (year < startYear) {
+          setEndYear(startYear);
+          setStartYear(year);
+        } else {
+          setEndYear(year);
+        }
+      }
+    }
+  };
+
+  const applyRangeFilter = () => {
+    if (startYear && endYear) {
+      onChange(`${startYear}-${endYear}`);
+      setIsOpen(false);
+    }
+  };
+
+  const isYearInRange = (year: number) => {
+    if (filterType === 'range' && startYear && endYear) {
+      return year >= Math.min(startYear, endYear) && year <= Math.max(startYear, endYear);
+    }
+    return false;
+  };
+
+  const isYearSelected = (year: number) => {
+    if (filterType === 'single') {
+      return value === year.toString();
+    }
+    return year === startYear || year === endYear;
+  };
 
   return (
-    <Select value={value} onValueChange={onChange}>
-      <SelectTrigger className={`w-full sm:w-[200px] ${className}`}>
-        <Calendar className="w-4 h-4 mr-2 flex-shrink-0" />
-        <SelectValue placeholder="Filtrar período" />
-      </SelectTrigger>
-      <SelectContent>
-        {YEAR_FILTER_OPTIONS.map(option => (
-          <SelectItem key={option.value} value={option.value}>
-            {option.label}
-            {option.value === 'current' && ` (${currentYear})`}
-          </SelectItem>
-        ))}
-        {/* Individual years */}
-        {showSpecificYears && availableYears.length > 0 && (
-          <>
-            <div className="px-2 py-1.5 text-xs text-muted-foreground font-medium border-t mt-1 pt-2">
-              Anos Específicos
+    <Popover open={isOpen} onOpenChange={setIsOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          className={cn(
+            "w-full sm:w-[200px] justify-start text-left font-normal",
+            !value && "text-muted-foreground",
+            className
+          )}
+        >
+          <Calendar className="w-4 h-4 mr-2 flex-shrink-0" />
+          {getFilterLabel(value)}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-[280px] p-0" align="start">
+        <div className="p-3 space-y-3">
+          {/* Quick Options */}
+          <div className="grid grid-cols-2 gap-2">
+            <Button
+              variant={value === 'current' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => handleQuickSelect('current')}
+              className="text-xs"
+            >
+              Ano Atual ({currentYear})
+            </Button>
+            <Button
+              variant={value === 'all' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => handleQuickSelect('all')}
+              className="text-xs"
+            >
+              Todos os Anos
+            </Button>
+          </div>
+
+          <div className="border-t pt-3">
+            {/* Filter Type Toggle */}
+            <div className="flex gap-2 mb-3">
+              <Button
+                variant={filterType === 'single' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setFilterType('single')}
+                className="flex-1 text-xs"
+              >
+                Ano Único
+              </Button>
+              <Button
+                variant={filterType === 'range' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setFilterType('range')}
+                className="flex-1 text-xs"
+              >
+                Intervalo
+              </Button>
             </div>
-            {availableYears.map(year => (
-              <SelectItem key={year} value={year.toString()}>
-                {year}
-              </SelectItem>
-            ))}
-          </>
-        )}
-      </SelectContent>
-    </Select>
+
+            {/* Year Picker Header */}
+            <div className="flex items-center justify-between mb-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7"
+                onClick={() => setYearPickerBase(yearPickerBase - 12)}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <span className="text-sm font-medium">
+                {yearPickerBase} - {yearPickerBase + 11}
+              </span>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7"
+                onClick={() => setYearPickerBase(yearPickerBase + 12)}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+
+            {/* Year Grid */}
+            <div className="grid grid-cols-4 gap-1">
+              {pickerYears.map((year) => {
+                const isAvailable = availableYears.length === 0 || availableYears.includes(year);
+                const isSelected = isYearSelected(year);
+                const isInRange = isYearInRange(year);
+
+                return (
+                  <Button
+                    key={year}
+                    variant={isSelected ? 'default' : isInRange ? 'secondary' : 'ghost'}
+                    size="sm"
+                    onClick={() => handleYearSelect(year)}
+                    disabled={!isAvailable && availableYears.length > 0}
+                    className={cn(
+                      "h-9 text-xs",
+                      year === currentYear && !isSelected && "border border-primary",
+                      !isAvailable && availableYears.length > 0 && "opacity-30"
+                    )}
+                  >
+                    {year}
+                  </Button>
+                );
+              })}
+            </div>
+
+            {/* Range Selection Info */}
+            {filterType === 'range' && (
+              <div className="mt-3 space-y-2">
+                <div className="text-xs text-muted-foreground text-center">
+                  {startYear && endYear && startYear !== endYear 
+                    ? `${Math.min(startYear, endYear)} até ${Math.max(startYear, endYear)}`
+                    : startYear 
+                      ? `Selecione o ano final`
+                      : 'Selecione o ano inicial'}
+                </div>
+                <Button
+                  size="sm"
+                  className="w-full"
+                  onClick={applyRangeFilter}
+                  disabled={!startYear || !endYear || startYear === endYear}
+                >
+                  Aplicar Intervalo
+                </Button>
+              </div>
+            )}
+          </div>
+
+          {/* Available Years Quick Access */}
+          {availableYears.length > 0 && (
+            <div className="border-t pt-3">
+              <p className="text-xs text-muted-foreground mb-2">Anos com metas:</p>
+              <div className="flex flex-wrap gap-1">
+                {availableYears.slice(0, 8).map(year => (
+                  <Button
+                    key={year}
+                    variant={value === year.toString() ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => handleQuickSelect(year.toString())}
+                    className="h-7 text-xs px-2"
+                  >
+                    {year}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </PopoverContent>
+    </Popover>
   );
 }
 
@@ -68,21 +231,27 @@ export function YearFilter({
 export function getYearRange(filter: string): { min?: number; max?: number } {
   const currentYear = new Date().getFullYear();
   
+  // Check if it's a range (e.g., "2024-2027")
+  if (filter.includes('-') && filter !== 'all') {
+    const parts = filter.split('-');
+    if (parts.length === 2) {
+      const start = parseInt(parts[0]);
+      const end = parseInt(parts[1]);
+      if (!isNaN(start) && !isNaN(end)) {
+        return { min: Math.min(start, end), max: Math.max(start, end) };
+      }
+    }
+  }
+  
   // Check if it's a specific year
   const specificYear = parseInt(filter);
-  if (!isNaN(specificYear)) {
+  if (!isNaN(specificYear) && filter.length === 4) {
     return { min: specificYear, max: specificYear };
   }
   
   switch (filter) {
     case 'current':
       return { min: currentYear, max: currentYear };
-    case '1-3':
-      return { min: currentYear, max: currentYear + 2 };
-    case '4-6':
-      return { min: currentYear + 3, max: currentYear + 5 };
-    case '7-10':
-      return { min: currentYear + 6, max: currentYear + 9 };
     case 'all':
     default:
       return {};
@@ -93,21 +262,31 @@ export function getYearRange(filter: string): { min?: number; max?: number } {
 export function getFilterLabel(filter: string): string {
   const currentYear = new Date().getFullYear();
   
+  if (!filter) {
+    return 'Selecione o período';
+  }
+  
+  // Check if it's a range (e.g., "2024-2027")
+  if (filter.includes('-') && filter !== 'all') {
+    const parts = filter.split('-');
+    if (parts.length === 2) {
+      const start = parseInt(parts[0]);
+      const end = parseInt(parts[1]);
+      if (!isNaN(start) && !isNaN(end)) {
+        return `${Math.min(start, end)} - ${Math.max(start, end)}`;
+      }
+    }
+  }
+  
   // Check if it's a specific year
   const specificYear = parseInt(filter);
-  if (!isNaN(specificYear)) {
+  if (!isNaN(specificYear) && filter.length === 4) {
     return `${specificYear}`;
   }
   
   switch (filter) {
     case 'current':
       return `${currentYear}`;
-    case '1-3':
-      return `${currentYear} - ${currentYear + 2}`;
-    case '4-6':
-      return `${currentYear + 3} - ${currentYear + 5}`;
-    case '7-10':
-      return `${currentYear + 6} - ${currentYear + 9}`;
     case 'all':
       return 'Todos os anos';
     default:
