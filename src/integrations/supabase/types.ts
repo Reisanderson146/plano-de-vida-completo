@@ -127,6 +127,57 @@ export type Database = {
         }
         Relationships: []
       }
+      notifications: {
+        Row: {
+          created_at: string
+          id: string
+          is_read: boolean
+          message: string
+          related_goal_id: string | null
+          related_plan_id: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message: string
+          related_goal_id?: string | null
+          related_plan_id?: string | null
+          title: string
+          type?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message?: string
+          related_goal_id?: string | null
+          related_plan_id?: string | null
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_related_goal_id_fkey"
+            columns: ["related_goal_id"]
+            isOneToOne: false
+            referencedRelation: "life_goals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_related_plan_id_fkey"
+            columns: ["related_plan_id"]
+            isOneToOne: false
+            referencedRelation: "life_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       plan_area_customizations: {
         Row: {
           area_id: string
@@ -192,6 +243,42 @@ export type Database = {
           id?: string
           is_blocked?: boolean
           updated_at?: string
+        }
+        Relationships: []
+      }
+      reminder_settings: {
+        Row: {
+          created_at: string
+          email_enabled: boolean
+          enabled: boolean
+          frequency: string
+          id: string
+          in_app_enabled: boolean
+          reminder_type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email_enabled?: boolean
+          enabled?: boolean
+          frequency?: string
+          id?: string
+          in_app_enabled?: boolean
+          reminder_type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email_enabled?: boolean
+          enabled?: boolean
+          frequency?: string
+          id?: string
+          in_app_enabled?: boolean
+          reminder_type?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
