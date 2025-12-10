@@ -177,69 +177,93 @@ export function useExportLifePlan() {
     const percentage = totalGoals > 0 ? Math.round((completedGoals / totalGoals) * 100) : 0;
 
     const summaryData = [
-      ['Plano de Vida: ' + plan.title],
+      ['PLANO DE VIDA'],
+      [plan.title],
       [plan.motto ? `"${plan.motto}"` : ''],
       [''],
-      ['Resumo'],
+      ['RESUMO GERAL'],
       ['Total de Metas', totalGoals],
-      ['Metas Concluidas', completedGoals],
+      ['Metas Concluídas', completedGoals],
       ['Progresso', `${percentage}%`],
       [''],
-      ['Periodo', selectedYears && selectedYears.length > 0 
+      ['Período', selectedYears && selectedYears.length > 0 
         ? `${Math.min(...selectedYears)} - ${Math.max(...selectedYears)}`
         : `${years[0] || 'N/A'} - ${years[years.length - 1] || 'N/A'}`],
-      ['Gerado em', format(new Date(), "dd/MM/yyyy 'as' HH:mm", { locale: ptBR })],
+      ['Gerado em', format(new Date(), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })],
     ];
 
     const wsSummary = XLSX.utils.aoa_to_sheet(summaryData);
     wsSummary['!cols'] = [{ wch: 20 }, { wch: 40 }];
     XLSX.utils.book_append_sheet(wb, wsSummary, 'Resumo');
 
-    // Goals sheet - matrix format (years as rows, areas as columns)
+    // Main Goals sheet - identical structure to the system table
     const areaLabels = LIFE_AREAS.map(a => getAreaLabel(a.id, areaConfigs));
-    const goalsHeader = ['Ano', 'Idade', ...areaLabels];
     
-    const goalsData = years.map(year => {
+    // Build sheet data - each year gets a header row + goals row
+    const sheetData: (string | number)[][] = [];
+    
+    years.forEach((year, index) => {
       const yearGoals = filteredGoals.filter(g => g.period_year === year);
       const age = yearGoals[0]?.age || 0;
       
-      const areaValues = LIFE_AREAS.map(area => {
+      // Add spacing between years (except first)
+      if (index > 0) {
+        sheetData.push([]);
+      }
+      
+      // Year header row
+      sheetData.push([`ANO: ${year} | IDADE: ${age} anos`]);
+      
+      // Area headers row (7 columns for 7 areas)
+      sheetData.push(areaLabels);
+      
+      // Goals row - one cell per area with the goal text
+      const goalsRow = LIFE_AREAS.map(area => {
         const goal = yearGoals.find(g => g.area === area.id);
-        if (!goal) return '';
-        const status = goal.is_completed ? '[CONCLUIDA] ' : '';
-        return `${status}${goal.goal_text}`;
+        if (!goal || !goal.goal_text.trim()) return '(sem meta)';
+        return goal.goal_text;
       });
-
-      return [year, age, ...areaValues];
+      sheetData.push(goalsRow);
+      
+      // Status row - shows if completed or not
+      const statusRow = LIFE_AREAS.map(area => {
+        const goal = yearGoals.find(g => g.area === area.id);
+        if (!goal || !goal.goal_text.trim()) return '-';
+        return goal.is_completed ? '✓ Concluída' : '○ Pendente';
+      });
+      sheetData.push(statusRow);
     });
 
-    const wsGoals = XLSX.utils.aoa_to_sheet([goalsHeader, ...goalsData]);
-    wsGoals['!cols'] = [
-      { wch: 8 },  // Ano
-      { wch: 8 },  // Idade
-      { wch: 35 }, // Espiritual
-      { wch: 35 }, // Intelectual
-      { wch: 35 }, // Familiar
-      { wch: 35 }, // Social
-      { wch: 35 }, // Financeiro
-      { wch: 35 }, // Profissional
-      { wch: 35 }, // Saúde
-    ];
-    XLSX.utils.book_append_sheet(wb, wsGoals, 'Metas');
+    const wsGoals = XLSX.utils.aoa_to_sheet(sheetData);
+    
+    // Set column widths (all 7 area columns same width)
+    wsGoals['!cols'] = LIFE_AREAS.map(() => ({ wch: 30 }));
+    
+    // Add merge cells for year headers (merge across all 7 columns)
+    wsGoals['!merges'] = [];
+    let currentRow = 0;
+    years.forEach((_, index) => {
+      if (index > 0) currentRow++; // empty row
+      wsGoals['!merges']!.push({ s: { r: currentRow, c: 0 }, e: { r: currentRow, c: 6 } });
+      currentRow += 4; // year header + area headers + goals + status
+    });
+    
+    XLSX.utils.book_append_sheet(wb, wsGoals, 'Plano de Vida');
 
-    // Status sheet - completion by area
-    const statusHeader = ['Area', 'Total', 'Concluidas', 'Progresso'];
+    // Status by Area sheet
+    const statusHeader = ['Área', 'Total de Metas', 'Concluídas', 'Pendentes', 'Progresso'];
     const statusData = LIFE_AREAS.map(area => {
       const areaGoals = filteredGoals.filter(g => g.area === area.id && g.goal_text.trim());
       const completed = areaGoals.filter(g => g.is_completed).length;
       const total = areaGoals.length;
+      const pending = total - completed;
       const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
-      return [getAreaLabel(area.id, areaConfigs), total, completed, `${pct}%`];
+      return [getAreaLabel(area.id, areaConfigs), total, completed, pending, `${pct}%`];
     });
 
     const wsStatus = XLSX.utils.aoa_to_sheet([statusHeader, ...statusData]);
-    wsStatus['!cols'] = [{ wch: 20 }, { wch: 10 }, { wch: 12 }, { wch: 12 }];
-    XLSX.utils.book_append_sheet(wb, wsStatus, 'Status por Area');
+    wsStatus['!cols'] = [{ wch: 20 }, { wch: 15 }, { wch: 12 }, { wch: 12 }, { wch: 12 }];
+    XLSX.utils.book_append_sheet(wb, wsStatus, 'Status por Área');
 
     // Save
     const yearsText = selectedYears && selectedYears.length > 0 
