@@ -66,7 +66,7 @@ export default function Balanco() {
   const [years, setYears] = useState<number[]>([]);
   const [selectedYear, setSelectedYear] = useState<string>('all');
   const [plans, setPlans] = useState<LifePlan[]>([]);
-  const [selectedPlanId, setSelectedPlanId] = useState<string>('all');
+  const [selectedPlanId, setSelectedPlanId] = useState<string>('');
   const [balanceNotes, setBalanceNotes] = useState<BalanceNote[]>([]);
   const [newNoteTitle, setNewNoteTitle] = useState('');
   const [newNoteContent, setNewNoteContent] = useState('');
@@ -80,10 +80,10 @@ export default function Balanco() {
   }, [user]);
 
   useEffect(() => {
-    if (user && plans.length > 0) {
+    if (user && selectedPlanId) {
       loadData();
     }
-  }, [user, selectedYear, selectedPlanId, plans]);
+  }, [user, selectedYear, selectedPlanId]);
 
   const loadPlans = async () => {
     if (!user) return;
@@ -98,30 +98,27 @@ export default function Balanco() {
       if (error) throw error;
 
       setPlans(data || []);
+      // Auto-select first plan if exists
       if (data && data.length > 0) {
-        setSelectedPlanId('all');
+        setSelectedPlanId(data[0].id);
       }
     } catch (error) {
       console.error('Error loading plans:', error);
+    } finally {
+      setLoading(false);
     }
   };
-
   const loadData = async () => {
-    if (!user) return;
+    if (!user || !selectedPlanId) return;
     setLoading(true);
 
     try {
-      // Fetch all goals to get available years
-      let yearsQuery = supabase
+      // Fetch all goals to get available years for selected plan
+      const { data: allGoals } = await supabase
         .from('life_goals')
         .select('period_year')
-        .eq('user_id', user.id);
-
-      if (selectedPlanId !== 'all') {
-        yearsQuery = yearsQuery.eq('life_plan_id', selectedPlanId);
-      }
-
-      const { data: allGoals } = await yearsQuery;
+        .eq('user_id', user.id)
+        .eq('life_plan_id', selectedPlanId);
 
       if (allGoals) {
         const uniqueYears = [...new Set(allGoals.map(g => g.period_year))].sort((a, b) => a - b);
@@ -132,18 +129,14 @@ export default function Balanco() {
       let query = supabase
         .from('life_goals')
         .select('*')
-        .eq('user_id', user.id);
-
-      if (selectedPlanId !== 'all') {
-        query = query.eq('life_plan_id', selectedPlanId);
-      }
+        .eq('user_id', user.id)
+        .eq('life_plan_id', selectedPlanId);
 
       if (selectedYear !== 'all') {
         query = query.eq('period_year', parseInt(selectedYear));
       }
 
       const { data: goals } = await query;
-
       // Calculate stats per area
       const areaStats: AreaStats[] = LIFE_AREAS.map(area => {
         const areaGoals = goals?.filter(g => g.area === area.id) || [];
@@ -295,14 +288,13 @@ export default function Balanco() {
 
           {/* Filters Row */}
           <div className="flex flex-col sm:flex-row gap-3">
-            {/* Plan Filter */}
+            {/* Plan Filter - Required selection */}
             <Select value={selectedPlanId} onValueChange={setSelectedPlanId}>
-              <SelectTrigger className="w-full sm:w-[220px]">
+              <SelectTrigger className="w-full sm:w-[250px]">
                 <Folder className="w-4 h-4 mr-2 flex-shrink-0" />
-                <SelectValue placeholder="Selecione o plano" />
+                <SelectValue placeholder="Selecione um plano" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Todos os planos</SelectItem>
                 {plans.map(plan => {
                   const config = PLAN_TYPE_CONFIG[plan.plan_type as keyof typeof PLAN_TYPE_CONFIG] || PLAN_TYPE_CONFIG.individual;
                   const PlanIcon = config.icon;
@@ -318,7 +310,6 @@ export default function Balanco() {
                 })}
               </SelectContent>
             </Select>
-
             {/* Year Filter */}
             <Select value={selectedYear} onValueChange={setSelectedYear}>
               <SelectTrigger className="w-full sm:w-[180px]">

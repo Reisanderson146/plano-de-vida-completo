@@ -8,7 +8,9 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Camera, Save, User, Calendar, Mail } from 'lucide-react';
+import { Loader2, Camera, Save, User, Calendar, Mail, Palette } from 'lucide-react';
+import { ThemeSelector } from '@/components/theme/ThemeSelector';
+import { applyTheme, initializeTheme } from '@/lib/themes';
 
 interface Profile {
   id: string;
@@ -29,11 +31,15 @@ export default function Perfil() {
   const [fullName, setFullName] = useState('');
   const [birthYear, setBirthYear] = useState('');
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [selectedTheme, setSelectedTheme] = useState('default');
 
   useEffect(() => {
     if (user) {
       fetchProfile();
     }
+    // Initialize theme from localStorage
+    const savedTheme = initializeTheme();
+    setSelectedTheme(savedTheme);
   }, [user]);
 
   const fetchProfile = async () => {
@@ -66,6 +72,15 @@ export default function Perfil() {
     }
   };
 
+  const handleThemeChange = (themeId: string) => {
+    setSelectedTheme(themeId);
+    applyTheme(themeId);
+    toast({
+      title: 'Tema atualizado!',
+      description: 'O novo tema foi aplicado com sucesso.',
+    });
+  };
+
   const handleAvatarClick = () => {
     fileInputRef.current?.click();
   };
@@ -74,7 +89,6 @@ export default function Perfil() {
     const file = event.target.files?.[0];
     if (!file || !user) return;
 
-    // Validate file type
     if (!file.type.startsWith('image/')) {
       toast({
         title: 'Arquivo inválido',
@@ -84,7 +98,6 @@ export default function Perfil() {
       return;
     }
 
-    // Validate file size (max 2MB)
     if (file.size > 2 * 1024 * 1024) {
       toast({
         title: 'Arquivo muito grande',
@@ -100,22 +113,18 @@ export default function Perfil() {
       const fileExt = file.name.split('.').pop();
       const fileName = `${user.id}/avatar.${fileExt}`;
 
-      // Upload to storage
       const { error: uploadError } = await supabase.storage
         .from('avatars')
         .upload(fileName, file, { upsert: true });
 
       if (uploadError) throw uploadError;
 
-      // Get public URL
       const { data: { publicUrl } } = supabase.storage
         .from('avatars')
         .getPublicUrl(fileName);
 
-      // Add cache busting
       const urlWithCacheBust = `${publicUrl}?t=${Date.now()}`;
 
-      // Update profile with new avatar URL
       const { error: updateError } = await supabase
         .from('profiles')
         .update({ avatar_url: urlWithCacheBust })
@@ -203,7 +212,7 @@ export default function Perfil() {
       <div className="max-w-2xl mx-auto space-y-6">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Meu Perfil</h1>
-          <p className="text-muted-foreground mt-1">Gerencie suas informações pessoais</p>
+          <p className="text-muted-foreground mt-1">Gerencie suas informações e personalize seu app</p>
         </div>
 
         {/* Avatar Card */}
@@ -244,6 +253,23 @@ export default function Perfil() {
                 <p className="text-muted-foreground text-sm">{user?.email}</p>
               </div>
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Theme Selection Card */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Palette className="w-5 h-5 text-primary" />
+              Personalização
+            </CardTitle>
+            <CardDescription>Escolha o estilo visual do seu Plano de Vida</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ThemeSelector
+              selectedTheme={selectedTheme}
+              onThemeChange={handleThemeChange}
+            />
           </CardContent>
         </Card>
 
