@@ -2,12 +2,13 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { LifePlanTable } from '@/components/life-plan/LifePlanTable';
+import { ExportPlanDialog } from '@/components/life-plan/ExportPlanDialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, ArrowLeft, Pencil, Save, X, Settings } from 'lucide-react';
+import { Loader2, ArrowLeft, Pencil, Save, X, Settings, Download } from 'lucide-react';
 import { LIFE_AREAS, AREA_HEX_COLORS, LifeArea } from '@/lib/constants';
 import { AreaCustomizationEditor, AreaConfig } from '@/components/life-plan/AreaCustomizationEditor';
 import { usePlanAreaCustomizations } from '@/hooks/usePlanAreaCustomizations';
@@ -48,6 +49,7 @@ export default function ConsultaDetalhes() {
   const [editTitle, setEditTitle] = useState('');
   const [editMotto, setEditMotto] = useState('');
   const [areasDialogOpen, setAreasDialogOpen] = useState(false);
+  const [exportDialogOpen, setExportDialogOpen] = useState(false);
   const [areaConfigs, setAreaConfigs] = useState<AreaConfig[]>(
     LIFE_AREAS.map(a => ({ id: a.id, label: a.label, color: AREA_HEX_COLORS[a.id] }))
   );
@@ -284,10 +286,16 @@ export default function ConsultaDetalhes() {
             </div>
           )}
           
-          <Button variant="outline" size="sm" onClick={() => setAreasDialogOpen(true)} className="flex-shrink-0">
-            <Settings className="w-4 h-4 mr-1" />
-            <span className="hidden sm:inline">Personalizar Áreas</span>
-          </Button>
+          <div className="flex gap-2 flex-shrink-0">
+            <Button variant="outline" size="sm" onClick={() => setExportDialogOpen(true)}>
+              <Download className="w-4 h-4 mr-1" />
+              <span className="hidden sm:inline">Exportar</span>
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => setAreasDialogOpen(true)}>
+              <Settings className="w-4 h-4 mr-1" />
+              <span className="hidden sm:inline">Personalizar</span>
+            </Button>
+          </div>
         </div>
 
         <LifePlanTable
@@ -297,6 +305,15 @@ export default function ConsultaDetalhes() {
           onAddGoal={handleAddGoal}
           lifePlanId={plan.id}
           editable={true}
+        />
+
+        {/* Export Dialog */}
+        <ExportPlanDialog
+          open={exportDialogOpen}
+          onOpenChange={setExportDialogOpen}
+          plan={plan}
+          goals={goals}
+          areaConfigs={areaConfigs}
         />
 
         {/* Areas Customization Dialog */}
