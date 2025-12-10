@@ -21,8 +21,8 @@ export function YearFilter({
   const currentYear = new Date().getFullYear();
   const [isOpen, setIsOpen] = useState(false);
   const [filterType, setFilterType] = useState<'single' | 'range'>('single');
-  const [startYear, setStartYear] = useState(currentYear);
-  const [endYear, setEndYear] = useState(currentYear);
+  const [rangeStart, setRangeStart] = useState<number | null>(null);
+  const [rangeEnd, setRangeEnd] = useState<number | null>(null);
   const [yearPickerBase, setYearPickerBase] = useState(Math.floor(currentYear / 12) * 12);
 
   // Generate years for the picker (12 years at a time)
@@ -30,6 +30,8 @@ export function YearFilter({
 
   const handleQuickSelect = (type: string) => {
     onChange(type);
+    setRangeStart(null);
+    setRangeEnd(null);
     setIsOpen(false);
   };
 
@@ -38,35 +40,34 @@ export function YearFilter({
       onChange(year.toString());
       setIsOpen(false);
     } else {
-      // Range mode: first click sets start, second click sets end
-      if (startYear === null || (startYear !== null && endYear !== null && startYear !== endYear)) {
-        // Start fresh range selection
-        setStartYear(year);
-        setEndYear(null as any);
-      } else if (startYear !== null && (endYear === null || startYear === endYear)) {
-        // Second click: set end year
-        if (year < startYear) {
-          setEndYear(startYear);
-          setStartYear(year);
-        } else {
-          setEndYear(year);
-        }
+      // Range mode
+      if (rangeStart === null) {
+        // First selection
+        setRangeStart(year);
+        setRangeEnd(null);
+      } else if (rangeEnd === null) {
+        // Second selection - set range end
+        setRangeEnd(year);
+      } else {
+        // Both are set, start over
+        setRangeStart(year);
+        setRangeEnd(null);
       }
     }
   };
 
   const applyRangeFilter = () => {
-    if (startYear && endYear) {
-      const minYear = Math.min(startYear, endYear);
-      const maxYear = Math.max(startYear, endYear);
+    if (rangeStart !== null && rangeEnd !== null) {
+      const minYear = Math.min(rangeStart, rangeEnd);
+      const maxYear = Math.max(rangeStart, rangeEnd);
       onChange(`${minYear}-${maxYear}`);
       setIsOpen(false);
     }
   };
 
   const isYearInRange = (year: number) => {
-    if (filterType === 'range' && startYear && endYear) {
-      return year >= Math.min(startYear, endYear) && year <= Math.max(startYear, endYear);
+    if (filterType === 'range' && rangeStart !== null && rangeEnd !== null) {
+      return year >= Math.min(rangeStart, rangeEnd) && year <= Math.max(rangeStart, rangeEnd);
     }
     return false;
   };
@@ -75,7 +76,16 @@ export function YearFilter({
     if (filterType === 'single') {
       return value === year.toString();
     }
-    return year === startYear || year === endYear;
+    return year === rangeStart || year === rangeEnd;
+  };
+
+  // Reset range when switching modes
+  const handleFilterTypeChange = (type: 'single' | 'range') => {
+    setFilterType(type);
+    if (type === 'single') {
+      setRangeStart(null);
+      setRangeEnd(null);
+    }
   };
 
   return (
@@ -121,7 +131,7 @@ export function YearFilter({
               <Button
                 variant={filterType === 'single' ? 'default' : 'outline'}
                 size="sm"
-                onClick={() => setFilterType('single')}
+                onClick={() => handleFilterTypeChange('single')}
                 className="flex-1 text-xs"
               >
                 Ano Único
@@ -129,7 +139,7 @@ export function YearFilter({
               <Button
                 variant={filterType === 'range' ? 'default' : 'outline'}
                 size="sm"
-                onClick={() => setFilterType('range')}
+                onClick={() => handleFilterTypeChange('range')}
                 className="flex-1 text-xs"
               >
                 Intervalo
@@ -189,17 +199,17 @@ export function YearFilter({
             {filterType === 'range' && (
               <div className="mt-3 space-y-2">
                 <div className="text-xs text-muted-foreground text-center">
-                  {startYear && endYear
-                    ? `${Math.min(startYear, endYear)} até ${Math.max(startYear, endYear)}`
-                    : startYear 
-                      ? `Selecione o ano final`
+                  {rangeStart !== null && rangeEnd !== null
+                    ? `${Math.min(rangeStart, rangeEnd)} até ${Math.max(rangeStart, rangeEnd)}`
+                    : rangeStart !== null
+                      ? `${rangeStart} → Selecione o ano final`
                       : 'Selecione o ano inicial'}
                 </div>
                 <Button
                   size="sm"
                   className="w-full"
                   onClick={applyRangeFilter}
-                  disabled={!startYear || !endYear}
+                  disabled={rangeStart === null || rangeEnd === null}
                 >
                   Aplicar Intervalo
                 </Button>
