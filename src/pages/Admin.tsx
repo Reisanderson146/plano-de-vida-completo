@@ -8,11 +8,11 @@ import { useToast } from '@/hooks/use-toast';
 import { useAdmin } from '@/hooks/useAdmin';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2, Users, UserCheck, UserX, Shield, TrendingUp, Calendar, FileText, Target, ChevronDown, ChevronUp, Eye } from 'lucide-react';
+import { Loader2, Users, UserCheck, UserX, Shield, TrendingUp, Calendar, FileText, Target, ChevronDown, ChevronUp, Eye, ShieldCheck, ShieldOff } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, Cell, PieChart, Pie, Legend } from 'recharts';
 import { format, subMonths, startOfMonth, endOfMonth, startOfYear, endOfYear } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { AREA_COLORS, AREA_HEX_COLORS } from '@/lib/constants';
 import { DateRangeFilter, getYearRangeFromDateRange } from '@/components/filters/DateRangeFilter';
 import { DateRange } from 'react-day-picker';
@@ -23,6 +23,7 @@ interface UserProfile {
   created_at: string;
   is_blocked: boolean;
   email?: string;
+  isAdmin?: boolean;
 }
 
 interface MonthlyStats {
@@ -59,6 +60,8 @@ export default function Admin() {
   const [expandedUser, setExpandedUser] = useState<string | null>(null);
   const [userPlans, setUserPlans] = useState<Record<string, UserPlan[]>>({});
   const [loadingPlans, setLoadingPlans] = useState<string | null>(null);
+  const [updatingAdminRole, setUpdatingAdminRole] = useState<string | null>(null);
+  const [adminConfirmDialog, setAdminConfirmDialog] = useState<{ userId: string; userName: string; isAdmin: boolean } | null>(null);
   
   // Estatísticas gerais
   const [totalPlans, setTotalPlans] = useState(0);
@@ -102,7 +105,23 @@ export default function Admin() {
 
       if (profilesError) throw profilesError;
 
-      setUsers(profiles || []);
+      // Fetch admin roles
+      const { data: adminRoles, error: rolesError } = await supabase
+        .from('user_roles')
+        .select('user_id')
+        .eq('role', 'admin');
+
+      if (rolesError) throw rolesError;
+
+      const adminUserIds = new Set(adminRoles?.map(r => r.user_id) || []);
+
+      // Mark users as admin
+      const usersWithAdminStatus = (profiles || []).map(profile => ({
+        ...profile,
+        isAdmin: adminUserIds.has(profile.id)
+      }));
+
+      setUsers(usersWithAdminStatus);
 
       // Calculate monthly stats for the last 6 months
       const stats: MonthlyStats[] = [];
@@ -254,6 +273,57 @@ export default function Admin() {
       });
     } finally {
       setUpdatingUser(null);
+    }
+  };
+
+  const toggleAdminRole = async (userId: string, currentIsAdmin: boolean) => {
+    setUpdatingAdminRole(userId);
+    setAdminConfirmDialog(null);
+    
+    try {
+      if (currentIsAdmin) {
+        // Remove admin role
+        const { error } = await supabase
+          .from('user_roles')
+          .delete()
+          .eq('user_id', userId)
+          .eq('role', 'admin');
+
+        if (error) throw error;
+
+        setUsers(prev => prev.map(u => 
+          u.id === userId ? { ...u, isAdmin: false } : u
+        ));
+
+        toast({
+          title: 'Permissão removida',
+          description: 'O usuário não é mais administrador.',
+        });
+      } else {
+        // Add admin role
+        const { error } = await supabase
+          .from('user_roles')
+          .insert({ user_id: userId, role: 'admin' });
+
+        if (error) throw error;
+
+        setUsers(prev => prev.map(u => 
+          u.id === userId ? { ...u, isAdmin: true } : u
+        ));
+
+        toast({
+          title: 'Permissão concedida',
+          description: 'O usuário agora é administrador.',
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: 'Erro ao atualizar permissão',
+        description: error.message,
+        variant: 'destructive',
+      });
+    } finally {
+      setUpdatingAdminRole(null);
     }
   };
 
@@ -528,6 +598,12 @@ export default function Admin() {
                           <span className="font-medium truncate">
                             {userProfile.full_name || 'Sem nome'}
                           </span>
+                          {userProfile.isAdmin && (
+                            <Badge className="text-xs bg-amber-500/10 text-amber-600 border-amber-500/20">
+                              <Shield className="w-3 h-3 mr-1" />
+                              Admin
+                            </Badge>
+                          )}
                           {userProfile.is_blocked ? (
                             <Badge variant="destructive" className="text-xs">Bloqueado</Badge>
                           ) : (
@@ -566,26 +642,53 @@ export default function Admin() {
                         </Button>
                         
                         {userProfile.id !== user?.id && (
-                          <Button
-                            variant={userProfile.is_blocked ? "default" : "destructive"}
-                            size="sm"
-                            onClick={() => toggleUserBlock(userProfile.id, userProfile.is_blocked)}
-                            disabled={updatingUser === userProfile.id}
-                          >
-                            {updatingUser === userProfile.id ? (
-                              <Loader2 className="w-4 h-4 animate-spin" />
-                            ) : userProfile.is_blocked ? (
-                              <>
-                                <UserCheck className="w-4 h-4 mr-1" />
-                                Desbloquear
-                              </>
-                            ) : (
-                              <>
-                                <UserX className="w-4 h-4 mr-1" />
-                                Bloquear
-                              </>
-                            )}
-                          </Button>
+                          <>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setAdminConfirmDialog({
+                                userId: userProfile.id,
+                                userName: userProfile.full_name || 'Sem nome',
+                                isAdmin: userProfile.isAdmin || false
+                              })}
+                              disabled={updatingAdminRole === userProfile.id}
+                              className={userProfile.isAdmin ? 'border-amber-500/50 text-amber-600 hover:bg-amber-500/10' : ''}
+                            >
+                              {updatingAdminRole === userProfile.id ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                              ) : userProfile.isAdmin ? (
+                                <>
+                                  <ShieldOff className="w-4 h-4 mr-1" />
+                                  Remover Admin
+                                </>
+                              ) : (
+                                <>
+                                  <ShieldCheck className="w-4 h-4 mr-1" />
+                                  Tornar Admin
+                                </>
+                              )}
+                            </Button>
+                            <Button
+                              variant={userProfile.is_blocked ? "default" : "destructive"}
+                              size="sm"
+                              onClick={() => toggleUserBlock(userProfile.id, userProfile.is_blocked)}
+                              disabled={updatingUser === userProfile.id}
+                            >
+                              {updatingUser === userProfile.id ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                              ) : userProfile.is_blocked ? (
+                                <>
+                                  <UserCheck className="w-4 h-4 mr-1" />
+                                  Desbloquear
+                                </>
+                              ) : (
+                                <>
+                                  <UserX className="w-4 h-4 mr-1" />
+                                  Bloquear
+                                </>
+                              )}
+                            </Button>
+                          </>
                         )}
                       </div>
                     </div>
@@ -643,6 +746,34 @@ export default function Admin() {
             )}
           </CardContent>
         </Card>
+
+        {/* Admin Role Confirmation Dialog */}
+        <Dialog open={!!adminConfirmDialog} onOpenChange={() => setAdminConfirmDialog(null)}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>
+                {adminConfirmDialog?.isAdmin ? 'Remover Permissão de Administrador' : 'Conceder Permissão de Administrador'}
+              </DialogTitle>
+              <DialogDescription>
+                {adminConfirmDialog?.isAdmin 
+                  ? `Tem certeza que deseja remover a permissão de administrador de "${adminConfirmDialog?.userName}"? Este usuário perderá acesso ao painel administrativo.`
+                  : `Tem certeza que deseja tornar "${adminConfirmDialog?.userName}" um administrador? Este usuário terá acesso total ao painel administrativo.`
+                }
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="gap-2 sm:gap-0">
+              <Button variant="outline" onClick={() => setAdminConfirmDialog(null)}>
+                Cancelar
+              </Button>
+              <Button 
+                variant={adminConfirmDialog?.isAdmin ? "destructive" : "default"}
+                onClick={() => adminConfirmDialog && toggleAdminRole(adminConfirmDialog.userId, adminConfirmDialog.isAdmin)}
+              >
+                {adminConfirmDialog?.isAdmin ? 'Remover Permissão' : 'Conceder Permissão'}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </AppLayout>
   );
