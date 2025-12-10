@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
@@ -9,8 +9,9 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Plus, User, Users, Baby } from 'lucide-react';
-import { LIFE_AREAS } from '@/lib/constants';
+import { useImportPlan } from '@/hooks/useImportPlan';
+import { Loader2, Plus, User, Users, Baby, Upload, FileSpreadsheet, FileText, X, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { LIFE_AREAS, LifeArea } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 
 const PLAN_TYPES = [
@@ -37,11 +38,22 @@ const PLAN_TYPES = [
   },
 ];
 
+interface ImportedGoal {
+  year: number;
+  age: number;
+  area: LifeArea;
+  goalText: string;
+}
+
 export default function Cadastro() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { importFile } = useImportPlan();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  
   const [loading, setLoading] = useState(false);
+  const [importing, setImporting] = useState(false);
   const [title, setTitle] = useState('Meu Plano de Vida');
   const [motto, setMotto] = useState('');
   const [planType, setPlanType] = useState('individual');
@@ -49,6 +61,11 @@ export default function Cadastro() {
   const [startYear, setStartYear] = useState(new Date().getFullYear());
   const [startAge, setStartAge] = useState(30);
   const [yearsToAdd, setYearsToAdd] = useState(5);
+  
+  // Import state
+  const [importedGoals, setImportedGoals] = useState<ImportedGoal[]>([]);
+  const [importWarnings, setImportWarnings] = useState<string[]>([]);
+  const [useImportedData, setUseImportedData] = useState(false);
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -83,21 +100,36 @@ export default function Cadastro() {
 
       if (planError) throw planError;
 
-      // Create goals for each year and area
-      const goalsToInsert = [];
-      for (let i = 0; i < yearsToAdd; i++) {
-        const year = startYear + i;
-        const age = startAge + i;
-        for (const area of LIFE_AREAS) {
-          goalsToInsert.push({
-            life_plan_id: plan.id,
-            user_id: user.id,
-            period_year: year,
-            age,
-            area: area.id,
-            goal_text: '',
-            is_completed: false,
-          });
+      // Create goals - either from import or blank
+      let goalsToInsert = [];
+      
+      if (useImportedData && importedGoals.length > 0) {
+        // Use imported goals
+        goalsToInsert = importedGoals.map(goal => ({
+          life_plan_id: plan.id,
+          user_id: user.id,
+          period_year: goal.year,
+          age: goal.age,
+          area: goal.area,
+          goal_text: goal.goalText,
+          is_completed: false,
+        }));
+      } else {
+        // Create blank goals for each year and area
+        for (let i = 0; i < yearsToAdd; i++) {
+          const year = startYear + i;
+          const age = startAge + i;
+          for (const area of LIFE_AREAS) {
+            goalsToInsert.push({
+              life_plan_id: plan.id,
+              user_id: user.id,
+              period_year: year,
+              age,
+              area: area.id,
+              goal_text: '',
+              is_completed: false,
+            });
+          }
         }
       }
 
@@ -109,7 +141,9 @@ export default function Cadastro() {
 
       toast({
         title: 'Plano criado com sucesso!',
-        description: 'Agora você pode adicionar suas metas.',
+        description: useImportedData 
+          ? `${importedGoals.length} metas importadas com sucesso.`
+          : 'Agora você pode adicionar suas metas.',
       });
 
       navigate(`/consulta/${plan.id}`);
@@ -124,7 +158,72 @@ export default function Cadastro() {
     }
   };
 
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setImporting(true);
+    setImportedGoals([]);
+    setImportWarnings([]);
+
+    try {
+      const result = await importFile(file);
+
+      if (result.success) {
+        setImportedGoals(result.goals);
+        setImportWarnings(result.warnings);
+        setUseImportedData(true);
+
+        // Update start year and age based on imported data
+        if (result.goals.length > 0) {
+          const years = result.goals.map(g => g.year);
+          const ages = result.goals.map(g => g.age);
+          setStartYear(Math.min(...years));
+          setStartAge(Math.min(...ages));
+          
+          const uniqueYears = [...new Set(years)];
+          setYearsToAdd(uniqueYears.length);
+        }
+
+        toast({
+          title: 'Arquivo importado!',
+          description: `${result.goals.length} metas encontradas.`,
+        });
+      } else {
+        toast({
+          title: 'Erro na importação',
+          description: result.errors[0] || 'Não foi possível importar o arquivo.',
+          variant: 'destructive',
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: 'Erro ao processar arquivo',
+        description: error.message,
+        variant: 'destructive',
+      });
+    } finally {
+      setImporting(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
+  const clearImport = () => {
+    setImportedGoals([]);
+    setImportWarnings([]);
+    setUseImportedData(false);
+  };
+
   const selectedPlanType = PLAN_TYPES.find(p => p.id === planType);
+
+  // Group imported goals by area for display
+  const importedByArea = importedGoals.reduce((acc, goal) => {
+    if (!acc[goal.area]) acc[goal.area] = [];
+    acc[goal.area].push(goal);
+    return acc;
+  }, {} as Record<string, ImportedGoal[]>);
 
   return (
     <AppLayout>
@@ -235,43 +334,152 @@ export default function Cadastro() {
                 />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="startYear" className="text-sm">Ano inicial</Label>
-                  <Input
-                    id="startYear"
-                    type="number"
-                    value={startYear}
-                    onChange={(e) => setStartYear(parseInt(e.target.value))}
-                    required
-                    className="h-11 sm:h-10"
-                  />
+              {/* Import Section */}
+              <div className="pt-4 border-t">
+                <div className="flex items-center justify-between mb-3">
+                  <Label className="text-sm font-medium">Importar plano existente (opcional)</Label>
+                  {useImportedData && (
+                    <Button 
+                      type="button" 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={clearImport}
+                      className="text-muted-foreground hover:text-destructive"
+                    >
+                      <X className="w-4 h-4 mr-1" />
+                      Limpar
+                    </Button>
+                  )}
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="startAge" className="text-sm">Idade inicial</Label>
-                  <Input
-                    id="startAge"
-                    type="number"
-                    value={startAge}
-                    onChange={(e) => setStartAge(parseInt(e.target.value))}
-                    required
-                    className="h-11 sm:h-10"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="yearsToAdd" className="text-sm">Quantidade de anos</Label>
-                  <Input
-                    id="yearsToAdd"
-                    type="number"
-                    value={yearsToAdd}
-                    onChange={(e) => setYearsToAdd(parseInt(e.target.value))}
-                    min={1}
-                    max={20}
-                    required
-                    className="h-11 sm:h-10"
-                  />
-                </div>
+
+                {!useImportedData ? (
+                  <div className="border-2 border-dashed border-border rounded-xl p-6 text-center hover:border-primary/50 transition-colors">
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept=".xlsx,.xls,.pdf"
+                      onChange={handleFileSelect}
+                      className="hidden"
+                      id="file-import"
+                    />
+                    <label htmlFor="file-import" className="cursor-pointer">
+                      {importing ? (
+                        <div className="flex flex-col items-center gap-2">
+                          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                          <span className="text-sm text-muted-foreground">Processando arquivo...</span>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col items-center gap-2">
+                          <Upload className="w-8 h-8 text-muted-foreground" />
+                          <span className="text-sm font-medium text-foreground">
+                            Clique para importar arquivo
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            Suporta Excel (.xlsx, .xls) ou PDF
+                          </span>
+                          <div className="flex gap-2 mt-2">
+                            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                              <FileSpreadsheet className="w-4 h-4" />
+                              Excel
+                            </div>
+                            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                              <FileText className="w-4 h-4" />
+                              PDF
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </label>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {/* Import success message */}
+                    <div className="flex items-center gap-2 p-3 bg-green-500/10 border border-green-500/30 rounded-lg text-green-700 dark:text-green-400">
+                      <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
+                      <span className="text-sm font-medium">
+                        {importedGoals.length} metas importadas de {Object.keys(importedByArea).length} áreas
+                      </span>
+                    </div>
+
+                    {/* Warnings */}
+                    {importWarnings.length > 0 && (
+                      <div className="p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
+                        <div className="flex items-center gap-2 text-yellow-700 dark:text-yellow-400 mb-1">
+                          <AlertTriangle className="w-4 h-4" />
+                          <span className="text-sm font-medium">Avisos</span>
+                        </div>
+                        <ul className="text-xs text-muted-foreground space-y-1">
+                          {importWarnings.map((w, i) => (
+                            <li key={i}>• {w}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {/* Summary by area */}
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                      {LIFE_AREAS.map(area => {
+                        const count = importedByArea[area.id]?.length || 0;
+                        return (
+                          <div 
+                            key={area.id}
+                            className={cn(
+                              "p-2 rounded-lg text-center text-xs",
+                              count > 0 
+                                ? `bg-area-${area.id} text-foreground` 
+                                : "bg-muted/50 text-muted-foreground"
+                            )}
+                          >
+                            <div className="font-medium">{area.label}</div>
+                            <div>{count} metas</div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
               </div>
+
+              {/* Year/Age settings - only show if NOT using imported data */}
+              {!useImportedData && (
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="startYear" className="text-sm">Ano inicial</Label>
+                    <Input
+                      id="startYear"
+                      type="number"
+                      value={startYear}
+                      onChange={(e) => setStartYear(parseInt(e.target.value))}
+                      required
+                      className="h-11 sm:h-10"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="startAge" className="text-sm">Idade inicial</Label>
+                    <Input
+                      id="startAge"
+                      type="number"
+                      value={startAge}
+                      onChange={(e) => setStartAge(parseInt(e.target.value))}
+                      required
+                      className="h-11 sm:h-10"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="yearsToAdd" className="text-sm">Quantidade de anos</Label>
+                    <Input
+                      id="yearsToAdd"
+                      type="number"
+                      value={yearsToAdd}
+                      onChange={(e) => setYearsToAdd(parseInt(e.target.value))}
+                      min={1}
+                      max={20}
+                      required
+                      className="h-11 sm:h-10"
+                    />
+                  </div>
+                </div>
+              )}
 
               <div className="pt-4 border-t">
                 <h4 className="font-medium text-foreground mb-2 text-sm sm:text-base">Áreas que serão criadas:</h4>
