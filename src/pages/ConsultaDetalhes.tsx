@@ -48,6 +48,7 @@ export default function ConsultaDetalhes() {
   const [editingTitle, setEditingTitle] = useState(false);
   const [editTitle, setEditTitle] = useState('');
   const [editMotto, setEditMotto] = useState('');
+  const [titleError, setTitleError] = useState('');
   const [areasDialogOpen, setAreasDialogOpen] = useState(false);
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
   const [areaConfigs, setAreaConfigs] = useState<AreaConfig[]>(
@@ -182,16 +183,37 @@ export default function ConsultaDetalhes() {
   };
 
   const handleSaveTitle = async () => {
+    if (!editTitle.trim()) {
+      setTitleError('O título é obrigatório');
+      return;
+    }
+
+    // Check if title already exists for this user (excluding current plan)
+    const { data: existingPlans, error: checkError } = await supabase
+      .from('life_plans')
+      .select('id, title')
+      .eq('user_id', user!.id)
+      .neq('id', id)
+      .ilike('title', editTitle.trim());
+
+    if (checkError) {
+      console.error('Error checking title:', checkError);
+    } else if (existingPlans && existingPlans.length > 0) {
+      setTitleError('Já existe um plano com este nome. Escolha um nome diferente.');
+      return;
+    }
+
     try {
       const { error } = await supabase
         .from('life_plans')
-        .update({ title: editTitle, motto: editMotto || null })
+        .update({ title: editTitle.trim(), motto: editMotto || null })
         .eq('id', id);
 
       if (error) throw error;
 
-      setPlan({ ...plan!, title: editTitle, motto: editMotto || null });
+      setPlan({ ...plan!, title: editTitle.trim(), motto: editMotto || null });
       setEditingTitle(false);
+      setTitleError('');
       toast({ title: 'Plano atualizado!' });
     } catch (error: any) {
       toast({
@@ -255,16 +277,21 @@ export default function ConsultaDetalhes() {
               <div className="flex items-center gap-2">
                 <Input
                   value={editTitle}
-                  onChange={(e) => setEditTitle(e.target.value)}
-                  className="text-lg sm:text-2xl font-bold h-10 sm:h-12"
+                  onChange={(e) => {
+                    setEditTitle(e.target.value);
+                    setTitleError('');
+                  }}
+                  placeholder="Nome do plano"
+                  className={`text-lg sm:text-2xl font-bold h-10 sm:h-12 ${titleError ? 'border-destructive' : ''}`}
                 />
                 <Button size="icon" onClick={handleSaveTitle} className="h-9 w-9 sm:h-10 sm:w-10 flex-shrink-0">
                   <Save className="w-4 h-4" />
                 </Button>
-                <Button size="icon" variant="ghost" onClick={() => setEditingTitle(false)} className="h-9 w-9 sm:h-10 sm:w-10 flex-shrink-0">
+                <Button size="icon" variant="ghost" onClick={() => { setEditingTitle(false); setTitleError(''); }} className="h-9 w-9 sm:h-10 sm:w-10 flex-shrink-0">
                   <X className="w-4 h-4" />
                 </Button>
               </div>
+              {titleError && <p className="text-xs text-destructive">{titleError}</p>}
               <Input
                 value={editMotto}
                 onChange={(e) => setEditMotto(e.target.value)}
