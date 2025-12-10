@@ -18,6 +18,7 @@ import {
   Search, 
   BarChart3, 
   StickyNote, 
+  Scale,
   LogOut,
   User,
   Settings
@@ -29,6 +30,7 @@ const navItems = [
   { path: '/cadastro', label: 'Cadastro', icon: FileText },
   { path: '/consulta', label: 'Consulta', icon: Search },
   { path: '/relatorios', label: 'Relatórios', icon: BarChart3 },
+  { path: '/balanco', label: 'Balanço', icon: Scale },
   { path: '/anotacoes', label: 'Anotações', icon: StickyNote },
 ];
 
