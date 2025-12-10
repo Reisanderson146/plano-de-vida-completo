@@ -107,34 +107,34 @@ export function ExportPlanDialog({ open, onOpenChange, plan, goals, areaConfigs 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Download className="w-5 h-5" />
-            Exportar Plano de Vida
+      <DialogContent className="max-w-sm max-h-[85vh] overflow-hidden flex flex-col">
+        <DialogHeader className="flex-shrink-0">
+          <DialogTitle className="flex items-center gap-2 text-base">
+            <Download className="w-4 h-4" />
+            Exportar Plano
           </DialogTitle>
-          <DialogDescription>
-            Escolha o formato e os períodos para exportar
+          <DialogDescription className="text-xs">
+            Formato e períodos
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-5 py-2">
+        <div className="space-y-4 py-2 overflow-y-auto flex-1 pr-1">
           {/* Format Selection */}
-          <div className="space-y-3">
-            <Label className="text-sm font-medium">Formato</Label>
-            <RadioGroup value={format} onValueChange={(v) => setFormat(v as 'pdf' | 'excel')} className="grid grid-cols-2 gap-3">
+          <div className="space-y-2">
+            <Label className="text-xs font-medium">Formato</Label>
+            <RadioGroup value={format} onValueChange={(v) => setFormat(v as 'pdf' | 'excel')} className="grid grid-cols-2 gap-2">
               <div>
                 <RadioGroupItem value="pdf" id="pdf" className="sr-only" />
                 <Label
                   htmlFor="pdf"
                   className={cn(
-                    "flex items-center justify-center gap-2 p-3 rounded-lg border-2 cursor-pointer transition-all",
+                    "flex items-center justify-center gap-1.5 p-2 rounded-lg border-2 cursor-pointer transition-all text-sm",
                     format === 'pdf' 
                       ? "border-primary bg-primary/10 text-primary" 
                       : "border-border hover:border-muted-foreground/50"
                   )}
                 >
-                  <FileText className="w-5 h-5" />
+                  <FileText className="w-4 h-4" />
                   PDF
                 </Label>
               </div>
@@ -143,13 +143,13 @@ export function ExportPlanDialog({ open, onOpenChange, plan, goals, areaConfigs 
                 <Label
                   htmlFor="excel"
                   className={cn(
-                    "flex items-center justify-center gap-2 p-3 rounded-lg border-2 cursor-pointer transition-all",
+                    "flex items-center justify-center gap-1.5 p-2 rounded-lg border-2 cursor-pointer transition-all text-sm",
                     format === 'excel' 
                       ? "border-primary bg-primary/10 text-primary" 
                       : "border-border hover:border-muted-foreground/50"
                   )}
                 >
-                  <FileSpreadsheet className="w-5 h-5" />
+                  <FileSpreadsheet className="w-4 h-4" />
                   Excel
                 </Label>
               </div>
@@ -157,52 +157,50 @@ export function ExportPlanDialog({ open, onOpenChange, plan, goals, areaConfigs 
           </div>
 
           {/* Period Selection */}
-          <div className="space-y-3">
-            <Label className="text-sm font-medium">Períodos</Label>
-            <RadioGroup value={exportType} onValueChange={(v) => setExportType(v as 'all' | 'selected')} className="space-y-2">
+          <div className="space-y-2">
+            <Label className="text-xs font-medium">Períodos</Label>
+            <RadioGroup value={exportType} onValueChange={(v) => setExportType(v as 'all' | 'selected')} className="space-y-1">
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="all" id="all" />
-                <Label htmlFor="all" className="cursor-pointer">
-                  Exportar todos os anos ({years.length} períodos)
+                <Label htmlFor="all" className="cursor-pointer text-sm">
+                  Todos ({years.length})
                 </Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="selected" id="selected" />
-                <Label htmlFor="selected" className="cursor-pointer">
-                  Selecionar períodos específicos
+                <Label htmlFor="selected" className="cursor-pointer text-sm">
+                  Selecionar
                 </Label>
               </div>
             </RadioGroup>
 
             {/* Year Checkboxes */}
             {exportType === 'selected' && (
-              <div className="space-y-2 animate-fade-in">
+              <div className="space-y-1.5 animate-fade-in">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-muted-foreground">
-                    {selectedYears.length} de {years.length} selecionados
+                  <span className="text-[10px] text-muted-foreground">
+                    {selectedYears.length}/{years.length}
                   </span>
-                  <div className="flex gap-2">
-                    <Button variant="ghost" size="sm" className="h-6 text-xs px-2" onClick={handleSelectAll}>
+                  <div className="flex gap-1">
+                    <Button variant="ghost" size="sm" className="h-5 text-[10px] px-1.5" onClick={handleSelectAll}>
                       Todos
                     </Button>
-                    <Button variant="ghost" size="sm" className="h-6 text-xs px-2" onClick={handleSelectNone}>
+                    <Button variant="ghost" size="sm" className="h-5 text-[10px] px-1.5" onClick={handleSelectNone}>
                       Nenhum
                     </Button>
                   </div>
                 </div>
                 
-                <div className="grid grid-cols-4 gap-2 max-h-[200px] overflow-y-auto p-2 border rounded-lg bg-muted/30">
+                <div className="grid grid-cols-4 gap-1.5 max-h-[120px] overflow-y-auto p-1.5 border rounded-lg bg-muted/30">
                   {years.map(year => {
                     const yearGoals = goals.filter(g => g.period_year === year);
                     const age = yearGoals[0]?.age || 0;
-                    const completed = yearGoals.filter(g => g.is_completed).length;
-                    const total = yearGoals.filter(g => g.goal_text.trim()).length;
                     
                     return (
                       <label
                         key={year}
                         className={cn(
-                          "flex flex-col items-center p-2 rounded-lg cursor-pointer transition-all text-center",
+                          "flex flex-col items-center p-1.5 rounded cursor-pointer transition-all text-center",
                           selectedYears.includes(year)
                             ? "bg-primary/15 border border-primary/30"
                             : "bg-background border border-border hover:border-muted-foreground/50"
@@ -213,9 +211,8 @@ export function ExportPlanDialog({ open, onOpenChange, plan, goals, areaConfigs 
                           onCheckedChange={() => handleYearToggle(year)}
                           className="sr-only"
                         />
-                        <span className="font-semibold text-sm">{year}</span>
-                        <span className="text-[10px] text-muted-foreground">{age} anos</span>
-                        <span className="text-[10px] text-muted-foreground">{completed}/{total}</span>
+                        <span className="font-medium text-xs">{year}</span>
+                        <span className="text-[9px] text-muted-foreground">{age}a</span>
                       </label>
                     );
                   })}
@@ -225,12 +222,12 @@ export function ExportPlanDialog({ open, onOpenChange, plan, goals, areaConfigs 
           </div>
         </div>
 
-        <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)}>
+        <DialogFooter className="flex-shrink-0 gap-2 sm:gap-0">
+          <Button variant="ghost" size="sm" onClick={() => onOpenChange(false)}>
             Cancelar
           </Button>
-          <Button onClick={handleExport} className="gap-2">
-            <Download className="w-4 h-4" />
+          <Button size="sm" onClick={handleExport} className="gap-1.5">
+            <Download className="w-3.5 h-3.5" />
             Exportar
           </Button>
         </DialogFooter>
