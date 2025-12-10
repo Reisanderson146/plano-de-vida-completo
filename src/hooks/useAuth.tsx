@@ -19,11 +19,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const checkBlocked = async (userId: string) => {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('is_blocked')
+        .eq('id', userId)
+        .single();
+      
+      if (profile?.is_blocked) {
+        await supabase.auth.signOut();
+        return true;
+      }
+      return false;
+    };
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
+        
+        // Verificar bloqueio após login ou refresh
+        if (session?.user && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED')) {
+          setTimeout(() => {
+            checkBlocked(session.user.id);
+          }, 0);
+        }
       }
     );
 
@@ -31,6 +52,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
+      
+      // Verificar bloqueio na inicialização
+      if (session?.user) {
+        setTimeout(() => {
+          checkBlocked(session.user.id);
+        }, 0);
+      }
     });
 
     return () => subscription.unsubscribe();
