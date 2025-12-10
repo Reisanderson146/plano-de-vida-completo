@@ -14,6 +14,7 @@ import Relatorios from "./pages/Relatorios";
 import Balanco from "./pages/Balanco";
 import Anotacoes from "./pages/Anotacoes";
 import Perfil from "./pages/Perfil";
+import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 import { Loader2 } from "lucide-react";
 
@@ -49,6 +50,7 @@ function AppRoutes() {
       <Route path="/balanco" element={<ProtectedRoute><Balanco /></ProtectedRoute>} />
       <Route path="/anotacoes" element={<ProtectedRoute><Anotacoes /></ProtectedRoute>} />
       <Route path="/perfil" element={<ProtectedRoute><Perfil /></ProtectedRoute>} />
+      <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
