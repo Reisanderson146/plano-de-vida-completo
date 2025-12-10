@@ -3,15 +3,31 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ProgressChart } from '@/components/dashboard/ProgressChart';
 import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useExportReport } from '@/hooks/useExportReport';
 import { useToast } from '@/hooks/use-toast';
 import { LIFE_AREAS, LifeArea, AREA_HEX_COLORS } from '@/lib/constants';
-import { Loader2, TrendingUp, TrendingDown, Target, CheckCircle2, Download, FileText, FileSpreadsheet } from 'lucide-react';
+import { Loader2, TrendingUp, TrendingDown, Target, CheckCircle2, FileText, FileSpreadsheet, Folder, User, Users, Baby } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import { YearFilter, getYearRange, getFilterLabel } from '@/components/filters/YearFilter';
 
 type AreaStats = Record<LifeArea, { total: number; completed: number }>;
+
+interface LifePlan {
+  id: string;
+  title: string;
+  plan_type: string;
+  member_name: string | null;
+}
+
+const PLAN_TYPE_CONFIG = {
+  individual: { label: 'Individual', icon: User },
+  familiar: { label: 'Familiar', icon: Users },
+  filho: { label: 'Filho(a)', icon: Baby },
+};
 
 export default function Relatorios() {
   const { user } = useAuth();
@@ -27,21 +43,79 @@ export default function Relatorios() {
     profissional: { total: 0, completed: 0 },
     saude: { total: 0, completed: 0 },
   });
+  const [plans, setPlans] = useState<LifePlan[]>([]);
+  const [selectedPlanId, setSelectedPlanId] = useState<string>('');
+  const [selectedYearFilter, setSelectedYearFilter] = useState<string>('current');
+  const [availableYears, setAvailableYears] = useState<number[]>([]);
   const [totalGoals, setTotalGoals] = useState(0);
   const [completedGoals, setCompletedGoals] = useState(0);
 
   useEffect(() => {
     if (user) {
-      loadStats();
+      loadPlans();
     }
   }, [user]);
 
-  const loadStats = async () => {
+  useEffect(() => {
+    if (user && selectedPlanId) {
+      loadStats();
+    }
+  }, [user, selectedPlanId, selectedYearFilter]);
+
+  const loadPlans = async () => {
     try {
-      const { data: goals, error } = await supabase
+      const { data, error } = await supabase
+        .from('life_plans')
+        .select('id, title, plan_type, member_name')
+        .eq('user_id', user!.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      setPlans(data || []);
+      if (data && data.length > 0) {
+        setSelectedPlanId(data[0].id);
+      }
+    } catch (error) {
+      console.error('Error loading plans:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadStats = async () => {
+    if (!selectedPlanId) return;
+
+    try {
+      // First get available years for this plan
+      const { data: allGoals } = await supabase
         .from('life_goals')
-        .select('area, is_completed')
-        .eq('user_id', user!.id);
+        .select('period_year')
+        .eq('user_id', user!.id)
+        .eq('life_plan_id', selectedPlanId);
+
+      if (allGoals) {
+        const uniqueYears = [...new Set(allGoals.map(g => g.period_year))].sort((a, b) => a - b);
+        setAvailableYears(uniqueYears);
+      }
+
+      // Build query with year filter
+      let query = supabase
+        .from('life_goals')
+        .select('area, is_completed, period_year')
+        .eq('user_id', user!.id)
+        .eq('life_plan_id', selectedPlanId);
+
+      // Apply year range filter
+      const yearRange = getYearRange(selectedYearFilter);
+      if (yearRange.min !== undefined) {
+        query = query.gte('period_year', yearRange.min);
+      }
+      if (yearRange.max !== undefined) {
+        query = query.lte('period_year', yearRange.max);
+      }
+
+      const { data: goals, error } = await query;
 
       if (error) throw error;
 
@@ -75,8 +149,6 @@ export default function Relatorios() {
       setCompletedGoals(completed);
     } catch (error) {
       console.error('Error loading stats:', error);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -98,15 +170,7 @@ export default function Relatorios() {
     current.percentage < worst.percentage ? current : worst
   );
 
-  if (loading) {
-    return (
-      <AppLayout>
-        <div className="flex items-center justify-center h-64">
-          <Loader2 className="w-8 h-8 animate-spin text-primary" />
-        </div>
-      </AppLayout>
-    );
-  }
+  const selectedPlan = plans.find(p => p.id === selectedPlanId);
 
   const overallPercentage = totalGoals > 0 
     ? Math.round((completedGoals / totalGoals) * 100) 
@@ -115,7 +179,7 @@ export default function Relatorios() {
   const handleExport = (format: 'pdf' | 'excel') => {
     const exportData = {
       title: 'Relatório de Progresso',
-      subtitle: 'Plano de Vida - Análise Completa',
+      subtitle: `${selectedPlan?.title || 'Plano de Vida'} - ${getFilterLabel(selectedYearFilter)}`,
       areas: LIFE_AREAS.map(area => ({
         area: area.id,
         label: area.label,
@@ -149,38 +213,101 @@ export default function Relatorios() {
     }
   };
 
+  if (loading && plans.length === 0) {
+    return (
+      <AppLayout>
+        <div className="flex items-center justify-center h-64">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        </div>
+      </AppLayout>
+    );
+  }
+
   return (
     <AppLayout>
-      <div className="space-y-4 sm:space-y-8 animate-fade-in">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-1 sm:mb-2">Relatórios</h1>
-            <p className="text-sm sm:text-base text-muted-foreground">
-              Análise detalhada do seu progresso
-            </p>
-          </div>
-          <div className="flex gap-2">
+      <div className="space-y-4 sm:space-y-6 animate-fade-in">
+        {/* Header */}
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-1 sm:mb-2">Relatórios</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">
+            Análise detalhada do seu progresso anual
+          </p>
+        </div>
+
+        {/* Filters */}
+        <div className="flex flex-col sm:flex-row gap-3">
+          {/* Plan Filter */}
+          <Select value={selectedPlanId} onValueChange={setSelectedPlanId}>
+            <SelectTrigger className="w-full sm:w-[250px]">
+              <Folder className="w-4 h-4 mr-2 flex-shrink-0" />
+              <SelectValue placeholder="Selecione um plano" />
+            </SelectTrigger>
+            <SelectContent>
+              {plans.map(plan => {
+                const config = PLAN_TYPE_CONFIG[plan.plan_type as keyof typeof PLAN_TYPE_CONFIG] || PLAN_TYPE_CONFIG.individual;
+                const PlanIcon = config.icon;
+                return (
+                  <SelectItem key={plan.id} value={plan.id}>
+                    <div className="flex items-center gap-2">
+                      <PlanIcon className="w-4 h-4" />
+                      <span>{plan.title}</span>
+                      {plan.member_name && <span className="text-muted-foreground">({plan.member_name})</span>}
+                    </div>
+                  </SelectItem>
+                );
+              })}
+            </SelectContent>
+          </Select>
+
+          {/* Year Filter */}
+          <YearFilter
+            value={selectedYearFilter}
+            onChange={setSelectedYearFilter}
+            availableYears={availableYears}
+          />
+
+          {/* Export Buttons */}
+          <div className="flex gap-2 sm:ml-auto">
             <Button
               variant="outline"
               size="sm"
               onClick={() => handleExport('pdf')}
-              className="flex items-center gap-2"
+              className="flex-1 sm:flex-none"
             >
-              <FileText className="w-4 h-4" />
-              <span className="hidden sm:inline">Exportar</span> PDF
+              <FileText className="w-4 h-4 mr-2" />
+              PDF
             </Button>
             <Button
               variant="outline"
               size="sm"
               onClick={() => handleExport('excel')}
-              className="flex items-center gap-2"
+              className="flex-1 sm:flex-none"
             >
-              <FileSpreadsheet className="w-4 h-4" />
-              <span className="hidden sm:inline">Exportar</span> Excel
+              <FileSpreadsheet className="w-4 h-4 mr-2" />
+              Excel
             </Button>
           </div>
         </div>
 
+        {/* Current Selection Info */}
+        {selectedPlan && (
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge variant="secondary" className="flex items-center gap-1">
+              {(() => {
+                const config = PLAN_TYPE_CONFIG[selectedPlan.plan_type as keyof typeof PLAN_TYPE_CONFIG] || PLAN_TYPE_CONFIG.individual;
+                const PlanIcon = config.icon;
+                return <PlanIcon className="w-3 h-3" />;
+              })()}
+              {selectedPlan.title}
+              {selectedPlan.member_name && ` - ${selectedPlan.member_name}`}
+            </Badge>
+            <Badge variant="outline">
+              {getFilterLabel(selectedYearFilter)}
+            </Badge>
+          </div>
+        )}
+
+        {/* Stats Cards */}
         <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4">
           <Card className="shadow-md">
             <CardContent className="pt-4 sm:pt-6 px-3 sm:px-6">
@@ -233,10 +360,16 @@ export default function Relatorios() {
           </Card>
         </div>
 
+        {/* Charts */}
         <div className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-2">
           <Card className="shadow-lg">
             <CardHeader className="pb-2 sm:pb-4">
-              <CardTitle className="text-base sm:text-lg">Progresso por Área</CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-base sm:text-lg">Progresso por Área</CardTitle>
+                <Badge variant="outline" className="font-normal text-xs">
+                  {getFilterLabel(selectedYearFilter)}
+                </Badge>
+              </div>
             </CardHeader>
             <CardContent className="px-2 sm:px-6">
               <div className="h-[250px] sm:h-[300px]">
@@ -272,7 +405,12 @@ export default function Relatorios() {
 
           <Card className="shadow-lg">
             <CardHeader className="pb-2 sm:pb-4">
-              <CardTitle className="text-base sm:text-lg">Visão Radar</CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-base sm:text-lg">Visão Radar</CardTitle>
+                <Badge variant="outline" className="font-normal text-xs">
+                  {getFilterLabel(selectedYearFilter)}
+                </Badge>
+              </div>
             </CardHeader>
             <CardContent className="px-2 sm:px-6">
               <ProgressChart data={stats} />
@@ -280,9 +418,15 @@ export default function Relatorios() {
           </Card>
         </div>
 
+        {/* Overall Progress */}
         <Card className="shadow-lg">
           <CardHeader className="pb-2 sm:pb-4">
-            <CardTitle className="text-base sm:text-lg">Progresso Geral</CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-base sm:text-lg">Progresso Geral</CardTitle>
+              <Badge variant="outline" className="font-normal text-xs">
+                {getFilterLabel(selectedYearFilter)}
+              </Badge>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
@@ -315,11 +459,15 @@ export default function Relatorios() {
                 <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-1 sm:mb-2">
                   {overallPercentage >= 80 ? 'Excelente!' : 
                    overallPercentage >= 50 ? 'Bom progresso!' : 
+                   totalGoals === 0 ? 'Sem metas no período' :
                    'Continue focado!'}
                 </h3>
                 <p className="text-sm sm:text-base text-muted-foreground">
-                  Você completou {completedGoals} de {totalGoals} metas em todas as áreas da vida.
-                  {overallPercentage < 50 && ' Foque nas áreas que precisam de mais atenção.'}
+                  {totalGoals > 0 
+                    ? `Você completou ${completedGoals} de ${totalGoals} metas em ${getFilterLabel(selectedYearFilter)}.`
+                    : `Nenhuma meta encontrada para ${getFilterLabel(selectedYearFilter)}. Tente selecionar outro período.`
+                  }
+                  {overallPercentage < 50 && totalGoals > 0 && ' Foque nas áreas que precisam de mais atenção.'}
                 </p>
               </div>
             </div>
