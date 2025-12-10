@@ -45,6 +45,15 @@ const PLAN_TYPE_CONFIG = {
   filho: { label: 'Filho(a)', icon: Baby },
 };
 
+// Year filter options
+const YEAR_FILTER_OPTIONS = [
+  { value: 'current', label: 'Ano Atual' },
+  { value: 'all', label: 'Todos os Anos' },
+  { value: '1-3', label: '1 a 3 Anos' },
+  { value: '4-6', label: '4 a 6 Anos' },
+  { value: '7-10', label: '7 a 10 Anos' },
+];
+
 const getStatusColor = (percentage: number) => {
   if (percentage >= 70) return '#22c55e';
   if (percentage >= 40) return '#eab308';
@@ -64,7 +73,7 @@ export default function Balanco() {
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<AreaStats[]>([]);
   const [years, setYears] = useState<number[]>([]);
-  const [selectedYear, setSelectedYear] = useState<string>('all');
+  const [selectedYearFilter, setSelectedYearFilter] = useState<string>('current');
   const [plans, setPlans] = useState<LifePlan[]>([]);
   const [selectedPlanId, setSelectedPlanId] = useState<string>('');
   const [balanceNotes, setBalanceNotes] = useState<BalanceNote[]>([]);
@@ -72,6 +81,8 @@ export default function Balanco() {
   const [newNoteContent, setNewNoteContent] = useState('');
   const [savingNote, setSavingNote] = useState(false);
   const [showNoteForm, setShowNoteForm] = useState(false);
+
+  const currentYear = new Date().getFullYear();
 
   useEffect(() => {
     if (user) {
@@ -83,7 +94,7 @@ export default function Balanco() {
     if (user && selectedPlanId) {
       loadData();
     }
-  }, [user, selectedYear, selectedPlanId]);
+  }, [user, selectedYearFilter, selectedPlanId]);
 
   const loadPlans = async () => {
     if (!user) return;
@@ -108,6 +119,38 @@ export default function Balanco() {
       setLoading(false);
     }
   };
+
+  // Get the year range based on filter selection
+  const getYearRange = (filter: string): { min?: number; max?: number } => {
+    switch (filter) {
+      case 'current':
+        return { min: currentYear, max: currentYear };
+      case '1-3':
+        return { min: currentYear, max: currentYear + 2 };
+      case '4-6':
+        return { min: currentYear + 3, max: currentYear + 5 };
+      case '7-10':
+        return { min: currentYear + 6, max: currentYear + 9 };
+      case 'all':
+      default:
+        return {};
+    }
+  };
+
+  const getFilterLabel = () => {
+    const option = YEAR_FILTER_OPTIONS.find(o => o.value === selectedYearFilter);
+    if (!option) return '';
+    
+    if (selectedYearFilter === 'current') {
+      return `${currentYear}`;
+    }
+    if (selectedYearFilter === 'all') {
+      return 'Todos os anos';
+    }
+    const range = getYearRange(selectedYearFilter);
+    return `${range.min} - ${range.max}`;
+  };
+
   const loadData = async () => {
     if (!user || !selectedPlanId) return;
     setLoading(true);
@@ -132,11 +175,17 @@ export default function Balanco() {
         .eq('user_id', user.id)
         .eq('life_plan_id', selectedPlanId);
 
-      if (selectedYear !== 'all') {
-        query = query.eq('period_year', parseInt(selectedYear));
+      // Apply year range filter
+      const yearRange = getYearRange(selectedYearFilter);
+      if (yearRange.min !== undefined) {
+        query = query.gte('period_year', yearRange.min);
+      }
+      if (yearRange.max !== undefined) {
+        query = query.lte('period_year', yearRange.max);
       }
 
       const { data: goals } = await query;
+
       // Calculate stats per area
       const areaStats: AreaStats[] = LIFE_AREAS.map(area => {
         const areaGoals = goals?.filter(g => g.area === area.id) || [];
@@ -156,7 +205,8 @@ export default function Balanco() {
       setStats(areaStats);
 
       // Fetch balance notes
-      const yearPrefix = selectedYear !== 'all' ? `[Balanço ${selectedYear}]` : '[Balanço';
+      const yearForNotes = selectedYearFilter === 'current' ? currentYear.toString() : selectedYearFilter;
+      const yearPrefix = selectedYearFilter !== 'all' ? `[Balanço ${yearForNotes}]` : '[Balanço';
       const { data: notes } = await supabase
         .from('notes')
         .select('id, title, content, created_at')
@@ -176,7 +226,7 @@ export default function Balanco() {
     if (!user || !newNoteContent.trim()) return;
 
     setSavingNote(true);
-    const year = selectedYear !== 'all' ? selectedYear : new Date().getFullYear();
+    const year = selectedYearFilter === 'current' ? currentYear : selectedYearFilter;
     const title = newNoteTitle.trim() || `Reflexão de ${format(new Date(), 'dd/MM/yyyy')}`;
     const fullTitle = `[Balanço ${year}] ${title}`;
 
@@ -235,13 +285,13 @@ export default function Balanco() {
   const handleExport = (formatType: 'pdf' | 'excel') => {
     const exportData = {
       title: 'Balanço - Plano de Vida',
-      subtitle: selectedYear !== 'all' ? `Período: ${selectedYear}` : 'Todos os períodos',
+      subtitle: `Período: ${getFilterLabel()}`,
       areas: stats,
       totalGoals,
       completedGoals,
       overallPercentage,
       notes: balanceNotes.map(note => ({
-        title: note.title.replace(/^\[Balanço \d+\] /, ''),
+        title: note.title.replace(/^\[Balanço [^\]]+\] /, ''),
         content: note.content,
         date: format(new Date(note.created_at), 'dd/MM/yyyy', { locale: ptBR }),
       })),
@@ -310,19 +360,33 @@ export default function Balanco() {
                 })}
               </SelectContent>
             </Select>
-            {/* Year Filter */}
-            <Select value={selectedYear} onValueChange={setSelectedYear}>
-              <SelectTrigger className="w-full sm:w-[180px]">
+
+            {/* Year Range Filter */}
+            <Select value={selectedYearFilter} onValueChange={setSelectedYearFilter}>
+              <SelectTrigger className="w-full sm:w-[200px]">
                 <Calendar className="w-4 h-4 mr-2 flex-shrink-0" />
-                <SelectValue placeholder="Filtrar por ano" />
+                <SelectValue placeholder="Filtrar período" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Todos os anos</SelectItem>
-                {years.map(year => (
-                  <SelectItem key={year} value={year.toString()}>
-                    {year}
+                {YEAR_FILTER_OPTIONS.map(option => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                    {option.value === 'current' && ` (${currentYear})`}
                   </SelectItem>
                 ))}
+                {/* Individual years */}
+                {years.length > 0 && (
+                  <>
+                    <div className="px-2 py-1.5 text-xs text-muted-foreground font-medium border-t mt-1 pt-2">
+                      Anos Específicos
+                    </div>
+                    {years.map(year => (
+                      <SelectItem key={year} value={year.toString()}>
+                        {year}
+                      </SelectItem>
+                    ))}
+                  </>
+                )}
               </SelectContent>
             </Select>
 
@@ -349,9 +413,9 @@ export default function Balanco() {
             </div>
           </div>
 
-          {/* Selected Plan Badge */}
+          {/* Selected Plan and Period Badge */}
           {selectedPlan && (
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <span className="text-sm text-muted-foreground">Analisando:</span>
               <Badge variant="secondary" className="flex items-center gap-1">
                 {(() => {
@@ -361,6 +425,10 @@ export default function Balanco() {
                 })()}
                 {selectedPlan.title}
                 {selectedPlan.member_name && ` - ${selectedPlan.member_name}`}
+              </Badge>
+              <Badge variant="outline" className="flex items-center gap-1">
+                <Calendar className="w-3 h-3" />
+                {getFilterLabel()}
               </Badge>
             </div>
           )}
@@ -429,8 +497,11 @@ export default function Balanco() {
         <Card className="bg-card/50 backdrop-blur-sm border-border/50">
           <CardHeader>
             <CardTitle className="text-lg sm:text-xl flex items-center gap-2">
-              <BarChart className="w-5 h-5" />
+              <Target className="w-5 h-5 text-primary" />
               Análise por Área
+              <Badge variant="outline" className="ml-auto font-normal">
+                {getFilterLabel()}
+              </Badge>
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -441,7 +512,8 @@ export default function Balanco() {
             ) : totalGoals === 0 ? (
               <div className="text-center py-12 text-muted-foreground">
                 <Target className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                <p>Nenhuma meta encontrada para os filtros selecionados.</p>
+                <p>Nenhuma meta encontrada para o período selecionado.</p>
+                <p className="text-sm mt-1">Tente selecionar outro período ou adicione metas ao seu plano.</p>
               </div>
             ) : (
               <div className="h-[350px] sm:h-[400px]">
@@ -574,7 +646,7 @@ export default function Balanco() {
                 {balanceNotes.map(note => (
                   <div key={note.id} className="p-4 rounded-lg border border-border bg-background/50">
                     <div className="flex items-start justify-between gap-2 mb-2">
-                      <h4 className="font-medium text-sm">{note.title.replace(/^\[Balanço \d+\] /, '')}</h4>
+                      <h4 className="font-medium text-sm">{note.title.replace(/^\[Balanço [^\]]+\] /, '')}</h4>
                       <span className="text-xs text-muted-foreground whitespace-nowrap">
                         {format(new Date(note.created_at), "dd/MM/yyyy", { locale: ptBR })}
                       </span>
