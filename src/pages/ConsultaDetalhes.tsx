@@ -175,8 +175,8 @@ export default function ConsultaDetalhes() {
   if (!plan) {
     return (
       <AppLayout>
-        <div className="text-center py-16">
-          <h2 className="text-xl font-semibold text-foreground mb-4">Plano não encontrado</h2>
+        <div className="text-center py-16 px-4">
+          <h2 className="text-lg sm:text-xl font-semibold text-foreground mb-4">Plano não encontrado</h2>
           <Link to="/consulta">
             <Button>Voltar para consulta</Button>
           </Link>
@@ -187,11 +187,11 @@ export default function ConsultaDetalhes() {
 
   return (
     <AppLayout>
-      <div className="space-y-6 animate-fade-in">
-        <div className="flex items-center gap-4">
+      <div className="space-y-4 sm:space-y-6 animate-fade-in">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
           <Link to="/consulta">
-            <Button variant="ghost" size="icon">
-              <ArrowLeft className="w-5 h-5" />
+            <Button variant="ghost" size="icon" className="h-9 w-9 sm:h-10 sm:w-10">
+              <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
             </Button>
           </Link>
           
@@ -201,12 +201,12 @@ export default function ConsultaDetalhes() {
                 <Input
                   value={editTitle}
                   onChange={(e) => setEditTitle(e.target.value)}
-                  className="text-2xl font-bold"
+                  className="text-lg sm:text-2xl font-bold h-10 sm:h-12"
                 />
-                <Button size="icon" onClick={handleSaveTitle}>
+                <Button size="icon" onClick={handleSaveTitle} className="h-9 w-9 sm:h-10 sm:w-10 flex-shrink-0">
                   <Save className="w-4 h-4" />
                 </Button>
-                <Button size="icon" variant="ghost" onClick={() => setEditingTitle(false)}>
+                <Button size="icon" variant="ghost" onClick={() => setEditingTitle(false)} className="h-9 w-9 sm:h-10 sm:w-10 flex-shrink-0">
                   <X className="w-4 h-4" />
                 </Button>
               </div>
@@ -214,19 +214,19 @@ export default function ConsultaDetalhes() {
                 value={editMotto}
                 onChange={(e) => setEditMotto(e.target.value)}
                 placeholder="Lema (opcional)"
-                className="text-muted-foreground"
+                className="text-muted-foreground h-9 sm:h-10"
               />
             </div>
           ) : (
-            <div className="flex-1">
+            <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
-                <h1 className="text-3xl font-bold text-foreground">{plan.title}</h1>
-                <Button size="icon" variant="ghost" onClick={() => setEditingTitle(true)}>
-                  <Pencil className="w-4 h-4" />
+                <h1 className="text-xl sm:text-3xl font-bold text-foreground truncate">{plan.title}</h1>
+                <Button size="icon" variant="ghost" onClick={() => setEditingTitle(true)} className="h-8 w-8 sm:h-9 sm:w-9 flex-shrink-0">
+                  <Pencil className="w-3 h-3 sm:w-4 sm:h-4" />
                 </Button>
               </div>
               {plan.motto && (
-                <p className="text-muted-foreground italic">"{plan.motto}"</p>
+                <p className="text-sm sm:text-base text-muted-foreground italic truncate">"{plan.motto}"</p>
               )}
             </div>
           )}

@@ -112,16 +112,16 @@ export default function Consulta() {
 
   return (
     <AppLayout>
-      <div className="space-y-6 animate-fade-in">
-        <div className="flex items-center justify-between">
+      <div className="space-y-4 sm:space-y-6 animate-fade-in">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
-            <h1 className="text-3xl font-bold text-foreground mb-2">Meus Planos</h1>
-            <p className="text-muted-foreground">
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-1 sm:mb-2">Meus Planos</h1>
+            <p className="text-sm sm:text-base text-muted-foreground">
               Consulte e edite seus planos de vida
             </p>
           </div>
-          <Link to="/cadastro">
-            <Button>
+          <Link to="/cadastro" className="w-full sm:w-auto">
+            <Button className="w-full sm:w-auto">
               <Plus className="w-4 h-4 mr-2" />
               Novo Plano
             </Button>
@@ -130,16 +130,16 @@ export default function Consulta() {
 
         {plans.length === 0 ? (
           <Card className="shadow-lg">
-            <CardContent className="flex flex-col items-center justify-center py-16">
-              <FileText className="w-16 h-16 text-muted-foreground mb-4" />
-              <h3 className="text-xl font-semibold text-foreground mb-2">
+            <CardContent className="flex flex-col items-center justify-center py-12 sm:py-16 px-4">
+              <FileText className="w-12 h-12 sm:w-16 sm:h-16 text-muted-foreground mb-4" />
+              <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-2 text-center">
                 Nenhum plano encontrado
               </h3>
-              <p className="text-muted-foreground mb-6">
+              <p className="text-sm sm:text-base text-muted-foreground mb-4 sm:mb-6 text-center">
                 Crie seu primeiro plano de vida para começar
               </p>
-              <Link to="/cadastro">
-                <Button>
+              <Link to="/cadastro" className="w-full sm:w-auto">
+                <Button className="w-full sm:w-auto">
                   <Plus className="w-4 h-4 mr-2" />
                   Criar Plano
                 </Button>
@@ -147,7 +147,7 @@ export default function Consulta() {
             </CardContent>
           </Card>
         ) : (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {plans.map((plan) => {
               const percentage = plan.goals_count > 0
                 ? Math.round((plan.completed_count / plan.goals_count) * 100)
@@ -155,32 +155,32 @@ export default function Consulta() {
 
               return (
                 <Card key={plan.id} className="shadow-lg hover:shadow-xl transition-shadow">
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <CardTitle className="text-lg">{plan.title}</CardTitle>
+                  <CardHeader className="pb-2 sm:pb-4">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1 min-w-0">
+                        <CardTitle className="text-base sm:text-lg truncate">{plan.title}</CardTitle>
                         {plan.motto && (
-                          <CardDescription className="mt-1 italic">
+                          <CardDescription className="mt-1 italic text-xs sm:text-sm line-clamp-2">
                             "{plan.motto}"
                           </CardDescription>
                         )}
                       </div>
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
-                          <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive">
+                          <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive flex-shrink-0 h-8 w-8 sm:h-9 sm:w-9">
                             <Trash2 className="w-4 h-4" />
                           </Button>
                         </AlertDialogTrigger>
-                        <AlertDialogContent>
+                        <AlertDialogContent className="mx-4 sm:mx-auto max-w-[calc(100vw-2rem)] sm:max-w-lg">
                           <AlertDialogHeader>
                             <AlertDialogTitle>Excluir plano?</AlertDialogTitle>
                             <AlertDialogDescription>
                               Esta ação não pode ser desfeita. Todas as metas deste plano serão excluídas permanentemente.
                             </AlertDialogDescription>
                           </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => handleDelete(plan.id)}>
+                          <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+                            <AlertDialogCancel className="w-full sm:w-auto">Cancelar</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => handleDelete(plan.id)} className="w-full sm:w-auto">
                               Excluir
                             </AlertDialogAction>
                           </AlertDialogFooter>
@@ -189,7 +189,7 @@ export default function Consulta() {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-4">
+                    <div className="space-y-3 sm:space-y-4">
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-muted-foreground">Progresso</span>
                         <span className="font-medium text-foreground">{percentage}%</span>
@@ -200,14 +200,14 @@ export default function Consulta() {
                           style={{ width: `${percentage}%` }}
                         />
                       </div>
-                      <div className="flex items-center justify-between text-sm text-muted-foreground">
+                      <div className="flex items-center justify-between text-xs sm:text-sm text-muted-foreground">
                         <span>{plan.completed_count} de {plan.goals_count} metas</span>
                         <span>
                           {new Date(plan.created_at).toLocaleDateString('pt-BR')}
                         </span>
                       </div>
                       <Link to={`/consulta/${plan.id}`}>
-                        <Button variant="outline" className="w-full mt-2">
+                        <Button variant="outline" className="w-full mt-2 h-10 sm:h-9">
                           Ver e Editar
                           <ChevronRight className="w-4 h-4 ml-2" />
                         </Button>

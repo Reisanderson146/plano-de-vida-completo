@@ -78,34 +78,34 @@ export default function Auth() {
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-md animate-fade-in">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl gradient-hero mb-4">
-            <Target className="w-8 h-8 text-primary-foreground" />
+        <div className="text-center mb-6 sm:mb-8">
+          <div className="inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 rounded-2xl gradient-hero mb-3 sm:mb-4">
+            <Target className="w-7 h-7 sm:w-8 sm:h-8 text-primary-foreground" />
           </div>
-          <h1 className="text-3xl font-bold text-foreground">Plano de Vida</h1>
-          <p className="text-muted-foreground mt-2">
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Plano de Vida</h1>
+          <p className="text-sm sm:text-base text-muted-foreground mt-2">
             Organize suas metas nas 7 áreas da vida
           </p>
         </div>
 
         <Card className="shadow-lg">
-          <CardHeader>
-            <CardTitle>Acesse sua conta</CardTitle>
-            <CardDescription>
+          <CardHeader className="pb-4 sm:pb-6">
+            <CardTitle className="text-lg sm:text-xl">Acesse sua conta</CardTitle>
+            <CardDescription className="text-sm">
               Entre ou crie sua conta para começar
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="signin" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 mb-6">
-                <TabsTrigger value="signin">Entrar</TabsTrigger>
-                <TabsTrigger value="signup">Cadastrar</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-2 mb-4 sm:mb-6">
+                <TabsTrigger value="signin" className="text-sm">Entrar</TabsTrigger>
+                <TabsTrigger value="signup" className="text-sm">Cadastrar</TabsTrigger>
               </TabsList>
 
               <TabsContent value="signin">
                 <form onSubmit={handleSignIn} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="signin-email">Email</Label>
+                    <Label htmlFor="signin-email" className="text-sm">Email</Label>
                     <Input
                       id="signin-email"
                       type="email"
@@ -113,10 +113,11 @@ export default function Auth() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
+                      className="h-11 sm:h-10"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signin-password">Senha</Label>
+                    <Label htmlFor="signin-password" className="text-sm">Senha</Label>
                     <Input
                       id="signin-password"
                       type="password"
@@ -124,9 +125,10 @@ export default function Auth() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
+                      className="h-11 sm:h-10"
                     />
                   </div>
-                  <Button type="submit" className="w-full" disabled={loading}>
+                  <Button type="submit" className="w-full h-11 sm:h-10" disabled={loading}>
                     {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                     Entrar
                   </Button>
@@ -136,7 +138,7 @@ export default function Auth() {
               <TabsContent value="signup">
                 <form onSubmit={handleSignUp} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="signup-name">Nome completo</Label>
+                    <Label htmlFor="signup-name" className="text-sm">Nome completo</Label>
                     <Input
                       id="signup-name"
                       type="text"
@@ -144,10 +146,11 @@ export default function Auth() {
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
                       required
+                      className="h-11 sm:h-10"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signup-email">Email</Label>
+                    <Label htmlFor="signup-email" className="text-sm">Email</Label>
                     <Input
                       id="signup-email"
                       type="email"
@@ -155,10 +158,11 @@ export default function Auth() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
+                      className="h-11 sm:h-10"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signup-password">Senha</Label>
+                    <Label htmlFor="signup-password" className="text-sm">Senha</Label>
                     <Input
                       id="signup-password"
                       type="password"
@@ -167,9 +171,10 @@ export default function Auth() {
                       onChange={(e) => setPassword(e.target.value)}
                       required
                       minLength={6}
+                      className="h-11 sm:h-10"
                     />
                   </div>
-                  <Button type="submit" className="w-full" disabled={loading}>
+                  <Button type="submit" className="w-full h-11 sm:h-10" disabled={loading}>
                     {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                     Criar conta
                   </Button>

@@ -119,84 +119,90 @@ export default function Relatorios() {
 
   return (
     <AppLayout>
-      <div className="space-y-8 animate-fade-in">
+      <div className="space-y-4 sm:space-y-8 animate-fade-in">
         <div>
-          <h1 className="text-3xl font-bold text-foreground mb-2">Relatórios</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-1 sm:mb-2">Relatórios</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">
             Análise detalhada do seu progresso
           </p>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-4">
+        <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4">
           <Card className="shadow-md">
-            <CardContent className="pt-6">
+            <CardContent className="pt-4 sm:pt-6 px-3 sm:px-6">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Total de Metas</p>
-                  <p className="text-3xl font-bold text-foreground">{totalGoals}</p>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs sm:text-sm text-muted-foreground truncate">Total de Metas</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-foreground">{totalGoals}</p>
                 </div>
-                <Target className="w-10 h-10 text-primary opacity-50" />
+                <Target className="w-8 h-8 sm:w-10 sm:h-10 text-primary opacity-50 flex-shrink-0" />
               </div>
             </CardContent>
           </Card>
 
           <Card className="shadow-md">
-            <CardContent className="pt-6">
+            <CardContent className="pt-4 sm:pt-6 px-3 sm:px-6">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Metas Concluídas</p>
-                  <p className="text-3xl font-bold text-success">{completedGoals}</p>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs sm:text-sm text-muted-foreground truncate">Concluídas</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-success">{completedGoals}</p>
                 </div>
-                <CheckCircle2 className="w-10 h-10 text-success opacity-50" />
+                <CheckCircle2 className="w-8 h-8 sm:w-10 sm:h-10 text-success opacity-50 flex-shrink-0" />
               </div>
             </CardContent>
           </Card>
 
           <Card className="shadow-md">
-            <CardContent className="pt-6">
+            <CardContent className="pt-4 sm:pt-6 px-3 sm:px-6">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Melhor Área</p>
-                  <p className="text-xl font-bold text-foreground">{bestArea.name}</p>
-                  <p className="text-sm text-success">{bestArea.percentage}%</p>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs sm:text-sm text-muted-foreground truncate">Melhor Área</p>
+                  <p className="text-base sm:text-xl font-bold text-foreground truncate">{bestArea.name}</p>
+                  <p className="text-xs sm:text-sm text-success">{bestArea.percentage}%</p>
                 </div>
-                <TrendingUp className="w-10 h-10 text-success opacity-50" />
+                <TrendingUp className="w-8 h-8 sm:w-10 sm:h-10 text-success opacity-50 flex-shrink-0" />
               </div>
             </CardContent>
           </Card>
 
           <Card className="shadow-md">
-            <CardContent className="pt-6">
+            <CardContent className="pt-4 sm:pt-6 px-3 sm:px-6">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Área para Melhorar</p>
-                  <p className="text-xl font-bold text-foreground">{worstArea.name}</p>
-                  <p className="text-sm text-destructive">{worstArea.percentage}%</p>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs sm:text-sm text-muted-foreground truncate">Para Melhorar</p>
+                  <p className="text-base sm:text-xl font-bold text-foreground truncate">{worstArea.name}</p>
+                  <p className="text-xs sm:text-sm text-destructive">{worstArea.percentage}%</p>
                 </div>
-                <TrendingDown className="w-10 h-10 text-destructive opacity-50" />
+                <TrendingDown className="w-8 h-8 sm:w-10 sm:h-10 text-destructive opacity-50 flex-shrink-0" />
               </div>
             </CardContent>
           </Card>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-2">
+        <div className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-2">
           <Card className="shadow-lg">
-            <CardHeader>
-              <CardTitle>Progresso por Área</CardTitle>
+            <CardHeader className="pb-2 sm:pb-4">
+              <CardTitle className="text-base sm:text-lg">Progresso por Área</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="h-[300px]">
+            <CardContent className="px-2 sm:px-6">
+              <div className="h-[250px] sm:h-[300px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={barChartData} layout="vertical">
                     <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                    <XAxis type="number" domain={[0, 100]} tick={{ fill: 'hsl(var(--muted-foreground))' }} />
-                    <YAxis dataKey="name" type="category" width={100} tick={{ fill: 'hsl(var(--foreground))', fontSize: 12 }} />
+                    <XAxis type="number" domain={[0, 100]} tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }} />
+                    <YAxis 
+                      dataKey="name" 
+                      type="category" 
+                      width={70} 
+                      tick={{ fill: 'hsl(var(--foreground))', fontSize: 10 }} 
+                    />
                     <Tooltip 
                       formatter={(value) => [`${value}%`, 'Progresso']}
                       contentStyle={{ 
                         backgroundColor: 'hsl(var(--card))',
                         border: '1px solid hsl(var(--border))',
-                        borderRadius: 'var(--radius)'
+                        borderRadius: 'var(--radius)',
+                        fontSize: '12px'
                       }}
                     />
                     <Bar dataKey="percentage" radius={[0, 4, 4, 0]}>
@@ -211,53 +217,53 @@ export default function Relatorios() {
           </Card>
 
           <Card className="shadow-lg">
-            <CardHeader>
-              <CardTitle>Visão Radar</CardTitle>
+            <CardHeader className="pb-2 sm:pb-4">
+              <CardTitle className="text-base sm:text-lg">Visão Radar</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-2 sm:px-6">
               <ProgressChart data={stats} />
             </CardContent>
           </Card>
         </div>
 
         <Card className="shadow-lg">
-          <CardHeader>
-            <CardTitle>Progresso Geral</CardTitle>
+          <CardHeader className="pb-2 sm:pb-4">
+            <CardTitle className="text-base sm:text-lg">Progresso Geral</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center gap-6">
-              <div className="relative w-32 h-32">
+            <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
+              <div className="relative w-24 h-24 sm:w-32 sm:h-32 flex-shrink-0">
                 <svg className="w-full h-full transform -rotate-90">
                   <circle
-                    cx="64"
-                    cy="64"
-                    r="56"
+                    cx="50%"
+                    cy="50%"
+                    r="45%"
                     fill="none"
                     stroke="hsl(var(--muted))"
                     strokeWidth="12"
                   />
                   <circle
-                    cx="64"
-                    cy="64"
-                    r="56"
+                    cx="50%"
+                    cy="50%"
+                    r="45%"
                     fill="none"
                     stroke="hsl(var(--primary))"
                     strokeWidth="12"
                     strokeLinecap="round"
-                    strokeDasharray={`${overallPercentage * 3.52} 352`}
+                    strokeDasharray={`${overallPercentage * 2.83} 283`}
                   />
                 </svg>
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-2xl font-bold text-foreground">{overallPercentage}%</span>
+                  <span className="text-xl sm:text-2xl font-bold text-foreground">{overallPercentage}%</span>
                 </div>
               </div>
-              <div className="flex-1">
-                <h3 className="text-xl font-semibold text-foreground mb-2">
+              <div className="flex-1 text-center sm:text-left">
+                <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-1 sm:mb-2">
                   {overallPercentage >= 80 ? 'Excelente!' : 
                    overallPercentage >= 50 ? 'Bom progresso!' : 
                    'Continue focado!'}
                 </h3>
-                <p className="text-muted-foreground">
+                <p className="text-sm sm:text-base text-muted-foreground">
                   Você completou {completedGoals} de {totalGoals} metas em todas as áreas da vida.
                   {overallPercentage < 50 && ' Foque nas áreas que precisam de mais atenção.'}
                 </p>

@@ -1,12 +1,17 @@
 import { useState } from 'react';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Pencil, Save, X, Plus, Trash2 } from 'lucide-react';
+import { Pencil, Save, X, Plus, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
 import { LIFE_AREAS, AREA_COLORS, LifeArea } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 
 interface Goal {
   id: string;
@@ -39,6 +44,7 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, li
   const [addingRow, setAddingRow] = useState(false);
   const [newRowYear, setNewRowYear] = useState(new Date().getFullYear());
   const [newRowAge, setNewRowAge] = useState(30);
+  const [expandedPeriods, setExpandedPeriods] = useState<Set<string>>(new Set());
   const { toast } = useToast();
 
   // Group goals by period
@@ -103,12 +109,7 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, li
     toast({ title: 'Meta adicionada!' });
   };
 
-  const handleAddRow = () => {
-    setAddingRow(true);
-  };
-
   const handleConfirmAddRow = async () => {
-    // Add empty goals for all areas in the new row
     for (const area of LIFE_AREAS) {
       await onAddGoal({
         life_plan_id: lifePlanId,
@@ -123,141 +124,292 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, li
     toast({ title: 'Período adicionado!' });
   };
 
-  return (
-    <div className="space-y-4">
-      <div className="overflow-x-auto rounded-xl border border-border shadow-md">
-        <Table>
-          <TableHeader>
-            <TableRow className="gradient-hero">
-              <TableHead className="text-primary-foreground font-semibold w-24">Período</TableHead>
-              <TableHead className="text-primary-foreground font-semibold w-16">Idade</TableHead>
-              {LIFE_AREAS.map((area) => (
-                <TableHead 
-                  key={area.id} 
-                  className={cn("font-semibold text-foreground min-w-[150px]", AREA_COLORS[area.id])}
-                >
-                  {area.label}
-                </TableHead>
-              ))}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {periods.map((period) => (
-              <TableRow key={`${period.year}-${period.age}`} className="hover:bg-muted/50">
-                <TableCell className="font-medium text-foreground">{period.year}</TableCell>
-                <TableCell className="font-medium text-foreground">{period.age}</TableCell>
-                {LIFE_AREAS.map((area) => {
-                  const goal = period.goals[area.id];
-                  const isEditing = goal && editingCell === goal.id;
-                  
-                  return (
-                    <TableCell 
-                      key={area.id} 
-                      className={cn("p-2", AREA_COLORS[area.id])}
-                    >
-                      {goal ? (
-                        <div className="space-y-2">
-                          {isEditing ? (
+  const togglePeriod = (key: string) => {
+    const newExpanded = new Set(expandedPeriods);
+    if (newExpanded.has(key)) {
+      newExpanded.delete(key);
+    } else {
+      newExpanded.add(key);
+    }
+    setExpandedPeriods(newExpanded);
+  };
+
+  const getCompletedCount = (period: PeriodRow) => {
+    return LIFE_AREAS.filter(area => period.goals[area.id]?.is_completed).length;
+  };
+
+  // Mobile card view
+  const MobileView = () => (
+    <div className="space-y-3 md:hidden">
+      {periods.map((period) => {
+        const key = `${period.year}-${period.age}`;
+        const isExpanded = expandedPeriods.has(key);
+        const completedCount = getCompletedCount(period);
+
+        return (
+          <Collapsible key={key} open={isExpanded} onOpenChange={() => togglePeriod(key)}>
+            <Card className="shadow-md">
+              <CollapsibleTrigger asChild>
+                <CardHeader className="py-3 px-4 cursor-pointer hover:bg-muted/50 transition-colors">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="text-center">
+                        <div className="text-lg font-bold text-foreground">{period.year}</div>
+                        <div className="text-xs text-muted-foreground">{period.age} anos</div>
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        {completedCount}/7 metas
+                      </div>
+                    </div>
+                    {isExpanded ? (
+                      <ChevronUp className="w-5 h-5 text-muted-foreground" />
+                    ) : (
+                      <ChevronDown className="w-5 h-5 text-muted-foreground" />
+                    )}
+                  </div>
+                </CardHeader>
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <CardContent className="pt-0 px-3 pb-3 space-y-2">
+                  {LIFE_AREAS.map((area) => {
+                    const goal = period.goals[area.id];
+                    const isEditing = goal && editingCell === goal.id;
+
+                    return (
+                      <div
+                        key={area.id}
+                        className={cn(
+                          "rounded-lg p-3",
+                          AREA_COLORS[area.id]
+                        )}
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-medium text-foreground">{area.label}</span>
+                          {goal && (
+                            <Checkbox
+                              checked={goal.is_completed}
+                              onCheckedChange={() => handleToggleComplete(goal)}
+                              className="h-5 w-5"
+                            />
+                          )}
+                        </div>
+                        
+                        {goal ? (
+                          isEditing ? (
                             <div className="flex items-center gap-2">
                               <Input
                                 value={editValue}
                                 onChange={(e) => setEditValue(e.target.value)}
-                                className="text-sm bg-background"
+                                className="text-sm h-9 bg-background"
                               />
-                              <Button size="icon" variant="ghost" onClick={() => handleSaveEdit(goal.id)}>
+                              <Button size="icon" variant="ghost" onClick={() => handleSaveEdit(goal.id)} className="h-8 w-8 flex-shrink-0">
                                 <Save className="w-4 h-4" />
                               </Button>
-                              <Button size="icon" variant="ghost" onClick={handleCancelEdit}>
+                              <Button size="icon" variant="ghost" onClick={handleCancelEdit} className="h-8 w-8 flex-shrink-0">
                                 <X className="w-4 h-4" />
                               </Button>
                             </div>
                           ) : (
-                            <div className="flex items-start gap-2">
-                              <Checkbox
-                                checked={goal.is_completed}
-                                onCheckedChange={() => handleToggleComplete(goal)}
-                                className="mt-1"
-                              />
-                              <div className="flex-1">
-                                <p className={cn(
-                                  "text-sm text-foreground",
-                                  goal.is_completed && "line-through opacity-70"
-                                )}>
-                                  {goal.goal_text || <span className="italic text-muted-foreground">Sem meta definida</span>}
-                                </p>
-                              </div>
+                            <div className="flex items-start justify-between gap-2">
+                              <p className={cn(
+                                "text-sm text-foreground flex-1",
+                                goal.is_completed && "line-through opacity-70"
+                              )}>
+                                {goal.goal_text || <span className="italic text-muted-foreground">Sem meta definida</span>}
+                              </p>
                               {editable && (
-                                <div className="flex gap-1">
-                                  <Button size="icon" variant="ghost" onClick={() => handleStartEdit(goal)}>
+                                <div className="flex gap-1 flex-shrink-0">
+                                  <Button size="icon" variant="ghost" onClick={() => handleStartEdit(goal)} className="h-7 w-7">
                                     <Pencil className="w-3 h-3" />
                                   </Button>
-                                  <Button size="icon" variant="ghost" onClick={() => onDeleteGoal(goal.id)}>
+                                  <Button size="icon" variant="ghost" onClick={() => onDeleteGoal(goal.id)} className="h-7 w-7">
                                     <Trash2 className="w-3 h-3 text-destructive" />
                                   </Button>
                                 </div>
                               )}
                             </div>
-                          )}
-                        </div>
-                      ) : (
-                        editable && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="w-full text-muted-foreground"
-                            onClick={() => {
-                              const text = prompt('Digite a meta:');
-                              if (text) handleAddGoal(period.year, period.age, area.id, text);
-                            }}
-                          >
-                            <Plus className="w-4 h-4 mr-1" />
-                            Adicionar
-                          </Button>
-                        )
-                      )}
-                    </TableCell>
-                  );
-                })}
-              </TableRow>
+                          )
+                        ) : (
+                          editable && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="w-full text-muted-foreground h-8 text-xs"
+                              onClick={() => {
+                                const text = prompt('Digite a meta:');
+                                if (text) handleAddGoal(period.year, period.age, area.id, text);
+                              }}
+                            >
+                              <Plus className="w-3 h-3 mr-1" />
+                              Adicionar
+                            </Button>
+                          )
+                        )}
+                      </div>
+                    );
+                  })}
+                </CardContent>
+              </CollapsibleContent>
+            </Card>
+          </Collapsible>
+        );
+      })}
+
+      {periods.length === 0 && (
+        <Card>
+          <CardContent className="py-8 text-center text-muted-foreground">
+            Nenhuma meta cadastrada ainda
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+
+  // Desktop table view
+  const DesktopView = () => (
+    <div className="hidden md:block overflow-x-auto rounded-xl border border-border shadow-md">
+      <table className="w-full">
+        <thead>
+          <tr className="gradient-hero">
+            <th className="text-primary-foreground font-semibold text-left px-4 py-3 w-24">Período</th>
+            <th className="text-primary-foreground font-semibold text-left px-4 py-3 w-16">Idade</th>
+            {LIFE_AREAS.map((area) => (
+              <th 
+                key={area.id} 
+                className={cn("font-semibold text-foreground text-left px-3 py-3 min-w-[150px]", AREA_COLORS[area.id])}
+              >
+                {area.label}
+              </th>
             ))}
-            {periods.length === 0 && (
-              <TableRow>
-                <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
-                  Nenhuma meta cadastrada ainda
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
+          </tr>
+        </thead>
+        <tbody>
+          {periods.map((period) => (
+            <tr key={`${period.year}-${period.age}`} className="hover:bg-muted/50 border-t border-border">
+              <td className="font-medium text-foreground px-4 py-3">{period.year}</td>
+              <td className="font-medium text-foreground px-4 py-3">{period.age}</td>
+              {LIFE_AREAS.map((area) => {
+                const goal = period.goals[area.id];
+                const isEditing = goal && editingCell === goal.id;
+                
+                return (
+                  <td 
+                    key={area.id} 
+                    className={cn("p-2", AREA_COLORS[area.id])}
+                  >
+                    {goal ? (
+                      <div className="space-y-2">
+                        {isEditing ? (
+                          <div className="flex items-center gap-2">
+                            <Input
+                              value={editValue}
+                              onChange={(e) => setEditValue(e.target.value)}
+                              className="text-sm bg-background"
+                            />
+                            <Button size="icon" variant="ghost" onClick={() => handleSaveEdit(goal.id)}>
+                              <Save className="w-4 h-4" />
+                            </Button>
+                            <Button size="icon" variant="ghost" onClick={handleCancelEdit}>
+                              <X className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        ) : (
+                          <div className="flex items-start gap-2">
+                            <Checkbox
+                              checked={goal.is_completed}
+                              onCheckedChange={() => handleToggleComplete(goal)}
+                              className="mt-1"
+                            />
+                            <div className="flex-1">
+                              <p className={cn(
+                                "text-sm text-foreground",
+                                goal.is_completed && "line-through opacity-70"
+                              )}>
+                                {goal.goal_text || <span className="italic text-muted-foreground">Sem meta definida</span>}
+                              </p>
+                            </div>
+                            {editable && (
+                              <div className="flex gap-1">
+                                <Button size="icon" variant="ghost" onClick={() => handleStartEdit(goal)}>
+                                  <Pencil className="w-3 h-3" />
+                                </Button>
+                                <Button size="icon" variant="ghost" onClick={() => onDeleteGoal(goal.id)}>
+                                  <Trash2 className="w-3 h-3 text-destructive" />
+                                </Button>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      editable && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="w-full text-muted-foreground"
+                          onClick={() => {
+                            const text = prompt('Digite a meta:');
+                            if (text) handleAddGoal(period.year, period.age, area.id, text);
+                          }}
+                        >
+                          <Plus className="w-4 h-4 mr-1" />
+                          Adicionar
+                        </Button>
+                      )
+                    )}
+                  </td>
+                );
+              })}
+            </tr>
+          ))}
+          {periods.length === 0 && (
+            <tr>
+              <td colSpan={9} className="text-center py-8 text-muted-foreground">
+                Nenhuma meta cadastrada ainda
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+    </div>
+  );
+
+  return (
+    <div className="space-y-4">
+      <MobileView />
+      <DesktopView />
 
       {editable && (
         <div className="flex items-center gap-4">
           {addingRow ? (
-            <div className="flex items-center gap-4 p-4 bg-card rounded-lg border">
-              <div>
-                <label className="text-sm text-muted-foreground">Ano</label>
-                <Input
-                  type="number"
-                  value={newRowYear}
-                  onChange={(e) => setNewRowYear(parseInt(e.target.value))}
-                  className="w-24"
-                />
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 p-4 bg-card rounded-lg border w-full sm:w-auto">
+              <div className="flex gap-3 w-full sm:w-auto">
+                <div className="flex-1 sm:flex-initial">
+                  <label className="text-xs text-muted-foreground">Ano</label>
+                  <Input
+                    type="number"
+                    value={newRowYear}
+                    onChange={(e) => setNewRowYear(parseInt(e.target.value))}
+                    className="w-full sm:w-24 h-10"
+                  />
+                </div>
+                <div className="flex-1 sm:flex-initial">
+                  <label className="text-xs text-muted-foreground">Idade</label>
+                  <Input
+                    type="number"
+                    value={newRowAge}
+                    onChange={(e) => setNewRowAge(parseInt(e.target.value))}
+                    className="w-full sm:w-20 h-10"
+                  />
+                </div>
               </div>
-              <div>
-                <label className="text-sm text-muted-foreground">Idade</label>
-                <Input
-                  type="number"
-                  value={newRowAge}
-                  onChange={(e) => setNewRowAge(parseInt(e.target.value))}
-                  className="w-20"
-                />
+              <div className="flex gap-2 w-full sm:w-auto">
+                <Button onClick={handleConfirmAddRow} className="flex-1 sm:flex-initial h-10">Confirmar</Button>
+                <Button variant="ghost" onClick={() => setAddingRow(false)} className="flex-1 sm:flex-initial h-10">Cancelar</Button>
               </div>
-              <Button onClick={handleConfirmAddRow}>Confirmar</Button>
-              <Button variant="ghost" onClick={() => setAddingRow(false)}>Cancelar</Button>
             </div>
           ) : (
-            <Button onClick={handleAddRow} variant="outline">
+            <Button onClick={() => setAddingRow(true)} variant="outline" className="w-full sm:w-auto">
               <Plus className="w-4 h-4 mr-2" />
               Adicionar Período
             </Button>

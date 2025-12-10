@@ -20,18 +20,23 @@ export function ProgressChart({ data }: ProgressChartProps) {
   });
 
   return (
-    <div className="w-full h-[400px]">
+    <div className="w-full h-[250px] sm:h-[350px] lg:h-[400px]">
       <ResponsiveContainer width="100%" height="100%">
-        <RadarChart cx="50%" cy="50%" outerRadius="80%" data={chartData}>
+        <RadarChart cx="50%" cy="50%" outerRadius="70%" data={chartData}>
           <PolarGrid stroke="hsl(var(--border))" />
           <PolarAngleAxis 
             dataKey="area" 
-            tick={{ fill: 'hsl(var(--foreground))', fontSize: 12 }}
+            tick={{ 
+              fill: 'hsl(var(--foreground))', 
+              fontSize: 10 
+            }}
+            tickLine={false}
           />
           <PolarRadiusAxis 
             angle={90} 
             domain={[0, 100]} 
-            tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }}
+            tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 8 }}
+            tickCount={5}
           />
           <Radar
             name="Progresso"

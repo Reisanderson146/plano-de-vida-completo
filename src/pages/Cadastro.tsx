@@ -85,66 +85,70 @@ export default function Cadastro() {
   return (
     <AppLayout>
       <div className="max-w-2xl mx-auto animate-fade-in">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Novo Plano de Vida</h1>
-          <p className="text-muted-foreground">
+        <div className="mb-4 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-1 sm:mb-2">Novo Plano de Vida</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">
             Crie um novo plano e defina suas metas para as 7 áreas da vida
           </p>
         </div>
 
         <Card className="shadow-lg">
-          <CardHeader>
-            <CardTitle>Informações do Plano</CardTitle>
-            <CardDescription>
+          <CardHeader className="pb-4 sm:pb-6">
+            <CardTitle className="text-lg sm:text-xl">Informações do Plano</CardTitle>
+            <CardDescription className="text-sm">
               Preencha os dados básicos do seu plano de vida
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleCreate} className="space-y-6">
+            <form onSubmit={handleCreate} className="space-y-4 sm:space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="title">Título do Plano</Label>
+                <Label htmlFor="title" className="text-sm">Título do Plano</Label>
                 <Input
                   id="title"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="Ex: Meu Plano de Vida 2024-2029"
                   required
+                  className="h-11 sm:h-10"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="motto">Lema / Frase motivacional (opcional)</Label>
+                <Label htmlFor="motto" className="text-sm">Lema / Frase motivacional (opcional)</Label>
                 <Input
                   id="motto"
                   value={motto}
                   onChange={(e) => setMotto(e.target.value)}
                   placeholder="Ex: Aprender a ter as coisas no tempo certo"
+                  className="h-11 sm:h-10"
                 />
               </div>
 
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="startYear">Ano inicial</Label>
+                  <Label htmlFor="startYear" className="text-sm">Ano inicial</Label>
                   <Input
                     id="startYear"
                     type="number"
                     value={startYear}
                     onChange={(e) => setStartYear(parseInt(e.target.value))}
                     required
+                    className="h-11 sm:h-10"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="startAge">Idade inicial</Label>
+                  <Label htmlFor="startAge" className="text-sm">Idade inicial</Label>
                   <Input
                     id="startAge"
                     type="number"
                     value={startAge}
                     onChange={(e) => setStartAge(parseInt(e.target.value))}
                     required
+                    className="h-11 sm:h-10"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="yearsToAdd">Quantidade de anos</Label>
+                  <Label htmlFor="yearsToAdd" className="text-sm">Quantidade de anos</Label>
                   <Input
                     id="yearsToAdd"
                     type="number"
@@ -153,17 +157,18 @@ export default function Cadastro() {
                     min={1}
                     max={20}
                     required
+                    className="h-11 sm:h-10"
                   />
                 </div>
               </div>
 
               <div className="pt-4 border-t">
-                <h4 className="font-medium text-foreground mb-2">Áreas que serão criadas:</h4>
+                <h4 className="font-medium text-foreground mb-2 text-sm sm:text-base">Áreas que serão criadas:</h4>
                 <div className="flex flex-wrap gap-2">
                   {LIFE_AREAS.map((area) => (
                     <span
                       key={area.id}
-                      className={`px-3 py-1 rounded-full text-sm font-medium bg-area-${area.id} text-foreground`}
+                      className={`px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium bg-area-${area.id} text-foreground`}
                     >
                       {area.label}
                     </span>
@@ -171,7 +176,7 @@ export default function Cadastro() {
                 </div>
               </div>
 
-              <Button type="submit" className="w-full" disabled={loading}>
+              <Button type="submit" className="w-full h-11 sm:h-10" disabled={loading}>
                 {loading ? (
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                 ) : (

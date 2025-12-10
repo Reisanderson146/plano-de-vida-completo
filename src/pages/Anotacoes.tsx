@@ -155,38 +155,39 @@ export default function Anotacoes() {
 
   return (
     <AppLayout>
-      <div className="space-y-6 animate-fade-in">
-        <div className="flex items-center justify-between">
+      <div className="space-y-4 sm:space-y-6 animate-fade-in">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
-            <h1 className="text-3xl font-bold text-foreground mb-2">Anotações</h1>
-            <p className="text-muted-foreground">
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-1 sm:mb-2">Anotações</h1>
+            <p className="text-sm sm:text-base text-muted-foreground">
               Registre o que precisa melhorar em cada área
             </p>
           </div>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button>
+              <Button className="w-full sm:w-auto">
                 <Plus className="w-4 h-4 mr-2" />
                 Nova Anotação
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="mx-4 sm:mx-auto max-w-[calc(100vw-2rem)] sm:max-w-lg">
               <DialogHeader>
                 <DialogTitle>Nova Anotação</DialogTitle>
               </DialogHeader>
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label>Título</Label>
+                  <Label className="text-sm">Título</Label>
                   <Input
                     value={newNote.title}
                     onChange={(e) => setNewNote({ ...newNote, title: e.target.value })}
                     placeholder="Título da anotação"
+                    className="h-11 sm:h-10"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Área</Label>
+                  <Label className="text-sm">Área</Label>
                   <Select value={newNote.area} onValueChange={(v) => setNewNote({ ...newNote, area: v })}>
-                    <SelectTrigger>
+                    <SelectTrigger className="h-11 sm:h-10">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -200,7 +201,7 @@ export default function Anotacoes() {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label>Conteúdo</Label>
+                  <Label className="text-sm">Conteúdo</Label>
                   <Textarea
                     value={newNote.content}
                     onChange={(e) => setNewNote({ ...newNote, content: e.target.value })}
@@ -208,7 +209,7 @@ export default function Anotacoes() {
                     rows={5}
                   />
                 </div>
-                <Button onClick={handleCreateNote} className="w-full">
+                <Button onClick={handleCreateNote} className="w-full h-11 sm:h-10">
                   Criar Anotação
                 </Button>
               </div>
@@ -216,48 +217,53 @@ export default function Anotacoes() {
           </Dialog>
         </div>
 
-        <div className="flex items-center gap-2 overflow-x-auto pb-2">
-          <Button
-            variant={filter === 'todas' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setFilter('todas')}
-          >
-            Todas
-          </Button>
-          <Button
-            variant={filter === 'geral' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setFilter('geral')}
-          >
-            Geral
-          </Button>
-          {LIFE_AREAS.map((area) => (
+        {/* Filter buttons with horizontal scroll */}
+        <div className="overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0">
+          <div className="flex items-center gap-2 min-w-max pb-2">
             <Button
-              key={area.id}
-              variant={filter === area.id ? 'default' : 'outline'}
+              variant={filter === 'todas' ? 'default' : 'outline'}
               size="sm"
-              onClick={() => setFilter(area.id)}
-              className={filter === area.id ? '' : AREA_COLORS[area.id]}
+              onClick={() => setFilter('todas')}
+              className="h-9 px-3"
             >
-              {area.label}
+              Todas
             </Button>
-          ))}
+            <Button
+              variant={filter === 'geral' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setFilter('geral')}
+              className="h-9 px-3"
+            >
+              Geral
+            </Button>
+            {LIFE_AREAS.map((area) => (
+              <Button
+                key={area.id}
+                variant={filter === area.id ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setFilter(area.id)}
+                className={cn("h-9 px-3", filter === area.id ? '' : AREA_COLORS[area.id])}
+              >
+                {area.label}
+              </Button>
+            ))}
+          </div>
         </div>
 
         {filteredNotes.length === 0 ? (
           <Card className="shadow-lg">
-            <CardContent className="flex flex-col items-center justify-center py-16">
-              <StickyNote className="w-16 h-16 text-muted-foreground mb-4" />
-              <h3 className="text-xl font-semibold text-foreground mb-2">
+            <CardContent className="flex flex-col items-center justify-center py-12 sm:py-16 px-4">
+              <StickyNote className="w-12 h-12 sm:w-16 sm:h-16 text-muted-foreground mb-4" />
+              <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-2 text-center">
                 Nenhuma anotação encontrada
               </h3>
-              <p className="text-muted-foreground mb-6">
+              <p className="text-sm sm:text-base text-muted-foreground mb-4 sm:mb-6 text-center">
                 Crie sua primeira anotação para começar
               </p>
             </CardContent>
           </Card>
         ) : (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {filteredNotes.map((note) => (
               <Card 
                 key={note.id} 
@@ -267,36 +273,36 @@ export default function Anotacoes() {
                 )}
               >
                 <CardHeader className="pb-2">
-                  <div className="flex items-start justify-between">
+                  <div className="flex items-start justify-between gap-2">
                     {editingNote?.id === note.id ? (
                       <Input
                         value={editingNote.title}
                         onChange={(e) => setEditingNote({ ...editingNote, title: e.target.value })}
-                        className="font-semibold"
+                        className="font-semibold h-9"
                       />
                     ) : (
-                      <CardTitle className="text-lg">{note.title}</CardTitle>
+                      <CardTitle className="text-base sm:text-lg line-clamp-2">{note.title}</CardTitle>
                     )}
-                    <div className="flex gap-1">
+                    <div className="flex gap-1 flex-shrink-0">
                       {editingNote?.id === note.id ? (
                         <>
-                          <Button size="icon" variant="ghost" onClick={handleUpdateNote}>
+                          <Button size="icon" variant="ghost" onClick={handleUpdateNote} className="h-8 w-8">
                             <Save className="w-4 h-4" />
                           </Button>
-                          <Button size="icon" variant="ghost" onClick={() => setEditingNote(null)}>
+                          <Button size="icon" variant="ghost" onClick={() => setEditingNote(null)} className="h-8 w-8">
                             <X className="w-4 h-4" />
                           </Button>
                         </>
                       ) : (
                         <>
-                          <Button size="icon" variant="ghost" onClick={() => setEditingNote(note)}>
+                          <Button size="icon" variant="ghost" onClick={() => setEditingNote(note)} className="h-8 w-8">
                             <Pencil className="w-4 h-4" />
                           </Button>
                           <Button 
                             size="icon" 
                             variant="ghost" 
                             onClick={() => handleDeleteNote(note.id)}
-                            className="text-destructive hover:text-destructive"
+                            className="text-destructive hover:text-destructive h-8 w-8"
                           >
                             <Trash2 className="w-4 h-4" />
                           </Button>
@@ -316,7 +322,7 @@ export default function Anotacoes() {
                       rows={4}
                     />
                   ) : (
-                    <p className="text-foreground/80 whitespace-pre-wrap">{note.content}</p>
+                    <p className="text-sm sm:text-base text-foreground/80 whitespace-pre-wrap line-clamp-4">{note.content}</p>
                   )}
                 </CardContent>
               </Card>
