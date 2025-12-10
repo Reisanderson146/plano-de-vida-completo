@@ -6,9 +6,11 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { Loader2, FileText, ChevronRight, Plus, Trash2, User, Users, Baby, Filter } from 'lucide-react';
+import { Loader2, FileText, ChevronRight, Plus, Trash2, User, Users, Baby, Filter, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { ExportPlanDialog } from '@/components/life-plan/ExportPlanDialog';
+import { LIFE_AREAS, AREA_HEX_COLORS, LifeArea } from '@/lib/constants';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -30,6 +32,22 @@ interface LifePlan {
   created_at: string;
   goals_count: number;
   completed_count: number;
+}
+
+interface Goal {
+  id: string;
+  life_plan_id: string;
+  period_year: number;
+  age: number;
+  area: LifeArea;
+  goal_text: string;
+  is_completed: boolean;
+}
+
+interface AreaConfig {
+  id: LifeArea;
+  label: string;
+  color: string;
 }
 
 const PLAN_TYPE_CONFIG = {
@@ -58,6 +76,13 @@ export default function Consulta() {
   const [loading, setLoading] = useState(true);
   const [plans, setPlans] = useState<LifePlan[]>([]);
   const [filter, setFilter] = useState<FilterType>('todos');
+  
+  // Export state
+  const [exportDialogOpen, setExportDialogOpen] = useState(false);
+  const [exportPlan, setExportPlan] = useState<LifePlan | null>(null);
+  const [exportGoals, setExportGoals] = useState<Goal[]>([]);
+  const [exportAreaConfigs, setExportAreaConfigs] = useState<AreaConfig[]>([]);
+  const [loadingExport, setLoadingExport] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -122,6 +147,49 @@ export default function Consulta() {
         description: error.message,
         variant: 'destructive',
       });
+    }
+  };
+
+  const handleOpenExport = async (plan: LifePlan) => {
+    setLoadingExport(true);
+    setExportPlan(plan);
+    
+    try {
+      // Load goals for the plan
+      const { data: goalsData, error: goalsError } = await supabase
+        .from('life_goals')
+        .select('*')
+        .eq('life_plan_id', plan.id)
+        .order('period_year', { ascending: true });
+
+      if (goalsError) throw goalsError;
+
+      // Load area customizations
+      const { data: customizations } = await supabase
+        .from('plan_area_customizations')
+        .select('*')
+        .eq('life_plan_id', plan.id);
+
+      const areaConfigs = LIFE_AREAS.map(a => {
+        const custom = customizations?.find(c => c.area_id === a.id);
+        return {
+          id: a.id,
+          label: custom?.custom_label || a.label,
+          color: custom?.custom_color || AREA_HEX_COLORS[a.id],
+        };
+      });
+
+      setExportGoals(goalsData as Goal[]);
+      setExportAreaConfigs(areaConfigs);
+      setExportDialogOpen(true);
+    } catch (error: any) {
+      toast({
+        title: 'Erro ao carregar plano',
+        description: error.message,
+        variant: 'destructive',
+      });
+    } finally {
+      setLoadingExport(false);
     }
   };
 
@@ -246,27 +314,42 @@ export default function Consulta() {
                           </CardDescription>
                         )}
                       </div>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive flex-shrink-0 h-8 w-8 sm:h-9 sm:w-9">
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent className="mx-4 sm:mx-auto max-w-[calc(100vw-2rem)] sm:max-w-lg">
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Excluir plano?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              Esta ação não pode ser desfeita. Todas as metas deste plano serão excluídas permanentemente.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter className="flex-col sm:flex-row gap-2">
-                            <AlertDialogCancel className="w-full sm:w-auto">Cancelar</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => handleDelete(plan.id)} className="w-full sm:w-auto">
-                              Excluir
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
+                      <div className="flex items-center gap-1 flex-shrink-0">
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-8 w-8 sm:h-9 sm:w-9"
+                          onClick={() => handleOpenExport(plan)}
+                          disabled={loadingExport}
+                        >
+                          {loadingExport && exportPlan?.id === plan.id ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <Download className="w-4 h-4" />
+                          )}
+                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive h-8 w-8 sm:h-9 sm:w-9">
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent className="mx-4 sm:mx-auto max-w-[calc(100vw-2rem)] sm:max-w-lg">
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Excluir plano?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Esta ação não pode ser desfeita. Todas as metas deste plano serão excluídas permanentemente.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+                              <AlertDialogCancel className="w-full sm:w-auto">Cancelar</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => handleDelete(plan.id)} className="w-full sm:w-auto">
+                                Excluir
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
                     </div>
                   </CardHeader>
                   <CardContent>
@@ -299,6 +382,17 @@ export default function Consulta() {
               );
             })}
           </div>
+        )}
+
+        {/* Export Dialog */}
+        {exportPlan && (
+          <ExportPlanDialog
+            open={exportDialogOpen}
+            onOpenChange={setExportDialogOpen}
+            plan={exportPlan}
+            goals={exportGoals}
+            areaConfigs={exportAreaConfigs}
+          />
         )}
       </div>
     </AppLayout>
