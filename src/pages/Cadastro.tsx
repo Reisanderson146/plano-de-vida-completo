@@ -57,8 +57,9 @@ export default function Cadastro() {
   
   const [loading, setLoading] = useState(false);
   const [importing, setImporting] = useState(false);
-  const [title, setTitle] = useState('Meu Plano de Vida');
+  const [title, setTitle] = useState('');
   const [motto, setMotto] = useState('');
+  const [titleError, setTitleError] = useState('');
   const [planType, setPlanType] = useState('individual');
   const [memberName, setMemberName] = useState('');
   const [startYear, setStartYear] = useState(new Date().getFullYear());
@@ -76,9 +77,42 @@ export default function Cadastro() {
     LIFE_AREAS.map(a => ({ id: a.id, label: a.label, color: AREA_HEX_COLORS[a.id] }))
   );
 
+  const validateTitle = async (titleToCheck: string): Promise<boolean> => {
+    if (!titleToCheck.trim()) {
+      setTitleError('O título é obrigatório');
+      return false;
+    }
+
+    // Check if title already exists for this user
+    const { data: existingPlans, error } = await supabase
+      .from('life_plans')
+      .select('id, title')
+      .eq('user_id', user!.id)
+      .ilike('title', titleToCheck.trim());
+
+    if (error) {
+      console.error('Error checking title:', error);
+      return true; // Allow if we can't check
+    }
+
+    if (existingPlans && existingPlans.length > 0) {
+      setTitleError('Já existe um plano com este nome. Escolha um nome diferente.');
+      return false;
+    }
+
+    setTitleError('');
+    return true;
+  };
+
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
+
+    // Validate title uniqueness
+    const isValidTitle = await validateTitle(title);
+    if (!isValidTitle) {
+      return;
+    }
 
     // Validate member name for family/child plans
     if ((planType === 'familiar' || planType === 'filho') && !memberName.trim()) {
@@ -324,15 +358,21 @@ export default function Cadastro() {
               )}
 
               <div className="space-y-2">
-                <Label htmlFor="title" className="text-sm">Título do Plano</Label>
+                <Label htmlFor="title" className="text-sm">Nome do Plano *</Label>
                 <Input
                   id="title"
                   value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="Ex: Meu Plano de Vida 2024-2029"
+                  onChange={(e) => {
+                    setTitle(e.target.value);
+                    setTitleError('');
+                  }}
+                  placeholder="Ex: Plano Pessoal 2024, Sonhos da Família Silva, Metas do João"
                   required
-                  className="h-11 sm:h-10"
+                  className={cn("h-11 sm:h-10", titleError && "border-destructive")}
                 />
+                {titleError && (
+                  <p className="text-xs text-destructive">{titleError}</p>
+                )}
               </div>
 
               <div className="space-y-2">
