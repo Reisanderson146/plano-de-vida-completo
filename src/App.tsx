@@ -11,6 +11,7 @@ import Consulta from "./pages/Consulta";
 import ConsultaDetalhes from "./pages/ConsultaDetalhes";
 import Relatorios from "./pages/Relatorios";
 import Anotacoes from "./pages/Anotacoes";
+import Perfil from "./pages/Perfil";
 import NotFound from "./pages/NotFound";
 import { Loader2 } from "lucide-react";
 
@@ -44,6 +45,7 @@ function AppRoutes() {
       <Route path="/consulta/:id" element={<ProtectedRoute><ConsultaDetalhes /></ProtectedRoute>} />
       <Route path="/relatorios" element={<ProtectedRoute><Relatorios /></ProtectedRoute>} />
       <Route path="/anotacoes" element={<ProtectedRoute><Anotacoes /></ProtectedRoute>} />
+      <Route path="/perfil" element={<ProtectedRoute><Perfil /></ProtectedRoute>} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

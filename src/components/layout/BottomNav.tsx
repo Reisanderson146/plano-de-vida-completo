@@ -4,7 +4,7 @@ import {
   FileText, 
   Search, 
   BarChart3, 
-  StickyNote 
+  User
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -13,7 +13,7 @@ const navItems = [
   { path: '/cadastro', label: 'Novo', icon: FileText },
   { path: '/consulta', label: 'Planos', icon: Search },
   { path: '/relatorios', label: 'Relatório', icon: BarChart3 },
-  { path: '/anotacoes', label: 'Notas', icon: StickyNote },
+  { path: '/perfil', label: 'Perfil', icon: User },
 ];
 
 export function BottomNav() {
