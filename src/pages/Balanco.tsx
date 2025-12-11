@@ -10,13 +10,24 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { useExportReport } from '@/hooks/useExportReport';
 import { LIFE_AREAS, AREA_HEX_COLORS } from '@/lib/constants';
-import { Loader2, Target, CheckCircle2, AlertTriangle, TrendingDown, Plus, FileText, FileSpreadsheet, Folder, User, Users, Baby } from 'lucide-react';
+import { Loader2, Target, CheckCircle2, AlertTriangle, TrendingDown, Plus, FileText, Folder, User, Users, Baby, Pencil, Trash2 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell, LabelList } from 'recharts';
 import { format, startOfYear, endOfYear } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Badge } from '@/components/ui/badge';
 import { DateRangeFilter, getYearRangeFromDateRange } from '@/components/filters/DateRangeFilter';
 import { DateRange } from 'react-day-picker';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface AreaStats {
   area: string;
@@ -61,7 +72,7 @@ const getStatusLabel = (percentage: number) => {
 export default function Balanco() {
   const { user } = useAuth();
   const { toast } = useToast();
-  const { exportToPDF, exportToExcel } = useExportReport();
+  const { exportToPDF } = useExportReport();
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<AreaStats[]>([]);
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
@@ -75,6 +86,7 @@ export default function Balanco() {
   const [newNoteContent, setNewNoteContent] = useState('');
   const [savingNote, setSavingNote] = useState(false);
   const [showNoteForm, setShowNoteForm] = useState(false);
+  const [editingNote, setEditingNote] = useState<BalanceNote | null>(null);
 
   const currentYear = new Date().getFullYear();
 
@@ -118,14 +130,12 @@ export default function Balanco() {
     setLoading(true);
 
     try {
-      // Fetch goals based on filters
       let query = supabase
         .from('life_goals')
         .select('*')
         .eq('user_id', user.id)
         .eq('life_plan_id', selectedPlanId);
 
-      // Apply year range filter from date range
       const yearRange = getYearRangeFromDateRange(dateRange);
       if (yearRange.min !== undefined) {
         query = query.gte('period_year', yearRange.min);
@@ -136,7 +146,6 @@ export default function Balanco() {
 
       const { data: goals } = await query;
 
-      // Calculate stats per area
       const areaStats: AreaStats[] = LIFE_AREAS.map(area => {
         const areaGoals = goals?.filter(g => g.area === area.id) || [];
         const completed = areaGoals.filter(g => g.is_completed).length;
@@ -154,7 +163,6 @@ export default function Balanco() {
 
       setStats(areaStats);
 
-      // Fetch balance notes based on date range
       const filterLabel = getDateRangeLabel(dateRange);
       const yearPrefix = `[Balanço ${filterLabel}]`;
       const { data: notes } = await supabase
@@ -190,23 +198,38 @@ export default function Balanco() {
     const fullTitle = `[Balanço ${filterLabel}] ${title}`;
 
     try {
-      const { error } = await supabase.from('notes').insert({
-        user_id: user.id,
-        title: fullTitle,
-        content: newNoteContent,
-        area: null,
-      });
+      if (editingNote) {
+        const { error } = await supabase
+          .from('notes')
+          .update({ title: fullTitle, content: newNoteContent })
+          .eq('id', editingNote.id);
 
-      if (error) throw error;
+        if (error) throw error;
 
-      toast({
-        title: 'Anotação salva!',
-        description: 'Sua reflexão de balanço foi registrada.',
-      });
+        toast({
+          title: 'Anotação atualizada!',
+          description: 'Sua reflexão foi atualizada com sucesso.',
+        });
+      } else {
+        const { error } = await supabase.from('notes').insert({
+          user_id: user.id,
+          title: fullTitle,
+          content: newNoteContent,
+          area: null,
+        });
+
+        if (error) throw error;
+
+        toast({
+          title: 'Anotação salva!',
+          description: 'Sua reflexão de balanço foi registrada.',
+        });
+      }
 
       setNewNoteTitle('');
       setNewNoteContent('');
       setShowNoteForm(false);
+      setEditingNote(null);
       loadData();
     } catch (error) {
       toast({
@@ -217,6 +240,43 @@ export default function Balanco() {
     } finally {
       setSavingNote(false);
     }
+  };
+
+  const handleEditNote = (note: BalanceNote) => {
+    setEditingNote(note);
+    setNewNoteTitle(note.title.replace(/^\[Balanço [^\]]+\] /, ''));
+    setNewNoteContent(note.content);
+    setShowNoteForm(true);
+  };
+
+  const handleDeleteNote = async (noteId: string) => {
+    try {
+      const { error } = await supabase
+        .from('notes')
+        .delete()
+        .eq('id', noteId);
+
+      if (error) throw error;
+
+      toast({
+        title: 'Anotação excluída!',
+        description: 'A anotação foi removida com sucesso.',
+      });
+      loadData();
+    } catch (error) {
+      toast({
+        title: 'Erro ao excluir',
+        description: 'Não foi possível excluir a anotação.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setShowNoteForm(false);
+    setEditingNote(null);
+    setNewNoteTitle('');
+    setNewNoteContent('');
   };
 
   const totalGoals = stats.reduce((sum, s) => sum + s.total, 0);
@@ -241,7 +301,7 @@ export default function Balanco() {
 
   const selectedPlan = plans.find(p => p.id === selectedPlanId);
 
-  const handleExport = (formatType: 'pdf' | 'excel') => {
+  const handleExport = () => {
     const exportData = {
       title: 'Balanço - Plano de Vida',
       subtitle: `Período: ${getDateRangeLabel(dateRange)}`,
@@ -257,14 +317,10 @@ export default function Balanco() {
     };
 
     try {
-      if (formatType === 'pdf') {
-        exportToPDF(exportData);
-      } else {
-        exportToExcel(exportData);
-      }
+      exportToPDF(exportData);
       toast({
         title: 'Exportação concluída!',
-        description: `Balanço exportado em ${formatType.toUpperCase()} com sucesso.`,
+        description: 'Balanço exportado em PDF com sucesso.',
       });
     } catch (error) {
       toast({
@@ -326,25 +382,16 @@ export default function Balanco() {
               onChange={setDateRange}
             />
 
-            {/* Export Buttons */}
+            {/* Export Button */}
             <div className="flex gap-2 sm:ml-auto">
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => handleExport('pdf')}
+                onClick={handleExport}
                 className="flex-1 sm:flex-none"
               >
                 <FileText className="w-4 h-4 mr-2" />
                 PDF
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleExport('excel')}
-                className="flex-1 sm:flex-none"
-              >
-                <FileSpreadsheet className="w-4 h-4 mr-2" />
-                Excel
               </Button>
             </div>
           </div>
@@ -467,7 +514,7 @@ export default function Balanco() {
                       <LabelList
                         dataKey="value"
                         position="right"
-                        formatter={(value: number) => `${value}% ${getStatusLabel(value).emoji}`}
+                        formatter={(value: number) => `${value}%`}
                         style={{ fontSize: 12, fontWeight: 500 }}
                       />
                     </Bar>
@@ -554,7 +601,7 @@ export default function Balanco() {
                   rows={4}
                 />
                 <div className="flex gap-2 justify-end">
-                  <Button variant="outline" size="sm" onClick={() => setShowNoteForm(false)}>
+                  <Button variant="outline" size="sm" onClick={handleCancelEdit}>
                     Cancelar
                   </Button>
                   <Button 
@@ -563,7 +610,7 @@ export default function Balanco() {
                     disabled={!newNoteContent.trim() || savingNote}
                   >
                     {savingNote && <Loader2 className="w-4 h-4 mr-1 animate-spin" />}
-                    Salvar
+                    {editingNote ? 'Atualizar' : 'Salvar'}
                   </Button>
                 </div>
               </div>
@@ -581,12 +628,47 @@ export default function Balanco() {
                 {balanceNotes.map(note => (
                   <div key={note.id} className="p-4 rounded-lg border border-border bg-background/50">
                     <div className="flex items-start justify-between gap-2 mb-2">
-                      <h4 className="font-medium text-sm">{note.title.replace(/^\[Balanço [^\]]+\] /, '')}</h4>
-                      <span className="text-xs text-muted-foreground whitespace-nowrap">
-                        {format(new Date(note.created_at), "dd/MM/yyyy", { locale: ptBR })}
-                      </span>
+                      <h4 className="font-medium text-sm flex-1">{note.title.replace(/^\[Balanço [^\]]+\] /, '')}</h4>
+                      <div className="flex items-center gap-1">
+                        <span className="text-xs text-muted-foreground whitespace-nowrap">
+                          {format(new Date(note.created_at), "dd/MM/yyyy", { locale: ptBR })}
+                        </span>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7"
+                          onClick={() => handleEditNote(note)}
+                        >
+                          <Pencil className="w-3 h-3" />
+                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7 text-destructive hover:text-destructive"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Excluir anotação?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Esta ação não pode ser desfeita. A anotação será excluída permanentemente.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => handleDeleteNote(note.id)}>
+                                Excluir
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
                     </div>
-                    <p className="text-sm text-muted-foreground line-clamp-3">{note.content}</p>
+                    <p className="text-sm text-muted-foreground">{note.content}</p>
                   </div>
                 ))}
               </div>

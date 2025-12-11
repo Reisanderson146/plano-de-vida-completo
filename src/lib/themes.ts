@@ -413,13 +413,9 @@ export const applyTheme = (themeId: string) => {
   Object.entries(variables).forEach(([key, value]) => {
     root.style.setProperty(key, value);
   });
-
-  // Save to localStorage
-  localStorage.setItem('plano-vida-theme', themeId);
 };
 
-export const initializeTheme = () => {
-  const savedTheme = localStorage.getItem('plano-vida-theme') || 'default';
-  applyTheme(savedTheme);
-  return savedTheme;
+export const initializeTheme = (themeId: string = 'default') => {
+  applyTheme(themeId);
+  return themeId;
 };

@@ -8,7 +8,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Heart, Brain, Users, Briefcase, Wallet, Dumbbell, Sparkles, Eye, EyeOff } from 'lucide-react';
-import { Logo } from '@/components/Logo';
 
 const AREA_ICONS = [
   { icon: Sparkles, color: 'text-purple-400' },
@@ -100,11 +99,11 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-primary/10 flex flex-col items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-amber-500/10 via-background to-orange-500/10 flex flex-col items-center justify-center p-4 relative overflow-hidden">
       {/* Decorative background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary/10 rounded-full blur-3xl" />
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-primary/10 rounded-full blur-3xl" />
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl" />
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-500/10 rounded-full blur-3xl" />
         
         {/* Floating area icons */}
         {AREA_ICONS.map((item, index) => {
@@ -129,72 +128,45 @@ export default function Auth() {
       <div className="w-full max-w-md animate-fade-in relative z-10">
         {/* Logo and title */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-br from-emerald-400 via-teal-500 to-cyan-600 mb-4 shadow-xl shadow-primary/20">
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-br from-amber-500 via-orange-500 to-amber-600 mb-4 shadow-xl shadow-amber-500/20">
             <svg
               viewBox="0 0 40 40"
               fill="none"
               className="w-12 h-12"
               xmlns="http://www.w3.org/2000/svg"
             >
+              {/* Cross */}
               <path
-                d="M20 38V22"
+                d="M20 6V34"
                 stroke="white"
-                strokeWidth="2.5"
+                strokeWidth="3"
                 strokeLinecap="round"
               />
               <path
-                d="M20 22L12 30"
+                d="M10 14H30"
                 stroke="white"
-                strokeWidth="2"
+                strokeWidth="3"
                 strokeLinecap="round"
               />
+              {/* Heart at center */}
               <path
-                d="M20 22L28 30"
-                stroke="white"
-                strokeWidth="2"
-                strokeLinecap="round"
+                d="M20 18C20 18 16 14 14 14C11.5 14 10 16 10 18.5C10 22 20 28 20 28C20 28 30 22 30 18.5C30 16 28.5 14 26 14C24 14 20 18 20 18Z"
+                fill="white"
+                fillOpacity="0.95"
               />
+              {/* Subtle glow effect */}
               <circle
                 cx="20"
-                cy="14"
-                r="10"
-                fill="white"
-                fillOpacity="0.9"
+                cy="20"
+                r="16"
+                stroke="white"
+                strokeWidth="1"
+                strokeOpacity="0.3"
               />
-              <circle
-                cx="13"
-                cy="17"
-                r="6"
-                fill="white"
-                fillOpacity="0.9"
-              />
-              <circle
-                cx="27"
-                cy="17"
-                r="6"
-                fill="white"
-                fillOpacity="0.9"
-              />
-              <path
-                d="M20 6L16 12H24L20 6Z"
-                fill="url(#arrowGradientAuth)"
-              />
-              <path
-                d="M20 8V18"
-                stroke="url(#arrowGradientAuth)"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-              />
-              <defs>
-                <linearGradient id="arrowGradientAuth" x1="20" y1="6" x2="20" y2="18" gradientUnits="userSpaceOnUse">
-                  <stop stopColor="#0d9488" />
-                  <stop offset="1" stopColor="#0891b2" />
-                </linearGradient>
-              </defs>
             </svg>
           </div>
           <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-1">
-            Plano de <span className="bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 bg-clip-text text-transparent">Vida</span>
+            Plano de <span className="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500 bg-clip-text text-transparent">Vida</span>
           </h1>
           <p className="text-muted-foreground">
             Organize suas metas nas 7 áreas da vida
