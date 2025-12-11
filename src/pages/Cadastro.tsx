@@ -20,23 +20,26 @@ const PLAN_TYPES = [
   { 
     id: 'individual', 
     label: 'Individual', 
-    description: 'Plano pessoal para você',
+    description: 'Plano pessoal',
     icon: User,
-    color: 'bg-blue-500/10 border-blue-500/30 text-blue-600'
+    gradient: 'from-blue-500/15 to-blue-600/5',
+    iconBg: 'bg-blue-500/15 text-blue-600 dark:text-blue-400'
   },
   { 
     id: 'familiar', 
     label: 'Familiar', 
-    description: 'Plano para o casal/família',
+    description: 'Plano para família',
     icon: Users,
-    color: 'bg-pink-500/10 border-pink-500/30 text-pink-600'
+    gradient: 'from-rose-500/15 to-rose-600/5',
+    iconBg: 'bg-rose-500/15 text-rose-600 dark:text-rose-400'
   },
   { 
     id: 'filho', 
     label: 'Filho(a)', 
-    description: 'Plano para um filho',
+    description: 'Plano para filho',
     icon: Baby,
-    color: 'bg-amber-500/10 border-amber-500/30 text-amber-600'
+    gradient: 'from-amber-500/15 to-amber-600/5',
+    iconBg: 'bg-amber-500/15 text-amber-600 dark:text-amber-400'
   },
 ];
 
@@ -66,12 +69,10 @@ export default function Cadastro() {
   const [startAge, setStartAge] = useState(30);
   const [yearsToAdd, setYearsToAdd] = useState(5);
   
-  // Import state
   const [importedGoals, setImportedGoals] = useState<ImportedGoal[]>([]);
   const [importWarnings, setImportWarnings] = useState<string[]>([]);
   const [useImportedData, setUseImportedData] = useState(false);
 
-  // Area customization state
   const [areasOpen, setAreasOpen] = useState(false);
   const [areaConfigs, setAreaConfigs] = useState<AreaConfig[]>(
     LIFE_AREAS.map(a => ({ id: a.id, label: a.label, color: AREA_HEX_COLORS[a.id] }))
@@ -83,7 +84,6 @@ export default function Cadastro() {
       return false;
     }
 
-    // Check if title already exists for this user
     const { data: existingPlans, error } = await supabase
       .from('life_plans')
       .select('id, title')
@@ -92,7 +92,7 @@ export default function Cadastro() {
 
     if (error) {
       console.error('Error checking title:', error);
-      return true; // Allow if we can't check
+      return true;
     }
 
     if (existingPlans && existingPlans.length > 0) {
@@ -108,13 +108,9 @@ export default function Cadastro() {
     e.preventDefault();
     if (!user) return;
 
-    // Validate title uniqueness
     const isValidTitle = await validateTitle(title);
-    if (!isValidTitle) {
-      return;
-    }
+    if (!isValidTitle) return;
 
-    // Validate member name for family/child plans
     if ((planType === 'familiar' || planType === 'filho') && !memberName.trim()) {
       toast({
         title: 'Nome obrigatório',
@@ -128,7 +124,6 @@ export default function Cadastro() {
 
     setLoading(true);
     try {
-      // Create the life plan
       const { data: plan, error: planError } = await supabase
         .from('life_plans')
         .insert({
@@ -143,11 +138,9 @@ export default function Cadastro() {
 
       if (planError) throw planError;
 
-      // Create goals - either from import or blank
       let goalsToInsert = [];
       
       if (useImportedData && importedGoals.length > 0) {
-        // Use imported goals
         goalsToInsert = importedGoals.map(goal => ({
           life_plan_id: plan.id,
           user_id: user.id,
@@ -158,7 +151,6 @@ export default function Cadastro() {
           is_completed: false,
         }));
       } else {
-        // Create blank goals for each year and area
         for (let i = 0; i < yearsToAdd; i++) {
           const year = startYear + i;
           const age = startAge + i;
@@ -182,7 +174,6 @@ export default function Cadastro() {
 
       if (goalsError) throw goalsError;
 
-      // Save area customizations
       await saveAllCustomizations(plan.id, areaConfigs);
 
       toast({
@@ -220,7 +211,6 @@ export default function Cadastro() {
         setImportWarnings(result.warnings);
         setUseImportedData(true);
 
-        // Update start year and age based on imported data
         if (result.goals.length > 0) {
           const years = result.goals.map(g => g.year);
           const ages = result.goals.map(g => g.age);
@@ -262,9 +252,6 @@ export default function Cadastro() {
     setUseImportedData(false);
   };
 
-  const selectedPlanType = PLAN_TYPES.find(p => p.id === planType);
-
-  // Group imported goals by area for display
   const importedByArea = importedGoals.reduce((acc, goal) => {
     if (!acc[goal.area]) acc[goal.area] = [];
     acc[goal.area].push(goal);
@@ -274,22 +261,22 @@ export default function Cadastro() {
   return (
     <AppLayout>
       <div className="max-w-2xl mx-auto animate-fade-in">
-        <div className="mb-4 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-1 sm:mb-2">Novo Plano de Vida</h1>
+        <div className="mb-6">
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-1">Novo Plano de Vida</h1>
           <p className="text-sm sm:text-base text-muted-foreground">
-            Crie um novo plano e defina suas metas para as 7 áreas da vida
+            Crie um novo plano e defina suas metas
           </p>
         </div>
 
-        <Card className="shadow-lg">
-          <CardHeader className="pb-4 sm:pb-6">
-            <CardTitle className="text-lg sm:text-xl">Informações do Plano</CardTitle>
-            <CardDescription className="text-sm">
+        <Card className="border-border/40">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-lg">Informações do Plano</CardTitle>
+            <CardDescription>
               Preencha os dados básicos do seu plano de vida
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleCreate} className="space-y-4 sm:space-y-6">
+            <form onSubmit={handleCreate} className="space-y-6">
               {/* Plan Type Selection */}
               <div className="space-y-3">
                 <Label className="text-sm font-medium">Tipo de Plano</Label>
@@ -311,28 +298,29 @@ export default function Cadastro() {
                         <Label
                           htmlFor={type.id}
                           className={cn(
-                            "flex flex-col items-center gap-2 p-4 rounded-xl border-2 cursor-pointer transition-all",
+                            "flex flex-col items-center gap-3 p-5 rounded-2xl border-2 cursor-pointer transition-all duration-200",
                             isSelected 
-                              ? type.color + " border-current shadow-md" 
-                              : "border-border hover:border-muted-foreground/50 hover:bg-muted/50"
+                              ? `bg-gradient-to-br ${type.gradient} border-primary/50 shadow-sm` 
+                              : "border-border/50 hover:border-border hover:bg-muted/30"
                           )}
                         >
-                          <Icon className={cn(
-                            "w-6 h-6",
-                            isSelected ? "" : "text-muted-foreground"
-                          )} />
-                          <span className={cn(
-                            "font-medium text-sm",
-                            isSelected ? "" : "text-foreground"
+                          <div className={cn(
+                            "w-12 h-12 rounded-xl flex items-center justify-center transition-colors",
+                            isSelected ? type.iconBg : "bg-muted text-muted-foreground"
                           )}>
-                            {type.label}
-                          </span>
-                          <span className={cn(
-                            "text-xs text-center",
-                            isSelected ? "opacity-80" : "text-muted-foreground"
-                          )}>
-                            {type.description}
-                          </span>
+                            <Icon className="w-6 h-6" />
+                          </div>
+                          <div className="text-center">
+                            <span className={cn(
+                              "font-semibold text-sm block",
+                              isSelected ? "text-foreground" : "text-foreground"
+                            )}>
+                              {type.label}
+                            </span>
+                            <span className="text-xs text-muted-foreground">
+                              {type.description}
+                            </span>
+                          </div>
                         </Label>
                       </div>
                     );
@@ -340,7 +328,7 @@ export default function Cadastro() {
                 </RadioGroup>
               </div>
 
-              {/* Member Name (for familiar/filho) */}
+              {/* Member Name */}
               {(planType === 'familiar' || planType === 'filho') && (
                 <div className="space-y-2 animate-fade-in">
                   <Label htmlFor="memberName" className="text-sm">
@@ -352,7 +340,7 @@ export default function Cadastro() {
                     onChange={(e) => setMemberName(e.target.value)}
                     placeholder={planType === 'filho' ? 'Ex: Maria' : 'Ex: João e Maria'}
                     required
-                    className="h-11 sm:h-10"
+                    className="h-11 rounded-xl"
                   />
                 </div>
               )}
@@ -366,9 +354,9 @@ export default function Cadastro() {
                     setTitle(e.target.value);
                     setTitleError('');
                   }}
-                  placeholder="Ex: Plano Pessoal 2024, Sonhos da Família Silva, Metas do João"
+                  placeholder="Ex: Plano Pessoal 2024, Sonhos da Família Silva"
                   required
-                  className={cn("h-11 sm:h-10", titleError && "border-destructive")}
+                  className={cn("h-11 rounded-xl", titleError && "border-destructive focus-visible:ring-destructive")}
                 />
                 {titleError && (
                   <p className="text-xs text-destructive">{titleError}</p>
@@ -382,12 +370,12 @@ export default function Cadastro() {
                   value={motto}
                   onChange={(e) => setMotto(e.target.value)}
                   placeholder="Ex: Aprender a ter as coisas no tempo certo"
-                  className="h-11 sm:h-10"
+                  className="h-11 rounded-xl"
                 />
               </div>
 
               {/* Import Section */}
-              <div className="pt-4 border-t">
+              <div className="pt-5 border-t border-border/50">
                 <div className="flex items-center justify-between mb-3">
                   <Label className="text-sm font-medium">Importar plano existente (opcional)</Label>
                   {useImportedData && (
@@ -396,7 +384,7 @@ export default function Cadastro() {
                       variant="ghost" 
                       size="sm"
                       onClick={clearImport}
-                      className="text-muted-foreground hover:text-destructive"
+                      className="text-muted-foreground hover:text-destructive h-8 rounded-lg"
                     >
                       <X className="w-4 h-4 mr-1" />
                       Limpar
@@ -405,7 +393,7 @@ export default function Cadastro() {
                 </div>
 
                 {!useImportedData ? (
-                  <div className="border-2 border-dashed border-border rounded-xl p-6 text-center hover:border-primary/50 transition-colors">
+                  <div className="border-2 border-dashed border-border/50 rounded-2xl p-8 text-center hover:border-primary/40 hover:bg-muted/20 transition-all duration-200 cursor-pointer">
                     <input
                       ref={fileInputRef}
                       type="file"
@@ -416,25 +404,29 @@ export default function Cadastro() {
                     />
                     <label htmlFor="file-import" className="cursor-pointer">
                       {importing ? (
-                        <div className="flex flex-col items-center gap-2">
-                          <Loader2 className="w-8 h-8 animate-spin text-primary" />
-                          <span className="text-sm text-muted-foreground">Processando arquivo com IA...</span>
+                        <div className="flex flex-col items-center gap-3">
+                          <Loader2 className="w-10 h-10 animate-spin text-primary" />
+                          <span className="text-sm text-muted-foreground">Processando arquivo...</span>
                         </div>
                       ) : (
-                        <div className="flex flex-col items-center gap-2">
-                          <Upload className="w-8 h-8 text-muted-foreground" />
-                          <span className="text-sm font-medium text-foreground">
-                            Clique para importar arquivo
-                          </span>
-                          <span className="text-xs text-muted-foreground">
-                            Suporta Excel (.xlsx, .xls), CSV ou TXT
-                          </span>
-                          <div className="flex gap-3 mt-2">
-                            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <div className="flex flex-col items-center gap-3">
+                          <div className="w-14 h-14 rounded-2xl bg-muted/50 flex items-center justify-center">
+                            <Upload className="w-7 h-7 text-muted-foreground" />
+                          </div>
+                          <div>
+                            <span className="text-sm font-medium text-foreground block">
+                              Clique para importar arquivo
+                            </span>
+                            <span className="text-xs text-muted-foreground">
+                              Suporta Excel (.xlsx, .xls), CSV ou TXT
+                            </span>
+                          </div>
+                          <div className="flex gap-4 mt-1">
+                            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                               <FileSpreadsheet className="w-4 h-4" />
                               Excel
                             </div>
-                            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                               <FileText className="w-4 h-4" />
                               CSV/TXT
                             </div>
@@ -445,18 +437,16 @@ export default function Cadastro() {
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    {/* Import success message */}
-                    <div className="flex items-center gap-2 p-3 bg-green-500/10 border border-green-500/30 rounded-lg text-green-700 dark:text-green-400">
+                    <div className="flex items-center gap-2.5 p-4 bg-success/10 border border-success/20 rounded-xl text-success">
                       <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
                       <span className="text-sm font-medium">
                         {importedGoals.length} metas importadas de {Object.keys(importedByArea).length} áreas
                       </span>
                     </div>
 
-                    {/* Warnings */}
                     {importWarnings.length > 0 && (
-                      <div className="p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
-                        <div className="flex items-center gap-2 text-yellow-700 dark:text-yellow-400 mb-1">
+                      <div className="p-4 bg-warning/10 border border-warning/20 rounded-xl">
+                        <div className="flex items-center gap-2 text-warning mb-2">
                           <AlertTriangle className="w-4 h-4" />
                           <span className="text-sm font-medium">Avisos</span>
                         </div>
@@ -468,22 +458,16 @@ export default function Cadastro() {
                       </div>
                     )}
 
-                    {/* Summary by area */}
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                      {LIFE_AREAS.map(area => {
-                        const count = importedByArea[area.id]?.length || 0;
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                      {Object.entries(importedByArea).map(([area, goals]) => {
+                        const areaInfo = LIFE_AREAS.find(a => a.id === area);
                         return (
                           <div 
-                            key={area.id}
-                            className={cn(
-                              "p-2 rounded-lg text-center text-xs",
-                              count > 0 
-                                ? `bg-area-${area.id} text-foreground` 
-                                : "bg-muted/50 text-muted-foreground"
-                            )}
+                            key={area} 
+                            className="text-xs p-2.5 rounded-xl bg-muted/50 border border-border/30"
                           >
-                            <div className="font-medium">{area.label}</div>
-                            <div>{count} metas</div>
+                            <span className="font-medium text-foreground">{areaInfo?.label}</span>
+                            <span className="text-muted-foreground ml-1">({goals.length})</span>
                           </div>
                         );
                       })}
@@ -492,49 +476,53 @@ export default function Cadastro() {
                 )}
               </div>
 
-              {/* Year/Age settings - only show if NOT using imported data */}
+              {/* Year/Age Configuration - only show if not using imported data */}
               {!useImportedData && (
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="startYear" className="text-sm">Ano inicial</Label>
-                    <Input
-                      id="startYear"
-                      type="number"
-                      value={startYear}
-                      onChange={(e) => setStartYear(parseInt(e.target.value))}
-                      required
-                      className="h-11 sm:h-10"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="startAge" className="text-sm">Idade inicial</Label>
-                    <Input
-                      id="startAge"
-                      type="number"
-                      value={startAge}
-                      onChange={(e) => setStartAge(parseInt(e.target.value))}
-                      required
-                      className="h-11 sm:h-10"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="yearsToAdd" className="text-sm">Quantidade de anos</Label>
-                    <Input
-                      id="yearsToAdd"
-                      type="number"
-                      value={yearsToAdd}
-                      onChange={(e) => setYearsToAdd(parseInt(e.target.value))}
-                      min={1}
-                      max={20}
-                      required
-                      className="h-11 sm:h-10"
-                    />
+                <div className="pt-5 border-t border-border/50">
+                  <Label className="text-sm font-medium mb-4 block">Configuração de Períodos</Label>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="startYear" className="text-xs text-muted-foreground">Ano Inicial</Label>
+                      <Input
+                        id="startYear"
+                        type="number"
+                        value={startYear}
+                        onChange={(e) => setStartYear(parseInt(e.target.value))}
+                        min={1900}
+                        max={2100}
+                        className="h-11 rounded-xl"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="startAge" className="text-xs text-muted-foreground">Idade Inicial</Label>
+                      <Input
+                        id="startAge"
+                        type="number"
+                        value={startAge}
+                        onChange={(e) => setStartAge(parseInt(e.target.value))}
+                        min={1}
+                        max={120}
+                        className="h-11 rounded-xl"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="yearsToAdd" className="text-xs text-muted-foreground">Qtd. Anos</Label>
+                      <Input
+                        id="yearsToAdd"
+                        type="number"
+                        value={yearsToAdd}
+                        onChange={(e) => setYearsToAdd(parseInt(e.target.value))}
+                        min={1}
+                        max={50}
+                        className="h-11 rounded-xl"
+                      />
+                    </div>
                   </div>
                 </div>
               )}
 
               {/* Area Customization */}
-              <div className="pt-4 border-t">
+              <div className="pt-5 border-t border-border/50">
                 <AreaCustomizationEditor
                   areas={areaConfigs}
                   onAreasChange={setAreaConfigs}
@@ -543,29 +531,23 @@ export default function Cadastro() {
                 />
               </div>
 
-              <div className="pt-4 border-t">
-                <h4 className="font-medium text-foreground mb-2 text-sm sm:text-base">Áreas que serão criadas:</h4>
-                <div className="flex flex-wrap gap-2">
-                  {areaConfigs.map((area) => (
-                    <span
-                      key={area.id}
-                      className="px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium text-foreground"
-                      style={{ backgroundColor: `${area.color}30` }}
-                    >
-                      <span className="inline-block w-2 h-2 rounded-full mr-1" style={{ backgroundColor: area.color }} />
-                      {area.label}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              <Button type="submit" className="w-full h-11 sm:h-10" disabled={loading}>
+              <Button
+                type="submit"
+                disabled={loading}
+                className="w-full h-12 rounded-xl text-base font-semibold"
+                variant="premium"
+              >
                 {loading ? (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <>
+                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                    Criando...
+                  </>
                 ) : (
-                  <Plus className="w-4 h-4 mr-2" />
+                  <>
+                    <Plus className="w-5 h-5 mr-2" />
+                    Criar Plano de Vida
+                  </>
                 )}
-                Criar Plano de Vida
               </Button>
             </form>
           </CardContent>
