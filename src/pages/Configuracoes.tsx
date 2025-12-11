@@ -5,12 +5,13 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2, Palette, Moon, Info, Bell, Mail, Smartphone, CheckCircle2, Clock, Calendar } from 'lucide-react';
 import { ThemeSelector } from '@/components/theme/ThemeSelector';
 import { DarkModeToggle } from '@/components/theme/DarkModeToggle';
-import { applyTheme, initializeTheme } from '@/lib/themes';
+import { applyTheme } from '@/lib/themes';
 import { useAuth } from '@/hooks/useAuth';
 import { useReminderSettings, ReminderSetting } from '@/hooks/useReminderSettings';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
+import { supabase } from '@/integrations/supabase/client';
 
 const reminderTypeLabels = {
   check_in: { label: 'Check-in de Metas', icon: CheckCircle2, description: 'Lembretes para atualizar o progresso das metas' },
@@ -32,18 +33,60 @@ export default function Configuracoes() {
   const { settings, isLoading: loadingSettings, updateSetting } = useReminderSettings();
 
   useEffect(() => {
-    const savedTheme = initializeTheme();
-    setSelectedTheme(savedTheme);
-    setLoading(false);
-  }, []);
+    if (user) {
+      loadUserTheme();
+    }
+  }, [user]);
 
-  const handleThemeChange = (themeId: string) => {
+  const loadUserTheme = async () => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('theme_id')
+        .eq('id', user.id)
+        .single();
+
+      if (error) throw error;
+      
+      const theme = data?.theme_id || 'default';
+      setSelectedTheme(theme);
+      applyTheme(theme);
+    } catch (error) {
+      console.error('Error loading theme:', error);
+      applyTheme('default');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleThemeChange = async (themeId: string) => {
+    if (!user) return;
+    
     setSelectedTheme(themeId);
     applyTheme(themeId);
-    toast({
-      title: 'Tema atualizado!',
-      description: 'O novo tema foi aplicado com sucesso.',
-    });
+    
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ theme_id: themeId })
+        .eq('id', user.id);
+
+      if (error) throw error;
+      
+      toast({
+        title: 'Tema atualizado!',
+        description: 'O novo tema foi aplicado com sucesso.',
+      });
+    } catch (error) {
+      console.error('Error saving theme:', error);
+      toast({
+        title: 'Erro ao salvar tema',
+        description: 'Não foi possível salvar sua preferência de tema.',
+        variant: 'destructive',
+      });
+    }
   };
 
   const handleSettingChange = (setting: ReminderSetting, field: keyof ReminderSetting, value: any) => {

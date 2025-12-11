@@ -2,8 +2,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Download, FileSpreadsheet, FileText } from 'lucide-react';
+import { Download, FileText } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -13,9 +12,10 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { useExportLifePlan } from '@/hooks/useExportLifePlan';
-import { LifeArea, LIFE_AREAS, AREA_HEX_COLORS } from '@/lib/constants';
+import { LifeArea } from '@/lib/constants';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 interface Goal {
   id: string;
@@ -47,13 +47,12 @@ interface ExportPlanDialogProps {
 }
 
 export function ExportPlanDialog({ open, onOpenChange, plan, goals, areaConfigs }: ExportPlanDialogProps) {
-  const { exportToPDF, exportToExcel, getUniqueYears } = useExportLifePlan();
+  const { exportToPDF, getUniqueYears } = useExportLifePlan();
   const { toast } = useToast();
   
   const years = getUniqueYears(goals);
   const [exportType, setExportType] = useState<'all' | 'selected'>('all');
   const [selectedYears, setSelectedYears] = useState<number[]>(years);
-  const [format, setFormat] = useState<'pdf' | 'excel'>('pdf');
 
   const handleYearToggle = (year: number) => {
     setSelectedYears(prev => 
@@ -84,15 +83,11 @@ export function ExportPlanDialog({ open, onOpenChange, plan, goals, areaConfigs 
     }
 
     try {
-      if (format === 'pdf') {
-        exportToPDF({ plan, goals, areaConfigs, selectedYears: yearsToExport });
-      } else {
-        exportToExcel({ plan, goals, areaConfigs, selectedYears: yearsToExport });
-      }
+      exportToPDF({ plan, goals, areaConfigs, selectedYears: yearsToExport });
 
       toast({
         title: 'Exportação concluída!',
-        description: `Seu plano foi exportado em ${format.toUpperCase()}.`,
+        description: 'Seu plano foi exportado em PDF.',
       });
       
       onOpenChange(false);
@@ -114,46 +109,15 @@ export function ExportPlanDialog({ open, onOpenChange, plan, goals, areaConfigs 
             Exportar Plano
           </DialogTitle>
           <DialogDescription className="text-xs">
-            Formato e períodos
+            Selecione os períodos para exportar
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-2 overflow-y-auto flex-1 pr-1">
-          {/* Format Selection */}
-          <div className="space-y-2">
-            <Label className="text-xs font-medium">Formato</Label>
-            <RadioGroup value={format} onValueChange={(v) => setFormat(v as 'pdf' | 'excel')} className="grid grid-cols-2 gap-2">
-              <div>
-                <RadioGroupItem value="pdf" id="pdf" className="sr-only" />
-                <Label
-                  htmlFor="pdf"
-                  className={cn(
-                    "flex items-center justify-center gap-1.5 p-2 rounded-lg border-2 cursor-pointer transition-all text-sm",
-                    format === 'pdf' 
-                      ? "border-primary bg-primary/10 text-primary" 
-                      : "border-border hover:border-muted-foreground/50"
-                  )}
-                >
-                  <FileText className="w-4 h-4" />
-                  PDF
-                </Label>
-              </div>
-              <div>
-                <RadioGroupItem value="excel" id="excel" className="sr-only" />
-                <Label
-                  htmlFor="excel"
-                  className={cn(
-                    "flex items-center justify-center gap-1.5 p-2 rounded-lg border-2 cursor-pointer transition-all text-sm",
-                    format === 'excel' 
-                      ? "border-primary bg-primary/10 text-primary" 
-                      : "border-border hover:border-muted-foreground/50"
-                  )}
-                >
-                  <FileSpreadsheet className="w-4 h-4" />
-                  Excel
-                </Label>
-              </div>
-            </RadioGroup>
+          {/* Format Info */}
+          <div className="flex items-center gap-2 p-3 rounded-lg bg-muted/50">
+            <FileText className="w-4 h-4 text-primary" />
+            <span className="text-sm font-medium">Formato: PDF</span>
           </div>
 
           {/* Period Selection */}
@@ -228,7 +192,7 @@ export function ExportPlanDialog({ open, onOpenChange, plan, goals, areaConfigs 
           </Button>
           <Button size="sm" onClick={handleExport} className="gap-1.5">
             <Download className="w-3.5 h-3.5" />
-            Exportar
+            Exportar PDF
           </Button>
         </DialogFooter>
       </DialogContent>

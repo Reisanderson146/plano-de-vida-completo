@@ -22,75 +22,44 @@ export function Logo({ className, showText = true, size = 'md' }: LogoProps) {
   return (
     <div className={cn("flex items-center gap-2", className)}>
       <div className={cn(
-        "relative flex items-center justify-center rounded-xl bg-gradient-to-br from-emerald-400 via-teal-500 to-cyan-600 shadow-lg",
+        "relative flex items-center justify-center rounded-xl bg-gradient-to-br from-amber-500 via-orange-500 to-amber-600 shadow-lg",
         sizeClasses[size]
       )}>
-        {/* Tree/Life icon */}
+        {/* Christian Cross with Heart - representing life plan with faith */}
         <svg
           viewBox="0 0 40 40"
           fill="none"
-          className="w-[70%] h-[70%]"
+          className="w-[75%] h-[75%]"
           xmlns="http://www.w3.org/2000/svg"
         >
-          {/* Tree trunk */}
+          {/* Cross */}
           <path
-            d="M20 38V22"
+            d="M20 6V34"
             stroke="white"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-          />
-          {/* Tree branches forming upward arrows/paths */}
-          <path
-            d="M20 22L12 30"
-            stroke="white"
-            strokeWidth="2"
+            strokeWidth="3"
             strokeLinecap="round"
           />
           <path
-            d="M20 22L28 30"
+            d="M10 14H30"
             stroke="white"
-            strokeWidth="2"
+            strokeWidth="3"
             strokeLinecap="round"
           />
-          {/* Tree crown - stylized leaves forming a growth pattern */}
+          {/* Heart at center */}
+          <path
+            d="M20 18C20 18 16 14 14 14C11.5 14 10 16 10 18.5C10 22 20 28 20 28C20 28 30 22 30 18.5C30 16 28.5 14 26 14C24 14 20 18 20 18Z"
+            fill="white"
+            fillOpacity="0.95"
+          />
+          {/* Subtle glow effect */}
           <circle
             cx="20"
-            cy="14"
-            r="10"
-            fill="white"
-            fillOpacity="0.9"
+            cy="20"
+            r="16"
+            stroke="white"
+            strokeWidth="1"
+            strokeOpacity="0.3"
           />
-          <circle
-            cx="13"
-            cy="17"
-            r="6"
-            fill="white"
-            fillOpacity="0.9"
-          />
-          <circle
-            cx="27"
-            cy="17"
-            r="6"
-            fill="white"
-            fillOpacity="0.9"
-          />
-          {/* Center arrow pointing up - represents planning/direction */}
-          <path
-            d="M20 6L16 12H24L20 6Z"
-            fill="url(#arrowGradient)"
-          />
-          <path
-            d="M20 8V18"
-            stroke="url(#arrowGradient)"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-          />
-          <defs>
-            <linearGradient id="arrowGradient" x1="20" y1="6" x2="20" y2="18" gradientUnits="userSpaceOnUse">
-              <stop stopColor="#0d9488" />
-              <stop offset="1" stopColor="#0891b2" />
-            </linearGradient>
-          </defs>
         </svg>
       </div>
       
@@ -103,7 +72,7 @@ export function Logo({ className, showText = true, size = 'md' }: LogoProps) {
             Plano de
           </span>
           <span className={cn(
-            "font-bold bg-gradient-to-r from-emerald-300 via-teal-200 to-cyan-300 bg-clip-text text-transparent tracking-tight -mt-1",
+            "font-bold bg-gradient-to-r from-amber-300 via-orange-200 to-amber-300 bg-clip-text text-transparent tracking-tight -mt-1",
             textSizeClasses[size]
           )}>
             Vida

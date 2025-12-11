@@ -10,7 +10,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useExportReport } from '@/hooks/useExportReport';
 import { useToast } from '@/hooks/use-toast';
 import { LIFE_AREAS, LifeArea, AREA_HEX_COLORS } from '@/lib/constants';
-import { Loader2, TrendingUp, TrendingDown, Target, CheckCircle2, FileText, FileSpreadsheet, Folder, User, Users, Baby } from 'lucide-react';
+import { Loader2, TrendingUp, TrendingDown, Target, CheckCircle2, FileText, Folder, User, Users, Baby } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { DateRangeFilter, getYearRangeFromDateRange } from '@/components/filters/DateRangeFilter';
 import { DateRange } from 'react-day-picker';
@@ -34,7 +34,7 @@ const PLAN_TYPE_CONFIG = {
 
 export default function Relatorios() {
   const { user } = useAuth();
-  const { exportToPDF, exportToExcel } = useExportReport();
+  const { exportToPDF } = useExportReport();
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<AreaStats>({
@@ -92,14 +92,12 @@ export default function Relatorios() {
     if (!selectedPlanId) return;
 
     try {
-      // Build query with date range filter
       let query = supabase
         .from('life_goals')
         .select('area, is_completed, period_year')
         .eq('user_id', user!.id)
         .eq('life_plan_id', selectedPlanId);
 
-      // Apply year range filter from date range
       const yearRange = getYearRangeFromDateRange(dateRange);
       if (yearRange.min !== undefined) {
         query = query.gte('period_year', yearRange.min);
@@ -178,7 +176,7 @@ export default function Relatorios() {
     ? Math.round((completedGoals / totalGoals) * 100) 
     : 0;
 
-  const handleExport = (format: 'pdf' | 'excel') => {
+  const handleExport = () => {
     const exportData = {
       title: 'Relatório de Progresso',
       subtitle: `${selectedPlan?.title || 'Plano de Vida'} - ${getDateRangeLabel(dateRange)}`,
@@ -197,14 +195,10 @@ export default function Relatorios() {
     };
 
     try {
-      if (format === 'pdf') {
-        exportToPDF(exportData);
-      } else {
-        exportToExcel(exportData);
-      }
+      exportToPDF(exportData);
       toast({
         title: 'Exportação concluída!',
-        description: `Relatório exportado em ${format.toUpperCase()} com sucesso.`,
+        description: 'Relatório exportado em PDF com sucesso.',
       });
     } catch (error) {
       toast({
@@ -267,25 +261,16 @@ export default function Relatorios() {
             onChange={setDateRange}
           />
 
-          {/* Export Buttons */}
+          {/* Export Button */}
           <div className="flex gap-2 sm:ml-auto">
             <Button
               variant="outline"
               size="sm"
-              onClick={() => handleExport('pdf')}
+              onClick={handleExport}
               className="flex-1 sm:flex-none"
             >
               <FileText className="w-4 h-4 mr-2" />
               PDF
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handleExport('excel')}
-              className="flex-1 sm:flex-none"
-            >
-              <FileSpreadsheet className="w-4 h-4 mr-2" />
-              Excel
             </Button>
           </div>
         </div>
@@ -460,15 +445,10 @@ export default function Relatorios() {
                 <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-1 sm:mb-2">
                   {overallPercentage >= 80 ? 'Excelente!' : 
                    overallPercentage >= 50 ? 'Bom progresso!' : 
-                   totalGoals === 0 ? 'Sem metas no período' :
-                   'Continue focado!'}
+                   'Continue tentando!'}
                 </h3>
                 <p className="text-sm sm:text-base text-muted-foreground">
-                  {totalGoals > 0 
-                    ? `Você completou ${completedGoals} de ${totalGoals} metas em ${getDateRangeLabel(dateRange)}.`
-                    : `Nenhuma meta encontrada para ${getDateRangeLabel(dateRange)}. Tente selecionar outro período.`
-                  }
-                  {overallPercentage < 50 && totalGoals > 0 && ' Foque nas áreas que precisam de mais atenção.'}
+                  Você completou {completedGoals} de {totalGoals} metas no período selecionado.
                 </p>
               </div>
             </div>
