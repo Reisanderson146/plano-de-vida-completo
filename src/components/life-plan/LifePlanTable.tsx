@@ -50,7 +50,7 @@ interface LifePlanTableProps {
 interface PeriodRow {
   year: number;
   age: number;
-  goals: Record<LifeArea, Goal | null>;
+  goals: Record<LifeArea, Goal[]>;
 }
 
 export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, lifePlanId, editable = false }: LifePlanTableProps) {
@@ -66,7 +66,7 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, li
   const { toast } = useToast();
   const { getAreaLabel, getAreaColor } = usePlanAreaCustomizations(lifePlanId);
 
-  // Group goals by period
+  // Group goals by period - now supporting multiple goals per area
   const periodsMap = new Map<string, PeriodRow>();
   goals.forEach((goal) => {
     const key = `${goal.period_year}-${goal.age}`;
@@ -75,13 +75,13 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, li
         year: goal.period_year,
         age: goal.age,
         goals: {
-          espiritual: null, intelectual: null, familiar: null, social: null,
-          financeiro: null, profissional: null, saude: null,
+          espiritual: [], intelectual: [], familiar: [], social: [],
+          financeiro: [], profissional: [], saude: [],
         },
       });
     }
     const period = periodsMap.get(key)!;
-    period.goals[goal.area as LifeArea] = goal;
+    period.goals[goal.area as LifeArea].push(goal);
   });
 
   const periods = Array.from(periodsMap.values()).sort((a, b) => a.year - b.year);
@@ -116,13 +116,13 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, li
   };
 
   const handleAddGoalConfirm = async () => {
-    if (!addGoalDialog) return;
+    if (!addGoalDialog || !newGoalText.trim()) return;
     await onAddGoal({
       life_plan_id: lifePlanId,
       period_year: addGoalDialog.year,
       age: addGoalDialog.age,
       area: addGoalDialog.area,
-      goal_text: newGoalText,
+      goal_text: newGoalText.trim(),
       is_completed: false,
     });
     toast({ title: 'Meta adicionada!' });
@@ -131,6 +131,10 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, li
   };
 
   const handleConfirmAddRow = async () => {
+    // Just create the period structure - no empty goals needed
+    setAddingRow(false);
+    setExpandedYears(prev => new Set([...prev, newRowYear]));
+    // Add one empty goal per area to create the period
     for (const area of LIFE_AREAS) {
       await onAddGoal({
         life_plan_id: lifePlanId,
@@ -141,8 +145,6 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, li
         is_completed: false,
       });
     }
-    setAddingRow(false);
-    setExpandedYears(prev => new Set([...prev, newRowYear]));
     toast({ title: 'Período adicionado!' });
   };
 
@@ -164,95 +166,189 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, li
     setExpandedYears(new Set());
   };
 
-  const getCompletedCount = (period: PeriodRow) => {
-    return LIFE_AREAS.filter(area => period.goals[area.id]?.is_completed).length;
-  };
-
-  const truncateText = (text: string, maxLength: number = 80) => {
-    if (!text || text.length <= maxLength) return text;
-    return text.substring(0, maxLength) + '...';
-  };
-
-  // Goal Cell Component
-  const GoalCell = ({ goal, areaId, period }: { goal: Goal | null; areaId: LifeArea; period: PeriodRow }) => {
-    const areaColor = getAreaColor(areaId);
+  // Calculate progress for a period - now counts all goals
+  const getProgressStats = (period: PeriodRow) => {
+    let totalGoals = 0;
+    let completedGoals = 0;
     
-    if (!goal) {
-      return editable ? (
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          className="w-full h-full min-h-[60px] text-muted-foreground hover:bg-muted/50 border-2 border-dashed border-muted-foreground/20" 
-          onClick={() => { setAddGoalDialog({ year: period.year, age: period.age, area: areaId }); setNewGoalText(''); }}
-        >
-          <Plus className="w-4 h-4 mr-1" />
-          Adicionar
-        </Button>
-      ) : (
-        <div className="h-full min-h-[60px] flex items-center justify-center text-muted-foreground text-sm italic">
-          Sem meta
-        </div>
-      );
-    }
+    LIFE_AREAS.forEach(area => {
+      const areaGoals = period.goals[area.id];
+      areaGoals.forEach(goal => {
+        if (goal.goal_text.trim()) { // Only count goals with text
+          totalGoals++;
+          if (goal.is_completed) completedGoals++;
+        }
+      });
+    });
+    
+    return { totalGoals, completedGoals };
+  };
 
-    const hasLongText = goal.goal_text && goal.goal_text.length > 80;
+  // Calculate progress for a specific area
+  const getAreaProgress = (areaGoals: Goal[]) => {
+    const goalsWithText = areaGoals.filter(g => g.goal_text.trim());
+    if (goalsWithText.length === 0) return null;
+    const completed = goalsWithText.filter(g => g.is_completed).length;
+    return { completed, total: goalsWithText.length, percent: Math.round((completed / goalsWithText.length) * 100) };
+  };
 
+  // Goal List Component for an area
+  const GoalList = ({ areaGoals, areaId, period }: { areaGoals: Goal[]; areaId: LifeArea; period: PeriodRow }) => {
+    const areaColor = getAreaColor(areaId);
+    const goalsWithText = areaGoals.filter(g => g.goal_text.trim());
+    const progress = getAreaProgress(areaGoals);
+    
     return (
-      <div className="h-full min-h-[60px] flex flex-col justify-between p-2 gap-2">
-        <div className="flex items-start gap-2 flex-1">
-          <Checkbox 
-            checked={goal.is_completed} 
-            onCheckedChange={() => handleToggleComplete(goal)} 
-            className="mt-0.5 flex-shrink-0"
-            style={{ borderColor: areaColor }}
-          />
-          <div className="flex-1 min-w-0">
-            {hasLongText ? (
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <p className={cn(
-                      "text-sm text-foreground cursor-help line-clamp-3",
-                      goal.is_completed && "line-through opacity-60"
-                    )}>
-                      {goal.goal_text || <span className="italic text-muted-foreground">Sem meta definida</span>}
-                    </p>
-                  </TooltipTrigger>
-                  <TooltipContent side="top" className="max-w-[300px] p-3">
-                    <p className="text-sm whitespace-pre-wrap">{goal.goal_text}</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            ) : (
-              <p className={cn(
-                "text-sm text-foreground line-clamp-3",
-                goal.is_completed && "line-through opacity-60"
-              )}>
-                {goal.goal_text || <span className="italic text-muted-foreground">Sem meta definida</span>}
-              </p>
-            )}
+      <div className="h-full min-h-[80px] flex flex-col p-2 gap-1">
+        {/* Progress indicator for area */}
+        {progress && (
+          <div className="flex items-center gap-1 mb-1">
+            <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
+              <div 
+                className="h-full transition-all duration-300" 
+                style={{ width: `${progress.percent}%`, backgroundColor: areaColor }}
+              />
+            </div>
+            <span className="text-xs text-muted-foreground">{progress.percent}%</span>
           </div>
+        )}
+
+        {/* List of goals */}
+        <div className="flex-1 space-y-1">
+          {goalsWithText.map((goal, index) => (
+            <div key={goal.id} className="flex items-start gap-1.5 group">
+              <Checkbox 
+                checked={goal.is_completed} 
+                onCheckedChange={() => handleToggleComplete(goal)} 
+                className="mt-0.5 flex-shrink-0 h-4 w-4"
+                style={{ borderColor: areaColor }}
+              />
+              <div className="flex-1 min-w-0">
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <p className={cn(
+                        "text-xs text-foreground cursor-help line-clamp-2",
+                        goal.is_completed && "line-through opacity-60"
+                      )}>
+                        <span className="font-medium text-muted-foreground">{index + 1}º </span>
+                        {goal.goal_text}
+                      </p>
+                    </TooltipTrigger>
+                    {goal.goal_text.length > 50 && (
+                      <TooltipContent side="top" className="max-w-[300px] p-3">
+                        <p className="text-sm whitespace-pre-wrap">{goal.goal_text}</p>
+                      </TooltipContent>
+                    )}
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+              {editable && (
+                <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Button size="icon" variant="ghost" onClick={() => handleStartEdit(goal)} className="h-5 w-5">
+                    <Pencil className="w-2.5 h-2.5" />
+                  </Button>
+                  <Button size="icon" variant="ghost" onClick={() => onDeleteGoal(goal.id)} className="h-5 w-5 hover:text-destructive">
+                    <Trash2 className="w-2.5 h-2.5" />
+                  </Button>
+                </div>
+              )}
+            </div>
+          ))}
+          
+          {goalsWithText.length === 0 && !editable && (
+            <p className="text-xs italic text-muted-foreground">Sem metas</p>
+          )}
         </div>
-        
+
+        {/* Add goal button */}
         {editable && (
-          <div className="flex gap-1 justify-end opacity-60 hover:opacity-100 transition-opacity">
-            <Button size="icon" variant="ghost" onClick={() => handleStartEdit(goal)} className="h-6 w-6">
-              <Pencil className="w-3 h-3" />
-            </Button>
-            <Button size="icon" variant="ghost" onClick={() => onDeleteGoal(goal.id)} className="h-6 w-6 hover:text-destructive">
-              <Trash2 className="w-3 h-3" />
-            </Button>
-          </div>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="w-full h-6 text-xs text-muted-foreground hover:bg-muted/50 border border-dashed border-muted-foreground/20 mt-1" 
+            onClick={() => { setAddGoalDialog({ year: period.year, age: period.age, area: areaId }); setNewGoalText(''); }}
+          >
+            <Plus className="w-3 h-3 mr-1" />
+            Adicionar meta
+          </Button>
         )}
       </div>
     );
   };
 
-  // Year Card Component (separates each year)
+  // Mobile Goal List Component
+  const MobileGoalList = ({ areaGoals, areaId, period }: { areaGoals: Goal[]; areaId: LifeArea; period: PeriodRow }) => {
+    const areaColor = getAreaColor(areaId);
+    const goalsWithText = areaGoals.filter(g => g.goal_text.trim());
+    const progress = getAreaProgress(areaGoals);
+
+    return (
+      <div className="p-3" style={{ backgroundColor: `${areaColor}10` }}>
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: areaColor }} />
+            <span className="text-sm font-medium text-foreground">{getAreaLabel(areaId)}</span>
+          </div>
+          {progress && (
+            <span className="text-xs text-muted-foreground">{progress.completed}/{progress.total} ({progress.percent}%)</span>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          {goalsWithText.map((goal, index) => (
+            <div key={goal.id} className="flex items-start gap-2">
+              <Checkbox 
+                checked={goal.is_completed} 
+                onCheckedChange={() => handleToggleComplete(goal)} 
+                className="mt-0.5 h-5 w-5"
+              />
+              <div className="flex-1 min-w-0">
+                <p className={cn(
+                  "text-sm text-foreground",
+                  goal.is_completed && "line-through opacity-60"
+                )}>
+                  <span className="font-medium text-muted-foreground">{index + 1}º </span>
+                  {goal.goal_text}
+                </p>
+              </div>
+              {editable && (
+                <div className="flex gap-1 flex-shrink-0">
+                  <Button size="icon" variant="ghost" onClick={() => handleStartEdit(goal)} className="h-7 w-7">
+                    <Pencil className="w-3 h-3" />
+                  </Button>
+                  <Button size="icon" variant="ghost" onClick={() => onDeleteGoal(goal.id)} className="h-7 w-7">
+                    <Trash2 className="w-3 h-3 text-destructive" />
+                  </Button>
+                </div>
+              )}
+            </div>
+          ))}
+          
+          {goalsWithText.length === 0 && !editable && (
+            <p className="text-sm italic text-muted-foreground">Sem metas definidas</p>
+          )}
+          
+          {editable && (
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="w-full text-muted-foreground h-8 text-xs border border-dashed border-muted-foreground/30" 
+              onClick={() => { setAddGoalDialog({ year: period.year, age: period.age, area: areaId }); setNewGoalText(''); }}
+            >
+              <Plus className="w-3 h-3 mr-1" />Adicionar meta
+            </Button>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  // Year Card Component
   const YearCard = ({ period }: { period: PeriodRow }) => {
     const isExpanded = expandedYears.has(period.year);
-    const completedCount = getCompletedCount(period);
-    const progressPercent = Math.round((completedCount / 7) * 100);
+    const { totalGoals, completedGoals } = getProgressStats(period);
+    const progressPercent = totalGoals > 0 ? Math.round((completedGoals / totalGoals) * 100) : 0;
 
     return (
       <Collapsible open={isExpanded} onOpenChange={() => toggleYear(period.year)}>
@@ -276,11 +372,15 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, li
                         style={{ width: `${progressPercent}%` }}
                       />
                     </div>
-                    <span className="text-sm text-muted-foreground">{completedCount}/7</span>
+                    <span className="text-sm text-muted-foreground">
+                      {totalGoals > 0 ? `${completedGoals}/${totalGoals} metas` : 'Sem metas'}
+                    </span>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="sm:hidden text-sm text-muted-foreground">{completedCount}/7</span>
+                  <span className="sm:hidden text-sm text-muted-foreground">
+                    {totalGoals > 0 ? `${completedGoals}/${totalGoals}` : '0'}
+                  </span>
                   {isExpanded ? <ChevronUp className="w-5 h-5 text-muted-foreground" /> : <ChevronDown className="w-5 h-5 text-muted-foreground" />}
                 </div>
               </div>
@@ -306,7 +406,7 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, li
                       className="min-h-[100px]" 
                       style={{ backgroundColor: `${getAreaColor(area.id)}08` }}
                     >
-                      <GoalCell goal={period.goals[area.id]} areaId={area.id} period={period} />
+                      <GoalList areaGoals={period.goals[area.id]} areaId={area.id} period={period} />
                     </div>
                   </div>
                 ))}
@@ -314,58 +414,9 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, li
 
               {/* Mobile List */}
               <div className="md:hidden divide-y divide-border">
-                {LIFE_AREAS.map((area) => {
-                  const goal = period.goals[area.id];
-                  const areaColor = getAreaColor(area.id);
-
-                  return (
-                    <div key={area.id} className="p-3" style={{ backgroundColor: `${areaColor}10` }}>
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: areaColor }} />
-                          <span className="text-sm font-medium text-foreground">{getAreaLabel(area.id)}</span>
-                        </div>
-                        {goal && (
-                          <Checkbox 
-                            checked={goal.is_completed} 
-                            onCheckedChange={() => handleToggleComplete(goal)} 
-                            className="h-5 w-5"
-                          />
-                        )}
-                      </div>
-                      
-                      {goal ? (
-                        <div className="flex items-start justify-between gap-2">
-                          <p className={cn(
-                            "text-sm text-foreground flex-1",
-                            goal.is_completed && "line-through opacity-60"
-                          )}>
-                            {goal.goal_text || <span className="italic text-muted-foreground">Sem meta definida</span>}
-                          </p>
-                          {editable && (
-                            <div className="flex gap-1 flex-shrink-0">
-                              <Button size="icon" variant="ghost" onClick={() => handleStartEdit(goal)} className="h-7 w-7">
-                                <Pencil className="w-3 h-3" />
-                              </Button>
-                              <Button size="icon" variant="ghost" onClick={() => onDeleteGoal(goal.id)} className="h-7 w-7">
-                                <Trash2 className="w-3 h-3 text-destructive" />
-                              </Button>
-                            </div>
-                          )}
-                        </div>
-                      ) : editable && (
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          className="w-full text-muted-foreground h-8 text-xs border border-dashed border-muted-foreground/30" 
-                          onClick={() => { setAddGoalDialog({ year: period.year, age: period.age, area: area.id }); setNewGoalText(''); }}
-                        >
-                          <Plus className="w-3 h-3 mr-1" />Adicionar
-                        </Button>
-                      )}
-                    </div>
-                  );
-                })}
+                {LIFE_AREAS.map((area) => (
+                  <MobileGoalList key={area.id} areaGoals={period.goals[area.id]} areaId={area.id} period={period} />
+                ))}
               </div>
             </CardContent>
           </CollapsibleContent>
@@ -462,7 +513,7 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, li
           <p className="text-xs text-muted-foreground">{newGoalText.length}/1000 caracteres</p>
           <DialogFooter>
             <Button variant="ghost" onClick={() => setAddGoalDialog(null)}>Cancelar</Button>
-            <Button onClick={handleAddGoalConfirm}>Adicionar</Button>
+            <Button onClick={handleAddGoalConfirm} disabled={!newGoalText.trim()}>Adicionar</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
