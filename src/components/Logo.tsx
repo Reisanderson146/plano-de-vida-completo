@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils';
-import logoPath from '@/assets/logo-path.png';
+import logoJourney from '@/assets/logo-journey.png';
 
 interface LogoProps {
   className?: string;
@@ -23,7 +23,7 @@ export function Logo({ className, showText = true, size = 'md' }: LogoProps) {
   return (
     <div className={cn("flex items-center gap-2", className)}>
       <img 
-        src={logoPath} 
+        src={logoJourney} 
         alt="Plano de Vida" 
         className={cn(sizeClasses[size], "object-contain")}
       />
@@ -31,13 +31,13 @@ export function Logo({ className, showText = true, size = 'md' }: LogoProps) {
       {showText && (
         <div className="flex flex-col leading-tight">
           <span className={cn(
-            "font-bold text-foreground tracking-tight",
+            "font-bold text-white tracking-tight drop-shadow-sm",
             textSizeClasses[size]
           )}>
             Plano de
           </span>
           <span className={cn(
-            "font-bold bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent tracking-tight -mt-1",
+            "font-bold text-green-500 tracking-tight -mt-1",
             textSizeClasses[size]
           )}>
             Vida
