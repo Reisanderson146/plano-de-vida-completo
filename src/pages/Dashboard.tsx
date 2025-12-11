@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { LIFE_AREAS, LifeArea } from '@/lib/constants';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { Loader2, Target, Folder, User, Users, Baby } from 'lucide-react';
+import { Loader2, Target, Folder, User, Users, Baby, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { DateRangeFilter, getYearRangeFromDateRange } from '@/components/filters/DateRangeFilter';
@@ -76,7 +76,6 @@ export default function Dashboard() {
       setPlans(data || []);
       setHasPlans((data?.length ?? 0) > 0);
       
-      // Auto-select first plan if exists
       if (data && data.length > 0) {
         setSelectedPlanId(data[0].id);
       }
@@ -91,14 +90,12 @@ export default function Dashboard() {
     if (!selectedPlanId) return;
     
     try {
-      // Build query with date range filter
       let query = supabase
         .from('life_goals')
         .select('area, is_completed, period_year')
         .eq('user_id', user!.id)
         .eq('life_plan_id', selectedPlanId);
 
-      // Apply year range filter from date range
       const yearRange = getYearRangeFromDateRange(dateRange);
       if (yearRange.min !== undefined) {
         query = query.gte('period_year', yearRange.min);
@@ -153,17 +150,17 @@ export default function Dashboard() {
     return (
       <AppLayout>
         <div className="flex flex-col items-center justify-center h-[60vh] text-center animate-fade-in px-4">
-          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl gradient-hero flex items-center justify-center mb-4 sm:mb-6">
-            <Target className="w-8 h-8 sm:w-10 sm:h-10 text-primary-foreground" />
+          <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-primary/20 to-emerald-500/10 flex items-center justify-center mb-6">
+            <Sparkles className="w-10 h-10 text-primary" />
           </div>
-          <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-2">
+          <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-3">
             Bem-vindo ao Plano de Vida!
           </h2>
-          <p className="text-sm sm:text-base text-muted-foreground mb-4 sm:mb-6 max-w-md">
+          <p className="text-sm sm:text-base text-muted-foreground mb-6 max-w-md leading-relaxed">
             Você ainda não tem nenhum plano cadastrado. Comece criando seu primeiro plano de vida e defina suas metas anuais nas 7 áreas.
           </p>
           <Link to="/cadastro">
-            <Button size="lg" className="w-full sm:w-auto">
+            <Button size="lg" variant="premium" className="h-12 px-8 rounded-xl">
               Criar meu primeiro plano
             </Button>
           </Link>
@@ -174,9 +171,9 @@ export default function Dashboard() {
 
   return (
     <AppLayout>
-      <div className="space-y-4 sm:space-y-6 animate-fade-in">
+      <div className="space-y-5 sm:space-y-6 animate-fade-in">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-1 sm:mb-2">Dashboard</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-1">Dashboard</h1>
           <p className="text-sm sm:text-base text-muted-foreground">
             Acompanhe seu progresso nas 7 áreas da vida
           </p>
@@ -184,10 +181,9 @@ export default function Dashboard() {
 
         {/* Filters */}
         <div className="flex flex-col sm:flex-row gap-3">
-          {/* Plan Filter */}
           <Select value={selectedPlanId} onValueChange={setSelectedPlanId}>
-            <SelectTrigger className="w-full sm:w-[250px]">
-              <Folder className="w-4 h-4 mr-2 flex-shrink-0" />
+            <SelectTrigger className="w-full sm:w-[250px] h-11 rounded-xl">
+              <Folder className="w-4 h-4 mr-2 flex-shrink-0 text-muted-foreground" />
               <SelectValue placeholder="Selecione um plano" />
             </SelectTrigger>
             <SelectContent>
@@ -207,7 +203,6 @@ export default function Dashboard() {
             </SelectContent>
           </Select>
 
-          {/* Date Range Filter */}
           <DateRangeFilter
             value={dateRange}
             onChange={setDateRange}
@@ -217,16 +212,16 @@ export default function Dashboard() {
         {/* Current Selection Info */}
         {selectedPlan && (
           <div className="flex flex-wrap items-center gap-2">
-            <Badge variant="secondary" className="flex items-center gap-1">
+            <Badge variant="secondary" className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg">
               {(() => {
                 const config = PLAN_TYPE_CONFIG[selectedPlan.plan_type as keyof typeof PLAN_TYPE_CONFIG] || PLAN_TYPE_CONFIG.individual;
                 const PlanIcon = config.icon;
-                return <PlanIcon className="w-3 h-3" />;
+                return <PlanIcon className="w-3.5 h-3.5" />;
               })()}
               {selectedPlan.title}
               {selectedPlan.member_name && ` - ${selectedPlan.member_name}`}
             </Badge>
-            <Badge variant="outline">
+            <Badge variant="outline" className="px-3 py-1.5 rounded-lg">
               {dateRange?.from 
                 ? dateRange.to 
                   ? `${format(dateRange.from, 'dd/MM/yy', { locale: ptBR })} - ${format(dateRange.to, 'dd/MM/yy', { locale: ptBR })}`
@@ -236,33 +231,39 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* Area cards with horizontal scroll on mobile */}
-        <div className="overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0">
+        {/* Area cards */}
+        <div className="overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0 scrollbar-hide">
           <div className="flex sm:grid sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-3 sm:gap-4 min-w-max sm:min-w-0">
-            {LIFE_AREAS.map((area) => (
-              <AreaCard
-                key={area.id}
-                area={area.id}
-                label={area.label}
-                total={stats[area.id].total}
-                completed={stats[area.id].completed}
-              />
+            {LIFE_AREAS.map((area, index) => (
+              <div 
+                key={area.id} 
+                className="animate-fade-in"
+                style={{ animationDelay: `${index * 50}ms` }}
+              >
+                <AreaCard
+                  area={area.id}
+                  label={area.label}
+                  total={stats[area.id].total}
+                  completed={stats[area.id].completed}
+                />
+              </div>
             ))}
           </div>
         </div>
 
-        <Card className="shadow-lg">
-          <CardHeader className="pb-2 sm:pb-6">
+        {/* Progress Chart */}
+        <Card className="border-border/40">
+          <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-lg sm:text-xl">Visão Geral do Progresso</CardTitle>
-              <Badge variant="outline" className="font-normal">
+              <Badge variant="outline" className="font-normal rounded-lg">
                 {dateRange?.from 
                   ? `${format(dateRange.from, 'yyyy', { locale: ptBR })}${dateRange.to && dateRange.to.getFullYear() !== dateRange.from.getFullYear() ? ` - ${format(dateRange.to, 'yyyy', { locale: ptBR })}` : ''}`
                   : 'Todos'}
               </Badge>
             </div>
           </CardHeader>
-          <CardContent className="px-2 sm:px-6">
+          <CardContent className="px-3 sm:px-5">
             <ProgressChart data={stats} />
           </CardContent>
         </Card>

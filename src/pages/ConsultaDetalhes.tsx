@@ -5,10 +5,11 @@ import { LifePlanTable } from '@/components/life-plan/LifePlanTable';
 import { ExportPlanDialog } from '@/components/life-plan/ExportPlanDialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, ArrowLeft, Pencil, Save, X, Settings, Download } from 'lucide-react';
+import { Loader2, ArrowLeft, Pencil, Save, X, Settings, Download, FileText } from 'lucide-react';
 import { LIFE_AREAS, AREA_HEX_COLORS, LifeArea } from '@/lib/constants';
 import { AreaCustomizationEditor, AreaConfig } from '@/components/life-plan/AreaCustomizationEditor';
 import { usePlanAreaCustomizations } from '@/hooks/usePlanAreaCustomizations';
@@ -62,7 +63,6 @@ export default function ConsultaDetalhes() {
     }
   }, [user, id]);
 
-  // Update area configs when customizations are loaded
   useEffect(() => {
     if (customizations.length > 0) {
       setAreaConfigs(
@@ -77,12 +77,6 @@ export default function ConsultaDetalhes() {
       );
     }
   }, [customizations]);
-
-  useEffect(() => {
-    if (user && id) {
-      loadPlan();
-    }
-  }, [user, id]);
 
   const loadPlan = async () => {
     try {
@@ -188,7 +182,6 @@ export default function ConsultaDetalhes() {
       return;
     }
 
-    // Check if title already exists for this user (excluding current plan)
     const { data: existingPlans, error: checkError } = await supabase
       .from('life_plans')
       .select('id, title')
@@ -253,9 +246,13 @@ export default function ConsultaDetalhes() {
     return (
       <AppLayout>
         <div className="text-center py-16 px-4">
-          <h2 className="text-lg sm:text-xl font-semibold text-foreground mb-4">Plano não encontrado</h2>
+          <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center mx-auto mb-4">
+            <FileText className="w-8 h-8 text-muted-foreground" />
+          </div>
+          <h2 className="text-xl font-semibold text-foreground mb-2">Plano não encontrado</h2>
+          <p className="text-muted-foreground mb-6">O plano solicitado não existe ou você não tem permissão para acessá-lo.</p>
           <Link to="/consulta">
-            <Button>Voltar para consulta</Button>
+            <Button className="rounded-xl">Voltar para consulta</Button>
           </Link>
         </div>
       </AppLayout>
@@ -264,16 +261,17 @@ export default function ConsultaDetalhes() {
 
   return (
     <AppLayout>
-      <div className="space-y-4 sm:space-y-6 animate-fade-in">
-        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+      <div className="space-y-5 sm:space-y-6 animate-fade-in">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
           <Link to="/consulta">
-            <Button variant="ghost" size="icon" className="h-9 w-9 sm:h-10 sm:w-10">
-              <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+            <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl">
+              <ArrowLeft className="w-5 h-5" />
             </Button>
           </Link>
           
           {editingTitle ? (
-            <div className="flex-1 space-y-2">
+            <div className="flex-1 space-y-3">
               <div className="flex items-center gap-2">
                 <Input
                   value={editTitle}
@@ -282,12 +280,12 @@ export default function ConsultaDetalhes() {
                     setTitleError('');
                   }}
                   placeholder="Nome do plano"
-                  className={`text-lg sm:text-2xl font-bold h-10 sm:h-12 ${titleError ? 'border-destructive' : ''}`}
+                  className={`text-lg sm:text-2xl font-bold h-12 rounded-xl ${titleError ? 'border-destructive' : ''}`}
                 />
-                <Button size="icon" onClick={handleSaveTitle} className="h-9 w-9 sm:h-10 sm:w-10 flex-shrink-0">
+                <Button size="icon" onClick={handleSaveTitle} className="h-10 w-10 rounded-xl flex-shrink-0">
                   <Save className="w-4 h-4" />
                 </Button>
-                <Button size="icon" variant="ghost" onClick={() => { setEditingTitle(false); setTitleError(''); }} className="h-9 w-9 sm:h-10 sm:w-10 flex-shrink-0">
+                <Button size="icon" variant="ghost" onClick={() => { setEditingTitle(false); setTitleError(''); }} className="h-10 w-10 rounded-xl flex-shrink-0">
                   <X className="w-4 h-4" />
                 </Button>
               </div>
@@ -296,35 +294,53 @@ export default function ConsultaDetalhes() {
                 value={editMotto}
                 onChange={(e) => setEditMotto(e.target.value)}
                 placeholder="Lema (opcional)"
-                className="text-muted-foreground h-9 sm:h-10"
+                className="text-muted-foreground h-10 rounded-xl"
               />
             </div>
           ) : (
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
                 <h1 className="text-xl sm:text-3xl font-bold text-foreground truncate">{plan.title}</h1>
-                <Button size="icon" variant="ghost" onClick={() => setEditingTitle(true)} className="h-8 w-8 sm:h-9 sm:w-9 flex-shrink-0">
-                  <Pencil className="w-3 h-3 sm:w-4 sm:h-4" />
+                <Button size="icon" variant="ghost" onClick={() => setEditingTitle(true)} className="h-9 w-9 rounded-xl flex-shrink-0">
+                  <Pencil className="w-4 h-4" />
                 </Button>
               </div>
               {plan.motto && (
-                <p className="text-sm sm:text-base text-muted-foreground italic truncate">"{plan.motto}"</p>
+                <p className="text-sm sm:text-base text-muted-foreground italic truncate mt-1">"{plan.motto}"</p>
               )}
             </div>
           )}
           
           <div className="flex gap-2 flex-shrink-0">
-            <Button variant="outline" size="sm" onClick={() => setExportDialogOpen(true)}>
-              <Download className="w-4 h-4 mr-1" />
+            <Button variant="outline" size="sm" onClick={() => setExportDialogOpen(true)} className="h-10 rounded-xl border-border/50">
+              <Download className="w-4 h-4 mr-1.5" />
               <span className="hidden sm:inline">Exportar</span>
             </Button>
-            <Button variant="outline" size="sm" onClick={() => setAreasDialogOpen(true)}>
-              <Settings className="w-4 h-4 mr-1" />
+            <Button variant="outline" size="sm" onClick={() => setAreasDialogOpen(true)} className="h-10 rounded-xl border-border/50">
+              <Settings className="w-4 h-4 mr-1.5" />
               <span className="hidden sm:inline">Personalizar</span>
             </Button>
           </div>
         </div>
 
+        {/* Stats Summary */}
+        {goals.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            <Badge variant="secondary" className="px-3 py-1.5 rounded-lg">
+              {goals.filter(g => g.goal_text.trim()).length} metas cadastradas
+            </Badge>
+            <Badge variant="outline" className="px-3 py-1.5 rounded-lg">
+              {goals.filter(g => g.is_completed).length} concluídas
+            </Badge>
+            <Badge variant="outline" className="px-3 py-1.5 rounded-lg text-success border-success/30">
+              {goals.filter(g => g.goal_text.trim()).length > 0 
+                ? Math.round((goals.filter(g => g.is_completed).length / goals.filter(g => g.goal_text.trim()).length) * 100)
+                : 0}% progresso
+            </Badge>
+          </div>
+        )}
+
+        {/* Life Plan Table */}
         <LifePlanTable
           goals={goals}
           onUpdateGoal={handleUpdateGoal}
@@ -345,7 +361,7 @@ export default function ConsultaDetalhes() {
 
         {/* Areas Customization Dialog */}
         <Dialog open={areasDialogOpen} onOpenChange={setAreasDialogOpen}>
-          <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
+          <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto rounded-2xl">
             <DialogHeader>
               <DialogTitle>Personalizar Áreas do Plano</DialogTitle>
             </DialogHeader>
@@ -355,9 +371,9 @@ export default function ConsultaDetalhes() {
               isOpen={areasOpen}
               onOpenChange={setAreasOpen}
             />
-            <DialogFooter>
-              <Button variant="ghost" onClick={() => setAreasDialogOpen(false)}>Cancelar</Button>
-              <Button onClick={handleSaveAreaConfigs}>Salvar Alterações</Button>
+            <DialogFooter className="gap-2">
+              <Button variant="ghost" onClick={() => setAreasDialogOpen(false)} className="rounded-xl">Cancelar</Button>
+              <Button onClick={handleSaveAreaConfigs} className="rounded-xl">Salvar Alterações</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>

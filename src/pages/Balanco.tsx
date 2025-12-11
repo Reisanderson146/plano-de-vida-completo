@@ -543,26 +543,36 @@ export default function Balanco() {
 
         {/* Areas Needing Attention */}
         {areasNeedingAttention.length > 0 && (
-          <Card className="bg-red-500/5 border-red-500/20">
+          <Card className="bg-destructive/5 border-destructive/20">
             <CardHeader className="pb-3">
-              <CardTitle className="text-lg sm:text-xl flex items-center gap-2 text-red-600 dark:text-red-400">
-                <AlertTriangle className="w-5 h-5" />
+              <CardTitle className="text-lg flex items-center gap-2.5 text-destructive">
+                <div className="w-9 h-9 rounded-xl bg-destructive/10 flex items-center justify-center">
+                  <AlertTriangle className="w-5 h-5" />
+                </div>
                 Áreas que Precisam de Atenção
               </CardTitle>
             </CardHeader>
             <CardContent>
               <ul className="space-y-2">
                 {areasNeedingAttention.map(area => (
-                  <li key={area.area} className="flex items-center justify-between p-3 sm:p-4 rounded-lg bg-background/50">
+                  <li key={area.area} className="flex items-center justify-between p-4 rounded-xl bg-background/60 border border-border/30 hover:bg-background/80 transition-colors">
                     <div className="flex items-center gap-3">
                       <div 
-                        className="w-3 h-3 rounded-full" 
+                        className="w-3.5 h-3.5 rounded-full" 
                         style={{ backgroundColor: AREA_HEX_COLORS[area.area] }}
                       />
-                      <span className="font-medium">{area.label}</span>
+                      <span className="font-medium text-foreground">{area.label}</span>
                     </div>
-                    <div className="text-sm text-muted-foreground">
-                      {area.completed}/{area.total} metas ({area.percentage}%)
+                    <div className="flex items-center gap-3">
+                      <div className="w-20 h-2 bg-muted rounded-full overflow-hidden">
+                        <div 
+                          className="h-full bg-destructive/70 rounded-full transition-all" 
+                          style={{ width: `${area.percentage}%` }}
+                        />
+                      </div>
+                      <span className="text-sm text-muted-foreground font-medium">
+                        {area.percentage}%
+                      </span>
                     </div>
                   </li>
                 ))}
@@ -572,15 +582,17 @@ export default function Balanco() {
         )}
 
         {/* Balance Notes Section */}
-        <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+        <Card className="border-border/40">
           <CardHeader className="flex flex-row items-center justify-between pb-3">
-            <CardTitle className="text-lg sm:text-xl flex items-center gap-2">
-              <FileText className="w-5 h-5" />
+            <CardTitle className="text-lg flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
+                <FileText className="w-5 h-5 text-primary" />
+              </div>
               Anotações do Balanço
             </CardTitle>
             {!showNoteForm && (
-              <Button size="sm" onClick={() => setShowNoteForm(true)}>
-                <Plus className="w-4 h-4 mr-1" />
+              <Button size="sm" onClick={() => setShowNoteForm(true)} className="rounded-xl h-9">
+                <Plus className="w-4 h-4 mr-1.5" />
                 Nova Anotação
               </Button>
             )}
@@ -588,28 +600,31 @@ export default function Balanco() {
           <CardContent className="space-y-4">
             {/* New Note Form */}
             {showNoteForm && (
-              <div className="p-4 rounded-lg border border-border bg-background/50 space-y-3">
+              <div className="p-5 rounded-2xl border border-border/50 bg-muted/30 space-y-4">
                 <Input
                   placeholder="Título da reflexão (opcional)"
                   value={newNoteTitle}
                   onChange={(e) => setNewNoteTitle(e.target.value)}
+                  className="h-11 rounded-xl"
                 />
                 <Textarea
                   placeholder="Escreva suas reflexões sobre o período..."
                   value={newNoteContent}
                   onChange={(e) => setNewNoteContent(e.target.value)}
                   rows={4}
+                  className="rounded-xl resize-none"
                 />
                 <div className="flex gap-2 justify-end">
-                  <Button variant="outline" size="sm" onClick={handleCancelEdit}>
+                  <Button variant="outline" size="sm" onClick={handleCancelEdit} className="rounded-xl">
                     Cancelar
                   </Button>
                   <Button 
                     size="sm" 
                     onClick={saveBalanceNote} 
                     disabled={!newNoteContent.trim() || savingNote}
+                    className="rounded-xl"
                   >
-                    {savingNote && <Loader2 className="w-4 h-4 mr-1 animate-spin" />}
+                    {savingNote && <Loader2 className="w-4 h-4 mr-1.5 animate-spin" />}
                     {editingNote ? 'Atualizar' : 'Salvar'}
                   </Button>
                 </div>
@@ -618,17 +633,19 @@ export default function Balanco() {
 
             {/* Notes List */}
             {balanceNotes.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
-                <FileText className="w-10 h-10 mx-auto mb-3 opacity-50" />
-                <p>Nenhuma anotação de balanço ainda.</p>
-                <p className="text-sm">Registre suas reflexões sobre o período.</p>
+              <div className="text-center py-10 text-muted-foreground">
+                <div className="w-14 h-14 rounded-2xl bg-muted/50 flex items-center justify-center mx-auto mb-4">
+                  <FileText className="w-7 h-7 opacity-50" />
+                </div>
+                <p className="font-medium">Nenhuma anotação ainda</p>
+                <p className="text-sm mt-1">Registre suas reflexões sobre o período.</p>
               </div>
             ) : (
               <div className="space-y-3">
                 {balanceNotes.map(note => (
-                  <div key={note.id} className="p-4 rounded-lg border border-border bg-background/50">
+                  <div key={note.id} className="p-4 rounded-xl border border-border/40 bg-background/60 hover:bg-background/80 transition-colors">
                     <div className="flex items-start justify-between gap-2 mb-2">
-                      <h4 className="font-medium text-sm flex-1">{note.title.replace(/^\[Balanço [^\]]+\] /, '')}</h4>
+                      <h4 className="font-medium text-sm text-foreground flex-1">{note.title.replace(/^\[Balanço [^\]]+\] /, '')}</h4>
                       <div className="flex items-center gap-1">
                         <span className="text-xs text-muted-foreground whitespace-nowrap">
                           {format(new Date(note.created_at), "dd/MM/yyyy", { locale: ptBR })}
@@ -636,31 +653,31 @@ export default function Balanco() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-7 w-7"
+                          className="h-8 w-8 rounded-lg"
                           onClick={() => handleEditNote(note)}
                         >
-                          <Pencil className="w-3 h-3" />
+                          <Pencil className="w-3.5 h-3.5" />
                         </Button>
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-7 w-7 text-destructive hover:text-destructive"
+                              className="h-8 w-8 rounded-lg text-destructive hover:text-destructive"
                             >
-                              <Trash2 className="w-3 h-3" />
+                              <Trash2 className="w-3.5 h-3.5" />
                             </Button>
                           </AlertDialogTrigger>
-                          <AlertDialogContent>
+                          <AlertDialogContent className="rounded-2xl">
                             <AlertDialogHeader>
                               <AlertDialogTitle>Excluir anotação?</AlertDialogTitle>
                               <AlertDialogDescription>
                                 Esta ação não pode ser desfeita. A anotação será excluída permanentemente.
                               </AlertDialogDescription>
                             </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                              <AlertDialogAction onClick={() => handleDeleteNote(note.id)}>
+                            <AlertDialogFooter className="gap-2">
+                              <AlertDialogCancel className="rounded-xl">Cancelar</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => handleDeleteNote(note.id)} className="rounded-xl">
                                 Excluir
                               </AlertDialogAction>
                             </AlertDialogFooter>
@@ -668,7 +685,7 @@ export default function Balanco() {
                         </AlertDialog>
                       </div>
                     </div>
-                    <p className="text-sm text-muted-foreground">{note.content}</p>
+                    <p className="text-sm text-muted-foreground leading-relaxed">{note.content}</p>
                   </div>
                 ))}
               </div>
