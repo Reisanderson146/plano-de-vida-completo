@@ -74,16 +74,16 @@ export function Navbar() {
   };
 
   return (
-    <nav className="gradient-hero shadow-lg sticky top-0 z-50 backdrop-blur-sm">
+    <nav className="gradient-hero shadow-xl sticky top-0 z-50 backdrop-blur-md border-b border-white/10">
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 sm:h-[72px]">
-          <Link to="/" className="flex items-center">
-            <Logo size="sm" showText={true} variant="light" className="sm:hidden" />
-            <Logo size="md" showText={true} variant="light" className="hidden sm:flex" />
+          <Link to="/" className="flex items-center group">
+            <Logo size="sm" showText={true} variant="light" className="sm:hidden transition-transform group-hover:scale-105" />
+            <Logo size="md" showText={true} variant="light" className="hidden sm:flex transition-transform group-hover:scale-105" />
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-1 bg-white/10 backdrop-blur-sm rounded-full px-2 py-1.5">
+          <div className="hidden md:flex items-center space-x-1 bg-white/10 backdrop-blur-md rounded-2xl px-2 py-1.5 shadow-inner">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
@@ -92,14 +92,14 @@ export function Navbar() {
                   key={item.path}
                   to={item.path}
                   className={cn(
-                    "flex items-center space-x-2 px-4 py-2 rounded-full transition-all duration-300",
+                    "flex items-center space-x-2 px-4 py-2.5 rounded-xl transition-all duration-300",
                     isActive 
-                      ? "bg-white/25 text-white shadow-md" 
-                      : "text-white/80 hover:text-white hover:bg-white/15"
+                      ? "bg-white/25 text-white shadow-lg font-semibold" 
+                      : "text-white/75 hover:text-white hover:bg-white/15"
                   )}
                 >
                   <Icon className="w-4 h-4" />
-                  <span className="text-sm font-medium">{item.label}</span>
+                  <span className="text-sm">{item.label}</span>
                 </Link>
               );
             })}
@@ -109,10 +109,10 @@ export function Navbar() {
             <NotificationBell />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-2 bg-white/10 hover:bg-white/20 transition-colors rounded-full p-1 pr-3 sm:pr-4">
-                  <Avatar className="w-8 h-8 border-2 border-white/30">
+                <button className="flex items-center gap-2 bg-white/10 hover:bg-white/20 transition-all duration-300 rounded-2xl p-1.5 pr-3 sm:pr-4 shadow-inner hover:shadow-lg">
+                  <Avatar className="w-8 h-8 ring-2 ring-white/30 ring-offset-1 ring-offset-transparent">
                     <AvatarImage src={avatarUrl || undefined} alt={fullName || 'Usuário'} />
-                    <AvatarFallback className="text-xs font-semibold bg-white/20 text-white">
+                    <AvatarFallback className="text-xs font-bold bg-gradient-to-br from-emerald-400 to-teal-500 text-white">
                       {getInitials()}
                     </AvatarFallback>
                   </Avatar>
