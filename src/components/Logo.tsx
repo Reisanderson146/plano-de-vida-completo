@@ -4,21 +4,26 @@ import logoJourney from '@/assets/logo-journey.png';
 interface LogoProps {
   className?: string;
   showText?: boolean;
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'sm' | 'md' | 'lg' | 'xl';
+  variant?: 'default' | 'light';
 }
 
-export function Logo({ className, showText = true, size = 'md' }: LogoProps) {
+export function Logo({ className, showText = true, size = 'md', variant = 'default' }: LogoProps) {
   const sizeClasses = {
     sm: 'w-8 h-8',
     md: 'w-10 h-10',
     lg: 'w-14 h-14',
+    xl: 'w-20 h-20',
   };
 
   const textSizeClasses = {
-    sm: 'text-base',
-    md: 'text-xl',
-    lg: 'text-2xl',
+    sm: 'text-sm',
+    md: 'text-lg',
+    lg: 'text-xl',
+    xl: 'text-3xl',
   };
+
+  const isLight = variant === 'light';
 
   return (
     <div className={cn("flex items-center gap-2", className)}>
@@ -29,20 +34,16 @@ export function Logo({ className, showText = true, size = 'md' }: LogoProps) {
       />
       
       {showText && (
-        <div className="flex flex-col leading-tight">
-          <span className={cn(
-            "font-bold text-white tracking-tight drop-shadow-sm",
-            textSizeClasses[size]
-          )}>
-            Plano de
-          </span>
-          <span className={cn(
-            "font-bold text-green-500 tracking-tight -mt-1",
-            textSizeClasses[size]
-          )}>
+        <span className={cn(
+          "font-bold tracking-tight whitespace-nowrap",
+          textSizeClasses[size],
+          isLight ? "text-white" : "text-foreground"
+        )}>
+          Plano de{' '}
+          <span className="text-emerald-500">
             Vida
           </span>
-        </div>
+        </span>
       )}
     </div>
   );
