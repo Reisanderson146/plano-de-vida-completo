@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Heart, Brain, Users, Briefcase, Wallet, Dumbbell, Sparkles, Eye, EyeOff } from 'lucide-react';
+import { Logo } from '@/components/Logo';
 
 const AREA_ICONS = [
   { icon: Sparkles, color: 'text-purple-400' },
@@ -99,11 +100,11 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-500/10 via-background to-orange-500/10 flex flex-col items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-500/10 via-background to-green-500/10 flex flex-col items-center justify-center p-4 relative overflow-hidden">
       {/* Decorative background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl" />
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-500/10 rounded-full blur-3xl" />
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl" />
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-green-500/10 rounded-full blur-3xl" />
         
         {/* Floating area icons */}
         {AREA_ICONS.map((item, index) => {
@@ -126,49 +127,10 @@ export default function Auth() {
       </div>
 
       <div className="w-full max-w-md animate-fade-in relative z-10">
-        {/* Logo and title */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-br from-amber-500 via-orange-500 to-amber-600 mb-4 shadow-xl shadow-amber-500/20">
-            <svg
-              viewBox="0 0 40 40"
-              fill="none"
-              className="w-12 h-12"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              {/* Cross */}
-              <path
-                d="M20 6V34"
-                stroke="white"
-                strokeWidth="3"
-                strokeLinecap="round"
-              />
-              <path
-                d="M10 14H30"
-                stroke="white"
-                strokeWidth="3"
-                strokeLinecap="round"
-              />
-              {/* Heart at center */}
-              <path
-                d="M20 18C20 18 16 14 14 14C11.5 14 10 16 10 18.5C10 22 20 28 20 28C20 28 30 22 30 18.5C30 16 28.5 14 26 14C24 14 20 18 20 18Z"
-                fill="white"
-                fillOpacity="0.95"
-              />
-              {/* Subtle glow effect */}
-              <circle
-                cx="20"
-                cy="20"
-                r="16"
-                stroke="white"
-                strokeWidth="1"
-                strokeOpacity="0.3"
-              />
-            </svg>
-          </div>
-          <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-1">
-            Plano de <span className="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500 bg-clip-text text-transparent">Vida</span>
-          </h1>
-          <p className="text-muted-foreground">
+        {/* Logo */}
+        <div className="flex flex-col items-center mb-8">
+          <Logo size="xl" showText={true} />
+          <p className="text-muted-foreground mt-2">
             Organize suas metas nas 7 áreas da vida
           </p>
         </div>
@@ -226,7 +188,7 @@ export default function Auth() {
                       </button>
                     </div>
                   </div>
-                  <Button type="submit" className="w-full h-12 text-base font-semibold" disabled={loading}>
+                  <Button type="submit" className="w-full h-12 text-base font-semibold bg-emerald-600 hover:bg-emerald-700" disabled={loading}>
                     {loading && <Loader2 className="w-5 h-5 mr-2 animate-spin" />}
                     Entrar
                   </Button>
@@ -306,7 +268,7 @@ export default function Auth() {
                       <p className="text-xs text-destructive mt-1">As senhas não coincidem</p>
                     )}
                   </div>
-                  <Button type="submit" className="w-full h-12 text-base font-semibold" disabled={loading}>
+                  <Button type="submit" className="w-full h-12 text-base font-semibold bg-emerald-600 hover:bg-emerald-700" disabled={loading}>
                     {loading && <Loader2 className="w-5 h-5 mr-2 animate-spin" />}
                     Criar conta
                   </Button>
