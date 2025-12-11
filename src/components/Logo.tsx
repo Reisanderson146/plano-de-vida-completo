@@ -26,24 +26,29 @@ export function Logo({ className, showText = true, size = 'md', variant = 'defau
   const isLight = variant === 'light';
 
   return (
-    <div className={cn("flex items-center gap-2", className)}>
+    <div className={cn("flex items-center gap-3", className)}>
       <img 
         src={logoJourney} 
         alt="Plano de Vida" 
-        className={cn(sizeClasses[size], "object-contain")}
+        className={cn(sizeClasses[size], "object-contain drop-shadow-md")}
       />
       
       {showText && (
-        <span className={cn(
-          "font-bold tracking-tight whitespace-nowrap",
-          textSizeClasses[size],
-          isLight ? "text-white" : "text-foreground"
-        )}>
-          Plano de{' '}
-          <span className="text-emerald-500">
+        <div className="flex flex-col leading-tight">
+          <span className={cn(
+            "font-bold tracking-tight",
+            textSizeClasses[size],
+            isLight ? "text-white/90" : "text-foreground"
+          )}>
+            Plano de
+          </span>
+          <span className={cn(
+            "font-extrabold tracking-tight bg-gradient-to-r from-emerald-500 to-teal-500 bg-clip-text text-transparent",
+            textSizeClasses[size]
+          )}>
             Vida
           </span>
-        </span>
+        </div>
       )}
     </div>
   );

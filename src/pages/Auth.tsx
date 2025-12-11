@@ -7,18 +7,9 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Heart, Brain, Users, Briefcase, Wallet, Dumbbell, Sparkles, Eye, EyeOff } from 'lucide-react';
+import { Loader2, Eye, EyeOff, ArrowRight } from 'lucide-react';
 import { Logo } from '@/components/Logo';
-
-const AREA_ICONS = [
-  { icon: Sparkles, color: 'text-purple-400' },
-  { icon: Brain, color: 'text-blue-400' },
-  { icon: Heart, color: 'text-pink-400' },
-  { icon: Users, color: 'text-orange-400' },
-  { icon: Wallet, color: 'text-green-400' },
-  { icon: Briefcase, color: 'text-amber-400' },
-  { icon: Dumbbell, color: 'text-red-400' },
-];
+import loginBackground from '@/assets/login-background.png';
 
 export default function Auth() {
   const [email, setEmail] = useState('');
@@ -100,55 +91,43 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-500/10 via-background to-green-500/10 flex flex-col items-center justify-center p-4 relative overflow-hidden">
-      {/* Decorative background elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl" />
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-green-500/10 rounded-full blur-3xl" />
-        
-        {/* Floating area icons */}
-        {AREA_ICONS.map((item, index) => {
-          const Icon = item.icon;
-          return (
-            <div
-              key={index}
-              className={`absolute hidden sm:block ${item.color} opacity-20 animate-pulse`}
-              style={{
-                top: `${15 + (index * 12)}%`,
-                left: index % 2 === 0 ? `${5 + (index * 2)}%` : 'auto',
-                right: index % 2 !== 0 ? `${5 + (index * 2)}%` : 'auto',
-                animationDelay: `${index * 0.3}s`,
-              }}
-            >
-              <Icon className="w-8 h-8 lg:w-10 lg:h-10" />
-            </div>
-          );
-        })}
-      </div>
-
+    <div 
+      className="min-h-screen flex items-center justify-center p-4 relative"
+      style={{
+        backgroundImage: `url(${loginBackground})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+      }}
+    >
+      {/* Overlay for better readability */}
+      <div className="absolute inset-0 bg-gradient-to-br from-black/30 via-black/20 to-black/40 backdrop-blur-[2px]" />
+      
       <div className="w-full max-w-md animate-fade-in relative z-10">
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
-          <Logo size="xl" showText={true} />
-          <p className="text-muted-foreground mt-2">
+          <Logo size="xl" showText={true} variant="light" />
+          <p className="text-white/80 mt-3 text-center text-sm font-medium">
             Organize suas metas nas 7 áreas da vida
           </p>
         </div>
 
-        <Card className="shadow-2xl border-border/50 backdrop-blur-sm bg-card/95">
+        <Card className="shadow-2xl border-0 backdrop-blur-xl bg-white/95 dark:bg-card/95">
           <CardHeader className="pb-4 text-center">
-            <CardTitle className="text-xl">Bem-vindo!</CardTitle>
-            <CardDescription>
-              Entre ou crie sua conta para começar sua jornada
+            <CardTitle className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+              Bem-vindo!
+            </CardTitle>
+            <CardDescription className="text-muted-foreground">
+              Comece sua jornada de transformação
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="signin" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 mb-6 h-12">
-                <TabsTrigger value="signin" className="text-sm font-medium h-10">
+              <TabsList className="grid w-full grid-cols-2 mb-6 h-12 bg-muted/50">
+                <TabsTrigger value="signin" className="text-sm font-semibold h-10 data-[state=active]:bg-white data-[state=active]:shadow-sm">
                   Entrar
                 </TabsTrigger>
-                <TabsTrigger value="signup" className="text-sm font-medium h-10">
+                <TabsTrigger value="signup" className="text-sm font-semibold h-10 data-[state=active]:bg-white data-[state=active]:shadow-sm">
                   Cadastrar
                 </TabsTrigger>
               </TabsList>
@@ -156,7 +135,7 @@ export default function Auth() {
               <TabsContent value="signin" className="mt-0">
                 <form onSubmit={handleSignIn} className="space-y-5">
                   <div className="space-y-2">
-                    <Label htmlFor="signin-email">Email</Label>
+                    <Label htmlFor="signin-email" className="text-sm font-medium">Email</Label>
                     <Input
                       id="signin-email"
                       type="email"
@@ -164,11 +143,11 @@ export default function Auth() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
-                      className="h-12"
+                      className="h-12 rounded-xl border-border/50 focus:border-primary transition-colors"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signin-password">Senha</Label>
+                    <Label htmlFor="signin-password" className="text-sm font-medium">Senha</Label>
                     <div className="relative">
                       <Input
                         id="signin-password"
@@ -177,7 +156,7 @@ export default function Auth() {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
-                        className="h-12 pr-12"
+                        className="h-12 rounded-xl border-border/50 focus:border-primary transition-colors pr-12"
                       />
                       <button
                         type="button"
@@ -188,9 +167,19 @@ export default function Auth() {
                       </button>
                     </div>
                   </div>
-                  <Button type="submit" className="w-full h-12 text-base font-semibold bg-emerald-600 hover:bg-emerald-700" disabled={loading}>
-                    {loading && <Loader2 className="w-5 h-5 mr-2 animate-spin" />}
-                    Entrar
+                  <Button 
+                    type="submit" 
+                    className="w-full h-12 text-base font-semibold rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 transition-all duration-300 shadow-lg hover:shadow-xl group" 
+                    disabled={loading}
+                  >
+                    {loading ? (
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                    ) : (
+                      <>
+                        Entrar
+                        <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                      </>
+                    )}
                   </Button>
                 </form>
               </TabsContent>
@@ -198,7 +187,7 @@ export default function Auth() {
               <TabsContent value="signup" className="mt-0">
                 <form onSubmit={handleSignUp} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="signup-name">Nome completo</Label>
+                    <Label htmlFor="signup-name" className="text-sm font-medium">Nome completo</Label>
                     <Input
                       id="signup-name"
                       type="text"
@@ -206,11 +195,11 @@ export default function Auth() {
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
                       required
-                      className="h-12"
+                      className="h-12 rounded-xl border-border/50 focus:border-primary transition-colors"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signup-email">Email</Label>
+                    <Label htmlFor="signup-email" className="text-sm font-medium">Email</Label>
                     <Input
                       id="signup-email"
                       type="email"
@@ -218,11 +207,11 @@ export default function Auth() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
-                      className="h-12"
+                      className="h-12 rounded-xl border-border/50 focus:border-primary transition-colors"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signup-password">Senha</Label>
+                    <Label htmlFor="signup-password" className="text-sm font-medium">Senha</Label>
                     <div className="relative">
                       <Input
                         id="signup-password"
@@ -232,7 +221,7 @@ export default function Auth() {
                         onChange={(e) => setPassword(e.target.value)}
                         required
                         minLength={6}
-                        className="h-12 pr-12"
+                        className="h-12 rounded-xl border-border/50 focus:border-primary transition-colors pr-12"
                       />
                       <button
                         type="button"
@@ -244,7 +233,7 @@ export default function Auth() {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signup-confirm-password">Confirmar Senha</Label>
+                    <Label htmlFor="signup-confirm-password" className="text-sm font-medium">Confirmar Senha</Label>
                     <div className="relative">
                       <Input
                         id="signup-confirm-password"
@@ -254,7 +243,7 @@ export default function Auth() {
                         onChange={(e) => setConfirmPassword(e.target.value)}
                         required
                         minLength={6}
-                        className="h-12 pr-12"
+                        className="h-12 rounded-xl border-border/50 focus:border-primary transition-colors pr-12"
                       />
                       <button
                         type="button"
@@ -268,9 +257,19 @@ export default function Auth() {
                       <p className="text-xs text-destructive mt-1">As senhas não coincidem</p>
                     )}
                   </div>
-                  <Button type="submit" className="w-full h-12 text-base font-semibold bg-emerald-600 hover:bg-emerald-700" disabled={loading}>
-                    {loading && <Loader2 className="w-5 h-5 mr-2 animate-spin" />}
-                    Criar conta
+                  <Button 
+                    type="submit" 
+                    className="w-full h-12 text-base font-semibold rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 transition-all duration-300 shadow-lg hover:shadow-xl group" 
+                    disabled={loading}
+                  >
+                    {loading ? (
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                    ) : (
+                      <>
+                        Criar conta
+                        <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                      </>
+                    )}
                   </Button>
                 </form>
               </TabsContent>
@@ -279,7 +278,7 @@ export default function Auth() {
         </Card>
 
         {/* Footer */}
-        <p className="text-center text-xs text-muted-foreground mt-6">
+        <p className="text-center text-xs text-white/60 mt-6">
           Ao continuar, você concorda com nossos termos de uso
         </p>
       </div>
