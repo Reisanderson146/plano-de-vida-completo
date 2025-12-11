@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Eye, EyeOff, ArrowRight } from 'lucide-react';
+import { Loader2, Eye, EyeOff, ArrowRight, Sparkles } from 'lucide-react';
 import { Logo } from '@/components/Logo';
 import loginBackground from '@/assets/login-background.png';
 
@@ -92,7 +92,7 @@ export default function Auth() {
 
   return (
     <div 
-      className="min-h-screen flex items-center justify-center p-4 relative"
+      className="min-h-screen flex items-center justify-center p-4 sm:p-6 md:p-8 relative overflow-hidden"
       style={{
         backgroundImage: `url(${loginBackground})`,
         backgroundSize: 'cover',
@@ -100,42 +100,59 @@ export default function Auth() {
         backgroundRepeat: 'no-repeat',
       }}
     >
-      {/* Overlay for better readability */}
-      <div className="absolute inset-0 bg-gradient-to-br from-black/30 via-black/20 to-black/40 backdrop-blur-[2px]" />
+      {/* Refined overlay with smoother gradient */}
+      <div className="absolute inset-0 bg-gradient-to-br from-emerald-900/40 via-teal-900/30 to-slate-900/50 backdrop-blur-[3px]" />
       
-      <div className="w-full max-w-md animate-fade-in relative z-10">
-        {/* Logo */}
-        <div className="flex flex-col items-center mb-8">
-          <Logo size="xl" showText={true} variant="light" />
-          <p className="text-white/80 mt-3 text-center text-sm font-medium">
-            Organize suas metas nas 7 áreas da vida
-          </p>
+      {/* Subtle animated glow effect */}
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl animate-pulse" />
+      <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-teal-500/10 rounded-full blur-3xl animate-pulse delay-1000" />
+      
+      <div className="w-full max-w-[420px] animate-fade-in relative z-10">
+        {/* Logo Section - Enhanced */}
+        <div className="flex flex-col items-center mb-8 sm:mb-10">
+          <Logo size="xl" showText={true} variant="light" className="drop-shadow-2xl" />
+          <div className="flex items-center gap-2 mt-4">
+            <Sparkles className="w-4 h-4 text-amber-300/80" />
+            <p className="text-white/90 text-center text-sm sm:text-base font-medium tracking-wide">
+              Organize suas metas nas 7 áreas da vida
+            </p>
+            <Sparkles className="w-4 h-4 text-amber-300/80" />
+          </div>
         </div>
 
-        <Card className="shadow-2xl border-0 backdrop-blur-xl bg-white/95 dark:bg-card/95">
-          <CardHeader className="pb-4 text-center">
-            <CardTitle className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+        {/* Glassmorphism Card */}
+        <Card className="border border-white/20 backdrop-blur-xl bg-white/90 dark:bg-slate-900/80 shadow-[0_8px_32px_rgba(0,0,0,0.12)] rounded-[24px] overflow-hidden">
+          <CardHeader className="pb-2 pt-8 px-6 sm:px-8 text-center space-y-2">
+            <CardTitle className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600 bg-clip-text text-transparent">
               Bem-vindo!
             </CardTitle>
-            <CardDescription className="text-muted-foreground">
-              Comece sua jornada de transformação
+            <CardDescription className="text-muted-foreground/80 text-sm sm:text-base font-normal">
+              Comece sua jornada de transformação pessoal
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="px-6 sm:px-8 pb-8">
             <Tabs defaultValue="signin" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 mb-6 h-12 bg-muted/50">
-                <TabsTrigger value="signin" className="text-sm font-semibold h-10 data-[state=active]:bg-white data-[state=active]:shadow-sm">
+              <TabsList className="grid w-full grid-cols-2 mb-8 h-14 bg-muted/40 rounded-2xl p-1.5">
+                <TabsTrigger 
+                  value="signin" 
+                  className="text-sm sm:text-base font-semibold h-full rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:text-emerald-700 transition-all duration-300"
+                >
                   Entrar
                 </TabsTrigger>
-                <TabsTrigger value="signup" className="text-sm font-semibold h-10 data-[state=active]:bg-white data-[state=active]:shadow-sm">
+                <TabsTrigger 
+                  value="signup" 
+                  className="text-sm sm:text-base font-semibold h-full rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:text-emerald-700 transition-all duration-300"
+                >
                   Cadastrar
                 </TabsTrigger>
               </TabsList>
 
               <TabsContent value="signin" className="mt-0">
-                <form onSubmit={handleSignIn} className="space-y-5">
+                <form onSubmit={handleSignIn} className="space-y-6">
                   <div className="space-y-2">
-                    <Label htmlFor="signin-email" className="text-sm font-medium">Email</Label>
+                    <Label htmlFor="signin-email" className="text-sm font-semibold text-foreground/90">
+                      Email
+                    </Label>
                     <Input
                       id="signin-email"
                       type="email"
@@ -143,11 +160,13 @@ export default function Auth() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
-                      className="h-12 rounded-xl border-border/50 focus:border-primary transition-colors"
+                      className="h-13 rounded-2xl border-border/40 bg-muted/30 focus:bg-white focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-300 text-base placeholder:text-muted-foreground/50"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signin-password" className="text-sm font-medium">Senha</Label>
+                    <Label htmlFor="signin-password" className="text-sm font-semibold text-foreground/90">
+                      Senha
+                    </Label>
                     <div className="relative">
                       <Input
                         id="signin-password"
@@ -156,12 +175,12 @@ export default function Auth() {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
-                        className="h-12 rounded-xl border-border/50 focus:border-primary transition-colors pr-12"
+                        className="h-13 rounded-2xl border-border/40 bg-muted/30 focus:bg-white focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-300 pr-12 text-base placeholder:text-muted-foreground/50"
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground/60 hover:text-foreground transition-colors"
                       >
                         {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                       </button>
@@ -169,7 +188,7 @@ export default function Auth() {
                   </div>
                   <Button 
                     type="submit" 
-                    className="w-full h-12 text-base font-semibold rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 transition-all duration-300 shadow-lg hover:shadow-xl group" 
+                    className="w-full h-14 text-base sm:text-lg font-bold rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-500 hover:from-emerald-600 hover:via-teal-600 hover:to-emerald-600 transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-emerald-500/25 hover:-translate-y-0.5 group" 
                     disabled={loading}
                   >
                     {loading ? (
@@ -185,9 +204,11 @@ export default function Auth() {
               </TabsContent>
 
               <TabsContent value="signup" className="mt-0">
-                <form onSubmit={handleSignUp} className="space-y-4">
+                <form onSubmit={handleSignUp} className="space-y-5">
                   <div className="space-y-2">
-                    <Label htmlFor="signup-name" className="text-sm font-medium">Nome completo</Label>
+                    <Label htmlFor="signup-name" className="text-sm font-semibold text-foreground/90">
+                      Nome completo
+                    </Label>
                     <Input
                       id="signup-name"
                       type="text"
@@ -195,11 +216,13 @@ export default function Auth() {
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
                       required
-                      className="h-12 rounded-xl border-border/50 focus:border-primary transition-colors"
+                      className="h-13 rounded-2xl border-border/40 bg-muted/30 focus:bg-white focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-300 text-base placeholder:text-muted-foreground/50"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signup-email" className="text-sm font-medium">Email</Label>
+                    <Label htmlFor="signup-email" className="text-sm font-semibold text-foreground/90">
+                      Email
+                    </Label>
                     <Input
                       id="signup-email"
                       type="email"
@@ -207,11 +230,13 @@ export default function Auth() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
-                      className="h-12 rounded-xl border-border/50 focus:border-primary transition-colors"
+                      className="h-13 rounded-2xl border-border/40 bg-muted/30 focus:bg-white focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-300 text-base placeholder:text-muted-foreground/50"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signup-password" className="text-sm font-medium">Senha</Label>
+                    <Label htmlFor="signup-password" className="text-sm font-semibold text-foreground/90">
+                      Senha
+                    </Label>
                     <div className="relative">
                       <Input
                         id="signup-password"
@@ -221,19 +246,21 @@ export default function Auth() {
                         onChange={(e) => setPassword(e.target.value)}
                         required
                         minLength={6}
-                        className="h-12 rounded-xl border-border/50 focus:border-primary transition-colors pr-12"
+                        className="h-13 rounded-2xl border-border/40 bg-muted/30 focus:bg-white focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-300 pr-12 text-base placeholder:text-muted-foreground/50"
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground/60 hover:text-foreground transition-colors"
                       >
                         {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                       </button>
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signup-confirm-password" className="text-sm font-medium">Confirmar Senha</Label>
+                    <Label htmlFor="signup-confirm-password" className="text-sm font-semibold text-foreground/90">
+                      Confirmar Senha
+                    </Label>
                     <div className="relative">
                       <Input
                         id="signup-confirm-password"
@@ -243,23 +270,23 @@ export default function Auth() {
                         onChange={(e) => setConfirmPassword(e.target.value)}
                         required
                         minLength={6}
-                        className="h-12 rounded-xl border-border/50 focus:border-primary transition-colors pr-12"
+                        className="h-13 rounded-2xl border-border/40 bg-muted/30 focus:bg-white focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-300 pr-12 text-base placeholder:text-muted-foreground/50"
                       />
                       <button
                         type="button"
                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground/60 hover:text-foreground transition-colors"
                       >
                         {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                       </button>
                     </div>
                     {confirmPassword && password !== confirmPassword && (
-                      <p className="text-xs text-destructive mt-1">As senhas não coincidem</p>
+                      <p className="text-xs text-destructive mt-1 font-medium">As senhas não coincidem</p>
                     )}
                   </div>
                   <Button 
                     type="submit" 
-                    className="w-full h-12 text-base font-semibold rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 transition-all duration-300 shadow-lg hover:shadow-xl group" 
+                    className="w-full h-14 text-base sm:text-lg font-bold rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-500 hover:from-emerald-600 hover:via-teal-600 hover:to-emerald-600 transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-emerald-500/25 hover:-translate-y-0.5 group" 
                     disabled={loading}
                   >
                     {loading ? (
@@ -278,7 +305,7 @@ export default function Auth() {
         </Card>
 
         {/* Footer */}
-        <p className="text-center text-xs text-white/60 mt-6">
+        <p className="text-center text-xs sm:text-sm text-white/70 mt-8 font-medium">
           Ao continuar, você concorda com nossos termos de uso
         </p>
       </div>
