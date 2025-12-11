@@ -54,17 +54,17 @@ const PLAN_TYPE_CONFIG = {
   individual: { 
     label: 'Individual', 
     icon: User, 
-    color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' 
+    color: 'bg-blue-500/10 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400 border-blue-500/20' 
   },
   familiar: { 
     label: 'Familiar', 
     icon: Users, 
-    color: 'bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400' 
+    color: 'bg-rose-500/10 text-rose-600 dark:bg-rose-500/20 dark:text-rose-400 border-rose-500/20' 
   },
   filho: { 
     label: 'Filho(a)', 
     icon: Baby, 
-    color: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' 
+    color: 'bg-amber-500/10 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400 border-amber-500/20' 
   },
 };
 
@@ -77,7 +77,6 @@ export default function Consulta() {
   const [plans, setPlans] = useState<LifePlan[]>([]);
   const [filter, setFilter] = useState<FilterType>('todos');
   
-  // Export state
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
   const [exportPlan, setExportPlan] = useState<LifePlan | null>(null);
   const [exportGoals, setExportGoals] = useState<Goal[]>([]);
@@ -100,7 +99,6 @@ export default function Consulta() {
 
       if (plansError) throw plansError;
 
-      // Get goals counts for each plan
       const plansWithCounts = await Promise.all(
         (plansData || []).map(async (plan) => {
           const { count: totalCount } = await supabase
@@ -155,7 +153,6 @@ export default function Consulta() {
     setExportPlan(plan);
     
     try {
-      // Load goals for the plan
       const { data: goalsData, error: goalsError } = await supabase
         .from('life_goals')
         .select('*')
@@ -164,7 +161,6 @@ export default function Consulta() {
 
       if (goalsError) throw goalsError;
 
-      // Load area customizations
       const { data: customizations } = await supabase
         .from('plan_area_customizations')
         .select('*')
@@ -216,16 +212,16 @@ export default function Consulta() {
 
   return (
     <AppLayout>
-      <div className="space-y-4 sm:space-y-6 animate-fade-in">
+      <div className="space-y-5 sm:space-y-6 animate-fade-in">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-1 sm:mb-2">Meus Planos</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-1">Meus Planos</h1>
             <p className="text-sm sm:text-base text-muted-foreground">
               Consulte e edite seus planos de vida
             </p>
           </div>
           <Link to="/cadastro" className="w-full sm:w-auto">
-            <Button className="w-full sm:w-auto">
+            <Button className="w-full sm:w-auto h-11 rounded-xl">
               <Plus className="w-4 h-4 mr-2" />
               Novo Plano
             </Button>
@@ -242,7 +238,10 @@ export default function Consulta() {
                 variant={filter === option.value ? "default" : "outline"}
                 size="sm"
                 onClick={() => setFilter(option.value)}
-                className="flex-shrink-0"
+                className={cn(
+                  "flex-shrink-0 rounded-xl h-9",
+                  filter !== option.value && "border-border/50"
+                )}
               >
                 {option.label}
               </Button>
@@ -251,17 +250,19 @@ export default function Consulta() {
         )}
 
         {plans.length === 0 ? (
-          <Card className="shadow-lg">
-            <CardContent className="flex flex-col items-center justify-center py-12 sm:py-16 px-4">
-              <FileText className="w-12 h-12 sm:w-16 sm:h-16 text-muted-foreground mb-4" />
-              <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-2 text-center">
+          <Card className="border-border/40">
+            <CardContent className="flex flex-col items-center justify-center py-16 px-4">
+              <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center mb-4">
+                <FileText className="w-8 h-8 text-muted-foreground" />
+              </div>
+              <h3 className="text-lg font-semibold text-foreground mb-2 text-center">
                 Nenhum plano encontrado
               </h3>
-              <p className="text-sm sm:text-base text-muted-foreground mb-4 sm:mb-6 text-center">
-                Crie seu primeiro plano de vida para começar
+              <p className="text-sm text-muted-foreground mb-6 text-center max-w-sm">
+                Crie seu primeiro plano de vida para começar sua jornada de desenvolvimento pessoal
               </p>
-              <Link to="/cadastro" className="w-full sm:w-auto">
-                <Button className="w-full sm:w-auto">
+              <Link to="/cadastro">
+                <Button className="rounded-xl">
                   <Plus className="w-4 h-4 mr-2" />
                   Criar Plano
                 </Button>
@@ -269,7 +270,7 @@ export default function Consulta() {
             </CardContent>
           </Card>
         ) : filteredPlans.length === 0 ? (
-          <Card className="shadow-lg">
+          <Card className="border-border/40">
             <CardContent className="flex flex-col items-center justify-center py-12 px-4">
               <Filter className="w-12 h-12 text-muted-foreground mb-4" />
               <h3 className="text-lg font-semibold text-foreground mb-2 text-center">
@@ -292,33 +293,33 @@ export default function Consulta() {
               const TypeIcon = typeConfig.icon;
 
               return (
-                <Card key={plan.id} className="shadow-lg hover:shadow-xl transition-shadow">
-                  <CardHeader className="pb-2 sm:pb-4">
+                <Card key={plan.id} className="border-border/40 hover:border-border/60 group">
+                  <CardHeader className="pb-3">
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex-1 min-w-0 space-y-2">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <Badge className={cn("flex items-center gap-1 text-xs", typeConfig.color)}>
+                          <Badge className={cn("flex items-center gap-1.5 text-xs font-medium border rounded-lg px-2.5 py-1", typeConfig.color)}>
                             <TypeIcon className="w-3 h-3" />
                             {typeConfig.label}
                           </Badge>
                           {plan.member_name && (
-                            <Badge variant="outline" className="text-xs">
+                            <Badge variant="outline" className="text-xs rounded-lg">
                               {plan.member_name}
                             </Badge>
                           )}
                         </div>
-                        <CardTitle className="text-base sm:text-lg truncate">{plan.title}</CardTitle>
+                        <CardTitle className="text-lg truncate">{plan.title}</CardTitle>
                         {plan.motto && (
-                          <CardDescription className="italic text-xs sm:text-sm line-clamp-2">
+                          <CardDescription className="italic text-sm line-clamp-2">
                             "{plan.motto}"
                           </CardDescription>
                         )}
                       </div>
-                      <div className="flex items-center gap-1 flex-shrink-0">
+                      <div className="flex items-center gap-1 flex-shrink-0 opacity-60 group-hover:opacity-100 transition-opacity">
                         <Button 
                           variant="ghost" 
                           size="icon" 
-                          className="h-8 w-8 sm:h-9 sm:w-9"
+                          className="h-9 w-9 rounded-xl"
                           onClick={() => handleOpenExport(plan)}
                           disabled={loadingExport}
                         >
@@ -330,11 +331,11 @@ export default function Consulta() {
                         </Button>
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
-                            <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive h-8 w-8 sm:h-9 sm:w-9">
+                            <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive h-9 w-9 rounded-xl">
                               <Trash2 className="w-4 h-4" />
                             </Button>
                           </AlertDialogTrigger>
-                          <AlertDialogContent className="mx-4 sm:mx-auto max-w-[calc(100vw-2rem)] sm:max-w-lg">
+                          <AlertDialogContent className="mx-4 sm:mx-auto max-w-[calc(100vw-2rem)] sm:max-w-lg rounded-2xl">
                             <AlertDialogHeader>
                               <AlertDialogTitle>Excluir plano?</AlertDialogTitle>
                               <AlertDialogDescription>
@@ -342,8 +343,8 @@ export default function Consulta() {
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter className="flex-col sm:flex-row gap-2">
-                              <AlertDialogCancel className="w-full sm:w-auto">Cancelar</AlertDialogCancel>
-                              <AlertDialogAction onClick={() => handleDelete(plan.id)} className="w-full sm:w-auto">
+                              <AlertDialogCancel className="w-full sm:w-auto rounded-xl">Cancelar</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => handleDelete(plan.id)} className="w-full sm:w-auto rounded-xl">
                                 Excluir
                               </AlertDialogAction>
                             </AlertDialogFooter>
@@ -353,25 +354,25 @@ export default function Consulta() {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-3 sm:space-y-4">
+                    <div className="space-y-4">
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-muted-foreground">Progresso</span>
-                        <span className="font-medium text-foreground">{percentage}%</span>
+                        <span className="font-semibold text-foreground">{percentage}%</span>
                       </div>
-                      <div className="w-full bg-muted rounded-full h-2">
+                      <div className="w-full bg-muted/50 rounded-full h-2.5">
                         <div
-                          className="h-2 rounded-full bg-primary transition-all duration-500"
+                          className="h-2.5 rounded-full bg-gradient-to-r from-primary to-emerald-500 transition-all duration-700 ease-out"
                           style={{ width: `${percentage}%` }}
                         />
                       </div>
-                      <div className="flex items-center justify-between text-xs sm:text-sm text-muted-foreground">
+                      <div className="flex items-center justify-between text-xs text-muted-foreground">
                         <span>{plan.completed_count} de {plan.goals_count} metas</span>
                         <span>
                           {new Date(plan.created_at).toLocaleDateString('pt-BR')}
                         </span>
                       </div>
                       <Link to={`/consulta/${plan.id}`}>
-                        <Button variant="outline" className="w-full mt-2 h-10 sm:h-9">
+                        <Button variant="outline" className="w-full mt-1 h-11 rounded-xl border-border/50 hover:border-border">
                           Ver e Editar
                           <ChevronRight className="w-4 h-4 ml-2" />
                         </Button>
@@ -384,7 +385,6 @@ export default function Consulta() {
           </div>
         )}
 
-        {/* Export Dialog */}
         {exportPlan && (
           <ExportPlanDialog
             open={exportDialogOpen}

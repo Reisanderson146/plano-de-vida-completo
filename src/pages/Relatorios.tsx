@@ -221,21 +221,20 @@ export default function Relatorios() {
 
   return (
     <AppLayout>
-      <div className="space-y-4 sm:space-y-6 animate-fade-in">
+      <div className="space-y-5 sm:space-y-6 animate-fade-in">
         {/* Header */}
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-1 sm:mb-2">Relatórios</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-1">Relatórios</h1>
           <p className="text-sm sm:text-base text-muted-foreground">
-            Análise detalhada do seu progresso anual
+            Análise detalhada do seu progresso
           </p>
         </div>
 
         {/* Filters */}
         <div className="flex flex-col sm:flex-row gap-3">
-          {/* Plan Filter */}
           <Select value={selectedPlanId} onValueChange={setSelectedPlanId}>
-            <SelectTrigger className="w-full sm:w-[250px]">
-              <Folder className="w-4 h-4 mr-2 flex-shrink-0" />
+            <SelectTrigger className="w-full sm:w-[250px] h-11 rounded-xl">
+              <Folder className="w-4 h-4 mr-2 flex-shrink-0 text-muted-foreground" />
               <SelectValue placeholder="Selecione um plano" />
             </SelectTrigger>
             <SelectContent>
@@ -255,22 +254,12 @@ export default function Relatorios() {
             </SelectContent>
           </Select>
 
-          {/* Date Range Filter */}
-          <DateRangeFilter
-            value={dateRange}
-            onChange={setDateRange}
-          />
+          <DateRangeFilter value={dateRange} onChange={setDateRange} />
 
-          {/* Export Button */}
           <div className="flex gap-2 sm:ml-auto">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleExport}
-              className="flex-1 sm:flex-none"
-            >
+            <Button variant="outline" size="sm" onClick={handleExport} className="flex-1 sm:flex-none h-11 rounded-xl">
               <FileText className="w-4 h-4 mr-2" />
-              PDF
+              Exportar PDF
             </Button>
           </div>
         </div>
@@ -278,107 +267,118 @@ export default function Relatorios() {
         {/* Current Selection Info */}
         {selectedPlan && (
           <div className="flex flex-wrap items-center gap-2">
-            <Badge variant="secondary" className="flex items-center gap-1">
+            <Badge variant="secondary" className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg">
               {(() => {
                 const config = PLAN_TYPE_CONFIG[selectedPlan.plan_type as keyof typeof PLAN_TYPE_CONFIG] || PLAN_TYPE_CONFIG.individual;
                 const PlanIcon = config.icon;
-                return <PlanIcon className="w-3 h-3" />;
+                return <PlanIcon className="w-3.5 h-3.5" />;
               })()}
               {selectedPlan.title}
               {selectedPlan.member_name && ` - ${selectedPlan.member_name}`}
             </Badge>
-            <Badge variant="outline">
+            <Badge variant="outline" className="px-3 py-1.5 rounded-lg">
               {getDateRangeLabel(dateRange)}
             </Badge>
           </div>
         )}
 
         {/* Stats Cards */}
-        <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4">
-          <Card className="shadow-md">
-            <CardContent className="pt-4 sm:pt-6 px-3 sm:px-6">
-              <div className="flex items-center justify-between">
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs sm:text-sm text-muted-foreground truncate">Total de Metas</p>
-                  <p className="text-2xl sm:text-3xl font-bold text-foreground">{totalGoals}</p>
+        <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
+          <Card className="border-border/40">
+            <CardContent className="pt-5 px-4 sm:px-5">
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  <Target className="w-5 h-5 text-primary" />
                 </div>
-                <Target className="w-8 h-8 sm:w-10 sm:h-10 text-primary opacity-50 flex-shrink-0" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs text-muted-foreground truncate">Total de Metas</p>
+                  <p className="text-2xl font-bold text-foreground">{totalGoals}</p>
+                </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="shadow-md">
-            <CardContent className="pt-4 sm:pt-6 px-3 sm:px-6">
-              <div className="flex items-center justify-between">
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs sm:text-sm text-muted-foreground truncate">Concluídas</p>
-                  <p className="text-2xl sm:text-3xl font-bold text-success">{completedGoals}</p>
+          <Card className="border-border/40">
+            <CardContent className="pt-5 px-4 sm:px-5">
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-xl bg-success/10 flex items-center justify-center flex-shrink-0">
+                  <CheckCircle2 className="w-5 h-5 text-success" />
                 </div>
-                <CheckCircle2 className="w-8 h-8 sm:w-10 sm:h-10 text-success opacity-50 flex-shrink-0" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs text-muted-foreground truncate">Concluídas</p>
+                  <p className="text-2xl font-bold text-success">{completedGoals}</p>
+                </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="shadow-md">
-            <CardContent className="pt-4 sm:pt-6 px-3 sm:px-6">
-              <div className="flex items-center justify-between">
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs sm:text-sm text-muted-foreground truncate">Melhor Área</p>
-                  <p className="text-base sm:text-xl font-bold text-foreground truncate">{bestArea.name}</p>
-                  <p className="text-xs sm:text-sm text-success">{bestArea.percentage}%</p>
+          <Card className="border-border/40">
+            <CardContent className="pt-5 px-4 sm:px-5">
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-xl bg-success/10 flex items-center justify-center flex-shrink-0">
+                  <TrendingUp className="w-5 h-5 text-success" />
                 </div>
-                <TrendingUp className="w-8 h-8 sm:w-10 sm:h-10 text-success opacity-50 flex-shrink-0" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs text-muted-foreground truncate">Melhor Área</p>
+                  <p className="text-base font-semibold text-foreground truncate">{bestArea.name}</p>
+                  <p className="text-xs text-success font-medium">{bestArea.percentage}%</p>
+                </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="shadow-md">
-            <CardContent className="pt-4 sm:pt-6 px-3 sm:px-6">
-              <div className="flex items-center justify-between">
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs sm:text-sm text-muted-foreground truncate">Para Melhorar</p>
-                  <p className="text-base sm:text-xl font-bold text-foreground truncate">{worstArea.name}</p>
-                  <p className="text-xs sm:text-sm text-destructive">{worstArea.percentage}%</p>
+          <Card className="border-border/40">
+            <CardContent className="pt-5 px-4 sm:px-5">
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-xl bg-destructive/10 flex items-center justify-center flex-shrink-0">
+                  <TrendingDown className="w-5 h-5 text-destructive" />
                 </div>
-                <TrendingDown className="w-8 h-8 sm:w-10 sm:h-10 text-destructive opacity-50 flex-shrink-0" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs text-muted-foreground truncate">Para Melhorar</p>
+                  <p className="text-base font-semibold text-foreground truncate">{worstArea.name}</p>
+                  <p className="text-xs text-destructive font-medium">{worstArea.percentage}%</p>
+                </div>
               </div>
             </CardContent>
           </Card>
         </div>
 
         {/* Charts */}
-        <div className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-2">
-          <Card className="shadow-lg">
-            <CardHeader className="pb-2 sm:pb-4">
+        <div className="grid gap-5 grid-cols-1 lg:grid-cols-2">
+          <Card className="border-border/40">
+            <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-base sm:text-lg">Progresso por Área</CardTitle>
-                <Badge variant="outline" className="font-normal text-xs">
+                <Badge variant="outline" className="font-normal text-xs rounded-lg">
                   {getDateRangeLabel(dateRange)}
                 </Badge>
               </div>
             </CardHeader>
-            <CardContent className="px-2 sm:px-6">
-              <div className="h-[250px] sm:h-[300px]">
+            <CardContent className="px-3 sm:px-5">
+              <div className="h-[280px] sm:h-[320px]">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={barChartData} layout="vertical">
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                    <XAxis type="number" domain={[0, 100]} tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }} />
+                  <BarChart data={barChartData} layout="vertical" margin={{ left: 0, right: 10 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" horizontal={true} vertical={false} />
+                    <XAxis type="number" domain={[0, 100]} tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 11 }} axisLine={false} tickLine={false} />
                     <YAxis 
                       dataKey="name" 
                       type="category" 
-                      width={70} 
-                      tick={{ fill: 'hsl(var(--foreground))', fontSize: 10 }} 
+                      width={80} 
+                      tick={{ fill: 'hsl(var(--foreground))', fontSize: 11, fontWeight: 500 }}
+                      axisLine={false}
+                      tickLine={false}
                     />
                     <Tooltip 
                       formatter={(value) => [`${value}%`, 'Progresso']}
                       contentStyle={{ 
                         backgroundColor: 'hsl(var(--card))',
                         border: '1px solid hsl(var(--border))',
-                        borderRadius: 'var(--radius)',
-                        fontSize: '12px'
+                        borderRadius: '12px',
+                        fontSize: '13px',
+                        boxShadow: 'var(--shadow-card)'
                       }}
                     />
-                    <Bar dataKey="percentage" radius={[0, 4, 4, 0]}>
+                    <Bar dataKey="percentage" radius={[0, 6, 6, 0]} barSize={20}>
                       {barChartData.map((entry) => (
                         <Cell key={entry.area} fill={AREA_HEX_COLORS[entry.area as LifeArea]} />
                       ))}
@@ -389,66 +389,67 @@ export default function Relatorios() {
             </CardContent>
           </Card>
 
-          <Card className="shadow-lg">
-            <CardHeader className="pb-2 sm:pb-4">
+          <Card className="border-border/40">
+            <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-base sm:text-lg">Visão Radar</CardTitle>
-                <Badge variant="outline" className="font-normal text-xs">
+                <Badge variant="outline" className="font-normal text-xs rounded-lg">
                   {getDateRangeLabel(dateRange)}
                 </Badge>
               </div>
             </CardHeader>
-            <CardContent className="px-2 sm:px-6">
+            <CardContent className="px-3 sm:px-5">
               <ProgressChart data={stats} />
             </CardContent>
           </Card>
         </div>
 
         {/* Overall Progress */}
-        <Card className="shadow-lg">
-          <CardHeader className="pb-2 sm:pb-4">
+        <Card className="border-border/40">
+          <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-base sm:text-lg">Progresso Geral</CardTitle>
-              <Badge variant="outline" className="font-normal text-xs">
+              <Badge variant="outline" className="font-normal text-xs rounded-lg">
                 {getDateRangeLabel(dateRange)}
               </Badge>
             </div>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
-              <div className="relative w-24 h-24 sm:w-32 sm:h-32 flex-shrink-0">
+            <div className="flex flex-col sm:flex-row items-center gap-5 sm:gap-8">
+              <div className="relative w-28 h-28 sm:w-36 sm:h-36 flex-shrink-0">
                 <svg className="w-full h-full transform -rotate-90">
                   <circle
                     cx="50%"
                     cy="50%"
-                    r="45%"
+                    r="44%"
                     fill="none"
                     stroke="hsl(var(--muted))"
-                    strokeWidth="12"
+                    strokeWidth="10"
                   />
                   <circle
                     cx="50%"
                     cy="50%"
-                    r="45%"
+                    r="44%"
                     fill="none"
                     stroke="hsl(var(--primary))"
-                    strokeWidth="12"
+                    strokeWidth="10"
                     strokeLinecap="round"
-                    strokeDasharray={`${overallPercentage * 2.83} 283`}
+                    strokeDasharray={`${overallPercentage * 2.76} 276`}
+                    className="transition-all duration-700 ease-out"
                   />
                 </svg>
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-xl sm:text-2xl font-bold text-foreground">{overallPercentage}%</span>
+                  <span className="text-2xl sm:text-3xl font-bold text-foreground">{overallPercentage}%</span>
                 </div>
               </div>
               <div className="flex-1 text-center sm:text-left">
-                <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-1 sm:mb-2">
+                <h3 className="text-xl sm:text-2xl font-bold text-foreground mb-2">
                   {overallPercentage >= 80 ? 'Excelente!' : 
                    overallPercentage >= 50 ? 'Bom progresso!' : 
                    'Continue tentando!'}
                 </h3>
                 <p className="text-sm sm:text-base text-muted-foreground">
-                  Você completou {completedGoals} de {totalGoals} metas no período selecionado.
+                  Você completou <span className="font-semibold text-foreground">{completedGoals}</span> de <span className="font-semibold text-foreground">{totalGoals}</span> metas no período selecionado.
                 </p>
               </div>
             </div>
