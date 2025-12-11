@@ -352,36 +352,49 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, li
 
     return (
       <Collapsible open={isExpanded} onOpenChange={() => toggleYear(period.year)}>
-        <Card className="shadow-md overflow-hidden">
+        <Card className="overflow-hidden border-border/40">
           <CollapsibleTrigger asChild>
-            <CardHeader className="py-3 px-4 cursor-pointer hover:bg-muted/50 transition-colors bg-gradient-to-r from-primary/5 to-transparent">
+            <CardHeader className="py-4 px-5 cursor-pointer hover:bg-muted/30 transition-all duration-200 bg-gradient-to-r from-primary/5 via-primary/3 to-transparent">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-2">
-                    <Calendar className="w-5 h-5 text-primary" />
-                    <span className="text-xl font-bold text-foreground">{period.year}</span>
+                <div className="flex items-center gap-4 sm:gap-5">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                      <Calendar className="w-5 h-5 text-primary" />
+                    </div>
+                    <div>
+                      <span className="text-xl font-bold text-foreground">{period.year}</span>
+                      <div className="flex items-center gap-1 text-muted-foreground sm:hidden">
+                        <User className="w-3 h-3" />
+                        <span className="text-xs">{period.age} anos</span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1 text-muted-foreground">
+                  <div className="hidden sm:flex items-center gap-1.5 text-muted-foreground">
                     <User className="w-4 h-4" />
                     <span className="text-sm">{period.age} anos</span>
                   </div>
-                  <div className="hidden sm:flex items-center gap-2">
-                    <div className="w-24 h-2 bg-muted rounded-full overflow-hidden">
+                  <div className="hidden sm:flex items-center gap-3">
+                    <div className="w-28 h-2.5 bg-muted rounded-full overflow-hidden">
                       <div 
-                        className="h-full bg-primary transition-all duration-300" 
+                        className="h-full bg-gradient-to-r from-primary to-emerald-500 transition-all duration-500 rounded-full" 
                         style={{ width: `${progressPercent}%` }}
                       />
                     </div>
-                    <span className="text-sm text-muted-foreground">
-                      {totalGoals > 0 ? `${completedGoals}/${totalGoals} metas` : 'Sem metas'}
+                    <span className="text-sm text-muted-foreground font-medium">
+                      {totalGoals > 0 ? `${completedGoals}/${totalGoals}` : '0'} metas
                     </span>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="sm:hidden text-sm text-muted-foreground">
-                    {totalGoals > 0 ? `${completedGoals}/${totalGoals}` : '0'}
+                <div className="flex items-center gap-3">
+                  <span className="sm:hidden text-sm font-medium text-muted-foreground">
+                    {progressPercent}%
                   </span>
-                  {isExpanded ? <ChevronUp className="w-5 h-5 text-muted-foreground" /> : <ChevronDown className="w-5 h-5 text-muted-foreground" />}
+                  <div className={cn(
+                    "w-8 h-8 rounded-lg flex items-center justify-center transition-colors",
+                    isExpanded ? "bg-primary/10" : "bg-muted/50"
+                  )}>
+                    {isExpanded ? <ChevronUp className="w-4 h-4 text-primary" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+                  </div>
                 </div>
               </div>
             </CardHeader>
