@@ -19,14 +19,14 @@ const AREA_ICONS: Record<LifeArea, React.ElementType> = {
   saude: Dumbbell,
 };
 
-const AREA_STYLES: Record<LifeArea, { gradient: string; iconBg: string }> = {
-  espiritual: { gradient: 'from-violet-500/12 to-purple-500/5', iconBg: 'bg-violet-500/15 text-violet-600 dark:text-violet-400' },
-  intelectual: { gradient: 'from-blue-500/12 to-sky-500/5', iconBg: 'bg-blue-500/15 text-blue-600 dark:text-blue-400' },
-  familiar: { gradient: 'from-rose-500/12 to-pink-500/5', iconBg: 'bg-rose-500/15 text-rose-600 dark:text-rose-400' },
-  social: { gradient: 'from-orange-500/12 to-amber-500/5', iconBg: 'bg-orange-500/15 text-orange-600 dark:text-orange-400' },
-  financeiro: { gradient: 'from-emerald-500/12 to-green-500/5', iconBg: 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400' },
-  profissional: { gradient: 'from-amber-500/12 to-yellow-500/5', iconBg: 'bg-amber-500/15 text-amber-600 dark:text-amber-400' },
-  saude: { gradient: 'from-teal-500/12 to-cyan-500/5', iconBg: 'bg-teal-500/15 text-teal-600 dark:text-teal-400' },
+const AREA_STYLES: Record<LifeArea, { gradient: string; iconBg: string; barColor: string }> = {
+  espiritual: { gradient: 'from-violet-500/20 to-purple-500/10', iconBg: 'bg-violet-500/20 text-violet-600 dark:text-violet-400', barColor: 'bg-gradient-to-r from-violet-500 to-purple-500' },
+  intelectual: { gradient: 'from-blue-500/20 to-sky-500/10', iconBg: 'bg-blue-500/20 text-blue-600 dark:text-blue-400', barColor: 'bg-gradient-to-r from-blue-500 to-sky-500' },
+  familiar: { gradient: 'from-rose-500/20 to-pink-500/10', iconBg: 'bg-rose-500/20 text-rose-600 dark:text-rose-400', barColor: 'bg-gradient-to-r from-rose-500 to-pink-500' },
+  social: { gradient: 'from-orange-500/20 to-amber-500/10', iconBg: 'bg-orange-500/20 text-orange-600 dark:text-orange-400', barColor: 'bg-gradient-to-r from-orange-500 to-amber-500' },
+  financeiro: { gradient: 'from-emerald-500/20 to-green-500/10', iconBg: 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400', barColor: 'bg-gradient-to-r from-emerald-500 to-green-500' },
+  profissional: { gradient: 'from-amber-500/20 to-yellow-500/10', iconBg: 'bg-amber-500/20 text-amber-600 dark:text-amber-400', barColor: 'bg-gradient-to-r from-amber-500 to-yellow-500' },
+  saude: { gradient: 'from-teal-500/20 to-cyan-500/10', iconBg: 'bg-teal-500/20 text-teal-600 dark:text-teal-400', barColor: 'bg-gradient-to-r from-teal-500 to-cyan-500' },
 };
 
 export function AreaCard({ area, label, total, completed }: AreaCardProps) {
@@ -55,10 +55,10 @@ export function AreaCard({ area, label, total, completed }: AreaCardProps) {
           {isComplete && <CheckCircle2 className="w-4 h-4 text-success" />}
         </div>
 
-        <div className="h-2 bg-muted/50 rounded-full overflow-hidden">
+        <div className="h-2.5 bg-muted/40 rounded-full overflow-hidden shadow-inner">
           <div
-            className="h-full rounded-full transition-all duration-700 ease-out"
-            style={{ width: `${percentage}%`, backgroundColor: areaColor }}
+            className={cn("h-full rounded-full transition-all duration-700 ease-out", styles.barColor)}
+            style={{ width: `${percentage}%` }}
           />
         </div>
 

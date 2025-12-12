@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Eye, EyeOff, ArrowRight, Sparkles } from 'lucide-react';
+import { Loader2, Eye, EyeOff, ArrowRight } from 'lucide-react';
 import { Logo } from '@/components/Logo';
 import loginBackground from '@/assets/login-background.png';
 
@@ -108,16 +108,20 @@ export default function Auth() {
       <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-teal-500/10 rounded-full blur-3xl animate-pulse delay-1000" />
       
       <div className="w-full max-w-[420px] animate-fade-in relative z-10">
-        {/* Logo Section - Enhanced */}
-        <div className="flex flex-col items-center mb-8 sm:mb-10">
-          <Logo size="xl" showText={true} variant="light" className="drop-shadow-2xl" />
-          <div className="flex items-center gap-2 mt-4">
-            <Sparkles className="w-4 h-4 text-amber-300/80" />
-            <p className="text-white/90 text-center text-sm sm:text-base font-medium tracking-wide">
-              Organize suas metas nas 7 áreas da vida
-            </p>
-            <Sparkles className="w-4 h-4 text-amber-300/80" />
-          </div>
+        {/* Logo Section - Enhanced & Larger */}
+        <div className="flex flex-col items-center mb-10 sm:mb-12">
+          {/* Large Logo Icon */}
+          <Logo size="2xl" showText={false} showIcon={true} variant="light" className="drop-shadow-2xl mb-5" />
+          
+          {/* Title on single line */}
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white tracking-wide drop-shadow-[0_4px_12px_rgba(0,0,0,0.4)] mb-4">
+            Plano de Vida
+          </h1>
+          
+          {/* New Slogan */}
+          <p className="text-white/85 text-center text-base sm:text-lg font-light tracking-widest italic">
+            Constância que constrói propósito.
+          </p>
         </div>
 
         {/* Glassmorphism Card */}
@@ -127,7 +131,7 @@ export default function Auth() {
               Bem-vindo!
             </CardTitle>
             <CardDescription className="text-muted-foreground/80 text-sm sm:text-base font-normal">
-              Comece sua jornada de transformação pessoal
+              Acesse sua conta e continue sua jornada
             </CardDescription>
           </CardHeader>
           <CardContent className="px-6 sm:px-8 pb-8">
