@@ -78,8 +78,8 @@ export function Navbar() {
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 sm:h-[72px]">
           <Link to="/" className="flex items-center group">
-            <Logo size="sm" showText={true} variant="light" className="sm:hidden transition-transform group-hover:scale-105" />
-            <Logo size="md" showText={true} variant="light" className="hidden sm:flex transition-transform group-hover:scale-105" />
+            <Logo size="sm" showText={true} showIcon={false} variant="light" singleLine={true} className="sm:hidden transition-transform group-hover:scale-105" />
+            <Logo size="md" showText={true} showIcon={false} variant="light" singleLine={true} className="hidden sm:flex transition-transform group-hover:scale-105" />
           </Link>
 
           {/* Desktop Navigation */}
