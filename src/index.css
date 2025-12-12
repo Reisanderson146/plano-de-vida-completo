@@ -6,39 +6,40 @@
 
 @layer base {
   :root {
-    /* Premium off-white backgrounds - softer than pure white */
-    --background: 180 15% 97%;
-    --foreground: 200 20% 15%;
+    /* Premium light green theme - #F7F9F7 base */
+    --background: 120 10% 97%;
+    --foreground: 160 15% 20%;
 
-    --card: 0 0% 99%;
-    --card-foreground: 200 20% 15%;
+    --card: 120 8% 99%;
+    --card-foreground: 160 15% 20%;
 
-    --popover: 0 0% 99%;
-    --popover-foreground: 200 20% 15%;
+    --popover: 120 8% 99%;
+    --popover-foreground: 160 15% 20%;
 
-    /* Refined primary green */
-    --primary: 160 75% 38%;
+    /* Primary green - #2A8C68 */
+    --primary: 156 55% 36%;
     --primary-foreground: 0 0% 100%;
 
-    /* Soft secondary tones */
-    --secondary: 180 15% 95%;
-    --secondary-foreground: 200 20% 20%;
+    /* Secondary green - #7BC8A4 */
+    --secondary: 152 42% 63%;
+    --secondary-foreground: 160 15% 15%;
 
-    --muted: 180 12% 92%;
-    --muted-foreground: 200 12% 45%;
+    /* Light green accent - #A8E6CE */
+    --muted: 152 55% 78%;
+    --muted-foreground: 160 12% 40%;
 
-    --accent: 160 30% 94%;
-    --accent-foreground: 200 20% 15%;
+    --accent: 152 55% 92%;
+    --accent-foreground: 156 55% 28%;
 
     --destructive: 0 72% 55%;
     --destructive-foreground: 0 0% 100%;
 
     /* Softer borders */
-    --border: 200 15% 88%;
-    --input: 200 15% 88%;
-    --ring: 160 75% 38%;
+    --border: 152 20% 85%;
+    --input: 152 20% 88%;
+    --ring: 156 55% 36%;
 
-    --radius: 0.875rem;
+    --radius: 1rem;
 
     /* Custom area colors - refined premium palette */
     --area-espiritual: 262 70% 55%;
@@ -50,69 +51,70 @@
     --area-saude: 173 70% 40%;
 
     /* Success/Warning states - softer */
-    --success: 142 65% 38%;
+    --success: 156 55% 36%;
     --success-foreground: 0 0% 100%;
     --warning: 38 85% 48%;
     --warning-foreground: 0 0% 100%;
 
-    /* Navbar gradient colors - refined */
-    --navbar-from: 160 70% 32%;
-    --navbar-via: 168 65% 35%;
-    --navbar-to: 175 60% 32%;
+    /* Navbar gradient colors - premium green */
+    --navbar-from: 156 55% 32%;
+    --navbar-via: 152 50% 36%;
+    --navbar-to: 148 45% 34%;
 
     /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(160 75% 38%), hsl(175 65% 42%));
+    --gradient-primary: linear-gradient(135deg, hsl(156 55% 36%), hsl(152 42% 50%));
     --gradient-hero: linear-gradient(135deg, hsl(var(--navbar-from)), hsl(var(--navbar-via)), hsl(var(--navbar-to)));
-    --gradient-card: linear-gradient(145deg, hsl(0 0% 100%), hsl(180 15% 97%));
+    --gradient-card: linear-gradient(145deg, hsl(120 8% 99%), hsl(120 10% 97%));
+    --gradient-accent: linear-gradient(135deg, hsl(152 55% 85%), hsl(152 42% 75%));
     
     /* Premium shadows - softer and more elegant */
-    --shadow-xs: 0 1px 2px 0 hsl(200 20% 15% / 0.03);
-    --shadow-sm: 0 1px 3px 0 hsl(200 20% 15% / 0.04), 0 1px 2px -1px hsl(200 20% 15% / 0.04);
-    --shadow-md: 0 4px 6px -1px hsl(200 20% 15% / 0.06), 0 2px 4px -2px hsl(200 20% 15% / 0.06);
-    --shadow-lg: 0 10px 15px -3px hsl(200 20% 15% / 0.06), 0 4px 6px -4px hsl(200 20% 15% / 0.06);
-    --shadow-xl: 0 20px 25px -5px hsl(200 20% 15% / 0.08), 0 8px 10px -6px hsl(200 20% 15% / 0.08);
-    --shadow-glow: 0 0 20px hsl(160 75% 38% / 0.2);
-    --shadow-card: 0 1px 3px hsl(200 20% 15% / 0.04), 0 4px 12px hsl(200 20% 15% / 0.04);
-    --shadow-card-hover: 0 4px 12px hsl(200 20% 15% / 0.08), 0 8px 24px hsl(200 20% 15% / 0.06);
+    --shadow-xs: 0 1px 2px 0 hsl(156 30% 30% / 0.04);
+    --shadow-sm: 0 1px 3px 0 hsl(156 30% 30% / 0.05), 0 1px 2px -1px hsl(156 30% 30% / 0.04);
+    --shadow-md: 0 4px 6px -1px hsl(156 30% 30% / 0.06), 0 2px 4px -2px hsl(156 30% 30% / 0.05);
+    --shadow-lg: 0 10px 15px -3px hsl(156 30% 30% / 0.07), 0 4px 6px -4px hsl(156 30% 30% / 0.05);
+    --shadow-xl: 0 20px 25px -5px hsl(156 30% 30% / 0.08), 0 8px 10px -6px hsl(156 30% 30% / 0.06);
+    --shadow-glow: 0 0 25px hsl(156 55% 50% / 0.25);
+    --shadow-card: 0 2px 4px hsl(156 30% 30% / 0.04), 0 6px 16px hsl(156 30% 30% / 0.05);
+    --shadow-card-hover: 0 6px 16px hsl(156 30% 30% / 0.08), 0 12px 32px hsl(156 30% 30% / 0.06);
 
-    --sidebar-background: 0 0% 99%;
-    --sidebar-foreground: 200 12% 28%;
-    --sidebar-primary: 160 75% 38%;
+    --sidebar-background: 120 8% 99%;
+    --sidebar-foreground: 160 12% 28%;
+    --sidebar-primary: 156 55% 36%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 160 18% 96%;
-    --sidebar-accent-foreground: 200 12% 18%;
-    --sidebar-border: 200 12% 90%;
-    --sidebar-ring: 160 75% 45%;
+    --sidebar-accent: 152 55% 95%;
+    --sidebar-accent-foreground: 156 55% 25%;
+    --sidebar-border: 152 20% 88%;
+    --sidebar-ring: 156 55% 45%;
   }
 
   .dark {
-    --background: 200 20% 8%;
-    --foreground: 200 12% 95%;
+    --background: 160 15% 8%;
+    --foreground: 152 12% 95%;
 
-    --card: 200 18% 11%;
-    --card-foreground: 200 12% 95%;
+    --card: 160 18% 11%;
+    --card-foreground: 152 12% 95%;
 
-    --popover: 200 18% 11%;
-    --popover-foreground: 200 12% 95%;
+    --popover: 160 18% 11%;
+    --popover-foreground: 152 12% 95%;
 
-    --primary: 160 65% 45%;
-    --primary-foreground: 200 20% 8%;
+    --primary: 152 55% 50%;
+    --primary-foreground: 160 15% 8%;
 
-    --secondary: 200 18% 14%;
-    --secondary-foreground: 200 12% 95%;
+    --secondary: 152 25% 18%;
+    --secondary-foreground: 152 12% 95%;
 
-    --muted: 200 18% 14%;
-    --muted-foreground: 200 12% 55%;
+    --muted: 152 18% 16%;
+    --muted-foreground: 152 12% 60%;
 
-    --accent: 160 20% 18%;
-    --accent-foreground: 200 12% 95%;
+    --accent: 152 25% 20%;
+    --accent-foreground: 152 12% 95%;
 
     --destructive: 0 65% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 200 18% 18%;
-    --input: 200 18% 18%;
-    --ring: 160 65% 45%;
+    --border: 152 18% 20%;
+    --input: 152 18% 20%;
+    --ring: 152 55% 50%;
 
     /* Dark mode area colors - vibrant but not harsh */
     --area-espiritual: 262 60% 58%;
@@ -123,26 +125,26 @@
     --area-profissional: 45 80% 52%;
     --area-saude: 173 60% 45%;
 
-    /* Navbar gradient colors - dark */
-    --navbar-from: 160 60% 24%;
-    --navbar-via: 168 55% 26%;
-    --navbar-to: 175 50% 24%;
+    /* Navbar gradient colors - dark green */
+    --navbar-from: 156 50% 22%;
+    --navbar-via: 152 45% 24%;
+    --navbar-to: 148 40% 22%;
 
-    --success: 142 55% 42%;
+    --success: 152 55% 45%;
     --warning: 38 75% 50%;
 
     /* Dark shadows */
-    --shadow-card: 0 1px 3px hsl(0 0% 0% / 0.2), 0 4px 12px hsl(0 0% 0% / 0.15);
-    --shadow-card-hover: 0 4px 12px hsl(0 0% 0% / 0.25), 0 8px 24px hsl(0 0% 0% / 0.2);
+    --shadow-card: 0 2px 4px hsl(0 0% 0% / 0.25), 0 6px 16px hsl(0 0% 0% / 0.2);
+    --shadow-card-hover: 0 6px 16px hsl(0 0% 0% / 0.3), 0 12px 32px hsl(0 0% 0% / 0.25);
 
-    --sidebar-background: 200 18% 9%;
-    --sidebar-foreground: 200 10% 95%;
-    --sidebar-primary: 160 65% 45%;
+    --sidebar-background: 160 18% 9%;
+    --sidebar-foreground: 152 10% 95%;
+    --sidebar-primary: 152 55% 50%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 160 12% 15%;
-    --sidebar-accent-foreground: 200 10% 95%;
-    --sidebar-border: 200 18% 15%;
-    --sidebar-ring: 160 65% 50%;
+    --sidebar-accent: 152 20% 15%;
+    --sidebar-accent-foreground: 152 10% 95%;
+    --sidebar-border: 152 18% 18%;
+    --sidebar-ring: 152 55% 55%;
   }
 }
 

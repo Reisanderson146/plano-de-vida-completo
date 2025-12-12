@@ -171,11 +171,11 @@ export default function Dashboard() {
 
   return (
     <AppLayout>
-      <div className="space-y-5 sm:space-y-6 animate-fade-in">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-1">Dashboard</h1>
-          <p className="text-sm sm:text-base text-muted-foreground">
-            Acompanhe seu progresso nas 7 áreas da vida
+      <div className="space-y-6 sm:space-y-8 animate-fade-in">
+        <div className="space-y-1">
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">Dashboard</h1>
+          <p className="text-sm sm:text-base text-muted-foreground font-medium">
+            Constância que constrói propósito.
           </p>
         </div>
 
