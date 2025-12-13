@@ -44,6 +44,31 @@ export function usePlanAreaCustomizations(lifePlanId: string | undefined) {
     fetchCustomizations();
   }, [fetchCustomizations]);
 
+  // Real-time subscription for instant updates
+  useEffect(() => {
+    if (!lifePlanId) return;
+
+    const channel = supabase
+      .channel(`plan-customizations-${lifePlanId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'plan_area_customizations',
+          filter: `life_plan_id=eq.${lifePlanId}`
+        },
+        () => {
+          fetchCustomizations();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [lifePlanId, fetchCustomizations]);
+
   const saveCustomization = async (areaId: LifeArea, label: string | null, color: string | null) => {
     if (!lifePlanId) return;
 

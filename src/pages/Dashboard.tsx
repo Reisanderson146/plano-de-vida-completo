@@ -15,7 +15,7 @@ import { DateRangeFilter, getYearRangeFromDateRange } from '@/components/filters
 import { DateRange } from 'react-day-picker';
 import { format, startOfYear, endOfYear } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-
+import { usePlanAreaCustomizations } from '@/hooks/usePlanAreaCustomizations';
 type AreaStats = Record<LifeArea, { total: number; completed: number }>;
 
 interface LifePlan {
@@ -50,6 +50,8 @@ export default function Dashboard() {
     to: endOfYear(new Date())
   });
   const [hasPlans, setHasPlans] = useState(false);
+  
+  const { getAreaLabel, getAreaColor, refetch: refetchCustomizations } = usePlanAreaCustomizations(selectedPlanId || undefined);
 
   useEffect(() => {
     if (user) {
@@ -242,9 +244,10 @@ export default function Dashboard() {
               >
                 <AreaCard
                   area={area.id}
-                  label={area.label}
+                  label={getAreaLabel(area.id)}
                   total={stats[area.id].total}
                   completed={stats[area.id].completed}
+                  customColor={getAreaColor(area.id)}
                 />
               </div>
             ))}
