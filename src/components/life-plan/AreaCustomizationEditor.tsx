@@ -10,15 +10,36 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 
+// Expanded color palette with many more options
 const COLOR_PRESETS = [
-  '#8b5cf6', '#7c3aed', '#6d28d9',
-  '#3b82f6', '#2563eb', '#1d4ed8',
-  '#ec4899', '#db2777', '#be185d',
-  '#f97316', '#ea580c', '#c2410c',
-  '#22c55e', '#16a34a', '#15803d',
-  '#06b6d4', '#0891b2', '#0e7490',
-  '#ef4444', '#dc2626', '#b91c1c',
-  '#f59e0b', '#d97706', '#b45309',
+  // Reds
+  '#ef4444', '#dc2626', '#b91c1c', '#f87171', '#fca5a5',
+  // Oranges
+  '#f97316', '#ea580c', '#c2410c', '#fb923c', '#fdba74',
+  // Yellows
+  '#eab308', '#ca8a04', '#a16207', '#facc15', '#fde047',
+  // Limes
+  '#84cc16', '#65a30d', '#4d7c0f', '#a3e635', '#bef264',
+  // Greens
+  '#22c55e', '#16a34a', '#15803d', '#4ade80', '#86efac',
+  // Teals
+  '#14b8a6', '#0d9488', '#0f766e', '#2dd4bf', '#5eead4',
+  // Cyans
+  '#06b6d4', '#0891b2', '#0e7490', '#22d3ee', '#67e8f9',
+  // Blues
+  '#3b82f6', '#2563eb', '#1d4ed8', '#60a5fa', '#93c5fd',
+  // Indigos
+  '#6366f1', '#4f46e5', '#4338ca', '#818cf8', '#a5b4fc',
+  // Purples
+  '#8b5cf6', '#7c3aed', '#6d28d9', '#a78bfa', '#c4b5fd',
+  // Pinks
+  '#ec4899', '#db2777', '#be185d', '#f472b6', '#f9a8d4',
+  // Roses
+  '#f43f5e', '#e11d48', '#be123c', '#fb7185', '#fda4af',
+  // Grays
+  '#64748b', '#475569', '#334155', '#94a3b8', '#cbd5e1',
+  // Browns
+  '#92400e', '#78350f', '#a16207', '#d97706', '#f59e0b',
 ];
 
 export interface AreaConfig {
@@ -128,21 +149,22 @@ export function AreaCustomizationEditor({
 
                   <div>
                     <Label className="text-xs text-muted-foreground">Cor</Label>
-                    <div className="flex items-center gap-2 mt-1">
+                    <div className="flex items-start gap-3 mt-1">
                       <input
                         type="color"
                         value={tempColor}
                         onChange={(e) => setTempColor(e.target.value)}
-                        className="w-10 h-10 rounded cursor-pointer border-0"
+                        className="w-12 h-12 rounded cursor-pointer border-0 flex-shrink-0"
                       />
-                      <div className="flex flex-wrap gap-1">
-                        {COLOR_PRESETS.slice(0, 12).map((color) => (
+                      <div className="flex flex-wrap gap-1.5 max-h-[120px] overflow-y-auto p-1">
+                        {COLOR_PRESETS.map((color, idx) => (
                           <button
-                            key={color}
+                            key={`${color}-${idx}`}
                             type="button"
                             onClick={() => setTempColor(color)}
-                            className={`w-5 h-5 rounded-full transition-transform hover:scale-110 ${tempColor === color ? 'ring-2 ring-offset-1 ring-primary' : ''}`}
+                            className={`w-6 h-6 rounded-full transition-all hover:scale-110 ${tempColor === color ? 'ring-2 ring-offset-2 ring-primary scale-110' : 'hover:ring-1 hover:ring-primary/50'}`}
                             style={{ backgroundColor: color }}
+                            title={color}
                           />
                         ))}
                       </div>

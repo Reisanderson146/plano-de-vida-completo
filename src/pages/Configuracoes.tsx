@@ -2,16 +2,13 @@ import { useState, useEffect } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Palette, Moon, Info, Bell, Mail, Smartphone, CheckCircle2, Clock, Calendar } from 'lucide-react';
-import { ThemeSelector } from '@/components/theme/ThemeSelector';
+import { Loader2, Moon, Info, Bell, Mail, Smartphone, CheckCircle2, Clock, Calendar } from 'lucide-react';
 import { DarkModeToggle } from '@/components/theme/DarkModeToggle';
-import { applyTheme } from '@/lib/themes';
 import { useAuth } from '@/hooks/useAuth';
 import { useReminderSettings, ReminderSetting } from '@/hooks/useReminderSettings';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { supabase } from '@/integrations/supabase/client';
 
 const reminderTypeLabels = {
   check_in: { label: 'Check-in de Metas', icon: CheckCircle2, description: 'Lembretes para atualizar o progresso das metas' },
@@ -28,66 +25,7 @@ const frequencyLabels = {
 export default function Configuracoes() {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [loading, setLoading] = useState(true);
-  const [selectedTheme, setSelectedTheme] = useState('default');
   const { settings, isLoading: loadingSettings, updateSetting } = useReminderSettings();
-
-  useEffect(() => {
-    if (user) {
-      loadUserTheme();
-    }
-  }, [user]);
-
-  const loadUserTheme = async () => {
-    if (!user) return;
-    
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('theme_id')
-        .eq('id', user.id)
-        .single();
-
-      if (error) throw error;
-      
-      const theme = data?.theme_id || 'default';
-      setSelectedTheme(theme);
-      applyTheme(theme);
-    } catch (error) {
-      console.error('Error loading theme:', error);
-      applyTheme('default');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleThemeChange = async (themeId: string) => {
-    if (!user) return;
-    
-    setSelectedTheme(themeId);
-    applyTheme(themeId);
-    
-    try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({ theme_id: themeId })
-        .eq('id', user.id);
-
-      if (error) throw error;
-      
-      toast({
-        title: 'Tema atualizado!',
-        description: 'O novo tema foi aplicado com sucesso.',
-      });
-    } catch (error) {
-      console.error('Error saving theme:', error);
-      toast({
-        title: 'Erro ao salvar tema',
-        description: 'Não foi possível salvar sua preferência de tema.',
-        variant: 'destructive',
-      });
-    }
-  };
 
   const handleSettingChange = (setting: ReminderSetting, field: keyof ReminderSetting, value: any) => {
     updateSetting({
@@ -100,7 +38,7 @@ export default function Configuracoes() {
     });
   };
 
-  if (loading || loadingSettings) {
+  if (loadingSettings) {
     return (
       <AppLayout>
         <div className="flex items-center justify-center min-h-[400px]">
@@ -115,44 +53,30 @@ export default function Configuracoes() {
       <div className="max-w-4xl mx-auto space-y-6">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Configurações</h1>
-          <p className="text-muted-foreground mt-1">Personalize a aparência e notificações do seu aplicativo</p>
+          <p className="text-muted-foreground mt-1">Personalize as notificações do seu aplicativo</p>
         </div>
 
-        {/* Theme Selection Card */}
+        {/* Dark Mode Card */}
         <Card>
           <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Palette className="w-5 h-5 text-primary" />
-                  Tema de Cores
-                </CardTitle>
-                <CardDescription className="mt-1">Escolha o estilo visual do seu Plano de Vida</CardDescription>
-              </div>
-            </div>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Moon className="w-5 h-5 text-primary" />
+              Modo de Exibição
+            </CardTitle>
+            <CardDescription>Escolha entre modo claro, escuro ou automático</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Dark Mode Toggle */}
+          <CardContent>
             <div className="flex items-center justify-between p-4 rounded-xl bg-muted/50">
               <div className="flex items-center gap-3">
                 <div className="p-2.5 rounded-lg bg-background shadow-sm">
                   <Moon className="w-5 h-5 text-primary" />
                 </div>
                 <div>
-                  <p className="font-medium">Modo de Exibição</p>
+                  <p className="font-medium">Aparência</p>
                   <p className="text-sm text-muted-foreground">Claro, escuro ou automático</p>
                 </div>
               </div>
               <DarkModeToggle />
-            </div>
-
-            {/* Color Theme Selector */}
-            <div className="pt-2">
-              <p className="text-sm font-medium text-muted-foreground mb-4">Paleta de Cores</p>
-              <ThemeSelector
-                selectedTheme={selectedTheme}
-                onThemeChange={handleThemeChange}
-              />
             </div>
           </CardContent>
         </Card>
