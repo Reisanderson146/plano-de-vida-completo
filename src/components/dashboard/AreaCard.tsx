@@ -1,12 +1,14 @@
 import { cn } from '@/lib/utils';
 import { CheckCircle2, Sparkles, Brain, Heart, Users, Wallet, Briefcase, Dumbbell } from 'lucide-react';
 import { AREA_HEX_COLORS, LifeArea } from '@/lib/constants';
+import { useMemo } from 'react';
 
 interface AreaCardProps {
   area: LifeArea;
   label: string;
   total: number;
   completed: number;
+  customColor?: string;
 }
 
 const AREA_ICONS: Record<LifeArea, React.ElementType> = {
@@ -19,33 +21,65 @@ const AREA_ICONS: Record<LifeArea, React.ElementType> = {
   saude: Dumbbell,
 };
 
-const AREA_STYLES: Record<LifeArea, { gradient: string; iconBg: string; barColor: string }> = {
-  espiritual: { gradient: 'from-violet-500/20 to-purple-500/10', iconBg: 'bg-violet-500/20 text-violet-600 dark:text-violet-400', barColor: 'bg-gradient-to-r from-violet-500 to-purple-500' },
-  intelectual: { gradient: 'from-blue-500/20 to-sky-500/10', iconBg: 'bg-blue-500/20 text-blue-600 dark:text-blue-400', barColor: 'bg-gradient-to-r from-blue-500 to-sky-500' },
-  familiar: { gradient: 'from-rose-500/20 to-pink-500/10', iconBg: 'bg-rose-500/20 text-rose-600 dark:text-rose-400', barColor: 'bg-gradient-to-r from-rose-500 to-pink-500' },
-  social: { gradient: 'from-orange-500/20 to-amber-500/10', iconBg: 'bg-orange-500/20 text-orange-600 dark:text-orange-400', barColor: 'bg-gradient-to-r from-orange-500 to-amber-500' },
-  financeiro: { gradient: 'from-emerald-500/20 to-green-500/10', iconBg: 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400', barColor: 'bg-gradient-to-r from-emerald-500 to-green-500' },
-  profissional: { gradient: 'from-amber-500/20 to-yellow-500/10', iconBg: 'bg-amber-500/20 text-amber-600 dark:text-amber-400', barColor: 'bg-gradient-to-r from-amber-500 to-yellow-500' },
-  saude: { gradient: 'from-teal-500/20 to-cyan-500/10', iconBg: 'bg-teal-500/20 text-teal-600 dark:text-teal-400', barColor: 'bg-gradient-to-r from-teal-500 to-cyan-500' },
-};
+// Convert hex to HSL for dynamic styling
+function hexToHsl(hex: string): { h: number; s: number; l: number } {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  if (!result) return { h: 0, s: 0, l: 50 };
 
-export function AreaCard({ area, label, total, completed }: AreaCardProps) {
+  let r = parseInt(result[1], 16) / 255;
+  let g = parseInt(result[2], 16) / 255;
+  let b = parseInt(result[3], 16) / 255;
+
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  let h = 0, s = 0;
+  const l = (max + min) / 2;
+
+  if (max !== min) {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    switch (max) {
+      case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
+      case g: h = ((b - r) / d + 2) / 6; break;
+      case b: h = ((r - g) / d + 4) / 6; break;
+    }
+  }
+
+  return { h: Math.round(h * 360), s: Math.round(s * 100), l: Math.round(l * 100) };
+}
+
+export function AreaCard({ area, label, total, completed, customColor }: AreaCardProps) {
   const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
   const isComplete = total > 0 && completed === total;
-  const areaColor = AREA_HEX_COLORS[area];
   const Icon = AREA_ICONS[area];
-  const styles = AREA_STYLES[area];
+  
+  const colorHex = customColor || AREA_HEX_COLORS[area];
+  
+  const styles = useMemo(() => {
+    const hsl = hexToHsl(colorHex);
+    return {
+      gradient: `linear-gradient(135deg, hsla(${hsl.h}, ${hsl.s}%, ${hsl.l}%, 0.2), hsla(${hsl.h}, ${hsl.s}%, ${Math.min(hsl.l + 10, 100)}%, 0.1))`,
+      iconBg: `hsla(${hsl.h}, ${hsl.s}%, ${hsl.l}%, 0.2)`,
+      iconColor: `hsl(${hsl.h}, ${hsl.s}%, ${Math.max(hsl.l - 15, 30)}%)`,
+      barGradient: `linear-gradient(90deg, ${colorHex}, hsl(${hsl.h}, ${hsl.s}%, ${Math.min(hsl.l + 15, 85)}%))`,
+    };
+  }, [colorHex]);
 
   return (
-    <div className={cn(
-      "relative rounded-2xl p-4 sm:p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-card-hover min-w-[140px] sm:min-w-0",
-      "bg-gradient-to-br border border-border/40",
-      "group overflow-hidden",
-      styles.gradient
-    )}>
+    <div 
+      className={cn(
+        "relative rounded-2xl p-4 sm:p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-card-hover min-w-[140px] sm:min-w-0",
+        "border border-border/40",
+        "group overflow-hidden"
+      )}
+      style={{ background: styles.gradient }}
+    >
       <div className="relative z-10">
-        <div className={cn("w-11 h-11 rounded-xl flex items-center justify-center mb-3", styles.iconBg)}>
-          <Icon className="w-5 h-5" strokeWidth={1.75} />
+        <div 
+          className="w-11 h-11 rounded-xl flex items-center justify-center mb-3"
+          style={{ backgroundColor: styles.iconBg }}
+        >
+          <Icon className="w-5 h-5" strokeWidth={1.75} style={{ color: styles.iconColor }} />
         </div>
 
         <h3 className="font-semibold text-foreground text-sm mb-1 truncate">{label}</h3>
@@ -57,8 +91,8 @@ export function AreaCard({ area, label, total, completed }: AreaCardProps) {
 
         <div className="h-2.5 bg-muted/40 rounded-full overflow-hidden shadow-inner">
           <div
-            className={cn("h-full rounded-full transition-all duration-700 ease-out", styles.barColor)}
-            style={{ width: `${percentage}%` }}
+            className="h-full rounded-full transition-all duration-700 ease-out"
+            style={{ width: `${percentage}%`, background: styles.barGradient }}
           />
         </div>
 
