@@ -15,6 +15,7 @@ import { LIFE_AREAS, AREA_HEX_COLORS, LifeArea } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 import { AreaCustomizationEditor, AreaConfig } from '@/components/life-plan/AreaCustomizationEditor';
 import { usePlanAreaCustomizations } from '@/hooks/usePlanAreaCustomizations';
+import { PlanPhotoUpload } from '@/components/life-plan/PlanPhotoUpload';
 
 const PLAN_TYPES = [
   { 
@@ -77,6 +78,7 @@ export default function Cadastro() {
   const [areaConfigs, setAreaConfigs] = useState<AreaConfig[]>(
     LIFE_AREAS.map(a => ({ id: a.id, label: a.label, color: AREA_HEX_COLORS[a.id] }))
   );
+  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
 
   const validateTitle = async (titleToCheck: string): Promise<boolean> => {
     if (!titleToCheck.trim()) {
@@ -132,6 +134,7 @@ export default function Cadastro() {
           motto,
           plan_type: planType,
           member_name: memberName.trim() || null,
+          photo_url: photoUrl,
         })
         .select()
         .single();
@@ -326,6 +329,30 @@ export default function Cadastro() {
                     );
                   })}
                 </RadioGroup>
+              </div>
+
+              {/* Photo Upload */}
+              <div className="space-y-3">
+                <Label className="text-sm font-medium">Foto do Plano (opcional)</Label>
+                <div className="flex items-center gap-4">
+                  <PlanPhotoUpload
+                    photoUrl={photoUrl}
+                    planType={planType}
+                    userId={user?.id || ''}
+                    onPhotoChange={setPhotoUrl}
+                    size="lg"
+                  />
+                  <div className="flex-1">
+                    <p className="text-sm text-muted-foreground">
+                      Adicione uma foto para identificar este plano.
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {planType === 'individual' && 'Sua foto pessoal'}
+                      {planType === 'familiar' && 'Foto da família'}
+                      {planType === 'filho' && 'Foto do(a) filho(a)'}
+                    </p>
+                  </div>
+                </div>
               </div>
 
               {/* Member Name */}
