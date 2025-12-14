@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { LifePlanTable } from '@/components/life-plan/LifePlanTable';
 import { ExportPlanDialog } from '@/components/life-plan/ExportPlanDialog';
+import { PlanPhotoUpload } from '@/components/life-plan/PlanPhotoUpload';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -25,6 +26,8 @@ interface LifePlan {
   id: string;
   title: string;
   motto: string | null;
+  photo_url: string | null;
+  plan_type: string;
 }
 
 interface Goal {
@@ -45,6 +48,7 @@ export default function ConsultaDetalhes() {
   
   const [loading, setLoading] = useState(true);
   const [plan, setPlan] = useState<LifePlan | null>(null);
+  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [goals, setGoals] = useState<Goal[]>([]);
   const [editingTitle, setEditingTitle] = useState(false);
   const [editTitle, setEditTitle] = useState('');
@@ -90,6 +94,7 @@ export default function ConsultaDetalhes() {
       if (planError) throw planError;
 
       setPlan(planData);
+      setPhotoUrl(planData.photo_url);
       setEditTitle(planData.title);
       setEditMotto(planData.motto || '');
 
@@ -217,6 +222,25 @@ export default function ConsultaDetalhes() {
     }
   };
 
+  const handlePhotoChange = async (newPhotoUrl: string | null) => {
+    setPhotoUrl(newPhotoUrl);
+    try {
+      const { error } = await supabase
+        .from('life_plans')
+        .update({ photo_url: newPhotoUrl })
+        .eq('id', id);
+
+      if (error) throw error;
+      setPlan({ ...plan!, photo_url: newPhotoUrl });
+    } catch (error: any) {
+      toast({
+        title: 'Erro ao atualizar foto',
+        description: error.message,
+        variant: 'destructive',
+      });
+    }
+  };
+
   const handleSaveAreaConfigs = async () => {
     try {
       await saveAllCustomizations(id!, areaConfigs);
@@ -269,6 +293,16 @@ export default function ConsultaDetalhes() {
               <ArrowLeft className="w-5 h-5" />
             </Button>
           </Link>
+
+          {/* Plan Photo */}
+          <PlanPhotoUpload
+            photoUrl={photoUrl}
+            planType={plan.plan_type}
+            userId={user?.id || ''}
+            planId={plan.id}
+            onPhotoChange={handlePhotoChange}
+            size="md"
+          />
           
           {editingTitle ? (
             <div className="flex-1 space-y-3">

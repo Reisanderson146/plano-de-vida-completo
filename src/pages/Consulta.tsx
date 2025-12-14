@@ -4,6 +4,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Loader2, FileText, ChevronRight, Plus, Trash2, User, Users, Baby, Filter, Download } from 'lucide-react';
@@ -32,6 +33,7 @@ interface LifePlan {
   created_at: string;
   goals_count: number;
   completed_count: number;
+  photo_url: string | null;
 }
 
 interface Goal {
@@ -296,24 +298,34 @@ export default function Consulta() {
                 <Card key={plan.id} className="border-border/40 hover:border-border/60 group">
                   <CardHeader className="pb-3">
                     <div className="flex items-start justify-between gap-2">
-                      <div className="flex-1 min-w-0 space-y-2">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <Badge className={cn("flex items-center gap-1.5 text-xs font-medium border rounded-lg px-2.5 py-1", typeConfig.color)}>
-                            <TypeIcon className="w-3 h-3" />
-                            {typeConfig.label}
-                          </Badge>
-                          {plan.member_name && (
-                            <Badge variant="outline" className="text-xs rounded-lg">
-                              {plan.member_name}
+                      <div className="flex items-start gap-3 flex-1 min-w-0">
+                        {/* Plan Photo */}
+                        <Avatar className="w-14 h-14 border-2 border-border/40 flex-shrink-0">
+                          <AvatarImage src={plan.photo_url || undefined} alt={plan.title} className="object-cover" />
+                          <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/10">
+                            <TypeIcon className="w-6 h-6 text-primary/60" />
+                          </AvatarFallback>
+                        </Avatar>
+                        
+                        <div className="flex-1 min-w-0 space-y-2">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <Badge className={cn("flex items-center gap-1.5 text-xs font-medium border rounded-lg px-2.5 py-1", typeConfig.color)}>
+                              <TypeIcon className="w-3 h-3" />
+                              {typeConfig.label}
                             </Badge>
+                            {plan.member_name && (
+                              <Badge variant="outline" className="text-xs rounded-lg">
+                                {plan.member_name}
+                              </Badge>
+                            )}
+                          </div>
+                          <CardTitle className="text-lg truncate">{plan.title}</CardTitle>
+                          {plan.motto && (
+                            <CardDescription className="italic text-sm line-clamp-2">
+                              "{plan.motto}"
+                            </CardDescription>
                           )}
                         </div>
-                        <CardTitle className="text-lg truncate">{plan.title}</CardTitle>
-                        {plan.motto && (
-                          <CardDescription className="italic text-sm line-clamp-2">
-                            "{plan.motto}"
-                          </CardDescription>
-                        )}
                       </div>
                       <div className="flex items-center gap-1 flex-shrink-0 opacity-60 group-hover:opacity-100 transition-opacity">
                         <Button 

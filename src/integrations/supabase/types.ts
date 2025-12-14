@@ -70,6 +70,7 @@ export type Database = {
           id: string
           member_name: string | null
           motto: string | null
+          photo_url: string | null
           plan_type: string
           title: string
           updated_at: string
@@ -80,6 +81,7 @@ export type Database = {
           id?: string
           member_name?: string | null
           motto?: string | null
+          photo_url?: string | null
           plan_type?: string
           title?: string
           updated_at?: string
@@ -90,6 +92,7 @@ export type Database = {
           id?: string
           member_name?: string | null
           motto?: string | null
+          photo_url?: string | null
           plan_type?: string
           title?: string
           updated_at?: string

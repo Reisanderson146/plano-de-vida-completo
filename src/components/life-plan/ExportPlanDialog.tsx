@@ -30,6 +30,7 @@ interface LifePlan {
   id: string;
   title: string;
   motto: string | null;
+  photo_url?: string | null;
 }
 
 interface AreaConfig {

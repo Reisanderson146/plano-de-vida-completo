@@ -18,6 +18,7 @@ interface LifePlan {
   id: string;
   title: string;
   motto: string | null;
+  photo_url?: string | null;
 }
 
 interface AreaConfig {
@@ -48,7 +49,7 @@ export function useExportLifePlan() {
     return [...new Set(goals.map(g => g.period_year))].sort((a, b) => a - b);
   };
 
-  const exportToPDF = (options: ExportOptions) => {
+  const exportToPDF = async (options: ExportOptions) => {
     const { plan, goals, areaConfigs, selectedYears } = options;
     const filteredGoals = filterGoalsByYears(goals, selectedYears);
     const years = getUniqueYears(filteredGoals);
@@ -58,19 +59,68 @@ export function useExportLifePlan() {
     const margin = 15;
     let yPosition = 15;
 
-    // Title
-    doc.setFontSize(18);
-    doc.setFont('helvetica', 'bold');
-    doc.text(plan.title, pageWidth / 2, yPosition, { align: 'center' });
-    yPosition += 7;
+    // Add photo if available
+    if (plan.photo_url) {
+      try {
+        const response = await fetch(plan.photo_url);
+        const blob = await response.blob();
+        const reader = new FileReader();
+        
+        await new Promise<void>((resolve) => {
+          reader.onload = () => {
+            const imgData = reader.result as string;
+            const imgSize = 25;
+            doc.addImage(imgData, 'JPEG', margin, yPosition, imgSize, imgSize);
+            resolve();
+          };
+          reader.readAsDataURL(blob);
+        });
+        
+        // Title next to photo
+        doc.setFontSize(18);
+        doc.setFont('helvetica', 'bold');
+        doc.text(plan.title, margin + 30, yPosition + 10);
+        
+        // Motto next to photo
+        if (plan.motto) {
+          doc.setFontSize(11);
+          doc.setFont('helvetica', 'italic');
+          doc.setTextColor(100);
+          doc.text(`"${plan.motto}"`, margin + 30, yPosition + 17);
+        }
+        
+        yPosition += 30;
+      } catch (error) {
+        console.error('Error loading photo for PDF:', error);
+        // Fallback to title without photo
+        doc.setFontSize(18);
+        doc.setFont('helvetica', 'bold');
+        doc.text(plan.title, pageWidth / 2, yPosition, { align: 'center' });
+        yPosition += 7;
+        
+        if (plan.motto) {
+          doc.setFontSize(11);
+          doc.setFont('helvetica', 'italic');
+          doc.setTextColor(100);
+          doc.text(`"${plan.motto}"`, pageWidth / 2, yPosition, { align: 'center' });
+          yPosition += 5;
+        }
+      }
+    } else {
+      // Title without photo
+      doc.setFontSize(18);
+      doc.setFont('helvetica', 'bold');
+      doc.text(plan.title, pageWidth / 2, yPosition, { align: 'center' });
+      yPosition += 7;
 
-    // Motto
-    if (plan.motto) {
-      doc.setFontSize(11);
-      doc.setFont('helvetica', 'italic');
-      doc.setTextColor(100);
-      doc.text(`"${plan.motto}"`, pageWidth / 2, yPosition, { align: 'center' });
-      yPosition += 5;
+      // Motto
+      if (plan.motto) {
+        doc.setFontSize(11);
+        doc.setFont('helvetica', 'italic');
+        doc.setTextColor(100);
+        doc.text(`"${plan.motto}"`, pageWidth / 2, yPosition, { align: 'center' });
+        yPosition += 5;
+      }
     }
 
     // Date and period info
