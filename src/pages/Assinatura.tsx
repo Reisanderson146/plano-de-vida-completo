@@ -1,28 +1,67 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Check, Shield, Zap, Heart, Target, Sparkles, BadgeCheck, Gem, Loader2, LogIn } from 'lucide-react';
+import { Check, Shield, Zap, Heart, Target, Sparkles, BadgeCheck, Gem, Loader2, LogIn, ChevronLeft, ChevronRight, LayoutDashboard, FileText, BarChart3, Scale } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import loginBackground from '@/assets/login-background.png';
+import mockupDashboard from '@/assets/mockup-dashboard.png';
+import mockupPlano from '@/assets/mockup-plano.png';
+import mockupRelatorios from '@/assets/mockup-relatorios.png';
+import mockupBalanco from '@/assets/mockup-balanco.png';
 
 const benefits = [
   { icon: Target, text: 'Planejamento completo das 7 áreas da vida' },
   { icon: Shield, text: 'Seus dados seguros na nuvem' },
   { icon: Zap, text: 'Relatórios e gráficos de progresso' },
-  { icon: Heart, text: 'Lembretes personalizados por email' },
+  { icon: Heart, text: 'Acompanhamento de metas por período' },
   { icon: Sparkles, text: 'Exportação profissional em PDF' },
+];
+
+const screenshots = [
+  { 
+    image: mockupDashboard, 
+    title: 'Dashboard Interativo', 
+    description: 'Visualize seu progresso em todas as 7 áreas da vida',
+    icon: LayoutDashboard
+  },
+  { 
+    image: mockupPlano, 
+    title: 'Planos de Vida', 
+    description: 'Organize suas metas por ano com check-ins visuais',
+    icon: FileText
+  },
+  { 
+    image: mockupRelatorios, 
+    title: 'Relatórios Completos', 
+    description: 'Gráficos e estatísticas detalhadas do seu progresso',
+    icon: BarChart3
+  },
+  { 
+    image: mockupBalanco, 
+    title: 'Balanço Anual', 
+    description: 'Análise inteligente com insights personalizados',
+    icon: Scale
+  },
 ];
 
 export default function Assinatura() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  // Auto-rotate carousel
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % screenshots.length);
+    }, 4000);
+    return () => clearInterval(timer);
+  }, []);
 
   const handleCheckout = async () => {
-    // If not logged in, redirect to auth first
     if (!user) {
       toast.info('Faça login ou crie sua conta para assinar');
       navigate('/auth', { state: { returnTo: '/assinatura', action: 'checkout' } });
@@ -36,7 +75,6 @@ export default function Assinatura() {
       if (error) throw error;
 
       if (data?.url) {
-        // Navigate in same window to maintain session
         window.location.href = data.url;
       } else {
         throw new Error('No checkout URL returned');
@@ -52,6 +90,14 @@ export default function Assinatura() {
     navigate('/auth');
   };
 
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % screenshots.length);
+  };
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + screenshots.length) % screenshots.length);
+  };
+
   return (
     <div 
       className="min-h-screen relative overflow-hidden"
@@ -62,141 +108,220 @@ export default function Assinatura() {
         backgroundRepeat: 'no-repeat',
       }}
     >
-      {/* Green overlay matching login screen */}
+      {/* Green overlay */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#2A8C68]/70 via-[#7BC8A4]/50 to-[#2A8C68]/60 backdrop-blur-[2px]" />
       
       {/* Animated glow effects */}
       <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-[#A8E6CE]/20 rounded-full blur-[120px] animate-pulse" />
       <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-[#7BC8A4]/15 rounded-full blur-[100px] animate-pulse delay-1000" />
 
-      {/* Watermark pattern */}
-      <div className="absolute inset-0 opacity-[0.03]" style={{
-        backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='50%25' y='50%25' font-size='8' fill='%23ffffff' text-anchor='middle' dominant-baseline='middle' font-family='sans-serif'%3EPREMIUM%3C/text%3E%3C/svg%3E")`,
-        backgroundSize: '120px 120px',
-      }} />
-
-      <div className="relative z-10 min-h-screen flex flex-col items-center justify-center p-4 sm:p-6">
-        {/* Header */}
-        <div className="text-center mb-6 animate-fade-in-up">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight drop-shadow-[0_4px_20px_rgba(0,0,0,0.3)] mb-2">
-            Plano de Vida
-          </h1>
-          <p className="text-white/90 text-base sm:text-lg font-light tracking-wide drop-shadow-md">
-            Constância que constrói propósito
-          </p>
-        </div>
-
-        {/* Main Card */}
-        <Card className="w-full max-w-lg border-0 overflow-hidden rounded-[28px] shadow-[0_20px_60px_-10px_rgba(42,140,104,0.35)] animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-          {/* Gradient border effect */}
-          <div className="absolute inset-0 rounded-[28px] p-[1px] bg-gradient-to-br from-white/40 via-[#A8E6CE]/30 to-white/20">
-            <div className="w-full h-full rounded-[27px] bg-white/95 backdrop-blur-2xl" />
-          </div>
-
-          <div className="relative z-10">
-            {/* Premium badge - Professional */}
-            <div className="relative bg-gradient-to-r from-[#2A8C68] via-[#3d9d78] to-[#2A8C68] py-5 px-6">
-              <div className="relative flex items-center justify-center gap-2">
-                <Gem className="w-5 h-5 text-white" />
-                <span className="text-xl font-semibold text-white tracking-widest uppercase">Premium</span>
-                <BadgeCheck className="w-5 h-5 text-white" />
+      <div className="relative z-10 min-h-screen flex flex-col lg:flex-row items-center justify-center gap-6 lg:gap-12 p-4 sm:p-6 lg:p-8">
+        
+        {/* Left Side - Screenshots Carousel */}
+        <div className="w-full lg:w-1/2 max-w-2xl animate-fade-in-left">
+          {/* Screenshot Display */}
+          <div className="relative">
+            {/* Main Screenshot */}
+            <div className="relative rounded-2xl overflow-hidden shadow-[0_20px_60px_-10px_rgba(0,0,0,0.4)] border border-white/20">
+              <img 
+                src={screenshots[currentSlide].image} 
+                alt={screenshots[currentSlide].title}
+                className="w-full h-auto transition-opacity duration-500"
+              />
+              {/* Overlay gradient */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+              
+              {/* Screenshot info */}
+              <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6">
+                <div className="flex items-center gap-3 mb-2">
+                  {(() => {
+                    const Icon = screenshots[currentSlide].icon;
+                    return <Icon className="w-6 h-6 text-white" />;
+                  })()}
+                  <h3 className="text-xl sm:text-2xl font-bold text-white">
+                    {screenshots[currentSlide].title}
+                  </h3>
+                </div>
+                <p className="text-white/90 text-sm sm:text-base">
+                  {screenshots[currentSlide].description}
+                </p>
               </div>
-              <p className="text-center text-white/80 text-sm mt-1">Acesso completo a todas as funcionalidades</p>
             </div>
 
-            <CardContent className="p-6 sm:p-8 space-y-6 bg-white">
-              {/* Price */}
-              <div className="text-center py-4">
-                <div className="flex items-baseline justify-center gap-1">
-                  <span className="text-sm text-muted-foreground line-through">R$ 29,99</span>
-                </div>
-                <div className="flex items-baseline justify-center gap-1 mt-1">
-                  <span className="text-5xl sm:text-6xl font-bold bg-gradient-to-r from-[#2A8C68] via-[#7BC8A4] to-[#2A8C68] bg-clip-text text-transparent">
-                    R$ 9,99
-                  </span>
-                  <span className="text-muted-foreground text-lg">/mês</span>
-                </div>
-                <div className="mt-3 inline-flex items-center gap-2 bg-[#A8E6CE]/30 text-[#2A8C68] text-sm font-semibold px-4 py-1.5 rounded-full">
-                  <Zap className="w-4 h-4" />
-                  Economia de 67%
-                </div>
-              </div>
-
-              {/* Benefits */}
-              <div className="space-y-3">
-                {benefits.map((benefit, index) => {
-                  const Icon = benefit.icon;
-                  return (
-                    <div 
-                      key={index} 
-                      className="flex items-center gap-3 p-3 rounded-xl bg-[#A8E6CE]/10 hover:bg-[#A8E6CE]/20 transition-colors"
-                    >
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#A8E6CE]/40 to-[#7BC8A4]/40 flex items-center justify-center flex-shrink-0">
-                        <Icon className="w-5 h-5 text-[#2A8C68]" />
-                      </div>
-                      <span className="text-foreground text-sm sm:text-base flex-1">{benefit.text}</span>
-                      <Check className="w-5 h-5 text-[#2A8C68] flex-shrink-0" />
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* CTA Buttons */}
-              <div className="space-y-3">
-                <Button
-                  onClick={handleCheckout}
-                  disabled={loading}
-                  className="w-full h-14 text-lg font-bold rounded-2xl bg-gradient-to-r from-[#2A8C68] via-[#7BC8A4] to-[#2A8C68] hover:from-[#238058] hover:via-[#6ab893] hover:to-[#238058] text-white shadow-lg shadow-[#2A8C68]/30 transition-all duration-300 hover:scale-[1.02] hover:shadow-[#2A8C68]/50"
-                >
-                  {loading ? (
-                    <div className="flex items-center gap-2">
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                      Processando...
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-2">
-                      <Gem className="w-5 h-5" />
-                      Assinar Agora
-                    </div>
-                  )}
-                </Button>
-
-                {/* Já sou assinante - Prominent button */}
-                <Button
-                  onClick={handleAlreadySubscriber}
-                  variant="outline"
-                  className="w-full h-14 text-lg font-bold rounded-2xl border-2 border-[#2A8C68] text-[#2A8C68] hover:bg-[#2A8C68] hover:text-white transition-all duration-300"
-                >
-                  <div className="flex items-center gap-2">
-                    <LogIn className="w-5 h-5" />
-                    Já sou assinante
-                  </div>
-                </Button>
-              </div>
-
-              {/* Trust badges */}
-              <div className="flex items-center justify-center gap-4 pt-2 text-muted-foreground text-xs">
-                <div className="flex items-center gap-1">
-                  <Shield className="w-4 h-4" />
-                  <span>Pagamento Seguro</span>
-                </div>
-                <div className="w-1 h-1 rounded-full bg-muted-foreground/50" />
-                <div className="flex items-center gap-1">
-                  <Zap className="w-4 h-4" />
-                  <span>Cancele quando quiser</span>
-                </div>
-              </div>
-            </CardContent>
+            {/* Navigation Arrows */}
+            <button 
+              onClick={prevSlide}
+              className="absolute left-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/20 backdrop-blur-md hover:bg-white/30 transition-colors flex items-center justify-center text-white"
+            >
+              <ChevronLeft className="w-6 h-6" />
+            </button>
+            <button 
+              onClick={nextSlide}
+              className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/20 backdrop-blur-md hover:bg-white/30 transition-colors flex items-center justify-center text-white"
+            >
+              <ChevronRight className="w-6 h-6" />
+            </button>
           </div>
-        </Card>
 
-        {/* Testimonial */}
-        <div className="mt-6 max-w-lg text-center animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
-          <p className="text-white/90 text-sm italic drop-shadow-md">
-            "O Plano de Vida transformou minha forma de organizar minhas metas. 
-            Finalmente consigo ver meu progresso em todas as áreas!"
-          </p>
-          <p className="text-white font-medium text-sm mt-2 drop-shadow-md">— Maria S., usuária Premium</p>
+          {/* Dots Indicator */}
+          <div className="flex items-center justify-center gap-2 mt-4">
+            {screenshots.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentSlide(index)}
+                className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                  index === currentSlide 
+                    ? 'w-8 bg-white' 
+                    : 'bg-white/40 hover:bg-white/60'
+                }`}
+              />
+            ))}
+          </div>
+
+          {/* Thumbnail Strip */}
+          <div className="hidden sm:flex items-center justify-center gap-3 mt-4">
+            {screenshots.map((screenshot, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentSlide(index)}
+                className={`relative rounded-lg overflow-hidden transition-all duration-300 ${
+                  index === currentSlide 
+                    ? 'ring-2 ring-white scale-105' 
+                    : 'opacity-60 hover:opacity-100'
+                }`}
+              >
+                <img 
+                  src={screenshot.image} 
+                  alt={screenshot.title}
+                  className="w-20 h-12 object-cover"
+                />
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Right Side - Subscription Card */}
+        <div className="w-full lg:w-auto flex flex-col items-center animate-fade-in-right">
+          {/* Header */}
+          <div className="text-center mb-6">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight drop-shadow-[0_4px_20px_rgba(0,0,0,0.3)] mb-2">
+              Plano de Vida
+            </h1>
+            <p className="text-white/90 text-base sm:text-lg font-light tracking-wide drop-shadow-md">
+              Constância que constrói propósito
+            </p>
+          </div>
+
+          {/* Main Card */}
+          <Card className="w-full max-w-lg border-0 overflow-hidden rounded-[28px] shadow-[0_20px_60px_-10px_rgba(42,140,104,0.35)]">
+            <div className="absolute inset-0 rounded-[28px] p-[1px] bg-gradient-to-br from-white/40 via-[#A8E6CE]/30 to-white/20">
+              <div className="w-full h-full rounded-[27px] bg-white/95 backdrop-blur-2xl" />
+            </div>
+
+            <div className="relative z-10">
+              {/* Premium badge */}
+              <div className="relative bg-gradient-to-r from-[#2A8C68] via-[#3d9d78] to-[#2A8C68] py-5 px-6">
+                <div className="relative flex items-center justify-center gap-2">
+                  <Gem className="w-5 h-5 text-white" />
+                  <span className="text-xl font-semibold text-white tracking-widest uppercase">Premium</span>
+                  <BadgeCheck className="w-5 h-5 text-white" />
+                </div>
+                <p className="text-center text-white/80 text-sm mt-1">Acesso completo a todas as funcionalidades</p>
+              </div>
+
+              <CardContent className="p-6 sm:p-8 space-y-6 bg-white">
+                {/* Price */}
+                <div className="text-center py-4">
+                  <div className="flex items-baseline justify-center gap-1">
+                    <span className="text-sm text-muted-foreground line-through">R$ 29,99</span>
+                  </div>
+                  <div className="flex items-baseline justify-center gap-1 mt-1">
+                    <span className="text-5xl sm:text-6xl font-bold bg-gradient-to-r from-[#2A8C68] via-[#7BC8A4] to-[#2A8C68] bg-clip-text text-transparent">
+                      R$ 9,99
+                    </span>
+                    <span className="text-muted-foreground text-lg">/mês</span>
+                  </div>
+                  <div className="mt-3 inline-flex items-center gap-2 bg-[#A8E6CE]/30 text-[#2A8C68] text-sm font-semibold px-4 py-1.5 rounded-full">
+                    <Zap className="w-4 h-4" />
+                    Economia de 67%
+                  </div>
+                </div>
+
+                {/* Benefits */}
+                <div className="space-y-3">
+                  {benefits.map((benefit, index) => {
+                    const Icon = benefit.icon;
+                    return (
+                      <div 
+                        key={index} 
+                        className="flex items-center gap-3 p-3 rounded-xl bg-[#A8E6CE]/10 hover:bg-[#A8E6CE]/20 transition-colors"
+                      >
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#A8E6CE]/40 to-[#7BC8A4]/40 flex items-center justify-center flex-shrink-0">
+                          <Icon className="w-5 h-5 text-[#2A8C68]" />
+                        </div>
+                        <span className="text-foreground text-sm sm:text-base flex-1">{benefit.text}</span>
+                        <Check className="w-5 h-5 text-[#2A8C68] flex-shrink-0" />
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* CTA Buttons */}
+                <div className="space-y-3">
+                  <Button
+                    onClick={handleCheckout}
+                    disabled={loading}
+                    className="w-full h-14 text-lg font-bold rounded-2xl bg-gradient-to-r from-[#2A8C68] via-[#7BC8A4] to-[#2A8C68] hover:from-[#238058] hover:via-[#6ab893] hover:to-[#238058] text-white shadow-lg shadow-[#2A8C68]/30 transition-all duration-300 hover:scale-[1.02] hover:shadow-[#2A8C68]/50"
+                  >
+                    {loading ? (
+                      <div className="flex items-center gap-2">
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        Processando...
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <Gem className="w-5 h-5" />
+                        Assinar Agora
+                      </div>
+                    )}
+                  </Button>
+
+                  <Button
+                    onClick={handleAlreadySubscriber}
+                    variant="outline"
+                    className="w-full h-14 text-lg font-bold rounded-2xl border-2 border-[#2A8C68] text-[#2A8C68] hover:bg-[#2A8C68] hover:text-white transition-all duration-300"
+                  >
+                    <div className="flex items-center gap-2">
+                      <LogIn className="w-5 h-5" />
+                      Já sou assinante
+                    </div>
+                  </Button>
+                </div>
+
+                {/* Trust badges */}
+                <div className="flex items-center justify-center gap-4 pt-2 text-muted-foreground text-xs">
+                  <div className="flex items-center gap-1">
+                    <Shield className="w-4 h-4" />
+                    <span>Pagamento Seguro</span>
+                  </div>
+                  <div className="w-1 h-1 rounded-full bg-muted-foreground/50" />
+                  <div className="flex items-center gap-1">
+                    <Zap className="w-4 h-4" />
+                    <span>Cancele quando quiser</span>
+                  </div>
+                </div>
+              </CardContent>
+            </div>
+          </Card>
+
+          {/* Testimonial */}
+          <div className="mt-6 max-w-lg text-center">
+            <p className="text-white/90 text-sm italic drop-shadow-md">
+              "O Plano de Vida transformou minha forma de organizar minhas metas. 
+              Finalmente consigo ver meu progresso em todas as áreas!"
+            </p>
+            <p className="text-white font-medium text-sm mt-2 drop-shadow-md">— Maria S., usuária Premium</p>
+          </div>
         </div>
       </div>
     </div>
