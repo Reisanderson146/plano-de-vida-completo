@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
@@ -17,6 +17,7 @@ import { cn } from '@/lib/utils';
 import { AreaCustomizationEditor, AreaConfig } from '@/components/life-plan/AreaCustomizationEditor';
 import { usePlanAreaCustomizations } from '@/hooks/usePlanAreaCustomizations';
 import { PlanPhotoUpload } from '@/components/life-plan/PlanPhotoUpload';
+import { SubscriptionDialog } from '@/components/subscription/SubscriptionDialog';
 
 const PLAN_TYPES = [
   { 
@@ -81,6 +82,35 @@ export default function Cadastro() {
   );
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
 
+  // Subscription state
+  const [isSubscribed, setIsSubscribed] = useState<boolean | null>(null);
+  const [showSubscriptionDialog, setShowSubscriptionDialog] = useState(false);
+  const [pendingCreate, setPendingCreate] = useState(false);
+
+  // Check subscription status on mount
+  useEffect(() => {
+    const checkSubscription = async () => {
+      if (!user) return;
+      
+      try {
+        const { data, error } = await supabase.functions.invoke('check-subscription');
+        
+        if (error) {
+          console.error('Error checking subscription:', error);
+          setIsSubscribed(false);
+          return;
+        }
+        
+        setIsSubscribed(data?.subscribed || data?.subscription_status === 'active');
+      } catch (error) {
+        console.error('Error:', error);
+        setIsSubscribed(false);
+      }
+    };
+
+    checkSubscription();
+  }, [user]);
+
   const validateTitle = async (titleToCheck: string): Promise<boolean> => {
     if (!titleToCheck.trim()) {
       setFieldError('title', 'O título é obrigatório');
@@ -110,6 +140,19 @@ export default function Cadastro() {
     e.preventDefault();
     if (!user) return;
     clearAllErrors();
+
+    // Check subscription first
+    if (!isSubscribed) {
+      setPendingCreate(true);
+      setShowSubscriptionDialog(true);
+      return;
+    }
+
+    await createPlan();
+  };
+
+  const createPlan = async () => {
+    if (!user) return;
 
     const isValidTitle = await validateTitle(title);
     if (!isValidTitle) return;
@@ -250,6 +293,15 @@ export default function Cadastro() {
     setImportedGoals([]);
     setImportWarnings([]);
     setUseImportedData(false);
+  };
+
+  const handleSubscribed = () => {
+    setIsSubscribed(true);
+    // If there was a pending create, execute it
+    if (pendingCreate) {
+      setPendingCreate(false);
+      createPlan();
+    }
   };
 
   const importedByArea = importedGoals.reduce((acc, goal) => {
@@ -583,6 +635,16 @@ export default function Cadastro() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Subscription Dialog */}
+      <SubscriptionDialog
+        open={showSubscriptionDialog}
+        onOpenChange={(open) => {
+          setShowSubscriptionDialog(open);
+          if (!open) setPendingCreate(false);
+        }}
+        onSubscribed={handleSubscribed}
+      />
     </AppLayout>
   );
 }

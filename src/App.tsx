@@ -1,13 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate, useNavigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { useAdmin } from "@/hooks/useAdmin";
-import { supabase } from "@/integrations/supabase/client";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Cadastro from "./pages/Cadastro";
@@ -17,7 +16,6 @@ import Relatorios from "./pages/Relatorios";
 import Balanco from "./pages/Balanco";
 import MeusDados from "./pages/MeusDados";
 import Configuracoes from "./pages/Configuracoes";
-import Assinatura from "./pages/Assinatura";
 import Conta from "./pages/Conta";
 import CheckoutSuccess from "./pages/CheckoutSuccess";
 import AdminLogin from "./pages/admin/AdminLogin";
@@ -27,80 +25,11 @@ import { Loader2 } from "lucide-react";
 
 const queryClient = new QueryClient();
 
-// Hook para verificar status da assinatura
-function useSubscription() {
-  const { user } = useAuth();
-  const [status, setStatus] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (!user) {
-      setLoading(false);
-      return;
-    }
-
-    const syncAndCheckSubscription = async () => {
-      try {
-        // First, sync with Stripe via edge function
-        await supabase.functions.invoke('check-subscription');
-        
-        // Then read updated status from database
-        const { data } = await supabase
-          .from('profiles')
-          .select('subscription_status')
-          .eq('id', user.id)
-          .maybeSingle();
-
-        setStatus(data?.subscription_status || 'inactive');
-      } catch (error) {
-        console.error('Error checking subscription:', error);
-        // Fallback to database read if Stripe sync fails
-        const { data } = await supabase
-          .from('profiles')
-          .select('subscription_status')
-          .eq('id', user.id)
-          .maybeSingle();
-        setStatus(data?.subscription_status || 'inactive');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    syncAndCheckSubscription();
-  }, [user]);
-
-  return { status, loading, isActive: status === 'active' };
-}
-
-// Rota protegida para usuários comuns (com verificação de assinatura)
+// Rota protegida para usuários comuns (apenas autenticação)
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading: authLoading } = useAuth();
-  const { status, loading: subLoading, isActive } = useSubscription();
 
-  if (authLoading || subLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    );
-  }
-
-  if (!user) {
-    return <Navigate to="/auth" replace />;
-  }
-
-  if (!isActive) {
-    return <Navigate to="/assinatura" replace />;
-  }
-
-  return <>{children}</>;
-}
-
-// Rota protegida apenas para autenticação (sem verificar assinatura)
-function AuthOnlyRoute({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth();
-
-  if (loading) {
+  if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -146,14 +75,10 @@ function AppRoutes() {
       <Route path="/auth" element={<Auth />} />
       <Route path="/login" element={<Navigate to="/auth" replace />} />
       
-      {/* Rota de assinatura (requer login, mas não assinatura ativa) */}
-      <Route path="/assinatura" element={<AuthOnlyRoute><Assinatura /></AuthOnlyRoute>} />
-      <Route path="/checkout-success" element={<AuthOnlyRoute><CheckoutSuccess /></AuthOnlyRoute>} />
+      {/* Rota de sucesso do checkout */}
+      <Route path="/checkout-success" element={<ProtectedRoute><CheckoutSuccess /></ProtectedRoute>} />
       
-      {/* Rota de conta (requer login e assinatura ativa) */}
-      <Route path="/conta" element={<ProtectedRoute><Conta /></ProtectedRoute>} />
-      
-      {/* Rotas de usuário comum (requerem login E assinatura ativa) */}
+      {/* Rotas de usuário (requerem login) */}
       <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
       <Route path="/cadastro" element={<ProtectedRoute><Cadastro /></ProtectedRoute>} />
       <Route path="/consulta" element={<ProtectedRoute><Consulta /></ProtectedRoute>} />
@@ -162,7 +87,9 @@ function AppRoutes() {
       <Route path="/balanco" element={<ProtectedRoute><Balanco /></ProtectedRoute>} />
       <Route path="/meus-dados" element={<ProtectedRoute><MeusDados /></ProtectedRoute>} />
       <Route path="/configuracoes" element={<ProtectedRoute><Configuracoes /></ProtectedRoute>} />
+      <Route path="/conta" element={<ProtectedRoute><Conta /></ProtectedRoute>} />
       <Route path="/perfil" element={<Navigate to="/meus-dados" replace />} />
+      <Route path="/assinatura" element={<Navigate to="/cadastro" replace />} />
       
       {/* Rotas de admin separadas */}
       <Route path="/admin/login" element={<AdminLogin />} />
