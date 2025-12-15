@@ -1,16 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Check, Shield, Zap, Heart, Target, Sparkles, BadgeCheck, Gem, Loader2, LogIn, ChevronLeft, ChevronRight, LayoutDashboard, FileText, BarChart3, Scale, User } from 'lucide-react';
+import { Check, Shield, Zap, Heart, Target, Sparkles, BadgeCheck, Gem, Loader2, LogIn, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import loginBackground from '@/assets/login-background.png';
-import screenshotDashboard from '@/assets/screenshot-dashboard.png';
-import screenshotPlanos from '@/assets/screenshot-planos.png';
-import screenshotRelatorios from '@/assets/screenshot-relatorios.png';
-import screenshotBalanco from '@/assets/screenshot-balanco.png';
 
 const benefits = [
   { icon: Target, text: 'Planejamento completo das 7 áreas da vida' },
@@ -20,46 +16,10 @@ const benefits = [
   { icon: Sparkles, text: 'Exportação profissional em PDF' },
 ];
 
-const screenshots = [
-  { 
-    image: screenshotDashboard, 
-    title: 'Dashboard Interativo', 
-    description: 'Visualize seu progresso em todas as 7 áreas da vida',
-    icon: LayoutDashboard
-  },
-  { 
-    image: screenshotPlanos, 
-    title: 'Seus Planos de Vida', 
-    description: 'Organize metas individuais, familiares e dos filhos',
-    icon: FileText
-  },
-  { 
-    image: screenshotRelatorios, 
-    title: 'Relatórios Completos', 
-    description: 'Gráficos e estatísticas detalhadas do seu progresso',
-    icon: BarChart3
-  },
-  { 
-    image: screenshotBalanco, 
-    title: 'Balanço Anual', 
-    description: 'Análise inteligente com resumo por IA',
-    icon: Scale
-  },
-];
-
 export default function Assinatura() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [currentSlide, setCurrentSlide] = useState(0);
-
-  // Auto-rotate carousel
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % screenshots.length);
-    }, 4000);
-    return () => clearInterval(timer);
-  }, []);
 
   const handleCheckout = async () => {
     if (!user) {
@@ -92,14 +52,6 @@ export default function Assinatura() {
 
   const handleLogin = () => {
     navigate('/auth');
-  };
-
-  const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % screenshots.length);
-  };
-
-  const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + screenshots.length) % screenshots.length);
   };
 
   return (
@@ -142,93 +94,10 @@ export default function Assinatura() {
         </div>
       </div>
 
-      <div className="relative z-10 min-h-screen flex flex-col lg:flex-row items-center justify-center gap-6 lg:gap-12 p-4 sm:p-6 lg:p-8 pt-20 sm:pt-24">
+      <div className="relative z-10 min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8 pt-20 sm:pt-24">
         
-        {/* Left Side - Screenshots Carousel */}
-        <div className="w-full lg:w-1/2 max-w-2xl animate-fade-in-left">
-          {/* Screenshot Display */}
-          <div className="relative">
-            {/* Main Screenshot */}
-            <div className="relative rounded-2xl overflow-hidden shadow-[0_20px_60px_-10px_rgba(0,0,0,0.4)] border border-white/20">
-              <img 
-                src={screenshots[currentSlide].image} 
-                alt={screenshots[currentSlide].title}
-                className="w-full h-auto transition-opacity duration-500"
-              />
-              {/* Overlay gradient */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-              
-              {/* Screenshot info */}
-              <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6">
-                <div className="flex items-center gap-3 mb-2">
-                  {(() => {
-                    const Icon = screenshots[currentSlide].icon;
-                    return <Icon className="w-6 h-6 text-white" />;
-                  })()}
-                  <h3 className="text-xl sm:text-2xl font-bold text-white">
-                    {screenshots[currentSlide].title}
-                  </h3>
-                </div>
-                <p className="text-white/90 text-sm sm:text-base">
-                  {screenshots[currentSlide].description}
-                </p>
-              </div>
-            </div>
-
-            {/* Navigation Arrows */}
-            <button 
-              onClick={prevSlide}
-              className="absolute left-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/20 backdrop-blur-md hover:bg-white/30 transition-colors flex items-center justify-center text-white"
-            >
-              <ChevronLeft className="w-6 h-6" />
-            </button>
-            <button 
-              onClick={nextSlide}
-              className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/20 backdrop-blur-md hover:bg-white/30 transition-colors flex items-center justify-center text-white"
-            >
-              <ChevronRight className="w-6 h-6" />
-            </button>
-          </div>
-
-          {/* Dots Indicator */}
-          <div className="flex items-center justify-center gap-2 mt-4">
-            {screenshots.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentSlide(index)}
-                className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                  index === currentSlide 
-                    ? 'w-8 bg-white' 
-                    : 'bg-white/40 hover:bg-white/60'
-                }`}
-              />
-            ))}
-          </div>
-
-          {/* Thumbnail Strip */}
-          <div className="hidden sm:flex items-center justify-center gap-3 mt-4">
-            {screenshots.map((screenshot, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentSlide(index)}
-                className={`relative rounded-lg overflow-hidden transition-all duration-300 ${
-                  index === currentSlide 
-                    ? 'ring-2 ring-white scale-105' 
-                    : 'opacity-60 hover:opacity-100'
-                }`}
-              >
-                <img 
-                  src={screenshot.image} 
-                  alt={screenshot.title}
-                  className="w-20 h-12 object-cover"
-                />
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Right Side - Subscription Card */}
-        <div className="w-full lg:w-auto flex flex-col items-center animate-fade-in-right">
+        {/* Subscription Card */}
+        <div className="w-full flex flex-col items-center animate-fade-in">
           {/* Header */}
           <div className="text-center mb-6">
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight drop-shadow-[0_4px_20px_rgba(0,0,0,0.3)] mb-2">
