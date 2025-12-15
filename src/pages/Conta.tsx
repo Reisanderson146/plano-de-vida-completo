@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Crown, CreditCard, Calendar, AlertTriangle, Star, Check, Shield } from 'lucide-react';
+import { Gem, BadgeCheck, CreditCard, Calendar, AlertTriangle, Check, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -97,15 +97,11 @@ export default function Conta() {
         <Card className="overflow-hidden border-primary/20">
           {/* Premium Header */}
           {isPremium && isActive && (
-            <div className="bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 py-3 px-6">
+            <div className="bg-gradient-to-r from-[#2A8C68] via-[#3d9d78] to-[#2A8C68] py-4 px-6">
               <div className="flex items-center justify-center gap-2">
-                <Crown className="w-5 h-5 text-amber-900" fill="currentColor" />
-                <span className="font-bold text-amber-900">PREMIUM ATIVO</span>
-                <div className="flex gap-0.5 ml-2">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-3 h-3 text-amber-900" fill="currentColor" />
-                  ))}
-                </div>
+                <Gem className="w-5 h-5 text-white/90" />
+                <span className="font-semibold text-white tracking-widest uppercase">Premium Ativo</span>
+                <BadgeCheck className="w-5 h-5 text-white/90" />
               </div>
             </div>
           )}
@@ -115,10 +111,10 @@ export default function Conta() {
               <div className="flex items-center gap-4">
                 <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${
                   isPremium && isActive 
-                    ? 'bg-gradient-to-br from-amber-400 to-amber-600' 
+                    ? 'bg-gradient-to-br from-[#2A8C68] to-[#7BC8A4]' 
                     : 'bg-muted'
                 }`}>
-                  <Crown className={`w-7 h-7 ${isPremium && isActive ? 'text-white' : 'text-muted-foreground'}`} />
+                  <Gem className={`w-7 h-7 ${isPremium && isActive ? 'text-white' : 'text-muted-foreground'}`} />
                 </div>
                 <div>
                   <h2 className="text-xl font-bold">
@@ -131,7 +127,7 @@ export default function Conta() {
               </div>
               <Badge
                 variant={isActive ? 'default' : 'secondary'}
-                className={isActive ? 'bg-emerald-500 hover:bg-emerald-500' : ''}
+                className={isActive ? 'bg-[#2A8C68] hover:bg-[#2A8C68]' : ''}
               >
                 {isActive ? 'Ativo' : 'Inativo'}
               </Badge>
@@ -141,16 +137,16 @@ export default function Conta() {
           <CardContent className="space-y-6">
             {/* Plan Details */}
             <div className="grid gap-4 sm:grid-cols-2">
-              <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-xl">
-                <CreditCard className="w-5 h-5 text-primary" />
+              <div className="flex items-center gap-3 p-4 bg-[#A8E6CE]/10 rounded-xl">
+                <CreditCard className="w-5 h-5 text-[#2A8C68]" />
                 <div>
                   <p className="text-xs text-muted-foreground">Valor</p>
                   <p className="font-bold text-lg">{isPremium ? 'R$ 9,99/mês' : 'Grátis'}</p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-xl">
-                <Calendar className="w-5 h-5 text-primary" />
+              <div className="flex items-center gap-3 p-4 bg-[#A8E6CE]/10 rounded-xl">
+                <Calendar className="w-5 h-5 text-[#2A8C68]" />
                 <div>
                   <p className="text-xs text-muted-foreground">Status</p>
                   <p className="font-bold text-lg">{isActive ? 'Ativo' : 'Inativo'}</p>
@@ -169,10 +165,9 @@ export default function Conta() {
                     'Relatórios de progresso',
                     'Lembretes por email',
                     'Exportação em PDF',
-                    'Suporte prioritário',
                   ].map((benefit, index) => (
                     <div key={index} className="flex items-center gap-2 text-sm">
-                      <Check className="w-4 h-4 text-emerald-500" />
+                      <Check className="w-4 h-4 text-[#2A8C68]" />
                       <span>{benefit}</span>
                     </div>
                   ))}
@@ -213,8 +208,8 @@ export default function Conta() {
                 </AlertDialogContent>
               </AlertDialog>
             ) : (
-              <Button onClick={() => navigate('/assinatura')} className="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-white">
-                <Crown className="w-4 h-4 mr-2" />
+              <Button onClick={() => navigate('/assinatura')} className="w-full bg-gradient-to-r from-[#2A8C68] to-[#7BC8A4] hover:from-[#238058] hover:to-[#6ab893] text-white">
+                <Gem className="w-4 h-4 mr-2" />
                 Ativar Premium
               </Button>
             )}
