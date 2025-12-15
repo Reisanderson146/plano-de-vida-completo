@@ -31,6 +31,8 @@ const PLAN_TYPE_CONFIG = {
   filho: { label: 'Filho(a)', icon: Baby },
 };
 
+const SELECTED_PLAN_STORAGE_KEY = 'selectedPlanId';
+
 export default function Dashboard() {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
@@ -44,12 +46,20 @@ export default function Dashboard() {
     saude: { total: 0, completed: 0 },
   });
   const [plans, setPlans] = useState<LifePlan[]>([]);
-  const [selectedPlanId, setSelectedPlanId] = useState<string>('');
+  const [selectedPlanId, setSelectedPlanId] = useState<string>(() => {
+    return localStorage.getItem(SELECTED_PLAN_STORAGE_KEY) || '';
+  });
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: startOfYear(new Date()),
     to: endOfYear(new Date())
   });
   const [hasPlans, setHasPlans] = useState(false);
+
+  // Persist selected plan to localStorage
+  const handlePlanChange = (planId: string) => {
+    setSelectedPlanId(planId);
+    localStorage.setItem(SELECTED_PLAN_STORAGE_KEY, planId);
+  };
   
   const { getAreaLabel, getAreaColor, refetch: refetchCustomizations } = usePlanAreaCustomizations(selectedPlanId || undefined);
 
@@ -79,7 +89,17 @@ export default function Dashboard() {
       setHasPlans((data?.length ?? 0) > 0);
       
       if (data && data.length > 0) {
-        setSelectedPlanId(data[0].id);
+        // Check if stored plan exists in user's plans
+        const storedPlanId = localStorage.getItem(SELECTED_PLAN_STORAGE_KEY);
+        const storedPlanExists = storedPlanId && data.some(p => p.id === storedPlanId);
+        
+        if (storedPlanExists) {
+          setSelectedPlanId(storedPlanId);
+        } else {
+          // Default to first plan and save it
+          setSelectedPlanId(data[0].id);
+          localStorage.setItem(SELECTED_PLAN_STORAGE_KEY, data[0].id);
+        }
       }
     } catch (error) {
       console.error('Error loading plans:', error);
@@ -183,7 +203,7 @@ export default function Dashboard() {
 
         {/* Filters */}
         <div className="flex flex-col sm:flex-row gap-3 opacity-0 animate-stagger-1">
-          <Select value={selectedPlanId} onValueChange={setSelectedPlanId}>
+          <Select value={selectedPlanId} onValueChange={handlePlanChange}>
             <SelectTrigger className="w-full sm:w-[250px] h-11 rounded-xl">
               <Folder className="w-4 h-4 mr-2 flex-shrink-0 text-muted-foreground" />
               <SelectValue placeholder="Selecione um plano" />
