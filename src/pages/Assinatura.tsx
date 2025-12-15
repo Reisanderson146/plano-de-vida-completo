@@ -6,7 +6,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Logo } from '@/components/Logo';
 import loginBackground from '@/assets/login-background.png';
 
 const benefits = [
@@ -75,7 +74,6 @@ export default function Assinatura() {
       <div className="relative z-10 min-h-screen flex flex-col items-center justify-center p-4 sm:p-6">
         {/* Header */}
         <div className="text-center mb-6 animate-fade-in-up">
-          <Logo size="lg" showText={false} showIcon={true} variant="light" className="mx-auto mb-4" />
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight drop-shadow-[0_4px_20px_rgba(0,0,0,0.3)] mb-2">
             Plano de Vida
           </h1>
