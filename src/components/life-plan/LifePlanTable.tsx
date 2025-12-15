@@ -505,14 +505,14 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, li
         <div className="flex items-center gap-4">
           {addingRow ? (
             <Card className="w-full">
-              <CardContent className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 py-4">
+              <CardContent className="flex flex-col sm:flex-row items-end gap-3 sm:gap-4 py-4">
                 <div className="flex gap-3 w-full sm:w-auto">
                   <div className="flex-1 sm:flex-initial">
-                    <label className="text-xs text-muted-foreground">Ano</label>
+                    <label className="text-xs text-muted-foreground block mb-1">Ano</label>
                     <Input type="number" value={newRowYear} onChange={(e) => setNewRowYear(parseInt(e.target.value))} className="w-full sm:w-24 h-10" />
                   </div>
                   <div className="flex-1 sm:flex-initial">
-                    <label className="text-xs text-muted-foreground">Idade</label>
+                    <label className="text-xs text-muted-foreground block mb-1">Idade</label>
                     <Input type="number" value={newRowAge} onChange={(e) => setNewRowAge(parseInt(e.target.value))} className="w-full sm:w-20 h-10" />
                   </div>
                 </div>
