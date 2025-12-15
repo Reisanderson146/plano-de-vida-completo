@@ -21,12 +21,6 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
 interface Goal {
   id: string;
@@ -192,84 +186,83 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, li
     return { completed, total: goalsWithText.length, percent: Math.round((completed / goalsWithText.length) * 100) };
   };
 
-  // Goal List Component for an area
-  const GoalList = ({ areaGoals, areaId, period }: { areaGoals: Goal[]; areaId: LifeArea; period: PeriodRow }) => {
+  // Expanded Goal List Component for horizontal cards
+  const GoalListExpanded = ({ areaGoals, areaId, period }: { areaGoals: Goal[]; areaId: LifeArea; period: PeriodRow }) => {
     const areaColor = getAreaColor(areaId);
     const goalsWithText = areaGoals.filter(g => g.goal_text.trim());
-    const progress = getAreaProgress(areaGoals);
-    
-    return (
-      <div className="h-full min-h-[80px] flex flex-col p-2 gap-1">
-        {/* Progress indicator for area */}
-        {progress && (
-          <div className="flex items-center gap-1 mb-1">
-            <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
-              <div 
-                className="h-full transition-all duration-300" 
-                style={{ width: `${progress.percent}%`, backgroundColor: areaColor }}
-              />
-            </div>
-            <span className="text-xs text-muted-foreground">{progress.percent}%</span>
-          </div>
-        )}
 
-        {/* List of goals */}
-        <div className="flex-1 space-y-1">
-          {goalsWithText.map((goal, index) => (
-            <div key={goal.id} className="flex items-start gap-1.5 group">
+    return (
+      <div className="space-y-3">
+        {goalsWithText.map((goal, index) => (
+          <div 
+            key={goal.id} 
+            className={cn(
+              "p-3 rounded-lg border border-border/30 bg-background/50 group transition-all hover:shadow-sm",
+              goal.is_completed && "bg-success/5 border-success/20"
+            )}
+          >
+            <div className="flex items-start gap-3">
               <Checkbox 
                 checked={goal.is_completed} 
                 onCheckedChange={() => handleToggleComplete(goal)} 
-                className="mt-0.5 flex-shrink-0 h-4 w-4"
+                className="mt-0.5 h-5 w-5 rounded"
                 style={{ borderColor: areaColor }}
               />
               <div className="flex-1 min-w-0">
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <p className={cn(
-                        "text-xs text-foreground cursor-help line-clamp-2",
-                        goal.is_completed && "line-through opacity-60"
-                      )}>
-                        <span className="font-medium text-muted-foreground">{index + 1}º </span>
-                        {goal.goal_text}
-                      </p>
-                    </TooltipTrigger>
-                    {goal.goal_text.length > 50 && (
-                      <TooltipContent side="top" className="max-w-[300px] p-3">
-                        <p className="text-sm whitespace-pre-wrap">{goal.goal_text}</p>
-                      </TooltipContent>
-                    )}
-                  </Tooltip>
-                </TooltipProvider>
+                <p className={cn(
+                  "text-sm text-foreground leading-relaxed",
+                  goal.is_completed && "line-through opacity-60"
+                )}>
+                  <span className="font-semibold" style={{ color: areaColor }}>{index + 1}º </span>
+                  {goal.goal_text}
+                </p>
               </div>
-              {editable && (
-                <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Button size="icon" variant="ghost" onClick={() => handleStartEdit(goal)} className="h-5 w-5">
-                    <Pencil className="w-2.5 h-2.5" />
-                  </Button>
-                  <Button size="icon" variant="ghost" onClick={() => onDeleteGoal(goal.id)} className="h-5 w-5 hover:text-destructive">
-                    <Trash2 className="w-2.5 h-2.5" />
-                  </Button>
-                </div>
-              )}
             </div>
-          ))}
-          
-          {goalsWithText.length === 0 && !editable && (
-            <p className="text-xs italic text-muted-foreground">Sem metas</p>
-          )}
-        </div>
+            {editable && (
+              <div className="flex gap-1 mt-2 pt-2 border-t border-border/20 opacity-0 group-hover:opacity-100 transition-opacity">
+                <Button 
+                  size="sm" 
+                  variant="ghost" 
+                  onClick={() => handleStartEdit(goal)} 
+                  className="h-7 text-xs flex-1"
+                >
+                  <Pencil className="w-3 h-3 mr-1" />
+                  Editar
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant="ghost" 
+                  onClick={() => onDeleteGoal(goal.id)} 
+                  className="h-7 text-xs flex-1 hover:text-destructive hover:bg-destructive/10"
+                >
+                  <Trash2 className="w-3 h-3 mr-1" />
+                  Excluir
+                </Button>
+              </div>
+            )}
+          </div>
+        ))}
+        
+        {goalsWithText.length === 0 && !editable && (
+          <div className="text-center py-6">
+            <p className="text-sm italic text-muted-foreground">Sem metas definidas</p>
+          </div>
+        )}
 
-        {/* Add goal button */}
+        {goalsWithText.length === 0 && editable && (
+          <div className="text-center py-4">
+            <p className="text-xs text-muted-foreground mb-2">Nenhuma meta ainda</p>
+          </div>
+        )}
+
         {editable && (
           <Button 
-            variant="ghost" 
+            variant="outline" 
             size="sm" 
-            className="w-full h-6 text-xs text-muted-foreground hover:bg-muted/50 border border-dashed border-muted-foreground/20 mt-1" 
+            className="w-full h-9 text-sm border-dashed border-primary/30 hover:border-primary hover:bg-primary/5 transition-colors" 
             onClick={() => { setAddGoalDialog({ year: period.year, age: period.age, area: areaId }); setNewGoalText(''); }}
           >
-            <Plus className="w-3 h-3 mr-1" />
+            <Plus className="w-4 h-4 mr-2" style={{ color: areaColor }} />
             Adicionar meta
           </Button>
         )}
@@ -402,27 +395,59 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, li
           
           <CollapsibleContent>
             <CardContent className="p-0">
-              {/* Desktop Grid */}
-              <div className="hidden md:grid grid-cols-7 border-t border-border">
-                {LIFE_AREAS.map((area) => (
-                  <div key={area.id} className="border-r last:border-r-0 border-border">
-                    <div 
-                      className="px-2 py-2 text-center font-medium text-sm border-b border-border"
-                      style={{ backgroundColor: `${getAreaColor(area.id)}25` }}
-                    >
-                      <div className="flex items-center justify-center gap-1.5">
-                        <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: getAreaColor(area.id) }} />
-                        <span className="truncate">{getAreaLabel(area.id)}</span>
-                      </div>
-                    </div>
-                    <div 
-                      className="min-h-[100px]" 
-                      style={{ backgroundColor: `${getAreaColor(area.id)}08` }}
-                    >
-                      <GoalList areaGoals={period.goals[area.id]} areaId={area.id} period={period} />
-                    </div>
+              {/* Desktop/Tablet: Horizontal Scroll Cards */}
+              <div className="hidden md:block border-t border-border">
+                <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent">
+                  <div className="flex gap-4 p-4 min-w-max">
+                    {LIFE_AREAS.map((area) => {
+                      const progress = getAreaProgress(period.goals[area.id]);
+                      return (
+                        <div 
+                          key={area.id} 
+                          className="w-[240px] flex-shrink-0 rounded-xl border border-border/50 overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+                          style={{ backgroundColor: `${getAreaColor(area.id)}08` }}
+                        >
+                          {/* Area Header */}
+                          <div 
+                            className="px-4 py-3 border-b border-border/30"
+                            style={{ backgroundColor: `${getAreaColor(area.id)}20` }}
+                          >
+                            <div className="flex items-center gap-2">
+                              <div 
+                                className="w-4 h-4 rounded-lg flex-shrink-0" 
+                                style={{ backgroundColor: getAreaColor(area.id) }} 
+                              />
+                              <span className="font-semibold text-foreground">{getAreaLabel(area.id)}</span>
+                            </div>
+                            {progress && (
+                              <div className="mt-2">
+                                <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
+                                  <span>{progress.completed}/{progress.total} metas</span>
+                                  <span className="font-medium">{progress.percent}%</span>
+                                </div>
+                                <div className="w-full h-2 bg-background/50 rounded-full overflow-hidden">
+                                  <div 
+                                    className="h-full transition-all duration-500 rounded-full" 
+                                    style={{ width: `${progress.percent}%`, backgroundColor: getAreaColor(area.id) }}
+                                  />
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                          
+                          {/* Goals List */}
+                          <div className="p-3 min-h-[180px] max-h-[280px] overflow-y-auto">
+                            <GoalListExpanded areaGoals={period.goals[area.id]} areaId={area.id} period={period} />
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
-                ))}
+                </div>
+                {/* Scroll indicator */}
+                <div className="flex items-center justify-center gap-2 py-2 text-xs text-muted-foreground border-t border-border/30">
+                  <span>← Deslize para ver mais áreas →</span>
+                </div>
               </div>
 
               {/* Mobile List */}
