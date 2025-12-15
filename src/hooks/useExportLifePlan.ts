@@ -190,9 +190,9 @@ export function useExportLifePlan() {
         },
         bodyStyles: {
           fontSize: 7,
-          cellPadding: 3,
+          cellPadding: 4,
           valign: 'top',
-          minCellHeight: 15,
+          minCellHeight: 28,
         },
         columnStyles: {
           0: { cellWidth: 'auto' },
