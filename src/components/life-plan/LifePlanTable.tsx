@@ -16,7 +16,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { usePlanAreaCustomizations } from '@/hooks/usePlanAreaCustomizations';
-import { useGamification } from '@/hooks/useGamification';
 import { GoalReminderDialog } from '@/components/goals/GoalReminderDialog';
 import {
   Collapsible,
@@ -75,7 +74,7 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, on
   const [reminderDialog, setReminderDialog] = useState<{ goalId: string; goalText: string } | null>(null);
   const { toast } = useToast();
   const { getAreaLabel, getAreaColor } = usePlanAreaCustomizations(lifePlanId);
-  const { recordGoalCompletion } = useGamification();
+  
 
   // Group goals by period - now supporting multiple goals per area
   const periodsMap = new Map<string, PeriodRow>();
@@ -151,9 +150,6 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, on
         colors: ['#22c55e', '#16a34a', '#4ade80', '#86efac']
       });
       playCelebrationSound();
-      
-      // Record for gamification
-      await recordGoalCompletion();
     } else {
       // Shake animation when unchecking
       setShakingGoalId(goal.id);

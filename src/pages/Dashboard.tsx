@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { ProgressChart } from '@/components/dashboard/ProgressChart';
 import { AreaCard } from '@/components/dashboard/AreaCard';
-import { GamificationCard } from '@/components/gamification/GamificationCard';
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
@@ -274,31 +274,22 @@ export default function Dashboard() {
             ))}
           </div>
         </div>
-
-        {/* Charts and Gamification Grid */}
-        <div className="grid gap-6 lg:grid-cols-3">
-          {/* Progress Chart */}
-          <Card className="border-border/40 opacity-0 animate-stagger-3 lg:col-span-2">
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-lg sm:text-xl">Visão Geral do Progresso</CardTitle>
-                <Badge variant="outline" className="font-normal rounded-lg">
-                  {dateRange?.from 
-                    ? `${format(dateRange.from, 'yyyy', { locale: ptBR })}${dateRange.to && dateRange.to.getFullYear() !== dateRange.from.getFullYear() ? ` - ${format(dateRange.to, 'yyyy', { locale: ptBR })}` : ''}`
-                    : 'Todos'}
-                </Badge>
-              </div>
-            </CardHeader>
-            <CardContent className="px-3 sm:px-5">
-              <ProgressChart data={stats} />
-            </CardContent>
-          </Card>
-
-          {/* Gamification Card */}
-          <div className="opacity-0 animate-stagger-4">
-            <GamificationCard />
-          </div>
-        </div>
+        {/* Progress Chart */}
+        <Card className="border-border/40 opacity-0 animate-stagger-3">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg sm:text-xl">Visão Geral do Progresso</CardTitle>
+              <Badge variant="outline" className="font-normal rounded-lg">
+                {dateRange?.from 
+                  ? `${format(dateRange.from, 'yyyy', { locale: ptBR })}${dateRange.to && dateRange.to.getFullYear() !== dateRange.from.getFullYear() ? ` - ${format(dateRange.to, 'yyyy', { locale: ptBR })}` : ''}`
+                  : 'Todos'}
+              </Badge>
+            </div>
+          </CardHeader>
+          <CardContent className="px-3 sm:px-5">
+            <ProgressChart data={stats} />
+          </CardContent>
+        </Card>
       </div>
     </AppLayout>
   );
