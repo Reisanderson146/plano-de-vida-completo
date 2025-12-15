@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Crown, CreditCard, Calendar, AlertTriangle } from 'lucide-react';
+import { Crown, CreditCard, Calendar, AlertTriangle, Star, Check, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import {
   AlertDialog,
@@ -82,66 +82,111 @@ export default function Conta() {
     }
   };
 
-  const planDetails = {
-    name: subscription.plan === 'premium' ? 'Premium' : 'Nenhum',
-    price: subscription.plan === 'premium' ? 'R$ 9,99/mês' : '-',
-  };
+  const isActive = subscription.status === 'active';
+  const isPremium = subscription.plan === 'premium';
 
   return (
     <AppLayout>
       <div className="container max-w-2xl py-8 space-y-6 animate-fade-in-up">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Minha Conta</h1>
-          <p className="text-muted-foreground">Gerencie sua assinatura e dados</p>
+          <h1 className="text-2xl font-bold text-foreground">Minha Assinatura</h1>
+          <p className="text-muted-foreground">Gerencie seu plano e benefícios</p>
         </div>
 
-        <Card>
-          <CardHeader>
+        {/* Current Plan Card */}
+        <Card className="overflow-hidden border-primary/20">
+          {/* Premium Header */}
+          {isPremium && isActive && (
+            <div className="bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 py-3 px-6">
+              <div className="flex items-center justify-center gap-2">
+                <Crown className="w-5 h-5 text-amber-900" fill="currentColor" />
+                <span className="font-bold text-amber-900">PREMIUM ATIVO</span>
+                <div className="flex gap-0.5 ml-2">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-3 h-3 text-amber-900" fill="currentColor" />
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          <CardHeader className="pb-4">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-                  <Crown className="w-6 h-6 text-primary" />
+              <div className="flex items-center gap-4">
+                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${
+                  isPremium && isActive 
+                    ? 'bg-gradient-to-br from-amber-400 to-amber-600' 
+                    : 'bg-muted'
+                }`}>
+                  <Crown className={`w-7 h-7 ${isPremium && isActive ? 'text-white' : 'text-muted-foreground'}`} />
                 </div>
                 <div>
-                  <CardTitle>Plano {planDetails.name}</CardTitle>
-                  <CardDescription>Sua assinatura atual</CardDescription>
+                  <h2 className="text-xl font-bold">
+                    Plano {isPremium ? 'Premium' : 'Gratuito'}
+                  </h2>
+                  <p className="text-sm text-muted-foreground">
+                    {isPremium ? 'Acesso completo a todas as funcionalidades' : 'Funcionalidades limitadas'}
+                  </p>
                 </div>
               </div>
               <Badge
-                variant={subscription.status === 'active' ? 'default' : 'secondary'}
-                className={subscription.status === 'active' ? 'bg-green-500' : ''}
+                variant={isActive ? 'default' : 'secondary'}
+                className={isActive ? 'bg-emerald-500 hover:bg-emerald-500' : ''}
               >
-                {subscription.status === 'active' ? 'Ativo' : 'Inativo'}
+                {isActive ? 'Ativo' : 'Inativo'}
               </Badge>
             </div>
           </CardHeader>
 
           <CardContent className="space-y-6">
+            {/* Plan Details */}
             <div className="grid gap-4 sm:grid-cols-2">
-              <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-lg">
-                <CreditCard className="w-5 h-5 text-muted-foreground" />
+              <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-xl">
+                <CreditCard className="w-5 h-5 text-primary" />
                 <div>
-                  <p className="text-sm text-muted-foreground">Valor</p>
-                  <p className="font-semibold">{planDetails.price}</p>
+                  <p className="text-xs text-muted-foreground">Valor</p>
+                  <p className="font-bold text-lg">{isPremium ? 'R$ 9,99/mês' : 'Grátis'}</p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-lg">
-                <Calendar className="w-5 h-5 text-muted-foreground" />
+              <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-xl">
+                <Calendar className="w-5 h-5 text-primary" />
                 <div>
-                  <p className="text-sm text-muted-foreground">Status</p>
-                  <p className="font-semibold">
-                    {subscription.status === 'active' ? 'Ativo' : 'Inativo'}
-                  </p>
+                  <p className="text-xs text-muted-foreground">Status</p>
+                  <p className="font-bold text-lg">{isActive ? 'Ativo' : 'Inativo'}</p>
                 </div>
               </div>
             </div>
 
-            {subscription.status === 'active' && (
+            {/* Benefits List */}
+            {isPremium && isActive && (
+              <div className="space-y-2">
+                <p className="text-sm font-medium text-muted-foreground">Seus benefícios:</p>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {[
+                    'Planejamento completo',
+                    'Dados na nuvem',
+                    'Relatórios de progresso',
+                    'Lembretes por email',
+                    'Exportação em PDF',
+                    'Suporte prioritário',
+                  ].map((benefit, index) => (
+                    <div key={index} className="flex items-center gap-2 text-sm">
+                      <Check className="w-4 h-4 text-emerald-500" />
+                      <span>{benefit}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Actions */}
+            {isActive ? (
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <Button variant="outline" className="w-full text-destructive hover:text-destructive">
-                    Cancelar assinatura (teste)
+                  <Button variant="outline" className="w-full text-destructive hover:text-destructive border-destructive/30 hover:border-destructive/50 hover:bg-destructive/5">
+                    <AlertTriangle className="w-4 h-4 mr-2" />
+                    Cancelar assinatura
                   </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
@@ -151,12 +196,12 @@ export default function Conta() {
                       Cancelar assinatura?
                     </AlertDialogTitle>
                     <AlertDialogDescription>
-                      Ao cancelar, você perderá acesso às funcionalidades premium. 
-                      Você pode reativar a qualquer momento.
+                      Ao cancelar, você perderá acesso a todas as funcionalidades premium. 
+                      Seus dados serão mantidos e você pode reativar a qualquer momento.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
-                    <AlertDialogCancel>Manter assinatura</AlertDialogCancel>
+                    <AlertDialogCancel>Manter Premium</AlertDialogCancel>
                     <AlertDialogAction
                       onClick={handleCancel}
                       disabled={loading}
@@ -167,13 +212,18 @@ export default function Conta() {
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
-            )}
-
-            {subscription.status !== 'active' && (
-              <Button onClick={() => navigate('/assinatura')} className="w-full">
-                Ativar assinatura
+            ) : (
+              <Button onClick={() => navigate('/assinatura')} className="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-white">
+                <Crown className="w-4 h-4 mr-2" />
+                Ativar Premium
               </Button>
             )}
+
+            {/* Security note */}
+            <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground pt-2">
+              <Shield className="w-4 h-4" />
+              <span>Seus dados estão seguros e protegidos</span>
+            </div>
           </CardContent>
         </Card>
       </div>
