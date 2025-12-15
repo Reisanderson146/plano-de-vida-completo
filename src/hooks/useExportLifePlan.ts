@@ -161,12 +161,17 @@ export function useExportLifePlan() {
       doc.text(`${year} (${age} anos)`, margin, yPosition);
       yPosition += 3;
 
-      // Prepare table data - one row with all areas
+      // Prepare table data - one row with all areas (supporting multiple goals per area)
       const tableData = LIFE_AREAS.map(area => {
-        const goal = yearGoals.find(g => g.area === area.id);
-        const text = goal?.goal_text || '-';
-        const status = goal?.is_completed ? '[OK]' : '';
-        return `${status} ${text}`.trim();
+        const areaGoals = yearGoals.filter(g => g.area === area.id);
+        if (areaGoals.length === 0) return '-';
+        
+        // Format each goal with its status and number
+        return areaGoals.map((goal, index) => {
+          const status = goal.is_completed ? '[OK]' : '';
+          const number = areaGoals.length > 1 ? `${index + 1}. ` : '';
+          return `${status} ${number}${goal.goal_text}`.trim();
+        }).join('\n');
       });
 
       // Create table with areas as columns
