@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -56,6 +56,7 @@ interface ImportedGoal {
 export default function Cadastro() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { toast } = useToast();
   const { importFile } = useImportPlan();
   const { saveAllCustomizations } = usePlanAreaCustomizations(undefined);
@@ -87,7 +88,7 @@ export default function Cadastro() {
   const [showSubscriptionDialog, setShowSubscriptionDialog] = useState(false);
   const [pendingCreate, setPendingCreate] = useState(false);
 
-  // Check subscription status on mount
+  // Check subscription status on mount and handle checkout return
   useEffect(() => {
     const checkSubscription = async () => {
       if (!user) return;
@@ -101,7 +102,46 @@ export default function Cadastro() {
           return;
         }
         
-        setIsSubscribed(data?.subscribed || data?.subscription_status === 'active');
+        const subscribed = data?.subscribed || data?.subscription_status === 'active';
+        setIsSubscribed(subscribed);
+
+        // Handle return from checkout
+        const checkoutStatus = searchParams.get('checkout');
+        if (checkoutStatus === 'success') {
+          // Clear the query param
+          setSearchParams({});
+          
+          if (subscribed) {
+            toast({
+              title: 'Assinatura confirmada!',
+              description: 'Você pode criar seu plano de vida agora.',
+            });
+          } else {
+            // Maybe payment is still processing, wait a bit
+            toast({
+              title: 'Verificando pagamento...',
+              description: 'Aguarde enquanto confirmamos sua assinatura.',
+            });
+            // Re-check after a delay
+            setTimeout(async () => {
+              const { data: retryData } = await supabase.functions.invoke('check-subscription');
+              if (retryData?.subscribed || retryData?.subscription_status === 'active') {
+                setIsSubscribed(true);
+                toast({
+                  title: 'Assinatura confirmada!',
+                  description: 'Você pode criar seu plano de vida agora.',
+                });
+              }
+            }, 3000);
+          }
+        } else if (checkoutStatus === 'cancelled') {
+          setSearchParams({});
+          toast({
+            title: 'Pagamento cancelado',
+            description: 'Você pode tentar novamente quando quiser.',
+            variant: 'destructive',
+          });
+        }
       } catch (error) {
         console.error('Error:', error);
         setIsSubscribed(false);
@@ -109,7 +149,7 @@ export default function Cadastro() {
     };
 
     checkSubscription();
-  }, [user]);
+  }, [user, searchParams, setSearchParams, toast]);
 
   const validateTitle = async (titleToCheck: string): Promise<boolean> => {
     if (!titleToCheck.trim()) {

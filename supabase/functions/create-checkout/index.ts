@@ -62,8 +62,8 @@ serve(async (req) => {
         },
       ],
       mode: "subscription",
-      success_url: `${req.headers.get("origin")}/checkout-success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${req.headers.get("origin")}/assinatura`,
+      success_url: `${req.headers.get("origin")}/cadastro?checkout=success`,
+      cancel_url: `${req.headers.get("origin")}/cadastro?checkout=cancelled`,
       metadata: {
         user_id: user.id,
       },
