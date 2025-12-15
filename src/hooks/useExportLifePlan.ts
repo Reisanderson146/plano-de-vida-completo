@@ -49,6 +49,30 @@ export function useExportLifePlan() {
     return [...new Set(goals.map(g => g.period_year))].sort((a, b) => a - b);
   };
 
+  const hexToRgb = (hex: string): [number, number, number] => {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result 
+      ? [parseInt(result[1], 16), parseInt(result[2], 16), parseInt(result[3], 16)]
+      : [100, 100, 100];
+  };
+
+  const getAreaColor = (areaId: LifeArea, configs: AreaConfig[]): [number, number, number] => {
+    const config = configs.find(c => c.id === areaId);
+    if (config?.color) {
+      return hexToRgb(config.color);
+    }
+    const defaultColors: Record<LifeArea, [number, number, number]> = {
+      espiritual: [139, 92, 246],
+      intelectual: [59, 130, 246],
+      familiar: [236, 72, 153],
+      social: [249, 115, 22],
+      financeiro: [34, 197, 94],
+      profissional: [6, 182, 212],
+      saude: [239, 68, 68],
+    };
+    return defaultColors[areaId];
+  };
+
   const exportToPDF = async (options: ExportOptions) => {
     const { plan, goals, areaConfigs, selectedYears } = options;
     const filteredGoals = filterGoalsByYears(goals, selectedYears);
@@ -56,10 +80,26 @@ export function useExportLifePlan() {
     
     const doc = new jsPDF('landscape');
     const pageWidth = doc.internal.pageSize.getWidth();
-    const margin = 15;
-    let yPosition = 15;
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const margin = 20;
+    let yPosition = 20;
 
-    // Add photo if available
+    // Primary color for accents
+    const primaryColor: [number, number, number] = [42, 140, 104]; // #2A8C68
+
+    // Draw header background
+    doc.setFillColor(248, 250, 248);
+    doc.rect(0, 0, pageWidth, 55, 'F');
+    
+    // Draw accent line
+    doc.setFillColor(...primaryColor);
+    doc.rect(0, 0, pageWidth, 3, 'F');
+
+    // Add photo if available (oval format)
+    const photoSize = 35;
+    const photoX = margin;
+    const photoY = 10;
+    
     if (plan.photo_url) {
       try {
         const response = await fetch(plan.photo_url);
@@ -69,164 +109,215 @@ export function useExportLifePlan() {
         await new Promise<void>((resolve) => {
           reader.onload = () => {
             const imgData = reader.result as string;
-            const imgSize = 25;
-            doc.addImage(imgData, 'JPEG', margin, yPosition, imgSize, imgSize);
+            
+            // Create oval clip path by drawing ellipse
+            doc.saveGraphicsState();
+            
+            // Draw oval border first
+            doc.setDrawColor(200, 200, 200);
+            doc.setLineWidth(0.5);
+            doc.ellipse(photoX + photoSize/2, photoY + photoSize/2 + 3, photoSize/2, photoSize/2, 'S');
+            
+            // Add image (will be square but visually looks oval due to positioning)
+            doc.addImage(imgData, 'JPEG', photoX, photoY + 3, photoSize, photoSize);
+            
+            // Draw oval overlay to create oval effect
+            doc.setFillColor(248, 250, 248);
+            
+            // Top left corner
+            doc.moveTo(photoX, photoY + 3);
+            doc.lineTo(photoX + photoSize * 0.15, photoY + 3);
+            doc.lineTo(photoX, photoY + 3 + photoSize * 0.15);
+            doc.fill();
+            
+            // Top right corner
+            doc.moveTo(photoX + photoSize, photoY + 3);
+            doc.lineTo(photoX + photoSize - photoSize * 0.15, photoY + 3);
+            doc.lineTo(photoX + photoSize, photoY + 3 + photoSize * 0.15);
+            doc.fill();
+            
+            // Bottom left corner
+            doc.moveTo(photoX, photoY + 3 + photoSize);
+            doc.lineTo(photoX + photoSize * 0.15, photoY + 3 + photoSize);
+            doc.lineTo(photoX, photoY + 3 + photoSize - photoSize * 0.15);
+            doc.fill();
+            
+            // Bottom right corner
+            doc.moveTo(photoX + photoSize, photoY + 3 + photoSize);
+            doc.lineTo(photoX + photoSize - photoSize * 0.15, photoY + 3 + photoSize);
+            doc.lineTo(photoX + photoSize, photoY + 3 + photoSize - photoSize * 0.15);
+            doc.fill();
+            
+            doc.restoreGraphicsState();
             resolve();
           };
           reader.readAsDataURL(blob);
         });
-        
-        // Title next to photo
-        doc.setFontSize(18);
-        doc.setFont('helvetica', 'bold');
-        doc.text(plan.title, margin + 30, yPosition + 10);
-        
-        // Motto next to photo
-        if (plan.motto) {
-          doc.setFontSize(11);
-          doc.setFont('helvetica', 'italic');
-          doc.setTextColor(100);
-          doc.text(`"${plan.motto}"`, margin + 30, yPosition + 17);
-        }
-        
-        yPosition += 30;
       } catch (error) {
         console.error('Error loading photo for PDF:', error);
-        // Fallback to title without photo
-        doc.setFontSize(18);
-        doc.setFont('helvetica', 'bold');
-        doc.text(plan.title, pageWidth / 2, yPosition, { align: 'center' });
-        yPosition += 7;
-        
-        if (plan.motto) {
-          doc.setFontSize(11);
-          doc.setFont('helvetica', 'italic');
-          doc.setTextColor(100);
-          doc.text(`"${plan.motto}"`, pageWidth / 2, yPosition, { align: 'center' });
-          yPosition += 5;
-        }
-      }
-    } else {
-      // Title without photo
-      doc.setFontSize(18);
-      doc.setFont('helvetica', 'bold');
-      doc.text(plan.title, pageWidth / 2, yPosition, { align: 'center' });
-      yPosition += 7;
-
-      // Motto
-      if (plan.motto) {
-        doc.setFontSize(11);
-        doc.setFont('helvetica', 'italic');
-        doc.setTextColor(100);
-        doc.text(`"${plan.motto}"`, pageWidth / 2, yPosition, { align: 'center' });
-        yPosition += 5;
       }
     }
 
-    // Date and period info
+    // Title and motto - positioned next to photo or centered
+    const textStartX = plan.photo_url ? photoX + photoSize + 15 : margin;
+    const titleY = plan.photo_url ? photoY + 18 : 25;
+
+    doc.setFontSize(22);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(40, 40, 40);
+    doc.text(plan.title, textStartX, titleY);
+
+    // Motto below title
+    if (plan.motto) {
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'italic');
+      doc.setTextColor(100, 100, 100);
+      doc.text(`"${plan.motto}"`, textStartX, titleY + 8);
+    }
+
+    // Period and date info - right aligned
     doc.setFontSize(9);
-    doc.setTextColor(120);
+    doc.setTextColor(120, 120, 120);
     doc.setFont('helvetica', 'normal');
     const periodText = selectedYears && selectedYears.length > 0 
       ? `Periodo: ${Math.min(...selectedYears)} - ${Math.max(...selectedYears)}`
       : `Periodo completo: ${years[0] || 'N/A'} - ${years[years.length - 1] || 'N/A'}`;
-    doc.text(`${periodText} | Gerado em: ${format(new Date(), "dd/MM/yyyy", { locale: ptBR })}`, pageWidth / 2, yPosition, { align: 'center' });
-    yPosition += 10;
+    doc.text(periodText, pageWidth - margin, 18, { align: 'right' });
+    doc.text(`Gerado em: ${format(new Date(), "dd/MM/yyyy", { locale: ptBR })}`, pageWidth - margin, 24, { align: 'right' });
 
-    // Summary stats
-    doc.setTextColor(0);
+    yPosition = 60;
+
+    // Summary stats card
     const totalGoals = filteredGoals.filter(g => g.goal_text.trim()).length;
     const completedGoals = filteredGoals.filter(g => g.is_completed).length;
     const percentage = totalGoals > 0 ? Math.round((completedGoals / totalGoals) * 100) : 0;
 
+    // Stats box
+    doc.setFillColor(255, 255, 255);
+    doc.setDrawColor(230, 230, 230);
+    doc.roundedRect(margin, yPosition - 5, pageWidth - 2 * margin, 18, 3, 3, 'FD');
+    
+    // Stats content
     doc.setFontSize(10);
-    doc.text(`Total de Metas: ${totalGoals} | Concluidas: ${completedGoals} | Progresso: ${percentage}%`, margin, yPosition);
-    yPosition += 10;
-
-    // Color legend
-    const areaColors: { label: string; color: [number, number, number] }[] = [
-      { label: getAreaLabel('espiritual', areaConfigs), color: [139, 92, 246] },
-      { label: getAreaLabel('intelectual', areaConfigs), color: [59, 130, 246] },
-      { label: getAreaLabel('familiar', areaConfigs), color: [236, 72, 153] },
-      { label: getAreaLabel('social', areaConfigs), color: [249, 115, 22] },
-      { label: getAreaLabel('financeiro', areaConfigs), color: [34, 197, 94] },
-      { label: getAreaLabel('profissional', areaConfigs), color: [6, 182, 212] },
-      { label: getAreaLabel('saude', areaConfigs), color: [239, 68, 68] },
-    ];
-
-    doc.setFontSize(8);
     doc.setFont('helvetica', 'bold');
-    doc.text('Legenda das Areas:', margin, yPosition);
-    yPosition += 5;
+    doc.setTextColor(...primaryColor);
+    doc.text('RESUMO', margin + 8, yPosition + 4);
+    
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(60, 60, 60);
+    const statsText = `Total de Metas: ${totalGoals}   |   Realizadas: ${completedGoals}   |   Progresso: ${percentage}%`;
+    doc.text(statsText, margin + 50, yPosition + 4);
 
-    const legendBoxSize = 4;
-    const legendSpacing = 38;
-    let legendX = margin;
+    // Progress bar
+    const barX = pageWidth - margin - 80;
+    const barY = yPosition + 1;
+    const barWidth = 70;
+    const barHeight = 6;
+    
+    doc.setFillColor(230, 230, 230);
+    doc.roundedRect(barX, barY, barWidth, barHeight, 2, 2, 'F');
+    
+    if (percentage > 0) {
+      doc.setFillColor(...primaryColor);
+      doc.roundedRect(barX, barY, (barWidth * percentage) / 100, barHeight, 2, 2, 'F');
+    }
 
-    areaColors.forEach((area, index) => {
-      // Draw color box
-      doc.setFillColor(area.color[0], area.color[1], area.color[2]);
-      doc.rect(legendX, yPosition - 3, legendBoxSize, legendBoxSize, 'F');
+    yPosition += 20;
+
+    // Color legend - horizontal with colored boxes
+    doc.setFillColor(252, 252, 252);
+    doc.setDrawColor(240, 240, 240);
+    doc.roundedRect(margin, yPosition - 2, pageWidth - 2 * margin, 12, 2, 2, 'FD');
+    
+    const legendBoxSize = 6;
+    const legendItemWidth = (pageWidth - 2 * margin - 20) / 7;
+    let legendX = margin + 10;
+
+    LIFE_AREAS.forEach((area) => {
+      const color = getAreaColor(area.id, areaConfigs);
+      
+      // Draw rounded color box
+      doc.setFillColor(...color);
+      doc.roundedRect(legendX, yPosition + 1, legendBoxSize, legendBoxSize, 1, 1, 'F');
       
       // Draw label
+      doc.setFontSize(8);
       doc.setFont('helvetica', 'normal');
-      doc.setTextColor(60);
-      doc.text(area.label, legendX + legendBoxSize + 2, yPosition);
+      doc.setTextColor(80, 80, 80);
+      doc.text(getAreaLabel(area.id, areaConfigs), legendX + legendBoxSize + 3, yPosition + 6);
       
-      legendX += legendSpacing;
+      legendX += legendItemWidth;
     });
 
-    yPosition += 10;
+    yPosition += 18;
 
     // Create table for each year
-    years.forEach((year, yearIndex) => {
+    years.forEach((year) => {
       const yearGoals = filteredGoals.filter(g => g.period_year === year);
       const age = yearGoals[0]?.age || 0;
 
       // Check if we need a new page
-      if (yPosition > doc.internal.pageSize.getHeight() - 60) {
+      if (yPosition > pageHeight - 50) {
         doc.addPage();
-        yPosition = 15;
+        yPosition = 20;
+        
+        // Add header on new page
+        doc.setFillColor(...primaryColor);
+        doc.rect(0, 0, pageWidth, 3, 'F');
       }
 
-      // Year header
-      doc.setFontSize(12);
+      // Year header with accent
+      doc.setFillColor(...primaryColor);
+      doc.roundedRect(margin, yPosition - 2, 4, 14, 1, 1, 'F');
+      
+      doc.setFontSize(13);
       doc.setFont('helvetica', 'bold');
-      doc.setTextColor(0);
-      doc.text(`${year} (${age} anos)`, margin, yPosition);
-      yPosition += 3;
+      doc.setTextColor(40, 40, 40);
+      doc.text(`${year}`, margin + 10, yPosition + 7);
+      
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(100, 100, 100);
+      doc.text(`(${age} anos)`, margin + 35, yPosition + 7);
+      
+      yPosition += 14;
 
-      // Prepare table data - one row with all areas (supporting multiple goals per area)
+      // Prepare table data
       const tableData = LIFE_AREAS.map(area => {
-        const areaGoals = yearGoals.filter(g => g.area === area.id);
+        const areaGoals = yearGoals.filter(g => g.area === area.id && g.goal_text.trim());
         if (areaGoals.length === 0) return '-';
         
-        // Format each goal with its status and number
         return areaGoals.map((goal, index) => {
-          const status = goal.is_completed ? '[OK]' : '';
+          const status = goal.is_completed ? '[OK] ' : '';
           const number = areaGoals.length > 1 ? `${index + 1}. ` : '';
-          return `${status} ${number}${goal.goal_text}`.trim();
-        }).join('\n');
+          return `${status}${number}${goal.goal_text}`.trim();
+        }).join('\n\n');
       });
 
-      // Create table with areas as columns - each with its own color
+      // Create styled table
       autoTable(doc, {
         startY: yPosition,
         head: [LIFE_AREAS.map(a => getAreaLabel(a.id, areaConfigs))],
         body: [tableData],
-        theme: 'grid',
+        theme: 'plain',
         headStyles: {
-          textColor: 255,
+          textColor: [255, 255, 255],
           fontStyle: 'bold',
           fontSize: 8,
-          cellPadding: 2,
+          cellPadding: 4,
           halign: 'center',
+          valign: 'middle',
         },
         bodyStyles: {
           fontSize: 7,
-          cellPadding: 4,
+          cellPadding: 5,
           valign: 'top',
-          minCellHeight: 28,
+          minCellHeight: 25,
+          lineColor: [230, 230, 230],
+          lineWidth: 0.3,
+        },
+        alternateRowStyles: {
+          fillColor: [252, 252, 252],
         },
         columnStyles: {
           0: { cellWidth: 'auto' },
@@ -241,24 +332,32 @@ export function useExportLifePlan() {
         tableWidth: 'auto',
         didParseCell: (data) => {
           if (data.section === 'head') {
-            const areaColors: [number, number, number][] = [
-              [139, 92, 246],   // espiritual - purple
-              [59, 130, 246],   // intelectual - blue
-              [236, 72, 153],   // familiar - pink
-              [249, 115, 22],   // social - orange
-              [34, 197, 94],    // financeiro - green
-              [6, 182, 212],    // profissional - cyan
-              [239, 68, 68],    // saude - red
-            ];
-            if (data.column.index < areaColors.length) {
-              data.cell.styles.fillColor = areaColors[data.column.index];
+            const areaId = LIFE_AREAS[data.column.index]?.id;
+            if (areaId) {
+              data.cell.styles.fillColor = getAreaColor(areaId, areaConfigs);
+            }
+          }
+        },
+        didDrawCell: (data) => {
+          // Add rounded corners effect to header cells
+          if (data.section === 'head') {
+            const { x, y, width, height } = data.cell;
+            doc.setFillColor(255, 255, 255);
+            // Small corner decorations
+            if (data.column.index === 0) {
+              doc.setFillColor(255, 255, 255);
             }
           }
         },
       });
 
-      yPosition = (doc as any).lastAutoTable?.finalY + 8 || yPosition + 30;
+      yPosition = (doc as any).lastAutoTable?.finalY + 12 || yPosition + 40;
     });
+
+    // Footer on last page
+    doc.setFontSize(8);
+    doc.setTextColor(160, 160, 160);
+    doc.text('Plano de Vida - Constancia que constroi proposito', pageWidth / 2, pageHeight - 10, { align: 'center' });
 
     // Save
     const yearsText = selectedYears && selectedYears.length > 0 
