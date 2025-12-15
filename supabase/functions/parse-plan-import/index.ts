@@ -28,12 +28,16 @@ serve(async (req) => {
       );
     }
 
+    const currentYear = new Date().getFullYear();
+    
     const systemPrompt = `Você é um assistente especializado em extrair dados de planos de vida de arquivos.
     
 O usuário vai enviar o conteúdo de um arquivo (pode ser Excel, PDF, TXT, CSV, etc.) que contém um plano de vida.
 
+O ANO ATUAL É ${currentYear}. REGRA IMPORTANTE: Se o documento NÃO especificar anos para as metas, comece a partir de ${currentYear} e incremente para períodos subsequentes.
+
 Seu trabalho é identificar e extrair as metas/objetivos organizados por:
-- Ano ou período
+- Ano ou período (SE NÃO ESPECIFICADO, USE ${currentYear} COMO ANO INICIAL)
 - Idade (se disponível)
 - Área da vida (as 7 áreas são: espiritual, intelectual, familiar, social, financeiro, profissional, saude)
 
@@ -41,7 +45,8 @@ IMPORTANTE:
 - Identifique o formato do arquivo e extraia os dados da melhor forma possível
 - Mapeie os nomes das áreas para os IDs corretos: espiritual, intelectual, familiar, social, financeiro, profissional, saude
 - Se a área não for reconhecida, tente inferir baseado no contexto
-- Se não encontrar ano, tente inferir ou use o ano atual
+- Se não encontrar ano explícito no documento, use ${currentYear} como ano inicial
+- Se houver múltiplos períodos sem ano definido, incremente a partir de ${currentYear} (ex: ${currentYear}, ${currentYear + 1}, ${currentYear + 2}, etc.)
 - Se não encontrar idade, deixe como null
 
 Responda APENAS com um JSON válido no seguinte formato:
@@ -49,7 +54,7 @@ Responda APENAS com um JSON válido no seguinte formato:
   "success": true,
   "goals": [
     {
-      "year": 2025,
+      "year": ${currentYear},
       "age": 30,
       "area": "espiritual",
       "goalText": "Texto da meta"
@@ -65,7 +70,6 @@ Se não conseguir extrair nenhuma meta, responda:
   "errors": ["Descrição do problema encontrado"],
   "warnings": []
 }`;
-
     let messages: any[];
 
     if (isPDF && pdfBase64) {
