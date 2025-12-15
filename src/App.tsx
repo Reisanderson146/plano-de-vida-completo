@@ -18,6 +18,7 @@ import MeusDados from "./pages/MeusDados";
 import Configuracoes from "./pages/Configuracoes";
 import Conta from "./pages/Conta";
 import CheckoutSuccess from "./pages/CheckoutSuccess";
+import Assinatura from "./pages/Assinatura";
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import NotFound from "./pages/NotFound";
@@ -38,7 +39,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   }
 
   if (!user) {
-    return <Navigate to="/auth" replace />;
+    return <Navigate to="/assinatura" replace />;
   }
 
   return <>{children}</>;
@@ -72,6 +73,7 @@ function AppRoutes() {
   return (
     <Routes>
       {/* Rotas públicas */}
+      <Route path="/assinatura" element={<Assinatura />} />
       <Route path="/auth" element={<Auth />} />
       <Route path="/login" element={<Navigate to="/auth" replace />} />
       
@@ -89,7 +91,6 @@ function AppRoutes() {
       <Route path="/configuracoes" element={<ProtectedRoute><Configuracoes /></ProtectedRoute>} />
       <Route path="/conta" element={<ProtectedRoute><Conta /></ProtectedRoute>} />
       <Route path="/perfil" element={<Navigate to="/meus-dados" replace />} />
-      <Route path="/assinatura" element={<Navigate to="/cadastro" replace />} />
       
       {/* Rotas de admin separadas */}
       <Route path="/admin/login" element={<AdminLogin />} />

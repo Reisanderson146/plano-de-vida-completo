@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Check, Shield, Zap, Heart, Target, Sparkles, BadgeCheck, Gem, Loader2, RefreshCw } from 'lucide-react';
+import { Check, Shield, Zap, Heart, Target, Sparkles, BadgeCheck, Gem, Loader2, LogIn } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useAuth } from '@/hooks/useAuth';
@@ -17,65 +17,17 @@ const benefits = [
 ];
 
 export default function Assinatura() {
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [checkingSubscription, setCheckingSubscription] = useState(false);
-
-  // Check subscription status on mount and periodically
-  useEffect(() => {
-    if (!user) return;
-
-    const checkSubscription = async () => {
-      try {
-        const { data, error } = await supabase.functions.invoke('check-subscription');
-        
-        if (error) {
-          console.error('Error checking subscription:', error);
-          return;
-        }
-        
-        if (data?.subscribed || data?.subscription_status === 'active') {
-          toast.success('Assinatura ativa! Redirecionando...');
-          navigate('/');
-        }
-      } catch (error) {
-        console.error('Error:', error);
-      }
-    };
-
-    // Check immediately on mount
-    checkSubscription();
-
-    // Check every 5 seconds (for when user completes checkout in another tab)
-    const interval = setInterval(checkSubscription, 5000);
-
-    return () => clearInterval(interval);
-  }, [user, navigate]);
-
-  const handleCheckSubscription = async () => {
-    setCheckingSubscription(true);
-    try {
-      const { data, error } = await supabase.functions.invoke('check-subscription');
-      
-      if (error) throw error;
-      
-      if (data?.subscribed || data?.subscription_status === 'active') {
-        toast.success('Assinatura confirmada! Redirecionando...');
-        navigate('/');
-      } else {
-        toast.info('Assinatura ainda não detectada. Se você acabou de pagar, aguarde alguns segundos.');
-      }
-    } catch (error) {
-      console.error('Error checking subscription:', error);
-      toast.error('Erro ao verificar assinatura. Tente novamente.');
-    } finally {
-      setCheckingSubscription(false);
-    }
-  };
 
   const handleCheckout = async () => {
-    if (!user) return;
+    // If not logged in, redirect to auth first
+    if (!user) {
+      toast.info('Faça login ou crie sua conta para assinar');
+      navigate('/auth', { state: { returnTo: '/assinatura', action: 'checkout' } });
+      return;
+    }
 
     setLoading(true);
     try {
@@ -84,18 +36,20 @@ export default function Assinatura() {
       if (error) throw error;
 
       if (data?.url) {
-        // Open Stripe Checkout in new tab
-        window.open(data.url, '_blank');
-        toast.info('Complete o pagamento na nova aba. Após concluir, clique em "Já assinei".');
+        // Navigate in same window to maintain session
+        window.location.href = data.url;
       } else {
         throw new Error('No checkout URL returned');
       }
     } catch (error) {
       console.error('Error creating checkout:', error);
       toast.error('Erro ao iniciar pagamento. Tente novamente.');
-    } finally {
       setLoading(false);
     }
+  };
+
+  const handleAlreadySubscriber = () => {
+    navigate('/auth');
   };
 
   return (
@@ -187,7 +141,7 @@ export default function Assinatura() {
                 })}
               </div>
 
-              {/* CTA Button */}
+              {/* CTA Buttons */}
               <div className="space-y-3">
                 <Button
                   onClick={handleCheckout}
@@ -207,23 +161,16 @@ export default function Assinatura() {
                   )}
                 </Button>
 
+                {/* Já sou assinante - Prominent button */}
                 <Button
-                  onClick={handleCheckSubscription}
-                  disabled={checkingSubscription}
+                  onClick={handleAlreadySubscriber}
                   variant="outline"
-                  className="w-full h-12 text-base font-medium rounded-2xl border-[#2A8C68]/30 text-[#2A8C68] hover:bg-[#A8E6CE]/20"
+                  className="w-full h-14 text-lg font-bold rounded-2xl border-2 border-[#2A8C68] text-[#2A8C68] hover:bg-[#2A8C68] hover:text-white transition-all duration-300"
                 >
-                  {checkingSubscription ? (
-                    <div className="flex items-center gap-2">
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      Verificando...
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-2">
-                      <RefreshCw className="w-4 h-4" />
-                      Já assinei - Verificar
-                    </div>
-                  )}
+                  <div className="flex items-center gap-2">
+                    <LogIn className="w-5 h-5" />
+                    Já sou assinante
+                  </div>
                 </Button>
               </div>
 
@@ -250,16 +197,6 @@ export default function Assinatura() {
             Finalmente consigo ver meu progresso em todas as áreas!"
           </p>
           <p className="text-white font-medium text-sm mt-2 drop-shadow-md">— Maria S., usuária Premium</p>
-        </div>
-
-        {/* Footer */}
-        <div className="mt-8 text-center">
-          <button
-            onClick={signOut}
-            className="text-white/70 hover:text-white text-sm underline-offset-4 hover:underline transition-colors"
-          >
-            Sair da conta
-          </button>
         </div>
       </div>
     </div>
