@@ -36,7 +36,7 @@ serve(async (req) => {
     const { data } = await supabaseClient.auth.getUser(token);
     const user = data.user;
     if (!user?.email) throw new Error("User not authenticated or email not available");
-    logStep("User authenticated", { userId: user.id, email: user.email });
+    logStep("User authenticated", { userId: user.id });
 
     const priceId = "price_1SeiENRX3OjZbCrQIIbjMVMv";
     logStep("Using price ID", { priceId });
