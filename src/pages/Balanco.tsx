@@ -11,6 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useExportReport } from '@/hooks/useExportReport';
 import { LIFE_AREAS, AREA_HEX_COLORS } from '@/lib/constants';
 import { Loader2, Target, CheckCircle2, AlertTriangle, TrendingDown, Plus, FileText, Folder, User, Users, Baby, Pencil, Trash2 } from 'lucide-react';
+import { AISummary } from '@/components/balance/AISummary';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell, LabelList } from 'recharts';
 import { format, startOfYear, endOfYear } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -540,6 +541,15 @@ export default function Balanco() {
             </div>
           </CardContent>
         </Card>
+
+        {/* AI Summary */}
+        <AISummary
+          stats={stats}
+          totalGoals={totalGoals}
+          completedGoals={completedGoals}
+          planTitle={selectedPlan?.title || 'Plano de Vida'}
+          period={getDateRangeLabel(dateRange)}
+        />
 
         {/* Areas Needing Attention */}
         {areasNeedingAttention.length > 0 && (
