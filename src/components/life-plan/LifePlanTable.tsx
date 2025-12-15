@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Pencil, Plus, Trash2, ChevronDown, ChevronUp, Calendar, User, CheckCircle2, X } from 'lucide-react';
-import { LIFE_AREAS, LifeArea } from '@/lib/constants';
+import { LIFE_AREAS, LifeArea, AREA_ICONS } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { usePlanAreaCustomizations } from '@/hooks/usePlanAreaCustomizations';
@@ -276,17 +276,44 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, li
     const goalsWithText = areaGoals.filter(g => g.goal_text.trim());
     const progress = getAreaProgress(areaGoals);
 
+    const AreaIcon = AREA_ICONS[areaId as LifeArea];
+    
     return (
-      <div className="p-3" style={{ backgroundColor: `${areaColor}10` }}>
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: areaColor }} />
-            <span className="text-sm font-medium text-foreground">{getAreaLabel(areaId)}</span>
+      <div className="p-4" style={{ backgroundColor: `${areaColor}08` }}>
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2.5">
+            <div 
+              className="w-8 h-8 rounded-lg flex items-center justify-center shadow-sm" 
+              style={{ backgroundColor: areaColor }}
+            >
+              <AreaIcon className="w-4 h-4 text-white" />
+            </div>
+            <span className="text-sm font-semibold text-foreground">{getAreaLabel(areaId)}</span>
           </div>
           {progress && (
-            <span className="text-xs text-muted-foreground">{progress.completed}/{progress.total} ({progress.percent}%)</span>
+            <span 
+              className="text-xs font-bold px-2 py-0.5 rounded-full text-white"
+              style={{ backgroundColor: areaColor }}
+            >
+              {progress.percent}%
+            </span>
           )}
         </div>
+        
+        {progress && (
+          <div className="mb-3">
+            <div className="w-full h-2 bg-background/60 rounded-full overflow-hidden">
+              <div 
+                className="h-full transition-all duration-500 rounded-full" 
+                style={{ 
+                  width: `${progress.percent}%`, 
+                  backgroundColor: areaColor
+                }}
+              />
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">{progress.completed}/{progress.total} metas</p>
+          </div>
+        )}
 
         <div className="space-y-2">
           {goalsWithText.map((goal, index) => (
@@ -414,36 +441,44 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, li
                   <div className="flex gap-4 p-4 min-w-max">
                     {LIFE_AREAS.map((area) => {
                       const progress = getAreaProgress(period.goals[area.id]);
+                      const AreaIcon = AREA_ICONS[area.id as LifeArea];
                       return (
                         <div 
                           key={area.id} 
-                          className="w-[260px] flex-shrink-0 rounded-2xl border border-border/40 overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group/card"
+                          className="w-[280px] flex-shrink-0 rounded-2xl border border-border/40 overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 group/card"
                           style={{ backgroundColor: `${getAreaColor(area.id)}05` }}
                         >
                           {/* Area Header */}
                           <div 
-                            className="px-4 py-3.5 border-b border-border/20 relative overflow-hidden"
-                            style={{ backgroundColor: `${getAreaColor(area.id)}15` }}
+                            className="px-4 py-4 border-b border-border/20 relative overflow-hidden"
+                            style={{ backgroundColor: `${getAreaColor(area.id)}12` }}
                           >
                             {/* Decorative gradient */}
                             <div 
-                              className="absolute inset-0 opacity-20"
-                              style={{ background: `linear-gradient(135deg, ${getAreaColor(area.id)}30 0%, transparent 60%)` }}
+                              className="absolute inset-0 opacity-30"
+                              style={{ background: `linear-gradient(135deg, ${getAreaColor(area.id)}40 0%, transparent 50%)` }}
+                            />
+                            {/* Icon background decoration */}
+                            <div 
+                              className="absolute -right-4 -top-4 w-20 h-20 rounded-full opacity-10"
+                              style={{ backgroundColor: getAreaColor(area.id) }}
                             />
                             <div className="relative">
-                              <div className="flex items-center gap-2.5">
+                              <div className="flex items-center gap-3">
                                 <div 
-                                  className="w-5 h-5 rounded-lg flex-shrink-0 shadow-sm" 
-                                  style={{ backgroundColor: getAreaColor(area.id) }} 
-                                />
-                                <span className="font-bold text-foreground">{getAreaLabel(area.id)}</span>
+                                  className="w-10 h-10 rounded-xl flex items-center justify-center shadow-sm transition-transform group-hover/card:scale-110" 
+                                  style={{ backgroundColor: getAreaColor(area.id) }}
+                                >
+                                  <AreaIcon className="w-5 h-5 text-white" />
+                                </div>
+                                <span className="font-bold text-foreground text-base">{getAreaLabel(area.id)}</span>
                               </div>
                               {progress && (
                                 <div className="mt-3">
                                   <div className="flex items-center justify-between text-xs text-muted-foreground mb-1.5">
                                     <span className="font-medium">{progress.completed}/{progress.total} metas</span>
                                     <span 
-                                      className="font-bold px-2 py-0.5 rounded-full text-white text-[10px]"
+                                      className="font-bold px-2.5 py-0.5 rounded-full text-white text-[11px] shadow-sm"
                                       style={{ backgroundColor: getAreaColor(area.id) }}
                                     >
                                       {progress.percent}%
@@ -454,7 +489,7 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, li
                                       className="h-full transition-all duration-500 rounded-full shadow-sm" 
                                       style={{ 
                                         width: `${progress.percent}%`, 
-                                        background: `linear-gradient(90deg, ${getAreaColor(area.id)}, ${getAreaColor(area.id)}dd)`
+                                        background: `linear-gradient(90deg, ${getAreaColor(area.id)}, ${getAreaColor(area.id)}cc)`
                                       }}
                                     />
                                   </div>
@@ -464,7 +499,7 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, li
                           </div>
                           
                           {/* Goals List */}
-                          <div className="p-3.5 min-h-[180px] max-h-[300px] overflow-y-auto">
+                          <div className="p-4 min-h-[180px] max-h-[320px] overflow-y-auto">
                             <GoalListExpanded areaGoals={period.goals[area.id]} areaId={area.id} period={period} />
                           </div>
                         </div>

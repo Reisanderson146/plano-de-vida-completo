@@ -1,3 +1,5 @@
+import { Sparkles, Brain, Heart, Users, Wallet, Briefcase, Dumbbell, LucideIcon } from 'lucide-react';
+
 export const LIFE_AREAS = [
   { id: 'espiritual', label: 'Espiritual', color: 'area-espiritual' },
   { id: 'intelectual', label: 'Intelectual', color: 'area-intelectual' },
@@ -39,4 +41,15 @@ export const AREA_HEX_COLORS: Record<LifeArea, string> = {
   financeiro: '#22c55e',    // Green
   profissional: '#06b6d4',  // Cyan
   saude: '#ef4444',         // Red
+};
+
+// Icons for each life area
+export const AREA_ICONS: Record<LifeArea, LucideIcon> = {
+  espiritual: Sparkles,
+  intelectual: Brain,
+  familiar: Heart,
+  social: Users,
+  financeiro: Wallet,
+  profissional: Briefcase,
+  saude: Dumbbell,
 };
