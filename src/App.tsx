@@ -19,6 +19,7 @@ import MeusDados from "./pages/MeusDados";
 import Configuracoes from "./pages/Configuracoes";
 import Assinatura from "./pages/Assinatura";
 import Conta from "./pages/Conta";
+import CheckoutSuccess from "./pages/CheckoutSuccess";
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import NotFound from "./pages/NotFound";
@@ -131,6 +132,7 @@ function AppRoutes() {
       
       {/* Rota de assinatura (requer login, mas não assinatura ativa) */}
       <Route path="/assinatura" element={<AuthOnlyRoute><Assinatura /></AuthOnlyRoute>} />
+      <Route path="/checkout-success" element={<AuthOnlyRoute><CheckoutSuccess /></AuthOnlyRoute>} />
       
       {/* Rota de conta (requer login e assinatura ativa) */}
       <Route path="/conta" element={<ProtectedRoute><Conta /></ProtectedRoute>} />
