@@ -223,8 +223,10 @@ export default function Consulta() {
             </p>
           </div>
           <Link to="/cadastro" className="w-full sm:w-auto">
-            <Button className="w-full sm:w-auto h-11 rounded-xl">
-              <Plus className="w-4 h-4 mr-2" />
+            <Button className="w-full sm:w-auto h-11 rounded-xl gap-2 shadow-lg hover:shadow-xl transition-all hover:scale-[1.02]">
+              <span className="flex items-center justify-center w-6 h-6 rounded-lg bg-white/20 shadow-inner">
+                <Plus className="w-4 h-4" strokeWidth={3} />
+              </span>
               Novo Plano
             </Button>
           </Link>
