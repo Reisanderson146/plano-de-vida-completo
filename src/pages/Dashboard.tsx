@@ -173,8 +173,8 @@ export default function Dashboard() {
 
   return (
     <AppLayout>
-      <div className="space-y-6 sm:space-y-8 animate-fade-in">
-        <div className="space-y-1">
+      <div className="space-y-6 sm:space-y-8">
+        <div className="space-y-1 opacity-0 animate-fade-in-up">
           <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">Dashboard</h1>
           <p className="text-sm sm:text-base text-muted-foreground font-medium">
             Constância que constrói propósito.
@@ -182,7 +182,7 @@ export default function Dashboard() {
         </div>
 
         {/* Filters */}
-        <div className="flex flex-col sm:flex-row gap-3">
+        <div className="flex flex-col sm:flex-row gap-3 opacity-0 animate-stagger-1">
           <Select value={selectedPlanId} onValueChange={setSelectedPlanId}>
             <SelectTrigger className="w-full sm:w-[250px] h-11 rounded-xl">
               <Folder className="w-4 h-4 mr-2 flex-shrink-0 text-muted-foreground" />
@@ -234,7 +234,7 @@ export default function Dashboard() {
         )}
 
         {/* Area cards */}
-        <div className="overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0 scrollbar-hide">
+        <div className="overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0 scrollbar-hide opacity-0 animate-stagger-2">
           <div className="flex sm:grid sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-3 sm:gap-4 min-w-max sm:min-w-0">
             {LIFE_AREAS.map((area, index) => (
               <div 
@@ -255,7 +255,7 @@ export default function Dashboard() {
         </div>
 
         {/* Progress Chart */}
-        <Card className="border-border/40">
+        <Card className="border-border/40 opacity-0 animate-stagger-3">
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-lg sm:text-xl">Visão Geral do Progresso</CardTitle>

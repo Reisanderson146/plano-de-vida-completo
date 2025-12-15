@@ -221,9 +221,9 @@ export default function Relatorios() {
 
   return (
     <AppLayout>
-      <div className="space-y-5 sm:space-y-6 animate-fade-in">
+      <div className="space-y-5 sm:space-y-6">
         {/* Header */}
-        <div>
+        <div className="opacity-0 animate-fade-in-up">
           <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-1">Relatórios</h1>
           <p className="text-sm sm:text-base text-muted-foreground">
             Análise detalhada do seu progresso
@@ -231,7 +231,7 @@ export default function Relatorios() {
         </div>
 
         {/* Filters */}
-        <div className="flex flex-col sm:flex-row gap-3">
+        <div className="flex flex-col sm:flex-row gap-3 opacity-0 animate-stagger-1">
           <Select value={selectedPlanId} onValueChange={setSelectedPlanId}>
             <SelectTrigger className="w-full sm:w-[250px] h-11 rounded-xl">
               <Folder className="w-4 h-4 mr-2 flex-shrink-0 text-muted-foreground" />
@@ -283,7 +283,7 @@ export default function Relatorios() {
         )}
 
         {/* Stats Cards */}
-        <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 grid-cols-2 lg:grid-cols-4 opacity-0 animate-stagger-2">
           <Card className="border-border/40">
             <CardContent className="pt-5 px-4 sm:px-5">
               <div className="flex items-center gap-3">

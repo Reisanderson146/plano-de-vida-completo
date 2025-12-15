@@ -347,13 +347,13 @@ export default function Balanco() {
       <div className="space-y-6 max-w-6xl mx-auto">
         {/* Header */}
         <div className="flex flex-col gap-4">
-          <div>
+          <div className="opacity-0 animate-fade-in-up">
             <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Fechando para Balanço</h1>
             <p className="text-muted-foreground mt-1">Analise seu progresso anual por plano e período</p>
           </div>
 
           {/* Filters Row */}
-          <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex flex-col sm:flex-row gap-3 opacity-0 animate-stagger-1">
             {/* Plan Filter */}
             <Select value={selectedPlanId} onValueChange={setSelectedPlanId}>
               <SelectTrigger className="w-full sm:w-[250px]">
@@ -418,7 +418,7 @@ export default function Balanco() {
         </div>
 
         {/* Summary Cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 opacity-0 animate-stagger-2">
           <Card className="bg-card/50 backdrop-blur-sm border-border/50">
             <CardContent className="p-4 sm:p-6">
               <div className="flex items-center gap-3">
