@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
+import { useFormValidation, isValidEmail } from '@/hooks/useFormValidation';
 import { Loader2, Eye, EyeOff, ArrowRight, ArrowLeft } from 'lucide-react';
 import { Logo } from '@/components/Logo';
 import { supabase } from '@/integrations/supabase/client';
@@ -25,6 +26,7 @@ export default function Auth() {
   const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { errors, setFieldError, clearError, hasError, getError, clearAllErrors } = useFormValidation();
 
   useEffect(() => {
     if (user) {
@@ -34,18 +36,40 @@ export default function Auth() {
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
+    clearAllErrors();
+    
+    // Validate fields
+    let hasValidationError = false;
+    
+    if (!email.trim()) {
+      setFieldError('signin-email', 'Digite seu email');
+      hasValidationError = true;
+    } else if (!isValidEmail(email)) {
+      setFieldError('signin-email', 'Digite um email válido');
+      hasValidationError = true;
+    }
+    
+    if (!password) {
+      setFieldError('signin-password', 'Digite sua senha');
+      hasValidationError = true;
+    }
+    
+    if (hasValidationError) return;
+    
     setLoading(true);
     const { error } = await signIn(email, password);
     setLoading(false);
     
     if (error) {
-      toast({
-        title: 'Erro ao entrar',
-        description: error.message === 'Invalid login credentials' 
-          ? 'Email ou senha incorretos' 
-          : error.message,
-        variant: 'destructive',
-      });
+      if (error.message === 'Invalid login credentials') {
+        setFieldError('signin-password', 'Email ou senha incorretos');
+      } else {
+        toast({
+          title: 'Erro ao entrar',
+          description: error.message,
+          variant: 'destructive',
+        });
+      }
     } else {
       navigate('/');
     }
@@ -53,37 +77,59 @@ export default function Auth() {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    clearAllErrors();
     
-    if (password.length < 6) {
-      toast({
-        title: 'Senha muito curta',
-        description: 'A senha deve ter pelo menos 6 caracteres',
-        variant: 'destructive',
-      });
-      return;
+    // Validate fields
+    let hasValidationError = false;
+    
+    if (!fullName.trim()) {
+      setFieldError('signup-name', 'Digite seu nome completo');
+      hasValidationError = true;
+    } else if (fullName.trim().length < 2) {
+      setFieldError('signup-name', 'Nome deve ter pelo menos 2 caracteres');
+      hasValidationError = true;
     }
-
-    if (password !== confirmPassword) {
-      toast({
-        title: 'Senhas não coincidem',
-        description: 'A senha e a confirmação devem ser iguais',
-        variant: 'destructive',
-      });
-      return;
+    
+    if (!email.trim()) {
+      setFieldError('signup-email', 'Digite seu email');
+      hasValidationError = true;
+    } else if (!isValidEmail(email)) {
+      setFieldError('signup-email', 'Digite um email válido');
+      hasValidationError = true;
     }
+    
+    if (!password) {
+      setFieldError('signup-password', 'Digite uma senha');
+      hasValidationError = true;
+    } else if (password.length < 6) {
+      setFieldError('signup-password', 'A senha deve ter pelo menos 6 caracteres');
+      hasValidationError = true;
+    }
+    
+    if (!confirmPassword) {
+      setFieldError('signup-confirm-password', 'Confirme sua senha');
+      hasValidationError = true;
+    } else if (password !== confirmPassword) {
+      setFieldError('signup-confirm-password', 'As senhas não coincidem');
+      hasValidationError = true;
+    }
+    
+    if (hasValidationError) return;
     
     setLoading(true);
     const { error } = await signUp(email, password, fullName);
     setLoading(false);
     
     if (error) {
-      toast({
-        title: 'Erro ao cadastrar',
-        description: error.message.includes('already registered') 
-          ? 'Este email já está cadastrado' 
-          : error.message,
-        variant: 'destructive',
-      });
+      if (error.message.includes('already registered')) {
+        setFieldError('signup-email', 'Este email já está cadastrado');
+      } else {
+        toast({
+          title: 'Erro ao cadastrar',
+          description: error.message,
+          variant: 'destructive',
+        });
+      }
     } else {
       toast({
         title: 'Cadastro realizado!',
@@ -95,13 +141,15 @@ export default function Auth() {
 
   const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault();
+    clearAllErrors();
     
-    if (!email) {
-      toast({
-        title: 'Email necessário',
-        description: 'Digite seu email para recuperar a senha',
-        variant: 'destructive',
-      });
+    if (!email.trim()) {
+      setFieldError('reset-email', 'Digite seu email para recuperar a senha');
+      return;
+    }
+    
+    if (!isValidEmail(email)) {
+      setFieldError('reset-email', 'Digite um email válido');
       return;
     }
 
@@ -315,8 +363,12 @@ export default function Auth() {
                         type="email"
                         placeholder="seu@email.com"
                         value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
+                        onChange={(e) => {
+                          setEmail(e.target.value);
+                          clearError('signin-email');
+                        }}
+                        error={hasError('signin-email')}
+                        errorMessage={getError('signin-email')}
                         className="h-14 rounded-2xl border-[#7BC8A4]/30 bg-[#A8E6CE]/10 focus:bg-white focus:border-[#2A8C68]/50 focus:ring-2 focus:ring-[#2A8C68]/20 transition-all duration-300 text-base placeholder:text-muted-foreground/50"
                       />
                     </div>
@@ -339,14 +391,18 @@ export default function Auth() {
                           type={showPassword ? "text" : "password"}
                           placeholder="••••••••"
                           value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                          required
+                          onChange={(e) => {
+                            setPassword(e.target.value);
+                            clearError('signin-password');
+                          }}
+                          error={hasError('signin-password')}
+                          errorMessage={getError('signin-password')}
                           className="h-14 rounded-2xl border-[#7BC8A4]/30 bg-[#A8E6CE]/10 focus:bg-white focus:border-[#2A8C68]/50 focus:ring-2 focus:ring-[#2A8C68]/20 transition-all duration-300 pr-12 text-base placeholder:text-muted-foreground/50"
                         />
                         <button
                           type="button"
                           onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground/60 hover:text-[#2A8C68] transition-colors"
+                          className="absolute right-4 top-5 text-muted-foreground/60 hover:text-[#2A8C68] transition-colors"
                         >
                           {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                         </button>
@@ -380,8 +436,12 @@ export default function Auth() {
                         type="text"
                         placeholder="Seu nome"
                         value={fullName}
-                        onChange={(e) => setFullName(e.target.value)}
-                        required
+                        onChange={(e) => {
+                          setFullName(e.target.value);
+                          clearError('signup-name');
+                        }}
+                        error={hasError('signup-name')}
+                        errorMessage={getError('signup-name')}
                         className="h-14 rounded-2xl border-[#7BC8A4]/30 bg-[#A8E6CE]/10 focus:bg-white focus:border-[#2A8C68]/50 focus:ring-2 focus:ring-[#2A8C68]/20 transition-all duration-300 text-base placeholder:text-muted-foreground/50"
                       />
                     </div>
@@ -394,8 +454,12 @@ export default function Auth() {
                         type="email"
                         placeholder="seu@email.com"
                         value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
+                        onChange={(e) => {
+                          setEmail(e.target.value);
+                          clearError('signup-email');
+                        }}
+                        error={hasError('signup-email')}
+                        errorMessage={getError('signup-email')}
                         className="h-14 rounded-2xl border-[#7BC8A4]/30 bg-[#A8E6CE]/10 focus:bg-white focus:border-[#2A8C68]/50 focus:ring-2 focus:ring-[#2A8C68]/20 transition-all duration-300 text-base placeholder:text-muted-foreground/50"
                       />
                     </div>
@@ -409,15 +473,18 @@ export default function Auth() {
                           type={showPassword ? "text" : "password"}
                           placeholder="Mínimo 6 caracteres"
                           value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                          required
-                          minLength={6}
+                          onChange={(e) => {
+                            setPassword(e.target.value);
+                            clearError('signup-password');
+                          }}
+                          error={hasError('signup-password')}
+                          errorMessage={getError('signup-password')}
                           className="h-14 rounded-2xl border-[#7BC8A4]/30 bg-[#A8E6CE]/10 focus:bg-white focus:border-[#2A8C68]/50 focus:ring-2 focus:ring-[#2A8C68]/20 transition-all duration-300 pr-12 text-base placeholder:text-muted-foreground/50"
                         />
                         <button
                           type="button"
                           onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground/60 hover:text-[#2A8C68] transition-colors"
+                          className="absolute right-4 top-5 text-muted-foreground/60 hover:text-[#2A8C68] transition-colors"
                         >
                           {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                         </button>
@@ -433,22 +500,22 @@ export default function Auth() {
                           type={showConfirmPassword ? "text" : "password"}
                           placeholder="Digite a senha novamente"
                           value={confirmPassword}
-                          onChange={(e) => setConfirmPassword(e.target.value)}
-                          required
-                          minLength={6}
+                          onChange={(e) => {
+                            setConfirmPassword(e.target.value);
+                            clearError('signup-confirm-password');
+                          }}
+                          error={hasError('signup-confirm-password')}
+                          errorMessage={getError('signup-confirm-password')}
                           className="h-14 rounded-2xl border-[#7BC8A4]/30 bg-[#A8E6CE]/10 focus:bg-white focus:border-[#2A8C68]/50 focus:ring-2 focus:ring-[#2A8C68]/20 transition-all duration-300 pr-12 text-base placeholder:text-muted-foreground/50"
                         />
                         <button
                           type="button"
                           onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                          className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground/60 hover:text-[#2A8C68] transition-colors"
+                          className="absolute right-4 top-5 text-muted-foreground/60 hover:text-[#2A8C68] transition-colors"
                         >
                           {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                         </button>
                       </div>
-                      {confirmPassword && password !== confirmPassword && (
-                        <p className="text-xs text-destructive mt-1 font-medium">As senhas não coincidem</p>
-                      )}
                     </div>
                     <Button 
                       type="submit" 
