@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Check, Crown, Star, Shield, Zap, Heart, Target, Sparkles } from 'lucide-react';
+import { Check, Shield, Zap, Heart, Target, Sparkles, BadgeCheck, Gem } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useAuth } from '@/hooks/useAuth';
@@ -15,7 +15,6 @@ const benefits = [
   { icon: Zap, text: 'Relatórios e gráficos de progresso' },
   { icon: Heart, text: 'Lembretes personalizados por email' },
   { icon: Sparkles, text: 'Exportação profissional em PDF' },
-  { icon: Star, text: 'Suporte prioritário' },
 ];
 
 export default function Assinatura() {
@@ -75,12 +74,12 @@ export default function Assinatura() {
 
       <div className="relative z-10 min-h-screen flex flex-col items-center justify-center p-4 sm:p-6">
         {/* Header */}
-        <div className="text-center mb-8 animate-fade-in-up">
-          <Logo size="2xl" showText={false} showIcon={true} variant="light" className="mx-auto mb-6 drop-shadow-2xl" />
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-white tracking-tight drop-shadow-[0_4px_20px_rgba(0,0,0,0.3)] mb-4">
+        <div className="text-center mb-6 animate-fade-in-up">
+          <Logo size="lg" showText={false} showIcon={true} variant="light" className="mx-auto mb-4" />
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight drop-shadow-[0_4px_20px_rgba(0,0,0,0.3)] mb-2">
             Plano de Vida
           </h1>
-          <p className="text-white/90 text-lg sm:text-xl font-light tracking-[0.15em] drop-shadow-md">
+          <p className="text-white/90 text-base sm:text-lg font-light tracking-wide drop-shadow-md">
             Constância que constrói propósito
           </p>
         </div>
@@ -93,24 +92,14 @@ export default function Assinatura() {
           </div>
 
           <div className="relative z-10">
-            {/* Premium badge - Green with gold icons */}
+            {/* Premium badge - Professional */}
             <div className="relative bg-gradient-to-r from-[#2A8C68] via-[#3d9d78] to-[#2A8C68] py-5 px-6">
-              <div className="relative flex items-center justify-center gap-3">
-                <Crown className="w-7 h-7 text-amber-400 drop-shadow-lg" fill="currentColor" />
-                <span className="text-2xl font-bold text-white tracking-wide">PREMIUM</span>
-                <Crown className="w-7 h-7 text-amber-400 drop-shadow-lg" fill="currentColor" />
+              <div className="relative flex items-center justify-center gap-2">
+                <Gem className="w-5 h-5 text-white/90" />
+                <span className="text-xl font-semibold text-white tracking-widest uppercase">Premium</span>
+                <BadgeCheck className="w-5 h-5 text-white/90" />
               </div>
-              
-              {/* 5 Stars - Gold */}
-              <div className="flex justify-center gap-1 mt-2">
-                {[...Array(5)].map((_, i) => (
-                  <Star 
-                    key={i} 
-                    className="w-5 h-5 text-amber-400 drop-shadow-md" 
-                    fill="currentColor"
-                  />
-                ))}
-              </div>
+              <p className="text-center text-white/80 text-sm mt-1">Acesso completo a todas as funcionalidades</p>
             </div>
 
             <CardContent className="p-6 sm:p-8 space-y-6 bg-white">
@@ -163,7 +152,7 @@ export default function Assinatura() {
                   </div>
                 ) : (
                   <div className="flex items-center gap-2">
-                    <Crown className="w-5 h-5" />
+                    <Gem className="w-5 h-5" />
                     Começar Agora
                   </div>
                 )}
@@ -186,12 +175,7 @@ export default function Assinatura() {
         </Card>
 
         {/* Testimonial */}
-        <div className="mt-8 max-w-lg text-center animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
-          <div className="flex justify-center gap-1 mb-3">
-            {[...Array(5)].map((_, i) => (
-              <Star key={i} className="w-4 h-4 text-amber-400 drop-shadow-md" fill="currentColor" />
-            ))}
-          </div>
+        <div className="mt-6 max-w-lg text-center animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
           <p className="text-white/90 text-sm italic drop-shadow-md">
             "O Plano de Vida transformou minha forma de organizar minhas metas. 
             Finalmente consigo ver meu progresso em todas as áreas!"
