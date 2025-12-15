@@ -9,6 +9,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { useFormValidation } from '@/hooks/useFormValidation';
 import { useImportPlan } from '@/hooks/useImportPlan';
 import { Loader2, Plus, User, Users, Baby, Upload, FileSpreadsheet, FileText, FileType, X, CheckCircle2, AlertTriangle } from 'lucide-react';
 import { LIFE_AREAS, AREA_HEX_COLORS, LifeArea } from '@/lib/constants';
@@ -57,13 +58,13 @@ export default function Cadastro() {
   const { toast } = useToast();
   const { importFile } = useImportPlan();
   const { saveAllCustomizations } = usePlanAreaCustomizations(undefined);
+  const { errors, setFieldError, clearError, hasError, getError, clearAllErrors } = useFormValidation();
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [loading, setLoading] = useState(false);
   const [importing, setImporting] = useState(false);
   const [title, setTitle] = useState('');
   const [motto, setMotto] = useState('');
-  const [titleError, setTitleError] = useState('');
   const [planType, setPlanType] = useState('individual');
   const [memberName, setMemberName] = useState('');
   const [startYear, setStartYear] = useState(new Date().getFullYear());
@@ -82,7 +83,7 @@ export default function Cadastro() {
 
   const validateTitle = async (titleToCheck: string): Promise<boolean> => {
     if (!titleToCheck.trim()) {
-      setTitleError('O título é obrigatório');
+      setFieldError('title', 'O título é obrigatório');
       return false;
     }
 
@@ -98,29 +99,25 @@ export default function Cadastro() {
     }
 
     if (existingPlans && existingPlans.length > 0) {
-      setTitleError('Já existe um plano com este nome. Escolha um nome diferente.');
+      setFieldError('title', 'Já existe um plano com este nome. Escolha um nome diferente.');
       return false;
     }
 
-    setTitleError('');
     return true;
   };
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
+    clearAllErrors();
 
     const isValidTitle = await validateTitle(title);
     if (!isValidTitle) return;
 
     if ((planType === 'familiar' || planType === 'filho') && !memberName.trim()) {
-      toast({
-        title: 'Nome obrigatório',
-        description: planType === 'filho' 
-          ? 'Informe o nome do filho para este plano.' 
-          : 'Informe o nome do membro da família para este plano.',
-        variant: 'destructive',
-      });
+      setFieldError('memberName', planType === 'filho' 
+        ? 'Informe o nome do filho para este plano.' 
+        : 'Informe o nome do membro da família para este plano.');
       return;
     }
 
@@ -364,9 +361,13 @@ export default function Cadastro() {
                   <Input
                     id="memberName"
                     value={memberName}
-                    onChange={(e) => setMemberName(e.target.value)}
+                    onChange={(e) => {
+                      setMemberName(e.target.value);
+                      clearError('memberName');
+                    }}
                     placeholder={planType === 'filho' ? 'Ex: Maria' : 'Ex: João e Maria'}
-                    required
+                    error={hasError('memberName')}
+                    errorMessage={getError('memberName')}
                     className="h-11 rounded-xl"
                   />
                 </div>
@@ -379,15 +380,13 @@ export default function Cadastro() {
                   value={title}
                   onChange={(e) => {
                     setTitle(e.target.value);
-                    setTitleError('');
+                    clearError('title');
                   }}
                   placeholder="Ex: Plano Pessoal 2024, Sonhos da Família Silva"
-                  required
-                  className={cn("h-11 rounded-xl", titleError && "border-destructive focus-visible:ring-destructive")}
+                  error={hasError('title')}
+                  errorMessage={getError('title')}
+                  className="h-11 rounded-xl"
                 />
-                {titleError && (
-                  <p className="text-xs text-destructive">{titleError}</p>
-                )}
               </div>
 
               <div className="space-y-2">
