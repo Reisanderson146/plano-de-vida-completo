@@ -39,18 +39,34 @@ function useSubscription() {
       return;
     }
 
-    const checkSubscription = async () => {
-      const { data } = await supabase
-        .from('profiles')
-        .select('subscription_status')
-        .eq('id', user.id)
-        .maybeSingle();
+    const syncAndCheckSubscription = async () => {
+      try {
+        // First, sync with Stripe via edge function
+        await supabase.functions.invoke('check-subscription');
+        
+        // Then read updated status from database
+        const { data } = await supabase
+          .from('profiles')
+          .select('subscription_status')
+          .eq('id', user.id)
+          .maybeSingle();
 
-      setStatus(data?.subscription_status || 'inactive');
-      setLoading(false);
+        setStatus(data?.subscription_status || 'inactive');
+      } catch (error) {
+        console.error('Error checking subscription:', error);
+        // Fallback to database read if Stripe sync fails
+        const { data } = await supabase
+          .from('profiles')
+          .select('subscription_status')
+          .eq('id', user.id)
+          .maybeSingle();
+        setStatus(data?.subscription_status || 'inactive');
+      } finally {
+        setLoading(false);
+      }
     };
 
-    checkSubscription();
+    syncAndCheckSubscription();
   }, [user]);
 
   return { status, loading, isActive: status === 'active' };
