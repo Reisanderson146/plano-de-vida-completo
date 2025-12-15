@@ -158,6 +158,28 @@ export default function ConsultaDetalhes() {
     }
   };
 
+  const handleDeletePeriod = async (year: number) => {
+    try {
+      // Delete all goals for this period
+      const { error } = await supabase
+        .from('life_goals')
+        .delete()
+        .eq('life_plan_id', id)
+        .eq('period_year', year);
+
+      if (error) throw error;
+
+      setGoals(goals.filter(g => g.period_year !== year));
+      toast({ title: 'Período excluído com sucesso!' });
+    } catch (error: any) {
+      toast({
+        title: 'Erro ao excluir período',
+        description: error.message,
+        variant: 'destructive',
+      });
+    }
+  };
+
   const handleAddGoal = async (goal: Omit<Goal, 'id'>) => {
     try {
       const { data, error } = await supabase
@@ -380,6 +402,7 @@ export default function ConsultaDetalhes() {
           onUpdateGoal={handleUpdateGoal}
           onDeleteGoal={handleDeleteGoal}
           onAddGoal={handleAddGoal}
+          onDeletePeriod={handleDeletePeriod}
           lifePlanId={plan.id}
           editable={true}
         />
