@@ -1,16 +1,16 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Check, Shield, Zap, Heart, Target, Sparkles, BadgeCheck, Gem, Loader2, LogIn, ChevronLeft, ChevronRight, LayoutDashboard, FileText, BarChart3, Scale } from 'lucide-react';
+import { Check, Shield, Zap, Heart, Target, Sparkles, BadgeCheck, Gem, Loader2, LogIn, ChevronLeft, ChevronRight, LayoutDashboard, FileText, BarChart3, Scale, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import loginBackground from '@/assets/login-background.png';
-import mockupDashboard from '@/assets/mockup-dashboard.png';
-import mockupPlano from '@/assets/mockup-plano.png';
-import mockupRelatorios from '@/assets/mockup-relatorios.png';
-import mockupBalanco from '@/assets/mockup-balanco.png';
+import screenshotDashboard from '@/assets/screenshot-dashboard.png';
+import screenshotPlanos from '@/assets/screenshot-planos.png';
+import screenshotRelatorios from '@/assets/screenshot-relatorios.png';
+import screenshotBalanco from '@/assets/screenshot-balanco.png';
 
 const benefits = [
   { icon: Target, text: 'Planejamento completo das 7 áreas da vida' },
@@ -22,27 +22,27 @@ const benefits = [
 
 const screenshots = [
   { 
-    image: mockupDashboard, 
+    image: screenshotDashboard, 
     title: 'Dashboard Interativo', 
     description: 'Visualize seu progresso em todas as 7 áreas da vida',
     icon: LayoutDashboard
   },
   { 
-    image: mockupPlano, 
-    title: 'Planos de Vida', 
-    description: 'Organize suas metas por ano com check-ins visuais',
+    image: screenshotPlanos, 
+    title: 'Seus Planos de Vida', 
+    description: 'Organize metas individuais, familiares e dos filhos',
     icon: FileText
   },
   { 
-    image: mockupRelatorios, 
+    image: screenshotRelatorios, 
     title: 'Relatórios Completos', 
     description: 'Gráficos e estatísticas detalhadas do seu progresso',
     icon: BarChart3
   },
   { 
-    image: mockupBalanco, 
+    image: screenshotBalanco, 
     title: 'Balanço Anual', 
-    description: 'Análise inteligente com insights personalizados',
+    description: 'Análise inteligente com resumo por IA',
     icon: Scale
   },
 ];
@@ -90,6 +90,10 @@ export default function Assinatura() {
     navigate('/auth');
   };
 
+  const handleLogin = () => {
+    navigate('/auth');
+  };
+
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % screenshots.length);
   };
@@ -115,7 +119,30 @@ export default function Assinatura() {
       <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-[#A8E6CE]/20 rounded-full blur-[120px] animate-pulse" />
       <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-[#7BC8A4]/15 rounded-full blur-[100px] animate-pulse delay-1000" />
 
-      <div className="relative z-10 min-h-screen flex flex-col lg:flex-row items-center justify-center gap-6 lg:gap-12 p-4 sm:p-6 lg:p-8">
+      {/* Top Navigation Bar with Login Button */}
+      <div className="absolute top-0 left-0 right-0 z-20 p-4 sm:p-6">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          {/* Logo */}
+          <div className="flex items-center gap-2">
+            <h2 className="text-xl sm:text-2xl font-bold text-white drop-shadow-lg">
+              Plano de Vida
+            </h2>
+          </div>
+
+          {/* Login Button */}
+          <Button
+            onClick={handleLogin}
+            variant="outline"
+            className="bg-white/10 backdrop-blur-md border-white/30 text-white hover:bg-white/20 hover:text-white rounded-xl px-4 sm:px-6 py-2 font-semibold transition-all duration-300 shadow-lg"
+          >
+            <User className="w-4 h-4 mr-2" />
+            <span className="hidden sm:inline">Entrar</span>
+            <span className="sm:hidden">Login</span>
+          </Button>
+        </div>
+      </div>
+
+      <div className="relative z-10 min-h-screen flex flex-col lg:flex-row items-center justify-center gap-6 lg:gap-12 p-4 sm:p-6 lg:p-8 pt-20 sm:pt-24">
         
         {/* Left Side - Screenshots Carousel */}
         <div className="w-full lg:w-1/2 max-w-2xl animate-fade-in-left">
