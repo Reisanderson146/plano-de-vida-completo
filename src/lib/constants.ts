@@ -1,4 +1,4 @@
-import { Sparkles, Brain, Heart, Users, Wallet, Briefcase, Dumbbell, LucideIcon } from 'lucide-react';
+import { Cross, Brain, Heart, Users, Wallet, Briefcase, Dumbbell, LucideIcon } from 'lucide-react';
 
 export const LIFE_AREAS = [
   { id: 'espiritual', label: 'Espiritual', color: 'area-espiritual' },
@@ -45,7 +45,7 @@ export const AREA_HEX_COLORS: Record<LifeArea, string> = {
 
 // Icons for each life area
 export const AREA_ICONS: Record<LifeArea, LucideIcon> = {
-  espiritual: Sparkles,
+  espiritual: Cross,
   intelectual: Brain,
   familiar: Heart,
   social: Users,
