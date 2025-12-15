@@ -539,9 +539,19 @@ export default function Auth() {
         </Card>
 
         {/* Footer with enhanced styling */}
-        <p className="text-center text-xs sm:text-sm text-white/80 mt-8 font-medium drop-shadow-sm">
-          Ao continuar, você concorda com nossos termos de uso
-        </p>
+        <div className="text-center mt-8 space-y-2">
+          <p className="text-xs sm:text-sm text-white/80 font-medium drop-shadow-sm">
+            Ao continuar, você concorda com nossos termos de uso
+          </p>
+          <p className="text-xs text-white/50">
+            <a 
+              href="/admin/login" 
+              className="hover:text-white/80 transition-colors underline underline-offset-2"
+            >
+              Acesso administrativo
+            </a>
+          </p>
+        </div>
       </div>
     </div>
   );
