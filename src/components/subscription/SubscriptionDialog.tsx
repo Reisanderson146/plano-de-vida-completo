@@ -86,15 +86,14 @@ export function SubscriptionDialog({ open, onOpenChange, onSubscribed }: Subscri
       if (error) throw error;
 
       if (data?.url) {
-        window.open(data.url, '_blank');
-        toast.info('Complete o pagamento na nova aba. Após concluir, clique em "Já assinei".');
+        // Navigate in the same window to maintain session consistency
+        window.location.href = data.url;
       } else {
         throw new Error('No checkout URL returned');
       }
     } catch (error) {
       console.error('Error creating checkout:', error);
       toast.error('Erro ao iniciar pagamento. Tente novamente.');
-    } finally {
       setLoading(false);
     }
   };
