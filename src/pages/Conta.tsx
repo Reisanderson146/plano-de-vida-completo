@@ -99,9 +99,9 @@ export default function Conta() {
           {isPremium && isActive && (
             <div className="bg-gradient-to-r from-[#2A8C68] via-[#3d9d78] to-[#2A8C68] py-4 px-6">
               <div className="flex items-center justify-center gap-2">
-                <Gem className="w-5 h-5 text-white/90" />
+                <Gem className="w-5 h-5 text-amber-400" />
                 <span className="font-semibold text-white tracking-widest uppercase">Premium Ativo</span>
-                <BadgeCheck className="w-5 h-5 text-white/90" />
+                <BadgeCheck className="w-5 h-5 text-amber-400" />
               </div>
             </div>
           )}
@@ -114,7 +114,7 @@ export default function Conta() {
                     ? 'bg-gradient-to-br from-[#2A8C68] to-[#7BC8A4]' 
                     : 'bg-muted'
                 }`}>
-                  <Gem className={`w-7 h-7 ${isPremium && isActive ? 'text-white' : 'text-muted-foreground'}`} />
+                  <Gem className={`w-7 h-7 ${isPremium && isActive ? 'text-amber-400' : 'text-muted-foreground'}`} />
                 </div>
                 <div>
                   <h2 className="text-xl font-bold">
