@@ -4,7 +4,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
-import { Pencil, Plus, Trash2, ChevronDown, ChevronUp, Calendar, User } from 'lucide-react';
+import { Pencil, Plus, Trash2, ChevronDown, ChevronUp, Calendar, User, CheckCircle2, X } from 'lucide-react';
 import { LIFE_AREAS, LifeArea } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
@@ -502,29 +502,74 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, li
 
       {/* Add Period */}
       {editable && periods.length > 0 && (
-        <div className="flex items-center gap-4">
+        <div className="mt-2">
           {addingRow ? (
-            <Card className="w-full">
-              <CardContent className="flex flex-col sm:flex-row items-end gap-3 sm:gap-4 py-4">
-                <div className="flex gap-3 w-full sm:w-auto">
-                  <div className="flex-1 sm:flex-initial">
-                    <label className="text-xs text-muted-foreground block mb-1">Ano</label>
-                    <Input type="number" value={newRowYear} onChange={(e) => setNewRowYear(parseInt(e.target.value))} className="w-full sm:w-24 h-10" />
+            <Card className="w-full border-dashed border-2 border-primary/30 bg-gradient-to-r from-primary/5 to-primary/10 animate-fade-in overflow-hidden">
+              <CardContent className="p-0">
+                <div className="flex flex-col sm:flex-row items-stretch">
+                  {/* Header section */}
+                  <div className="bg-primary/10 px-5 py-4 flex items-center gap-3 border-b sm:border-b-0 sm:border-r border-primary/20">
+                    <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
+                      <Plus className="w-5 h-5 text-primary" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-sm text-foreground">Novo Período</h4>
+                      <p className="text-xs text-muted-foreground">Adicione um novo ano ao plano</p>
+                    </div>
                   </div>
-                  <div className="flex-1 sm:flex-initial">
-                    <label className="text-xs text-muted-foreground block mb-1">Idade</label>
-                    <Input type="number" value={newRowAge} onChange={(e) => setNewRowAge(parseInt(e.target.value))} className="w-full sm:w-20 h-10" />
+                  
+                  {/* Form section */}
+                  <div className="flex-1 flex flex-col sm:flex-row items-center gap-4 p-5">
+                    <div className="flex gap-4 w-full sm:w-auto">
+                      <div className="flex-1 sm:flex-initial">
+                        <label className="text-xs font-medium text-muted-foreground block mb-1.5">Ano</label>
+                        <Input 
+                          type="number" 
+                          value={newRowYear} 
+                          onChange={(e) => setNewRowYear(parseInt(e.target.value))} 
+                          className="w-full sm:w-28 h-11 rounded-xl text-center font-semibold bg-background border-border/60 focus:border-primary" 
+                        />
+                      </div>
+                      <div className="flex-1 sm:flex-initial">
+                        <label className="text-xs font-medium text-muted-foreground block mb-1.5">Idade</label>
+                        <Input 
+                          type="number" 
+                          value={newRowAge} 
+                          onChange={(e) => setNewRowAge(parseInt(e.target.value))} 
+                          className="w-full sm:w-24 h-11 rounded-xl text-center font-semibold bg-background border-border/60 focus:border-primary" 
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="flex gap-2 w-full sm:w-auto sm:ml-auto">
+                      <Button 
+                        onClick={handleConfirmAddRow} 
+                        className="flex-1 sm:flex-initial h-11 rounded-xl px-6 gap-2 shadow-sm"
+                      >
+                        <CheckCircle2 className="w-4 h-4" />
+                        Confirmar
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        onClick={() => setAddingRow(false)} 
+                        className="flex-1 sm:flex-initial h-11 rounded-xl px-4 border-border/60 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30"
+                      >
+                        <X className="w-4 h-4 sm:mr-2" />
+                        <span className="hidden sm:inline">Cancelar</span>
+                      </Button>
+                    </div>
                   </div>
-                </div>
-                <div className="flex gap-2 w-full sm:w-auto">
-                  <Button onClick={handleConfirmAddRow} className="flex-1 sm:flex-initial h-10">Confirmar</Button>
-                  <Button variant="ghost" onClick={() => setAddingRow(false)} className="flex-1 sm:flex-initial h-10">Cancelar</Button>
                 </div>
               </CardContent>
             </Card>
           ) : (
-            <Button onClick={() => setAddingRow(true)} variant="outline" className="w-full sm:w-auto">
-              <Plus className="w-4 h-4 mr-2" />Adicionar Período
+            <Button 
+              onClick={() => setAddingRow(true)} 
+              variant="outline" 
+              className="w-full sm:w-auto h-12 rounded-xl border-dashed border-2 hover:border-primary/50 hover:bg-primary/5 gap-2 text-muted-foreground hover:text-primary transition-all duration-200"
+            >
+              <Plus className="w-5 h-5" />
+              Adicionar Período
             </Button>
           )}
         </div>
