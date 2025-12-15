@@ -5,7 +5,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
-import { Pencil, Plus, Trash2, ChevronDown, ChevronUp, Calendar, User, CheckCircle2, X, LayoutGrid, List, Filter, Target, AlertTriangle } from 'lucide-react';
+import { Pencil, Plus, Trash2, ChevronDown, ChevronUp, Calendar, User, CheckCircle2, X, LayoutGrid, List, Filter, Target, AlertTriangle, Bell } from 'lucide-react';
 import { LIFE_AREAS, LifeArea, AREA_ICONS } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
@@ -16,6 +16,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { usePlanAreaCustomizations } from '@/hooks/usePlanAreaCustomizations';
+import { useGamification } from '@/hooks/useGamification';
+import { GoalReminderDialog } from '@/components/goals/GoalReminderDialog';
 import {
   Collapsible,
   CollapsibleContent,
@@ -70,8 +72,10 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, on
   const [deletePeriodDialog, setDeletePeriodDialog] = useState<{ year: number; age: number } | null>(null);
   const [addGoalDialog, setAddGoalDialog] = useState<{ year: number; age: number; area: LifeArea } | null>(null);
   const [newGoalText, setNewGoalText] = useState('');
+  const [reminderDialog, setReminderDialog] = useState<{ goalId: string; goalText: string } | null>(null);
   const { toast } = useToast();
   const { getAreaLabel, getAreaColor } = usePlanAreaCustomizations(lifePlanId);
+  const { recordGoalCompletion } = useGamification();
 
   // Group goals by period - now supporting multiple goals per area
   const periodsMap = new Map<string, PeriodRow>();
@@ -147,6 +151,9 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, on
         colors: ['#22c55e', '#16a34a', '#4ade80', '#86efac']
       });
       playCelebrationSound();
+      
+      // Record for gamification
+      await recordGoalCompletion();
     } else {
       // Shake animation when unchecking
       setShakingGoalId(goal.id);
@@ -311,28 +318,39 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, on
                 </p>
               </div>
             </div>
-            {editable && (
-              <div className="flex gap-1 mt-2 pt-2 border-t border-border/20 opacity-0 group-hover:opacity-100 transition-opacity">
-                <Button 
-                  size="sm" 
-                  variant="ghost" 
-                  onClick={() => handleStartEdit(goal)} 
-                  className="h-7 text-xs flex-1"
-                >
-                  <Pencil className="w-3 h-3 mr-1" />
-                  Editar
-                </Button>
-                <Button 
-                  size="sm" 
-                  variant="ghost" 
-                  onClick={() => onDeleteGoal(goal.id)} 
-                  className="h-7 text-xs flex-1 hover:text-destructive hover:bg-destructive/10"
-                >
-                  <Trash2 className="w-3 h-3 mr-1" />
-                  Excluir
-                </Button>
-              </div>
-            )}
+            <div className="flex gap-1 mt-2 pt-2 border-t border-border/20 opacity-0 group-hover:opacity-100 transition-opacity">
+              <Button 
+                size="sm" 
+                variant="ghost" 
+                onClick={() => setReminderDialog({ goalId: goal.id, goalText: goal.goal_text })}
+                className="h-7 text-xs flex-1 text-primary hover:text-primary hover:bg-primary/10"
+              >
+                <Bell className="w-3 h-3 mr-1" />
+                Lembrete
+              </Button>
+              {editable && (
+                <>
+                  <Button 
+                    size="sm" 
+                    variant="ghost" 
+                    onClick={() => handleStartEdit(goal)} 
+                    className="h-7 text-xs flex-1"
+                  >
+                    <Pencil className="w-3 h-3 mr-1" />
+                    Editar
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    variant="ghost" 
+                    onClick={() => onDeleteGoal(goal.id)} 
+                    className="h-7 text-xs flex-1 hover:text-destructive hover:bg-destructive/10"
+                  >
+                    <Trash2 className="w-3 h-3 mr-1" />
+                    Excluir
+                  </Button>
+                </>
+              )}
+            </div>
           </div>
         ))}
         
@@ -1101,6 +1119,16 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, on
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Goal Reminder Dialog */}
+      {reminderDialog && (
+        <GoalReminderDialog
+          open={!!reminderDialog}
+          onOpenChange={(open) => !open && setReminderDialog(null)}
+          goalId={reminderDialog.goalId}
+          goalText={reminderDialog.goalText}
+        />
+      )}
     </div>
   );
 }
