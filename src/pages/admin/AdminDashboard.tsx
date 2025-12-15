@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AppLayout } from '@/components/layout/AppLayout';
+import { AdminLayout } from '@/components/layout/AdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -8,7 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAdmin } from '@/hooks/useAdmin';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2, Users, UserCheck, UserX, Shield, TrendingUp, Calendar, FileText, Target, ChevronDown, ChevronUp, Eye, ShieldCheck, ShieldOff } from 'lucide-react';
+import { Loader2, Users, UserCheck, UserX, Shield, TrendingUp, FileText, ChevronDown, ChevronUp, Eye, ShieldCheck, ShieldOff } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, Cell } from 'recharts';
 import { format, subMonths, startOfMonth, endOfMonth } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -38,8 +38,7 @@ interface UserPlan {
   completed_count: number;
 }
 
-
-export default function Admin() {
+export default function AdminDashboard() {
   const { user } = useAuth();
   const { isAdmin, loading: adminLoading } = useAdmin();
   const navigate = useNavigate();
@@ -55,17 +54,15 @@ export default function Admin() {
   const [updatingAdminRole, setUpdatingAdminRole] = useState<string | null>(null);
   const [adminConfirmDialog, setAdminConfirmDialog] = useState<{ userId: string; userName: string; isAdmin: boolean } | null>(null);
   
-  // Estatísticas gerais
   const [totalPlans, setTotalPlans] = useState(0);
   
-  // Modal de detalhes
   const [selectedUserPlans, setSelectedUserPlans] = useState<UserPlan[] | null>(null);
   const [selectedUserName, setSelectedUserName] = useState<string>('');
 
   useEffect(() => {
     if (!adminLoading) {
       if (!isAdmin) {
-        navigate('/');
+        navigate('/admin/login');
         toast({
           title: 'Acesso negado',
           description: 'Você não tem permissão para acessar esta página.',
@@ -80,7 +77,6 @@ export default function Admin() {
   const loadData = async () => {
     setLoading(true);
     try {
-      // Fetch all profiles
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
         .select('*')
@@ -88,7 +84,6 @@ export default function Admin() {
 
       if (profilesError) throw profilesError;
 
-      // Fetch admin roles
       const { data: adminRoles, error: rolesError } = await supabase
         .from('user_roles')
         .select('user_id')
@@ -98,7 +93,6 @@ export default function Admin() {
 
       const adminUserIds = new Set(adminRoles?.map(r => r.user_id) || []);
 
-      // Mark users as admin
       const usersWithAdminStatus = (profiles || []).map(profile => ({
         ...profile,
         isAdmin: adminUserIds.has(profile.id)
@@ -106,7 +100,6 @@ export default function Admin() {
 
       setUsers(usersWithAdminStatus);
 
-      // Calculate monthly stats for the last 6 months
       const stats: MonthlyStats[] = [];
       for (let i = 5; i >= 0; i--) {
         const monthDate = subMonths(new Date(), i);
@@ -125,7 +118,6 @@ export default function Admin() {
       }
       setMonthlyStats(stats);
 
-      // Fetch all life plans
       const { data: plans, error: plansError } = await supabase
         .from('life_plans')
         .select('*');
@@ -160,7 +152,6 @@ export default function Admin() {
 
       if (plansError) throw plansError;
 
-      // Get goals count for each plan
       const plansWithGoals: UserPlan[] = await Promise.all(
         (plans || []).map(async (plan) => {
           const { data: goals } = await supabase
@@ -228,7 +219,6 @@ export default function Admin() {
     
     try {
       if (currentIsAdmin) {
-        // Remove admin role
         const { error } = await supabase
           .from('user_roles')
           .delete()
@@ -246,7 +236,6 @@ export default function Admin() {
           description: 'O usuário não é mais administrador.',
         });
       } else {
-        // Add admin role
         const { error } = await supabase
           .from('user_roles')
           .insert({ user_id: userId, role: 'admin' });
@@ -284,11 +273,11 @@ export default function Admin() {
 
   if (adminLoading || loading) {
     return (
-      <AppLayout>
+      <AdminLayout>
         <div className="min-h-[60vh] flex items-center justify-center">
-          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          <Loader2 className="w-8 h-8 animate-spin text-amber-400" />
         </div>
-      </AppLayout>
+      </AdminLayout>
     );
   }
 
@@ -302,102 +291,97 @@ export default function Admin() {
   const adminCount = users.filter(u => u.isAdmin).length;
 
   return (
-    <AppLayout>
+    <AdminLayout>
       <div className="space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-primary/10">
-              <Shield className="w-6 h-6 text-primary" />
-            </div>
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Painel Administrativo</h1>
-              <p className="text-muted-foreground">Gerencie usuários e visualize estatísticas</p>
-            </div>
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-white">Dashboard</h1>
+            <p className="text-slate-400">Gerencie usuários e visualize estatísticas</p>
           </div>
         </div>
 
-        {/* Stats Cards - Row 1: Users */}
+        {/* Stats Cards - Row 1 */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+          <Card className="bg-slate-800/50 border-slate-700/50">
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-blue-500/10">
-                  <Users className="w-5 h-5 text-blue-500" />
+                <div className="p-2 rounded-xl bg-blue-500/20">
+                  <Users className="w-5 h-5 text-blue-400" />
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground">Total de Usuários</p>
-                  <p className="text-2xl font-bold">{totalUsers}</p>
+                  <p className="text-xs text-slate-400">Total de Usuários</p>
+                  <p className="text-2xl font-bold text-white">{totalUsers}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+          <Card className="bg-slate-800/50 border-slate-700/50">
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-green-500/10">
-                  <UserCheck className="w-5 h-5 text-green-500" />
+                <div className="p-2 rounded-xl bg-green-500/20">
+                  <UserCheck className="w-5 h-5 text-green-400" />
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground">Usuários Ativos</p>
-                  <p className="text-2xl font-bold text-green-500">{activeUsers}</p>
+                  <p className="text-xs text-slate-400">Usuários Ativos</p>
+                  <p className="text-2xl font-bold text-green-400">{activeUsers}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+          <Card className="bg-slate-800/50 border-slate-700/50">
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-red-500/10">
-                  <UserX className="w-5 h-5 text-red-500" />
+                <div className="p-2 rounded-xl bg-red-500/20">
+                  <UserX className="w-5 h-5 text-red-400" />
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground">Usuários Bloqueados</p>
-                  <p className="text-2xl font-bold text-red-500">{blockedUsers}</p>
+                  <p className="text-xs text-slate-400">Usuários Bloqueados</p>
+                  <p className="text-2xl font-bold text-red-400">{blockedUsers}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Stats Cards - Row 2: Plans & Admins */}
+        {/* Stats Cards - Row 2 */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+          <Card className="bg-slate-800/50 border-slate-700/50">
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-purple-500/10">
-                  <FileText className="w-5 h-5 text-purple-500" />
+                <div className="p-2 rounded-xl bg-purple-500/20">
+                  <FileText className="w-5 h-5 text-purple-400" />
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground">Total de Planos</p>
-                  <p className="text-2xl font-bold">{totalPlans}</p>
+                  <p className="text-xs text-slate-400">Total de Planos</p>
+                  <p className="text-2xl font-bold text-white">{totalPlans}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+          <Card className="bg-slate-800/50 border-slate-700/50">
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-amber-500/10">
-                  <Shield className="w-5 h-5 text-amber-500" />
+                <div className="p-2 rounded-xl bg-amber-500/20">
+                  <Shield className="w-5 h-5 text-amber-400" />
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground">Administradores</p>
-                  <p className="text-2xl font-bold text-amber-600">{adminCount}</p>
+                  <p className="text-xs text-slate-400">Administradores</p>
+                  <p className="text-2xl font-bold text-amber-400">{adminCount}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Registration Chart - Full Width */}
-        <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+        {/* Registration Chart */}
+        <Card className="bg-slate-800/50 border-slate-700/50">
           <CardHeader className="pb-2">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <TrendingUp className="w-5 h-5" />
+            <CardTitle className="text-lg flex items-center gap-2 text-white">
+              <TrendingUp className="w-5 h-5 text-amber-400" />
               Cadastros de Usuários por Mês
             </CardTitle>
           </CardHeader>
@@ -405,19 +389,20 @@ export default function Admin() {
             <div className="h-[250px]">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={monthlyStats}>
-                  <XAxis dataKey="month" tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }} />
-                  <YAxis tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }} allowDecimals={false} />
+                  <XAxis dataKey="month" tick={{ fill: '#94a3b8', fontSize: 12 }} />
+                  <YAxis tick={{ fill: '#94a3b8', fontSize: 12 }} allowDecimals={false} />
                   <Tooltip 
                     formatter={(value) => [value, 'Usuários Cadastrados']}
                     contentStyle={{
-                      backgroundColor: 'hsl(var(--card))',
-                      border: '1px solid hsl(var(--border))',
-                      borderRadius: 'var(--radius)',
+                      backgroundColor: '#1e293b',
+                      border: '1px solid #334155',
+                      borderRadius: '8px',
+                      color: '#f1f5f9'
                     }}
                   />
                   <Bar dataKey="count" radius={[4, 4, 0, 0]}>
                     {monthlyStats.map((_, index) => (
-                      <Cell key={`cell-${index}`} fill="hsl(var(--primary))" />
+                      <Cell key={`cell-${index}`} fill="#f59e0b" />
                     ))}
                   </Bar>
                 </BarChart>
@@ -427,19 +412,19 @@ export default function Admin() {
         </Card>
 
         {/* Admin Management Section */}
-        <Card className="bg-card/50 backdrop-blur-sm border-border/50 border-amber-500/30">
+        <Card className="bg-slate-800/50 border-amber-500/30">
           <CardHeader className="pb-2">
-            <CardTitle className="text-lg flex items-center gap-2 text-amber-600">
+            <CardTitle className="text-lg flex items-center gap-2 text-amber-400">
               <Shield className="w-5 h-5" />
               Gerenciar Administradores
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-muted-foreground mb-4">
+            <p className="text-sm text-slate-400 mb-4">
               Conceda ou remova permissões de administrador para outros usuários.
             </p>
             {users.filter(u => u.id !== user?.id).length === 0 ? (
-              <div className="text-center py-4 text-muted-foreground">
+              <div className="text-center py-4 text-slate-500">
                 <Shield className="w-10 h-10 mx-auto mb-2 opacity-50" />
                 <p>Nenhum outro usuário cadastrado.</p>
               </div>
@@ -451,22 +436,22 @@ export default function Admin() {
                     className={`flex items-center justify-between gap-3 p-3 rounded-lg border ${
                       userProfile.isAdmin 
                         ? 'border-amber-500/30 bg-amber-500/5' 
-                        : 'border-border bg-background/50'
+                        : 'border-slate-700 bg-slate-800/30'
                     }`}
                   >
                     <div className="flex items-center gap-3">
                       <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                        userProfile.isAdmin ? 'bg-amber-500/20' : 'bg-muted'
+                        userProfile.isAdmin ? 'bg-amber-500/20' : 'bg-slate-700'
                       }`}>
                         {userProfile.isAdmin ? (
-                          <Shield className="w-4 h-4 text-amber-600" />
+                          <Shield className="w-4 h-4 text-amber-400" />
                         ) : (
-                          <Users className="w-4 h-4 text-muted-foreground" />
+                          <Users className="w-4 h-4 text-slate-400" />
                         )}
                       </div>
                       <div>
-                        <p className="font-medium text-sm">{userProfile.full_name || 'Sem nome'}</p>
-                        <p className="text-xs text-muted-foreground">
+                        <p className="font-medium text-sm text-white">{userProfile.full_name || 'Sem nome'}</p>
+                        <p className="text-xs text-slate-400">
                           {userProfile.isAdmin ? 'Administrador' : 'Usuário comum'}
                         </p>
                       </div>
@@ -480,7 +465,10 @@ export default function Admin() {
                         isAdmin: userProfile.isAdmin || false
                       })}
                       disabled={updatingAdminRole === userProfile.id}
-                      className={userProfile.isAdmin ? 'border-amber-500/50 text-amber-600 hover:bg-amber-500/10' : ''}
+                      className={userProfile.isAdmin 
+                        ? 'border-amber-500/50 text-amber-400 hover:bg-amber-500/10' 
+                        : 'bg-amber-500 text-slate-900 hover:bg-amber-600'
+                      }
                     >
                       {updatingAdminRole === userProfile.id ? (
                         <Loader2 className="w-4 h-4 animate-spin" />
@@ -504,181 +492,176 @@ export default function Admin() {
         </Card>
 
         {/* Users List */}
-        <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+        <Card className="bg-slate-800/50 border-slate-700/50">
           <CardHeader className="pb-2">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Users className="w-5 h-5" />
+            <CardTitle className="text-lg flex items-center gap-2 text-white">
+              <Users className="w-5 h-5 text-blue-400" />
               Lista de Usuários
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {users.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
-                <Users className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                <p>Nenhum usuário cadastrado.</p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {users.map((userProfile) => (
-                  <div key={userProfile.id} className="rounded-lg border border-border bg-background/50 overflow-hidden">
-                    <div 
-                      className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4"
-                    >
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className="font-medium truncate">
-                            {userProfile.full_name || 'Sem nome'}
-                          </span>
+            <div className="space-y-3">
+              {users.map((userProfile) => (
+                <div key={userProfile.id} className="space-y-2">
+                  <div className="flex items-center justify-between gap-3 p-3 rounded-lg bg-slate-700/30 border border-slate-700">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                        userProfile.isAdmin ? 'bg-amber-500/20' : 'bg-slate-700'
+                      }`}>
+                        {userProfile.isAdmin ? (
+                          <Shield className="w-5 h-5 text-amber-400" />
+                        ) : (
+                          <Users className="w-5 h-5 text-slate-400" />
+                        )}
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <p className="font-medium text-white">{userProfile.full_name || 'Sem nome'}</p>
                           {userProfile.isAdmin && (
-                            <Badge className="text-xs bg-amber-500/10 text-amber-600 border-amber-500/20">
-                              <Shield className="w-3 h-3 mr-1" />
+                            <Badge variant="outline" className="text-xs border-amber-500/50 text-amber-400">
                               Admin
                             </Badge>
                           )}
-                          {userProfile.is_blocked ? (
-                            <Badge variant="destructive" className="text-xs">Bloqueado</Badge>
-                          ) : (
-                            <Badge variant="secondary" className="text-xs bg-green-500/10 text-green-600">Ativo</Badge>
-                          )}
-                          {userProfile.id === user?.id && (
-                            <Badge variant="outline" className="text-xs">Você</Badge>
+                          {userProfile.is_blocked && (
+                            <Badge variant="destructive" className="text-xs">
+                              Bloqueado
+                            </Badge>
                           )}
                         </div>
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
-                          <Calendar className="w-3 h-3" />
-                          Cadastrado em {format(new Date(userProfile.created_at), "dd/MM/yyyy", { locale: ptBR })}
-                        </div>
+                        <p className="text-xs text-slate-400">
+                          Cadastrado em {format(new Date(userProfile.created_at), 'dd/MM/yyyy', { locale: ptBR })}
+                        </p>
                       </div>
-                      
-                      <div className="flex items-center gap-2">
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => loadUserPlans(userProfile.id)}
+                        disabled={loadingPlans === userProfile.id}
+                        className="text-slate-400 hover:text-white hover:bg-slate-700"
+                      >
+                        {loadingPlans === userProfile.id ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <>
+                            <Eye className="w-4 h-4 mr-1" />
+                            Planos
+                            {expandedUser === userProfile.id ? (
+                              <ChevronUp className="w-4 h-4 ml-1" />
+                            ) : (
+                              <ChevronDown className="w-4 h-4 ml-1" />
+                            )}
+                          </>
+                        )}
+                      </Button>
+                      {userProfile.id !== user?.id && (
                         <Button
-                          variant="outline"
+                          variant={userProfile.is_blocked ? "default" : "destructive"}
                           size="sm"
-                          onClick={() => loadUserPlans(userProfile.id)}
-                          disabled={loadingPlans === userProfile.id}
+                          onClick={() => toggleUserBlock(userProfile.id, userProfile.is_blocked)}
+                          disabled={updatingUser === userProfile.id}
+                          className={userProfile.is_blocked 
+                            ? 'bg-green-600 hover:bg-green-700' 
+                            : ''
+                          }
                         >
-                          {loadingPlans === userProfile.id ? (
+                          {updatingUser === userProfile.id ? (
                             <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : userProfile.is_blocked ? (
+                            <>
+                              <UserCheck className="w-4 h-4 mr-1" />
+                              Desbloquear
+                            </>
                           ) : (
                             <>
-                              <Eye className="w-4 h-4 mr-1" />
-                              Planos
-                              {expandedUser === userProfile.id ? (
-                                <ChevronUp className="w-4 h-4 ml-1" />
-                              ) : (
-                                <ChevronDown className="w-4 h-4 ml-1" />
-                              )}
+                              <UserX className="w-4 h-4 mr-1" />
+                              Bloquear
                             </>
                           )}
                         </Button>
-                        
-                        {userProfile.id !== user?.id && (
-                          <Button
-                            variant={userProfile.is_blocked ? "default" : "destructive"}
-                            size="sm"
-                            onClick={() => toggleUserBlock(userProfile.id, userProfile.is_blocked)}
-                            disabled={updatingUser === userProfile.id}
-                          >
-                            {updatingUser === userProfile.id ? (
-                              <Loader2 className="w-4 h-4 animate-spin" />
-                            ) : userProfile.is_blocked ? (
-                              <>
-                                <UserCheck className="w-4 h-4 mr-1" />
-                                Desbloquear
-                              </>
-                            ) : (
-                              <>
-                                <UserX className="w-4 h-4 mr-1" />
-                                Bloquear
-                              </>
-                            )}
-                          </Button>
-                        )}
-                      </div>
+                      )}
                     </div>
-
-                    {/* User Plans Expanded */}
-                    {expandedUser === userProfile.id && userPlans[userProfile.id] && (
-                      <div className="border-t border-border bg-muted/30 p-4">
-                        {userPlans[userProfile.id].length === 0 ? (
-                          <p className="text-sm text-muted-foreground text-center py-2">
-                            Este usuário não possui planos cadastrados.
-                          </p>
-                        ) : (
-                          <div className="space-y-2">
-                            <p className="text-xs font-medium text-muted-foreground mb-2">
-                              {userPlans[userProfile.id].length} plano(s) encontrado(s)
-                            </p>
-                            {userPlans[userProfile.id].map((plan) => (
-                              <div 
-                                key={plan.id}
-                                className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 rounded-md bg-background border border-border/50"
-                              >
-                                <div>
-                                  <div className="flex items-center gap-2">
-                                    <FileText className="w-4 h-4 text-primary" />
-                                    <span className="font-medium text-sm">{plan.title}</span>
-                                    <Badge variant="outline" className="text-xs">
-                                      {getPlanTypeLabel(plan.plan_type)}
-                                    </Badge>
-                                  </div>
+                  </div>
+                  
+                  {/* Expanded plans */}
+                  {expandedUser === userProfile.id && userPlans[userProfile.id] && (
+                    <div className="ml-4 pl-4 border-l-2 border-slate-700 space-y-2">
+                      {userPlans[userProfile.id].length === 0 ? (
+                        <p className="text-sm text-slate-500 py-2">Nenhum plano criado</p>
+                      ) : (
+                        userPlans[userProfile.id].map((plan) => (
+                          <div 
+                            key={plan.id} 
+                            className="p-3 rounded-lg bg-slate-700/20 border border-slate-700/50"
+                          >
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <p className="font-medium text-white text-sm">{plan.title}</p>
+                                <div className="flex items-center gap-2 mt-1">
+                                  <Badge variant="outline" className="text-xs border-slate-600 text-slate-400">
+                                    {getPlanTypeLabel(plan.plan_type)}
+                                  </Badge>
                                   {plan.member_name && (
-                                    <p className="text-xs text-muted-foreground ml-6">
-                                      Membro: {plan.member_name}
-                                    </p>
+                                    <span className="text-xs text-slate-500">
+                                      {plan.member_name}
+                                    </span>
                                   )}
                                 </div>
-                                <div className="flex items-center gap-4 text-xs text-muted-foreground ml-6 sm:ml-0">
-                                  <span>
-                                    <Target className="w-3 h-3 inline mr-1" />
-                                    {plan.completed_count}/{plan.goals_count} metas
-                                  </span>
-                                  <span>
-                                    <Calendar className="w-3 h-3 inline mr-1" />
-                                    {format(new Date(plan.created_at), "dd/MM/yyyy", { locale: ptBR })}
-                                  </span>
-                                </div>
                               </div>
-                            ))}
+                              <div className="text-right">
+                                <p className="text-sm font-medium text-white">
+                                  {plan.completed_count}/{plan.goals_count}
+                                </p>
+                                <p className="text-xs text-slate-500">metas realizadas</p>
+                              </div>
+                            </div>
                           </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
+                        ))
+                      )}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
           </CardContent>
         </Card>
-
-        {/* Admin Role Confirmation Dialog */}
-        <Dialog open={!!adminConfirmDialog} onOpenChange={() => setAdminConfirmDialog(null)}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>
-                {adminConfirmDialog?.isAdmin ? 'Remover Permissão de Administrador' : 'Conceder Permissão de Administrador'}
-              </DialogTitle>
-              <DialogDescription>
-                {adminConfirmDialog?.isAdmin 
-                  ? `Tem certeza que deseja remover a permissão de administrador de "${adminConfirmDialog?.userName}"? Este usuário perderá acesso ao painel administrativo.`
-                  : `Tem certeza que deseja tornar "${adminConfirmDialog?.userName}" um administrador? Este usuário terá acesso total ao painel administrativo.`
-                }
-              </DialogDescription>
-            </DialogHeader>
-            <DialogFooter className="gap-2 sm:gap-0">
-              <Button variant="outline" onClick={() => setAdminConfirmDialog(null)}>
-                Cancelar
-              </Button>
-              <Button 
-                variant={adminConfirmDialog?.isAdmin ? "destructive" : "default"}
-                onClick={() => adminConfirmDialog && toggleAdminRole(adminConfirmDialog.userId, adminConfirmDialog.isAdmin)}
-              >
-                {adminConfirmDialog?.isAdmin ? 'Remover Permissão' : 'Conceder Permissão'}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
       </div>
-    </AppLayout>
+
+      {/* Admin Confirm Dialog */}
+      <Dialog open={!!adminConfirmDialog} onOpenChange={() => setAdminConfirmDialog(null)}>
+        <DialogContent className="bg-slate-800 border-slate-700">
+          <DialogHeader>
+            <DialogTitle className="text-white">
+              {adminConfirmDialog?.isAdmin ? 'Remover permissão de Admin?' : 'Conceder permissão de Admin?'}
+            </DialogTitle>
+            <DialogDescription className="text-slate-400">
+              {adminConfirmDialog?.isAdmin 
+                ? `${adminConfirmDialog?.userName} perderá acesso ao painel administrativo.`
+                : `${adminConfirmDialog?.userName} terá acesso total ao painel administrativo.`
+              }
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2">
+            <Button
+              variant="ghost"
+              onClick={() => setAdminConfirmDialog(null)}
+              className="text-slate-400 hover:text-white hover:bg-slate-700"
+            >
+              Cancelar
+            </Button>
+            <Button
+              onClick={() => adminConfirmDialog && toggleAdminRole(adminConfirmDialog.userId, adminConfirmDialog.isAdmin)}
+              className={adminConfirmDialog?.isAdmin 
+                ? 'bg-red-600 hover:bg-red-700' 
+                : 'bg-amber-500 text-slate-900 hover:bg-amber-600'
+              }
+            >
+              {adminConfirmDialog?.isAdmin ? 'Remover Admin' : 'Tornar Admin'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </AdminLayout>
   );
 }

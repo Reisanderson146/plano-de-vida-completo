@@ -142,7 +142,7 @@ export function Navbar() {
                   <>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
-                      <Link to="/admin" className="flex items-center cursor-pointer text-primary">
+                      <Link to="/admin/dashboard" className="flex items-center cursor-pointer text-primary">
                         <Shield className="w-4 h-4 mr-2" />
                         Painel Admin
                       </Link>
