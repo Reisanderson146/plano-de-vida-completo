@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 
 const reminderTypeLabels = {
-  check_in: { label: 'Check-in de Metas', icon: CheckCircle2, description: 'Lembretes para atualizar o progresso das metas' },
+  check_in: { label: 'Metas Realizadas', icon: CheckCircle2, description: 'Lembretes para atualizar o progresso das metas' },
   deadline: { label: 'Prazos', icon: Clock, description: 'Alertas quando metas estão próximas do vencimento' },
   annual_review: { label: 'Revisão Anual', icon: Calendar, description: 'Lembrete para fazer o balanço de fim de ano' },
 };

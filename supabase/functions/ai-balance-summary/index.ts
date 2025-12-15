@@ -25,28 +25,18 @@ serve(async (req) => {
 
     const overallPercentage = totalGoals > 0 ? Math.round((completedGoals / totalGoals) * 100) : 0;
 
-    const prompt = `Você é um coach de vida profissional e motivador. Analise os dados do plano de vida "${planTitle}" para o período ${period} e forneça um resumo personalizado e encorajador.
+    const prompt = `Analise brevemente o plano de vida "${planTitle}" (${period}).
 
-DADOS DO PLANO:
-- Total de metas: ${totalGoals}
-- Metas concluídas: ${completedGoals}
-- Progresso geral: ${overallPercentage}%
+DADOS:
+- Progresso: ${completedGoals}/${totalGoals} metas (${overallPercentage}%)
+- BOM (70%+): ${areasCompleted.length > 0 ? areasCompleted.map((a: any) => a.label).join(', ') : 'Nenhuma'}
+- ATENÇÃO (<40%): ${areasNeedWork.length > 0 ? areasNeedWork.map((a: any) => a.label).join(', ') : 'Nenhuma'}
 
-ÁREAS COM BOM DESEMPENHO (70%+ concluído):
-${areasCompleted.length > 0 ? areasCompleted.map((a: any) => `- ${a.label}: ${a.completed}/${a.total} metas (${a.percentage}%)`).join('\n') : '- Nenhuma área atingiu 70% ainda'}
+Responda APENAS com:
+1. Uma linha sobre o que está BOM
+2. Uma linha sobre o que precisa MELHORAR (se houver)
 
-ÁREAS EM PROGRESSO (40-69% concluído):
-${areasModerate.length > 0 ? areasModerate.map((a: any) => `- ${a.label}: ${a.completed}/${a.total} metas (${a.percentage}%)`).join('\n') : '- Nenhuma área nesta faixa'}
-
-ÁREAS QUE PRECISAM DE ATENÇÃO (menos de 40%):
-${areasNeedWork.length > 0 ? areasNeedWork.map((a: any) => `- ${a.label}: ${a.completed}/${a.total} metas (${a.percentage}%)`).join('\n') : '- Todas as áreas estão acima de 40%! 🎉'}
-
-Por favor, forneça:
-1. Um parágrafo de reconhecimento das conquistas (seja específico sobre as áreas)
-2. Um parágrafo sobre as áreas que precisam de mais atenção (com sugestões práticas)
-3. Uma frase motivacional de encerramento
-
-Seja conciso, positivo e prático. Use emojis moderadamente para tornar mais acolhedor. Responda em português brasileiro.`;
+Máximo 3 frases. Seja direto e prático. Português brasileiro.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -57,7 +47,7 @@ Seja conciso, positivo e prático. Use emojis moderadamente para tornar mais aco
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
         messages: [
-          { role: "system", content: "Você é um coach de vida experiente, empático e motivador. Sempre responda em português brasileiro." },
+          { role: "system", content: "Você é um assistente direto. Máximo 3 frases curtas. Sem introduções ou despedidas. Apenas o essencial." },
           { role: "user", content: prompt }
         ],
         stream: false,

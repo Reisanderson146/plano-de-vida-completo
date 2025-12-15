@@ -99,8 +99,8 @@ const handler = async (req: Request): Promise<Response> => {
           if (checkInSettings.in_app_enabled) {
             const { data: notif } = await supabase.from('notifications').insert({
               user_id: user.id,
-              title: 'Hora do Check-in!',
-              message: `Não esqueça de atualizar o progresso da meta: ${randomGoal.goal_text?.substring(0, 50)}...`,
+              title: 'Atualize suas Metas!',
+              message: `Não esqueça de marcar como realizada: ${randomGoal.goal_text?.substring(0, 50)}...`,
               type: 'check_in',
               related_goal_id: randomGoal.id,
               related_plan_id: randomGoal.life_plan_id,
