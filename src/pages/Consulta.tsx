@@ -214,8 +214,8 @@ export default function Consulta() {
 
   return (
     <AppLayout>
-      <div className="space-y-5 sm:space-y-6 animate-fade-in">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div className="space-y-5 sm:space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 opacity-0 animate-fade-in-up">
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-1">Meus Planos</h1>
             <p className="text-sm sm:text-base text-muted-foreground">
@@ -234,7 +234,7 @@ export default function Consulta() {
 
         {/* Filter */}
         {plans.length > 0 && (
-          <div className="flex items-center gap-2 overflow-x-auto pb-2 -mx-3 px-3 sm:mx-0 sm:px-0 scrollbar-hide">
+          <div className="flex items-center gap-2 overflow-x-auto pb-2 -mx-3 px-3 sm:mx-0 sm:px-0 scrollbar-hide opacity-0 animate-stagger-1">
             <Filter className="w-4 h-4 text-muted-foreground flex-shrink-0" />
             {filterOptions.map((option) => (
               <Button
@@ -286,7 +286,7 @@ export default function Consulta() {
             </CardContent>
           </Card>
         ) : (
-          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 opacity-0 animate-stagger-2">
             {filteredPlans.map((plan) => {
               const percentage = plan.goals_count > 0
                 ? Math.round((plan.completed_count / plan.goals_count) * 100)
