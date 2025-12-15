@@ -174,14 +174,13 @@ export function useExportLifePlan() {
         }).join('\n');
       });
 
-      // Create table with areas as columns
+      // Create table with areas as columns - each with its own color
       autoTable(doc, {
         startY: yPosition,
         head: [LIFE_AREAS.map(a => getAreaLabel(a.id, areaConfigs))],
         body: [tableData],
         theme: 'grid',
         headStyles: {
-          fillColor: [34, 139, 34],
           textColor: 255,
           fontStyle: 'bold',
           fontSize: 8,
@@ -205,6 +204,22 @@ export function useExportLifePlan() {
         },
         margin: { left: margin, right: margin },
         tableWidth: 'auto',
+        didParseCell: (data) => {
+          if (data.section === 'head') {
+            const areaColors: [number, number, number][] = [
+              [139, 92, 246],   // espiritual - purple
+              [59, 130, 246],   // intelectual - blue
+              [236, 72, 153],   // familiar - pink
+              [249, 115, 22],   // social - orange
+              [34, 197, 94],    // financeiro - green
+              [6, 182, 212],    // profissional - cyan
+              [239, 68, 68],    // saude - red
+            ];
+            if (data.column.index < areaColors.length) {
+              data.cell.styles.fillColor = areaColors[data.column.index];
+            }
+          }
+        },
       });
 
       yPosition = (doc as any).lastAutoTable?.finalY + 8 || yPosition + 30;
