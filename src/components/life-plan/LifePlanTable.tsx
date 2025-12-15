@@ -5,10 +5,16 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
-import { Pencil, Plus, Trash2, ChevronDown, ChevronUp, Calendar, User, CheckCircle2, X, LayoutGrid, List } from 'lucide-react';
+import { Pencil, Plus, Trash2, ChevronDown, ChevronUp, Calendar, User, CheckCircle2, X, LayoutGrid, List, Filter } from 'lucide-react';
 import { LIFE_AREAS, LifeArea, AREA_ICONS } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { usePlanAreaCustomizations } from '@/hooks/usePlanAreaCustomizations';
 import {
   Collapsible,
@@ -49,6 +55,7 @@ interface PeriodRow {
 }
 
 export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, lifePlanId, editable = false }: LifePlanTableProps) {
+  const [shakingGoalId, setShakingGoalId] = useState<string | null>(null);
   const [editingCell, setEditingCell] = useState<string | null>(null);
   const [editValue, setEditValue] = useState('');
   const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -57,6 +64,7 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, li
   const [newRowAge, setNewRowAge] = useState(30);
   const [expandedYears, setExpandedYears] = useState<Set<number>>(new Set([new Date().getFullYear()]));
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'completed' | 'pending'>('all');
   const [addGoalDialog, setAddGoalDialog] = useState<{ year: number; age: number; area: LifeArea } | null>(null);
   const [newGoalText, setNewGoalText] = useState('');
   const { toast } = useToast();
@@ -103,11 +111,31 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, li
     setEditDialogOpen(false);
   };
 
+  // Play celebration sound
+  const playCelebrationSound = () => {
+    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime); // C5
+    oscillator.frequency.setValueAtTime(659.25, audioContext.currentTime + 0.1); // E5
+    oscillator.frequency.setValueAtTime(783.99, audioContext.currentTime + 0.2); // G5
+    
+    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4);
+    
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.4);
+  };
+
   const handleToggleComplete = async (goal: Goal) => {
     const wasCompleted = goal.is_completed;
     await onUpdateGoal(goal.id, { is_completed: !goal.is_completed });
     
-    // Fire confetti when completing a goal
+    // Fire confetti and play sound when completing a goal
     if (!wasCompleted) {
       confetti({
         particleCount: 100,
@@ -115,11 +143,16 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, li
         origin: { y: 0.6 },
         colors: ['#22c55e', '#16a34a', '#4ade80', '#86efac']
       });
+      playCelebrationSound();
+    } else {
+      // Shake animation when unchecking
+      setShakingGoalId(goal.id);
+      setTimeout(() => setShakingGoalId(null), 400);
     }
     
     toast({ 
-      title: wasCompleted ? 'Check-in removido' : 'Check-in realizado!',
-      description: wasCompleted ? 'Meta desmarcada' : 'Parabéns por alcançar sua meta!'
+      title: wasCompleted ? 'Meta desmarcada' : 'Meta realizada com sucesso!',
+      description: wasCompleted ? 'Você pode tentar novamente' : 'Parabéns por alcançar sua meta!'
     });
   };
 
@@ -200,10 +233,17 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, li
     return { completed, total: goalsWithText.length, percent: Math.round((completed / goalsWithText.length) * 100) };
   };
 
+  // Filter goals by status
+  const filterGoalsByStatus = (goals: Goal[]) => {
+    if (statusFilter === 'all') return goals;
+    if (statusFilter === 'completed') return goals.filter(g => g.is_completed);
+    return goals.filter(g => !g.is_completed);
+  };
+
   // Expanded Goal List Component for horizontal cards
   const GoalListExpanded = ({ areaGoals, areaId, period }: { areaGoals: Goal[]; areaId: LifeArea; period: PeriodRow }) => {
     const areaColor = getAreaColor(areaId);
-    const goalsWithText = areaGoals.filter(g => g.goal_text.trim());
+    const goalsWithText = filterGoalsByStatus(areaGoals.filter(g => g.goal_text.trim()));
 
     return (
       <div className="space-y-3">
@@ -212,7 +252,8 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, li
             key={goal.id} 
             className={cn(
               "p-3 rounded-lg border border-border/30 bg-background/50 group transition-all hover:shadow-sm",
-              goal.is_completed && "bg-success/5 border-success/20"
+              goal.is_completed && "bg-success/5 border-success/20",
+              shakingGoalId === goal.id && "animate-shake"
             )}
           >
             <div className="flex items-start gap-3">
@@ -287,7 +328,7 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, li
   // Mobile Goal List Component
   const MobileGoalList = ({ areaGoals, areaId, period }: { areaGoals: Goal[]; areaId: LifeArea; period: PeriodRow }) => {
     const areaColor = getAreaColor(areaId);
-    const goalsWithText = areaGoals.filter(g => g.goal_text.trim());
+    const goalsWithText = filterGoalsByStatus(areaGoals.filter(g => g.goal_text.trim()));
     const progress = getAreaProgress(areaGoals);
 
     const AreaIcon = AREA_ICONS[areaId as LifeArea];
@@ -333,7 +374,10 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, li
           {goalsWithText.map((goal, index) => (
             <div 
               key={goal.id} 
-              className="flex items-start gap-2 p-2 rounded-lg hover:bg-background/60 transition-colors group"
+              className={cn(
+                "flex items-start gap-2 p-2 rounded-lg hover:bg-background/60 transition-colors group",
+                shakingGoalId === goal.id && "animate-shake"
+              )}
             >
               <Checkbox 
                 checked={goal.is_completed} 
@@ -535,7 +579,7 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, li
                   {LIFE_AREAS.map((area) => {
                     const progress = getAreaProgress(period.goals[area.id]);
                     const AreaIcon = AREA_ICONS[area.id as LifeArea];
-                    const goalsWithText = period.goals[area.id].filter(g => g.goal_text.trim());
+                    const goalsWithText = filterGoalsByStatus(period.goals[area.id].filter(g => g.goal_text.trim()));
                     
                     return (
                       <div 
@@ -678,6 +722,29 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, li
               Lista
             </Button>
           </div>
+
+          {/* Status Filter */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="h-8 gap-1.5">
+                <Filter className="w-4 h-4" />
+                {statusFilter === 'all' ? 'Todas' : statusFilter === 'completed' ? 'Realizadas' : 'Pendentes'}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start">
+              <DropdownMenuItem onClick={() => setStatusFilter('all')}>
+                Todas as metas
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setStatusFilter('completed')}>
+                <CheckCircle2 className="w-4 h-4 mr-2 text-success" />
+                Realizadas
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setStatusFilter('pending')}>
+                <X className="w-4 h-4 mr-2 text-muted-foreground" />
+                Pendentes
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
           
           {/* Expand/Collapse */}
           {periods.length > 1 && (

@@ -56,11 +56,11 @@ const getEmailContent = (request: ReminderEmailRequest) => {
           </head>
           <body>
             <div class="header">
-              <h1>Hora do Check-in!</h1>
+              <h1>Atualize suas Metas!</h1>
             </div>
             <div class="content">
               <p>Olá <strong>${userName}</strong>,</p>
-              <p>É hora de atualizar o progresso das suas metas no seu Plano de Vida!</p>
+              <p>É hora de marcar suas metas realizadas no seu Plano de Vida!</p>
               ${goalTitle ? `<p>Meta em destaque: <strong>${goalTitle}</strong></p>` : ''}
               ${planTitle ? `<p>Plano: <strong>${planTitle}</strong></p>` : ''}
               <p>Manter o acompanhamento regular é essencial para alcançar seus objetivos.</p>
