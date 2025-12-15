@@ -11,8 +11,7 @@ import { cn } from '@/lib/utils';
 
 const navItems = [
   { path: '/', label: 'Início', icon: LayoutDashboard },
-  { path: '/cadastro', label: 'Novo', icon: FileText },
-  { path: '/consulta', label: 'Planos', icon: Search },
+  { path: '/consulta', label: 'Planos', icon: FileText },
   { path: '/balanco', label: 'Balanço', icon: Scale },
   { path: '/meus-dados', label: 'Dados', icon: User },
 ];
