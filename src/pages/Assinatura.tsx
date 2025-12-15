@@ -93,21 +93,20 @@ export default function Assinatura() {
           </div>
 
           <div className="relative z-10">
-            {/* Premium badge - Gold */}
-            <div className="relative bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 py-4 px-6">
-              <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.4)_50%,transparent_75%)] bg-[length:250%_250%] animate-[shimmer_3s_linear_infinite]" />
+            {/* Premium badge - Green with gold icons */}
+            <div className="relative bg-gradient-to-r from-[#2A8C68] via-[#3d9d78] to-[#2A8C68] py-5 px-6">
               <div className="relative flex items-center justify-center gap-3">
-                <Crown className="w-8 h-8 text-amber-900 drop-shadow-lg" fill="currentColor" />
-                <span className="text-2xl font-bold text-amber-900 tracking-wide">PREMIUM</span>
-                <Crown className="w-8 h-8 text-amber-900 drop-shadow-lg" fill="currentColor" />
+                <Crown className="w-7 h-7 text-amber-400 drop-shadow-lg" fill="currentColor" />
+                <span className="text-2xl font-bold text-white tracking-wide">PREMIUM</span>
+                <Crown className="w-7 h-7 text-amber-400 drop-shadow-lg" fill="currentColor" />
               </div>
               
-              {/* 5 Stars */}
+              {/* 5 Stars - Gold */}
               <div className="flex justify-center gap-1 mt-2">
                 {[...Array(5)].map((_, i) => (
                   <Star 
                     key={i} 
-                    className="w-5 h-5 text-amber-900 drop-shadow-md" 
+                    className="w-5 h-5 text-amber-400 drop-shadow-md" 
                     fill="currentColor"
                   />
                 ))}
