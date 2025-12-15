@@ -29,8 +29,7 @@ import { NotificationBell } from '@/components/notifications/NotificationBell';
 
 const navItems = [
   { path: '/', label: 'Dashboard', icon: LayoutDashboard },
-  { path: '/cadastro', label: 'Cadastro', icon: FileText },
-  { path: '/consulta', label: 'Consulta', icon: Search },
+  { path: '/consulta', label: 'Planos', icon: FileText },
   { path: '/relatorios', label: 'Relatórios', icon: BarChart3 },
   { path: '/balanco', label: 'Balanço', icon: Scale },
 ];
