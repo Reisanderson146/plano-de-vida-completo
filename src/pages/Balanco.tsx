@@ -549,6 +549,7 @@ export default function Balanco() {
           completedGoals={completedGoals}
           planTitle={selectedPlan?.title || 'Plano de Vida'}
           period={getDateRangeLabel(dateRange)}
+          onNoteSaved={loadData}
         />
 
         {/* Areas Needing Attention */}

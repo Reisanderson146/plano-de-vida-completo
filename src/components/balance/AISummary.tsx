@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, Sparkles, RefreshCw } from 'lucide-react';
+import { Loader2, Sparkles, RefreshCw, Save } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
 
 interface AreaStats {
   area: string;
@@ -19,12 +20,15 @@ interface AISummaryProps {
   completedGoals: number;
   planTitle: string;
   period: string;
+  onNoteSaved?: () => void;
 }
 
-export function AISummary({ stats, totalGoals, completedGoals, planTitle, period }: AISummaryProps) {
+export function AISummary({ stats, totalGoals, completedGoals, planTitle, period, onNoteSaved }: AISummaryProps) {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [summary, setSummary] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   const generateSummary = async () => {
     setLoading(true);
@@ -55,6 +59,40 @@ export function AISummary({ stats, totalGoals, completedGoals, planTitle, period
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const saveAsNote = async () => {
+    if (!user || !summary) return;
+
+    setSaving(true);
+    try {
+      const title = `[Balanço ${period}] Análise IA - ${planTitle}`;
+      
+      const { error } = await supabase.from('notes').insert({
+        user_id: user.id,
+        title,
+        content: summary,
+        area: null,
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: 'Anotação salva!',
+        description: 'O resumo da IA foi salvo como anotação de balanço.',
+      });
+
+      onNoteSaved?.();
+    } catch (error: any) {
+      console.error('Error saving note:', error);
+      toast({
+        title: 'Erro ao salvar',
+        description: 'Não foi possível salvar a anotação.',
+        variant: 'destructive',
+      });
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -97,7 +135,11 @@ export function AISummary({ stats, totalGoals, completedGoals, planTitle, period
                 {summary}
               </div>
             </div>
-            <div className="flex justify-end pt-2">
+            <div className="flex flex-wrap justify-end gap-2 pt-2">
+              <Button variant="outline" size="sm" onClick={saveAsNote} disabled={saving} className="gap-2">
+                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                Salvar como anotação
+              </Button>
               <Button variant="ghost" size="sm" onClick={generateSummary} className="gap-2">
                 <RefreshCw className="w-4 h-4" />
                 Gerar novo resumo
