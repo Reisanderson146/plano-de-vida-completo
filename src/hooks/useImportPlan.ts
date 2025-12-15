@@ -265,6 +265,100 @@ const parseExcelLocally = async (file: File): Promise<ImportResult> => {
   return result;
 };
 
+const fileToBase64 = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => {
+      const result = reader.result as string;
+      // Remove the data:...;base64, prefix
+      const base64 = result.split(',')[1];
+      resolve(base64);
+    };
+    reader.onerror = error => reject(error);
+  });
+};
+
+const parsePDFWithAI = async (file: File): Promise<ImportResult> => {
+  try {
+    const base64Content = await fileToBase64(file);
+    
+    const { data, error } = await supabase.functions.invoke('parse-plan-import', {
+      body: { 
+        pdfBase64: base64Content, 
+        fileName: file.name, 
+        fileType: 'pdf',
+        isPDF: true
+      }
+    });
+
+    if (error) {
+      console.error('Edge function error:', error);
+      return {
+        success: false,
+        goals: [],
+        errors: [`Erro ao processar PDF: ${error.message}`],
+        warnings: [],
+      };
+    }
+
+    if (!data.success) {
+      return {
+        success: false,
+        goals: [],
+        errors: data.errors || ['Não foi possível extrair metas do PDF.'],
+        warnings: data.warnings || [],
+      };
+    }
+
+    // Validate and normalize the goals
+    const validGoals: ImportedGoal[] = [];
+    const warnings: string[] = data.warnings || [];
+
+    for (const goal of data.goals || []) {
+      const area = normalizeAreaName(goal.area) || goal.area as LifeArea;
+      const validAreas = ['espiritual', 'intelectual', 'familiar', 'social', 'financeiro', 'profissional', 'saude'];
+      
+      if (!validAreas.includes(area)) {
+        warnings.push(`Área "${goal.area}" não reconhecida, pulada.`);
+        continue;
+      }
+
+      const year = parseInt(String(goal.year));
+      if (isNaN(year) || year < 1900 || year > 2200) {
+        warnings.push(`Ano inválido para meta: "${goal.goalText?.substring(0, 30)}..."`);
+        continue;
+      }
+
+      const age = goal.age ? parseInt(String(goal.age)) : null;
+
+      if (goal.goalText && goal.goalText.trim()) {
+        validGoals.push({
+          year,
+          age: age || (year - new Date().getFullYear() + 30),
+          area: area as LifeArea,
+          goalText: goal.goalText.trim(),
+        });
+      }
+    }
+
+    return {
+      success: validGoals.length > 0,
+      goals: validGoals,
+      errors: validGoals.length === 0 ? ['Nenhuma meta válida encontrada no PDF.'] : [],
+      warnings,
+    };
+  } catch (error: any) {
+    console.error('PDF parsing error:', error);
+    return {
+      success: false,
+      goals: [],
+      errors: [`Erro ao processar PDF: ${error.message}`],
+      warnings: [],
+    };
+  }
+};
+
 export function useImportPlan() {
   const importFile = async (file: File): Promise<ImportResult> => {
     const extension = file.name.split('.').pop()?.toLowerCase();
@@ -279,14 +373,9 @@ export function useImportPlan() {
       };
     }
 
-    // PDF não é suportado para leitura direta
+    // Handle PDF with AI vision
     if (extension === 'pdf') {
-      return {
-        success: false,
-        goals: [],
-        errors: ['A importação de PDF não está disponível. Por favor, converta seu arquivo para Excel (.xlsx) ou texto (.txt) para importar seu plano de vida.'],
-        warnings: [],
-      };
+      return parsePDFWithAI(file);
     }
 
     try {

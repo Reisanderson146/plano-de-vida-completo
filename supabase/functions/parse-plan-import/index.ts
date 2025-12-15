@@ -11,9 +11,9 @@ serve(async (req) => {
   }
 
   try {
-    const { content, fileName, fileType } = await req.json();
+    const { content, pdfBase64, fileName, fileType, isPDF } = await req.json();
     
-    if (!content) {
+    if (!content && !pdfBase64) {
       return new Response(
         JSON.stringify({ success: false, error: "Nenhum conteúdo fornecido" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -66,12 +66,43 @@ Se não conseguir extrair nenhuma meta, responda:
   "warnings": []
 }`;
 
-    const userPrompt = `Arquivo: ${fileName} (tipo: ${fileType})
+    let messages: any[];
+
+    if (isPDF && pdfBase64) {
+      // For PDF files, use vision capabilities with the PDF as base64
+      console.log("Processing PDF file with vision:", fileName);
+      messages = [
+        { role: "system", content: systemPrompt },
+        { 
+          role: "user", 
+          content: [
+            {
+              type: "text",
+              text: `Este é um PDF de um plano de vida. Analise a imagem/documento e extraia todas as metas/objetivos encontrados. Arquivo: ${fileName}`
+            },
+            {
+              type: "image_url",
+              image_url: {
+                url: `data:application/pdf;base64,${pdfBase64}`
+              }
+            }
+          ]
+        },
+      ];
+    } else {
+      // For text-based files
+      const userPrompt = `Arquivo: ${fileName} (tipo: ${fileType})
 
 Conteúdo do arquivo:
 ${content}
 
 Extraia todas as metas/objetivos do plano de vida deste arquivo.`;
+
+      messages = [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt },
+      ];
+    }
 
     console.log("Sending request to Lovable AI for file parsing:", fileName);
 
@@ -82,11 +113,8 @@ Extraia todas as metas/objetivos do plano de vida deste arquivo.`;
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt },
-        ],
+        model: isPDF ? "google/gemini-2.5-pro" : "google/gemini-2.5-flash",
+        messages,
         temperature: 0.1,
       }),
     });

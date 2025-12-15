@@ -10,7 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { useImportPlan } from '@/hooks/useImportPlan';
-import { Loader2, Plus, User, Users, Baby, Upload, FileSpreadsheet, FileText, X, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { Loader2, Plus, User, Users, Baby, Upload, FileSpreadsheet, FileText, FileType, X, CheckCircle2, AlertTriangle } from 'lucide-react';
 import { LIFE_AREAS, AREA_HEX_COLORS, LifeArea } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 import { AreaCustomizationEditor, AreaConfig } from '@/components/life-plan/AreaCustomizationEditor';
@@ -424,7 +424,7 @@ export default function Cadastro() {
                     <input
                       ref={fileInputRef}
                       type="file"
-                      accept=".xlsx,.xls,.csv,.txt"
+                      accept=".xlsx,.xls,.csv,.txt,.pdf"
                       onChange={handleFileSelect}
                       className="hidden"
                       id="file-import"
@@ -445,7 +445,7 @@ export default function Cadastro() {
                               Clique para importar arquivo
                             </span>
                             <span className="text-xs text-muted-foreground">
-                              Suporta Excel (.xlsx, .xls), CSV ou TXT
+                              Suporta Excel (.xlsx, .xls), CSV, TXT ou PDF
                             </span>
                           </div>
                           <div className="flex gap-4 mt-1">
@@ -456,6 +456,10 @@ export default function Cadastro() {
                             <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                               <FileText className="w-4 h-4" />
                               CSV/TXT
+                            </div>
+                            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                              <FileType className="w-4 h-4" />
+                              PDF
                             </div>
                           </div>
                         </div>
