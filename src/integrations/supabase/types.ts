@@ -268,6 +268,8 @@ export type Database = {
           full_name: string | null
           id: string
           is_blocked: boolean
+          subscription_plan: string | null
+          subscription_status: string | null
           theme_id: string | null
           updated_at: string
         }
@@ -278,6 +280,8 @@ export type Database = {
           full_name?: string | null
           id: string
           is_blocked?: boolean
+          subscription_plan?: string | null
+          subscription_status?: string | null
           theme_id?: string | null
           updated_at?: string
         }
@@ -288,6 +292,8 @@ export type Database = {
           full_name?: string | null
           id?: string
           is_blocked?: boolean
+          subscription_plan?: string | null
+          subscription_status?: string | null
           theme_id?: string | null
           updated_at?: string
         }
