@@ -26,7 +26,7 @@ import {
   CreditCard
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { NotificationBell } from '@/components/notifications/NotificationBell';
+
 
 const navItems = [
   { path: '/', label: 'Dashboard', icon: LayoutDashboard },
@@ -106,7 +106,6 @@ export function Navbar() {
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3">
-            <NotificationBell />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="flex items-center gap-2 bg-white/10 hover:bg-white/20 transition-all duration-300 rounded-2xl p-1.5 pr-3 sm:pr-4 shadow-inner hover:shadow-lg">
