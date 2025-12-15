@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Check, Shield, Zap, Heart, Target, Sparkles, BadgeCheck, Gem, Loader2 } from 'lucide-react';
+import { Check, Shield, Zap, Heart, Target, Sparkles, BadgeCheck, Gem, Loader2, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useAuth } from '@/hooks/useAuth';
@@ -20,6 +20,59 @@ export default function Assinatura() {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [checkingSubscription, setCheckingSubscription] = useState(false);
+
+  // Check subscription status on mount and periodically
+  useEffect(() => {
+    if (!user) return;
+
+    const checkSubscription = async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke('check-subscription');
+        
+        if (error) {
+          console.error('Error checking subscription:', error);
+          return;
+        }
+        
+        if (data?.subscribed || data?.subscription_status === 'active') {
+          toast.success('Assinatura ativa! Redirecionando...');
+          navigate('/');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    };
+
+    // Check immediately on mount
+    checkSubscription();
+
+    // Check every 5 seconds (for when user completes checkout in another tab)
+    const interval = setInterval(checkSubscription, 5000);
+
+    return () => clearInterval(interval);
+  }, [user, navigate]);
+
+  const handleCheckSubscription = async () => {
+    setCheckingSubscription(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('check-subscription');
+      
+      if (error) throw error;
+      
+      if (data?.subscribed || data?.subscription_status === 'active') {
+        toast.success('Assinatura confirmada! Redirecionando...');
+        navigate('/');
+      } else {
+        toast.info('Assinatura ainda não detectada. Se você acabou de pagar, aguarde alguns segundos.');
+      }
+    } catch (error) {
+      console.error('Error checking subscription:', error);
+      toast.error('Erro ao verificar assinatura. Tente novamente.');
+    } finally {
+      setCheckingSubscription(false);
+    }
+  };
 
   const handleCheckout = async () => {
     if (!user) return;
@@ -33,6 +86,7 @@ export default function Assinatura() {
       if (data?.url) {
         // Open Stripe Checkout in new tab
         window.open(data.url, '_blank');
+        toast.info('Complete o pagamento na nova aba. Após concluir, clique em "Já assinei".');
       } else {
         throw new Error('No checkout URL returned');
       }
@@ -134,23 +188,44 @@ export default function Assinatura() {
               </div>
 
               {/* CTA Button */}
-              <Button
-                onClick={handleCheckout}
-                disabled={loading}
-                className="w-full h-14 text-lg font-bold rounded-2xl bg-gradient-to-r from-[#2A8C68] via-[#7BC8A4] to-[#2A8C68] hover:from-[#238058] hover:via-[#6ab893] hover:to-[#238058] text-white shadow-lg shadow-[#2A8C68]/30 transition-all duration-300 hover:scale-[1.02] hover:shadow-[#2A8C68]/50"
-              >
-                {loading ? (
-                  <div className="flex items-center gap-2">
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                    Processando...
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-2">
-                    <Gem className="w-5 h-5" />
-                    Assinar Agora
-                  </div>
-                )}
-              </Button>
+              <div className="space-y-3">
+                <Button
+                  onClick={handleCheckout}
+                  disabled={loading}
+                  className="w-full h-14 text-lg font-bold rounded-2xl bg-gradient-to-r from-[#2A8C68] via-[#7BC8A4] to-[#2A8C68] hover:from-[#238058] hover:via-[#6ab893] hover:to-[#238058] text-white shadow-lg shadow-[#2A8C68]/30 transition-all duration-300 hover:scale-[1.02] hover:shadow-[#2A8C68]/50"
+                >
+                  {loading ? (
+                    <div className="flex items-center gap-2">
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      Processando...
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <Gem className="w-5 h-5" />
+                      Assinar Agora
+                    </div>
+                  )}
+                </Button>
+
+                <Button
+                  onClick={handleCheckSubscription}
+                  disabled={checkingSubscription}
+                  variant="outline"
+                  className="w-full h-12 text-base font-medium rounded-2xl border-[#2A8C68]/30 text-[#2A8C68] hover:bg-[#A8E6CE]/20"
+                >
+                  {checkingSubscription ? (
+                    <div className="flex items-center gap-2">
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Verificando...
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <RefreshCw className="w-4 h-4" />
+                      Já assinei - Verificar
+                    </div>
+                  )}
+                </Button>
+              </div>
 
               {/* Trust badges */}
               <div className="flex items-center justify-center gap-4 pt-2 text-muted-foreground text-xs">
