@@ -5,7 +5,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
-import { Pencil, Plus, Trash2, ChevronDown, ChevronUp, Calendar, User, CheckCircle2, X, LayoutGrid, List, Filter } from 'lucide-react';
+import { Pencil, Plus, Trash2, ChevronDown, ChevronUp, Calendar, User, CheckCircle2, X, LayoutGrid, List, Filter, Target, AlertTriangle } from 'lucide-react';
 import { LIFE_AREAS, LifeArea, AREA_ICONS } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
@@ -44,6 +44,7 @@ interface LifePlanTableProps {
   onUpdateGoal: (goalId: string, updates: Partial<Goal>) => Promise<void>;
   onDeleteGoal: (goalId: string) => Promise<void>;
   onAddGoal: (goal: Omit<Goal, 'id'>) => Promise<void>;
+  onDeletePeriod?: (year: number) => Promise<void>;
   lifePlanId: string;
   editable?: boolean;
 }
@@ -54,7 +55,7 @@ interface PeriodRow {
   goals: Record<LifeArea, Goal[]>;
 }
 
-export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, lifePlanId, editable = false }: LifePlanTableProps) {
+export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, onDeletePeriod, lifePlanId, editable = false }: LifePlanTableProps) {
   const [shakingGoalId, setShakingGoalId] = useState<string | null>(null);
   const [editingCell, setEditingCell] = useState<string | null>(null);
   const [editValue, setEditValue] = useState('');
@@ -65,6 +66,8 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, li
   const [expandedYears, setExpandedYears] = useState<Set<number>>(new Set([new Date().getFullYear()]));
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [statusFilter, setStatusFilter] = useState<'all' | 'completed' | 'pending'>('all');
+  const [focusMode, setFocusMode] = useState(false);
+  const [deletePeriodDialog, setDeletePeriodDialog] = useState<{ year: number; age: number } | null>(null);
   const [addGoalDialog, setAddGoalDialog] = useState<{ year: number; age: number; area: LifeArea } | null>(null);
   const [newGoalText, setNewGoalText] = useState('');
   const { toast } = useToast();
@@ -205,6 +208,41 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, li
 
   const collapseAll = () => {
     setExpandedYears(new Set());
+  };
+
+  // Delete period handler
+  const handleDeletePeriod = async () => {
+    if (!deletePeriodDialog || !onDeletePeriod) return;
+    await onDeletePeriod(deletePeriodDialog.year);
+    toast({ title: 'Período excluído com sucesso!' });
+    setDeletePeriodDialog(null);
+  };
+
+  // Get all pending goals for focus mode
+  const getAllPendingGoals = () => {
+    const pending: Array<{ goal: Goal; areaId: LifeArea; year: number }> = [];
+    periods.forEach(period => {
+      LIFE_AREAS.forEach(area => {
+        period.goals[area.id].forEach(goal => {
+          if (goal.goal_text.trim() && !goal.is_completed) {
+            pending.push({ goal, areaId: area.id, year: period.year });
+          }
+        });
+      });
+    });
+    return pending;
+  };
+
+  // Get overall stats
+  const getOverallStats = () => {
+    let totalGoals = 0;
+    let completedGoals = 0;
+    periods.forEach(period => {
+      const stats = getProgressStats(period);
+      totalGoals += stats.totalGoals;
+      completedGoals += stats.completedGoals;
+    });
+    return { totalGoals, completedGoals, percent: totalGoals > 0 ? Math.round((completedGoals / totalGoals) * 100) : 0 };
   };
 
   // Calculate progress for a period - now counts all goals
@@ -476,10 +514,23 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, li
                     </span>
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
                   <span className="sm:hidden text-sm font-medium text-muted-foreground">
                     {progressPercent}%
                   </span>
+                  {editable && onDeletePeriod && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setDeletePeriodDialog({ year: period.year, age: period.age });
+                      }}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  )}
                   <div className={cn(
                     "w-8 h-8 rounded-lg flex items-center justify-center transition-colors",
                     isExpanded ? "bg-primary/10" : "bg-muted/50"
@@ -696,8 +747,127 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, li
     );
   };
 
+  const overallStats = getOverallStats();
+  const pendingGoals = getAllPendingGoals();
+
+  // Focus Mode Component
+  const FocusModeView = () => {
+    if (pendingGoals.length === 0) {
+      return (
+        <Card className="p-8 text-center">
+          <CheckCircle2 className="w-16 h-16 text-success mx-auto mb-4" />
+          <h3 className="text-xl font-bold text-foreground mb-2">Todas as metas realizadas!</h3>
+          <p className="text-muted-foreground">Parabéns! Você completou todas as suas metas.</p>
+          <Button onClick={() => setFocusMode(false)} className="mt-4">
+            Voltar à visualização normal
+          </Button>
+        </Card>
+      );
+    }
+
+    const currentGoal = pendingGoals[0];
+    const AreaIcon = AREA_ICONS[currentGoal.areaId];
+
+    return (
+      <Card className="overflow-hidden">
+        <div className="p-6 bg-gradient-to-r from-primary/10 to-primary/5 border-b">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <Target className="w-6 h-6 text-primary" />
+              <h3 className="text-lg font-bold">Modo Foco</h3>
+            </div>
+            <Button variant="ghost" size="sm" onClick={() => setFocusMode(false)}>
+              <X className="w-4 h-4 mr-1" />
+              Sair
+            </Button>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            {pendingGoals.length} meta{pendingGoals.length > 1 ? 's' : ''} pendente{pendingGoals.length > 1 ? 's' : ''}
+          </p>
+        </div>
+        <div className="p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <div 
+              className="w-12 h-12 rounded-xl flex items-center justify-center"
+              style={{ backgroundColor: getAreaColor(currentGoal.areaId) }}
+            >
+              <AreaIcon className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <p className="font-semibold">{getAreaLabel(currentGoal.areaId)}</p>
+              <p className="text-sm text-muted-foreground">{currentGoal.year}</p>
+            </div>
+          </div>
+          <div className="bg-muted/30 rounded-xl p-4 mb-6">
+            <p className="text-foreground leading-relaxed">{currentGoal.goal.goal_text}</p>
+          </div>
+          <div className="flex gap-3">
+            <Button 
+              className="flex-1 h-12" 
+              onClick={() => handleToggleComplete(currentGoal.goal)}
+            >
+              <CheckCircle2 className="w-5 h-5 mr-2" />
+              Marcar como Realizada
+            </Button>
+            {pendingGoals.length > 1 && (
+              <Button variant="outline" className="h-12" onClick={() => {
+                // Move to next goal by shuffling array
+                const shuffled = [...pendingGoals];
+                shuffled.push(shuffled.shift()!);
+              }}>
+                Pular
+              </Button>
+            )}
+          </div>
+        </div>
+      </Card>
+    );
+  };
+
+  if (focusMode) {
+    return <FocusModeView />;
+  }
+
   return (
     <div className="space-y-4">
+      {/* Overall Stats */}
+      {periods.length > 0 && (
+        <Card className="p-4 bg-gradient-to-r from-primary/5 to-transparent border-primary/20">
+          <div className="flex items-center justify-between flex-wrap gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                <Target className="w-6 h-6 text-primary" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Progresso Total</p>
+                <p className="text-2xl font-bold text-foreground">
+                  {overallStats.completedGoals}/{overallStats.totalGoals} metas
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="w-32 h-3 bg-muted rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-gradient-to-r from-primary to-emerald-500 transition-all duration-500 rounded-full"
+                  style={{ width: `${overallStats.percent}%` }}
+                />
+              </div>
+              <span className="text-lg font-bold text-primary">{overallStats.percent}%</span>
+              {pendingGoals.length > 0 && (
+                <Button 
+                  size="sm" 
+                  className="gap-1.5"
+                  onClick={() => setFocusMode(true)}
+                >
+                  <Target className="w-4 h-4" />
+                  Modo Foco
+                </Button>
+              )}
+            </div>
+          </div>
+        </Card>
+      )}
+
       {/* Controls */}
       {periods.length > 0 && (
         <div className="flex items-center justify-between gap-2 flex-wrap">
@@ -901,6 +1071,33 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, li
           <DialogFooter>
             <Button variant="ghost" onClick={handleCancelEdit}>Cancelar</Button>
             <Button onClick={handleSaveEdit}>Salvar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Period Confirmation Dialog */}
+      <Dialog open={!!deletePeriodDialog} onOpenChange={(open) => !open && setDeletePeriodDialog(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-destructive">
+              <AlertTriangle className="w-5 h-5" />
+              Excluir Período
+            </DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p className="text-foreground">
+              Tem certeza que deseja excluir o período <strong>{deletePeriodDialog?.year}</strong> ({deletePeriodDialog?.age} anos)?
+            </p>
+            <p className="text-sm text-muted-foreground mt-2">
+              Todas as metas deste período serão excluídas permanentemente. Esta ação não pode ser desfeita.
+            </p>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setDeletePeriodDialog(null)}>Cancelar</Button>
+            <Button variant="destructive" onClick={handleDeletePeriod}>
+              <Trash2 className="w-4 h-4 mr-2" />
+              Excluir Período
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
