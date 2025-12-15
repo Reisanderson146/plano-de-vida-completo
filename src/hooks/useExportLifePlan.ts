@@ -141,7 +141,42 @@ export function useExportLifePlan() {
 
     doc.setFontSize(10);
     doc.text(`Total de Metas: ${totalGoals} | Concluidas: ${completedGoals} | Progresso: ${percentage}%`, margin, yPosition);
-    yPosition += 8;
+    yPosition += 10;
+
+    // Color legend
+    const areaColors: { label: string; color: [number, number, number] }[] = [
+      { label: getAreaLabel('espiritual', areaConfigs), color: [139, 92, 246] },
+      { label: getAreaLabel('intelectual', areaConfigs), color: [59, 130, 246] },
+      { label: getAreaLabel('familiar', areaConfigs), color: [236, 72, 153] },
+      { label: getAreaLabel('social', areaConfigs), color: [249, 115, 22] },
+      { label: getAreaLabel('financeiro', areaConfigs), color: [34, 197, 94] },
+      { label: getAreaLabel('profissional', areaConfigs), color: [6, 182, 212] },
+      { label: getAreaLabel('saude', areaConfigs), color: [239, 68, 68] },
+    ];
+
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Legenda das Areas:', margin, yPosition);
+    yPosition += 5;
+
+    const legendBoxSize = 4;
+    const legendSpacing = 38;
+    let legendX = margin;
+
+    areaColors.forEach((area, index) => {
+      // Draw color box
+      doc.setFillColor(area.color[0], area.color[1], area.color[2]);
+      doc.rect(legendX, yPosition - 3, legendBoxSize, legendBoxSize, 'F');
+      
+      // Draw label
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(60);
+      doc.text(area.label, legendX + legendBoxSize + 2, yPosition);
+      
+      legendX += legendSpacing;
+    });
+
+    yPosition += 10;
 
     // Create table for each year
     years.forEach((year, yearIndex) => {
