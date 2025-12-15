@@ -22,7 +22,8 @@ import {
   LogOut,
   User,
   Settings,
-  Shield
+  Shield,
+  CreditCard
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { NotificationBell } from '@/components/notifications/NotificationBell';
@@ -136,6 +137,12 @@ export function Navbar() {
                   <Link to="/configuracoes" className="flex items-center cursor-pointer">
                     <Settings className="w-4 h-4 mr-2" />
                     Configurações
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/conta" className="flex items-center cursor-pointer">
+                    <CreditCard className="w-4 h-4 mr-2" />
+                    Minha Assinatura
                   </Link>
                 </DropdownMenuItem>
                 {isAdmin && (

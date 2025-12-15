@@ -29,9 +29,23 @@ export default function Auth() {
   const { errors, setFieldError, clearError, hasError, getError, clearAllErrors } = useFormValidation();
 
   useEffect(() => {
-    if (user) {
-      navigate('/');
-    }
+    const checkSubscriptionAndRedirect = async () => {
+      if (!user) return;
+      
+      const { data } = await supabase
+        .from('profiles')
+        .select('subscription_status')
+        .eq('id', user.id)
+        .maybeSingle();
+      
+      if (data?.subscription_status === 'active') {
+        navigate('/');
+      } else {
+        navigate('/assinatura');
+      }
+    };
+    
+    checkSubscriptionAndRedirect();
   }, [user, navigate]);
 
   const handleSignIn = async (e: React.FormEvent) => {
@@ -70,8 +84,7 @@ export default function Auth() {
           variant: 'destructive',
         });
       }
-    } else {
-      navigate('/');
+      // Redirect is handled by useEffect based on subscription status
     }
   };
 
@@ -135,7 +148,7 @@ export default function Auth() {
         title: 'Cadastro realizado!',
         description: 'Bem-vindo ao Plano de Vida!',
       });
-      navigate('/');
+      // Redirect is handled by useEffect based on subscription status
     }
   };
 
