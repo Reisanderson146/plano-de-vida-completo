@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Gem, BadgeCheck, CreditCard, Calendar, AlertTriangle, Check, Shield } from 'lucide-react';
+import { Gem, BadgeCheck, CreditCard, Calendar, AlertTriangle, Check, Shield, ExternalLink, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -23,15 +23,18 @@ import { toast } from 'sonner';
 interface SubscriptionInfo {
   status: string;
   plan: string | null;
+  subscriptionEnd: string | null;
 }
 
 export default function Conta() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [portalLoading, setPortalLoading] = useState(false);
   const [subscription, setSubscription] = useState<SubscriptionInfo>({
     status: 'inactive',
     plan: null,
+    subscriptionEnd: null,
   });
 
   useEffect(() => {
@@ -43,47 +46,68 @@ export default function Conta() {
   const loadSubscription = async () => {
     if (!user) return;
 
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('subscription_status, subscription_plan')
-      .eq('id', user.id)
-      .maybeSingle();
+    try {
+      // First check local profile
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('subscription_status, subscription_plan')
+        .eq('id', user.id)
+        .maybeSingle();
 
-    if (!error && data) {
-      setSubscription({
-        status: data.subscription_status || 'inactive',
-        plan: data.subscription_plan,
-      });
+      if (profile) {
+        setSubscription({
+          status: profile.subscription_status || 'inactive',
+          plan: profile.subscription_plan,
+          subscriptionEnd: null,
+        });
+      }
+
+      // Then sync with Stripe
+      const { data, error } = await supabase.functions.invoke('check-subscription');
+      
+      if (!error && data) {
+        setSubscription({
+          status: data.subscription_status || 'inactive',
+          plan: data.subscription_plan,
+          subscriptionEnd: data.subscription_end || null,
+        });
+      }
+    } catch (error) {
+      console.error('Error loading subscription:', error);
     }
   };
 
-  const handleCancel = async () => {
-    if (!user) return;
-
-    setLoading(true);
+  const handleManageSubscription = async () => {
+    setPortalLoading(true);
     try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({
-          subscription_status: 'inactive',
-          subscription_plan: null,
-        })
-        .eq('id', user.id);
-
+      const { data, error } = await supabase.functions.invoke('customer-portal');
+      
       if (error) throw error;
 
-      toast.success('Assinatura cancelada');
-      navigate('/assinatura');
+      if (data?.url) {
+        window.open(data.url, '_blank');
+      } else {
+        throw new Error('No portal URL returned');
+      }
     } catch (error) {
-      console.error('Error canceling subscription:', error);
-      toast.error('Erro ao cancelar assinatura');
+      console.error('Error opening customer portal:', error);
+      toast.error('Erro ao abrir portal de gerenciamento');
     } finally {
-      setLoading(false);
+      setPortalLoading(false);
     }
   };
 
   const isActive = subscription.status === 'active';
   const isPremium = subscription.plan === 'premium';
+
+  const formatDate = (dateStr: string | null) => {
+    if (!dateStr) return null;
+    return new Date(dateStr).toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric',
+    });
+  };
 
   return (
     <AppLayout>
@@ -148,8 +172,15 @@ export default function Conta() {
               <div className="flex items-center gap-3 p-4 bg-[#A8E6CE]/10 rounded-xl">
                 <Calendar className="w-5 h-5 text-[#2A8C68]" />
                 <div>
-                  <p className="text-xs text-muted-foreground">Status</p>
-                  <p className="font-bold text-lg">{isActive ? 'Ativo' : 'Inativo'}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {subscription.subscriptionEnd ? 'Próxima cobrança' : 'Status'}
+                  </p>
+                  <p className="font-bold text-lg">
+                    {subscription.subscriptionEnd 
+                      ? formatDate(subscription.subscriptionEnd) 
+                      : (isActive ? 'Ativo' : 'Inativo')
+                    }
+                  </p>
                 </div>
               </div>
             </div>
@@ -177,38 +208,24 @@ export default function Conta() {
 
             {/* Actions */}
             {isActive ? (
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button variant="outline" className="w-full text-destructive hover:text-destructive border-destructive/30 hover:border-destructive/50 hover:bg-destructive/5">
-                    <AlertTriangle className="w-4 h-4 mr-2" />
-                    Cancelar assinatura
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle className="flex items-center gap-2">
-                      <AlertTriangle className="w-5 h-5 text-destructive" />
-                      Cancelar assinatura?
-                    </AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Ao cancelar, você perderá acesso a todas as funcionalidades premium. 
-                      Seus dados serão mantidos e você pode reativar a qualquer momento.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Manter Premium</AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={handleCancel}
-                      disabled={loading}
-                      className="bg-destructive hover:bg-destructive/90"
-                    >
-                      {loading ? 'Cancelando...' : 'Confirmar cancelamento'}
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
+              <Button 
+                onClick={handleManageSubscription} 
+                disabled={portalLoading}
+                variant="outline" 
+                className="w-full"
+              >
+                {portalLoading ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <ExternalLink className="w-4 h-4 mr-2" />
+                )}
+                Gerenciar Assinatura no Stripe
+              </Button>
             ) : (
-              <Button onClick={() => navigate('/assinatura')} className="w-full bg-gradient-to-r from-[#2A8C68] to-[#7BC8A4] hover:from-[#238058] hover:to-[#6ab893] text-white">
+              <Button 
+                onClick={() => navigate('/assinatura')} 
+                className="w-full bg-gradient-to-r from-[#2A8C68] to-[#7BC8A4] hover:from-[#238058] hover:to-[#6ab893] text-white"
+              >
                 <Gem className="w-4 h-4 mr-2" />
                 Ativar Premium
               </Button>
