@@ -8,9 +8,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import loginBackground from '@/assets/login-background.png';
 
-// TODO: Replace with your actual Stripe Price ID
-const STRIPE_PRICE_ID = 'price_REPLACE_WITH_YOUR_PRICE_ID';
-
 const benefits = [
   { icon: Target, text: 'Planejamento completo das 7 áreas da vida' },
   { icon: Shield, text: 'Seus dados seguros na nuvem' },
@@ -29,9 +26,7 @@ export default function Assinatura() {
 
     setLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: { priceId: STRIPE_PRICE_ID },
-      });
+      const { data, error } = await supabase.functions.invoke('create-checkout');
 
       if (error) throw error;
 
