@@ -1,10 +1,11 @@
 import { useState } from 'react';
+import confetti from 'canvas-confetti';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
-import { Pencil, Plus, Trash2, ChevronDown, ChevronUp, Calendar, User, CheckCircle2, X } from 'lucide-react';
+import { Pencil, Plus, Trash2, ChevronDown, ChevronUp, Calendar, User, CheckCircle2, X, LayoutGrid, List } from 'lucide-react';
 import { LIFE_AREAS, LifeArea, AREA_ICONS } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
@@ -55,6 +56,7 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, li
   const [newRowYear, setNewRowYear] = useState(new Date().getFullYear());
   const [newRowAge, setNewRowAge] = useState(30);
   const [expandedYears, setExpandedYears] = useState<Set<number>>(new Set([new Date().getFullYear()]));
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [addGoalDialog, setAddGoalDialog] = useState<{ year: number; age: number; area: LifeArea } | null>(null);
   const [newGoalText, setNewGoalText] = useState('');
   const { toast } = useToast();
@@ -102,10 +104,22 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, li
   };
 
   const handleToggleComplete = async (goal: Goal) => {
+    const wasCompleted = goal.is_completed;
     await onUpdateGoal(goal.id, { is_completed: !goal.is_completed });
+    
+    // Fire confetti when completing a goal
+    if (!wasCompleted) {
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ['#22c55e', '#16a34a', '#4ade80', '#86efac']
+      });
+    }
+    
     toast({ 
-      title: goal.is_completed ? 'Check-in removido' : 'Check-in realizado!',
-      description: goal.is_completed ? 'Meta desmarcada' : 'Parabéns por alcançar sua meta!'
+      title: wasCompleted ? 'Check-in removido' : 'Check-in realizado!',
+      description: wasCompleted ? 'Meta desmarcada' : 'Parabéns por alcançar sua meta!'
     });
   };
 
@@ -435,83 +449,195 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, li
           
           <CollapsibleContent>
             <CardContent className="p-0">
-              {/* Desktop/Tablet: Horizontal Scroll Cards */}
-              <div className="hidden md:block border-t border-border">
-                <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent">
-                  <div className="flex gap-4 p-4 min-w-max">
-                    {LIFE_AREAS.map((area) => {
-                      const progress = getAreaProgress(period.goals[area.id]);
-                      const AreaIcon = AREA_ICONS[area.id as LifeArea];
-                      return (
-                        <div 
-                          key={area.id} 
-                          className="w-[280px] flex-shrink-0 rounded-2xl border border-border/40 overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 group/card"
-                          style={{ backgroundColor: `${getAreaColor(area.id)}05` }}
-                        >
-                          {/* Area Header */}
+              {/* Desktop/Tablet: Grid View (Horizontal Scroll Cards) */}
+              {viewMode === 'grid' && (
+                <div className="hidden md:block border-t border-border">
+                  <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent">
+                    <div className="flex gap-4 p-4 min-w-max">
+                      {LIFE_AREAS.map((area) => {
+                        const progress = getAreaProgress(period.goals[area.id]);
+                        const AreaIcon = AREA_ICONS[area.id as LifeArea];
+                        return (
                           <div 
-                            className="px-4 py-4 border-b border-border/20 relative overflow-hidden"
-                            style={{ backgroundColor: `${getAreaColor(area.id)}12` }}
+                            key={area.id} 
+                            className="w-[280px] flex-shrink-0 rounded-2xl border border-border/40 overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 group/card"
+                            style={{ backgroundColor: `${getAreaColor(area.id)}05` }}
                           >
-                            {/* Decorative gradient */}
+                            {/* Area Header */}
                             <div 
-                              className="absolute inset-0 opacity-30"
-                              style={{ background: `linear-gradient(135deg, ${getAreaColor(area.id)}40 0%, transparent 50%)` }}
-                            />
-                            {/* Icon background decoration */}
-                            <div 
-                              className="absolute -right-4 -top-4 w-20 h-20 rounded-full opacity-10"
-                              style={{ backgroundColor: getAreaColor(area.id) }}
-                            />
-                            <div className="relative">
-                              <div className="flex items-center gap-3">
-                                <div 
-                                  className="w-10 h-10 rounded-xl flex items-center justify-center shadow-sm transition-transform group-hover/card:scale-110" 
-                                  style={{ backgroundColor: getAreaColor(area.id) }}
-                                >
-                                  <AreaIcon className="w-5 h-5 text-white" />
-                                </div>
-                                <span className="font-bold text-foreground text-base">{getAreaLabel(area.id)}</span>
-                              </div>
-                              {progress && (
-                                <div className="mt-3">
-                                  <div className="flex items-center justify-between text-xs text-muted-foreground mb-1.5">
-                                    <span className="font-medium">{progress.completed}/{progress.total} metas</span>
-                                    <span 
-                                      className="font-bold px-2.5 py-0.5 rounded-full text-white text-[11px] shadow-sm"
-                                      style={{ backgroundColor: getAreaColor(area.id) }}
-                                    >
-                                      {progress.percent}%
-                                    </span>
+                              className="px-4 py-4 border-b border-border/20 relative overflow-hidden"
+                              style={{ backgroundColor: `${getAreaColor(area.id)}12` }}
+                            >
+                              {/* Decorative gradient */}
+                              <div 
+                                className="absolute inset-0 opacity-30"
+                                style={{ background: `linear-gradient(135deg, ${getAreaColor(area.id)}40 0%, transparent 50%)` }}
+                              />
+                              {/* Icon background decoration */}
+                              <div 
+                                className="absolute -right-4 -top-4 w-20 h-20 rounded-full opacity-10"
+                                style={{ backgroundColor: getAreaColor(area.id) }}
+                              />
+                              <div className="relative">
+                                <div className="flex items-center gap-3">
+                                  <div 
+                                    className="w-10 h-10 rounded-xl flex items-center justify-center shadow-sm transition-transform group-hover/card:scale-110" 
+                                    style={{ backgroundColor: getAreaColor(area.id) }}
+                                  >
+                                    <AreaIcon className="w-5 h-5 text-white" />
                                   </div>
-                                  <div className="w-full h-2.5 bg-background/60 rounded-full overflow-hidden shadow-inner">
+                                  <span className="font-bold text-foreground text-base">{getAreaLabel(area.id)}</span>
+                                </div>
+                                {progress && (
+                                  <div className="mt-3">
+                                    <div className="flex items-center justify-between text-xs text-muted-foreground mb-1.5">
+                                      <span className="font-medium">{progress.completed}/{progress.total} metas</span>
+                                      <span 
+                                        className="font-bold px-2.5 py-0.5 rounded-full text-white text-[11px] shadow-sm"
+                                        style={{ backgroundColor: getAreaColor(area.id) }}
+                                      >
+                                        {progress.percent}%
+                                      </span>
+                                    </div>
+                                    <div className="w-full h-2.5 bg-background/60 rounded-full overflow-hidden shadow-inner">
+                                      <div 
+                                        className="h-full transition-all duration-500 rounded-full shadow-sm" 
+                                        style={{ 
+                                          width: `${progress.percent}%`, 
+                                          background: `linear-gradient(90deg, ${getAreaColor(area.id)}, ${getAreaColor(area.id)}cc)`
+                                        }}
+                                      />
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                            
+                            {/* Goals List */}
+                            <div className="p-4 min-h-[180px] max-h-[320px] overflow-y-auto">
+                              <GoalListExpanded areaGoals={period.goals[area.id]} areaId={area.id} period={period} />
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                  {/* Scroll indicator */}
+                  <div className="flex items-center justify-center gap-2 py-2 text-xs text-muted-foreground border-t border-border/30">
+                    <span>← Deslize para ver mais áreas →</span>
+                  </div>
+                </div>
+              )}
+
+              {/* Desktop/Tablet: List View */}
+              {viewMode === 'list' && (
+                <div className="hidden md:block border-t border-border divide-y divide-border">
+                  {LIFE_AREAS.map((area) => {
+                    const progress = getAreaProgress(period.goals[area.id]);
+                    const AreaIcon = AREA_ICONS[area.id as LifeArea];
+                    const goalsWithText = period.goals[area.id].filter(g => g.goal_text.trim());
+                    
+                    return (
+                      <div 
+                        key={area.id} 
+                        className="p-4 hover:bg-muted/20 transition-colors"
+                      >
+                        <div className="flex items-start gap-4">
+                          {/* Area Info */}
+                          <div 
+                            className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" 
+                            style={{ backgroundColor: getAreaColor(area.id) }}
+                          >
+                            <AreaIcon className="w-5 h-5 text-white" />
+                          </div>
+                          
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="font-semibold text-foreground">{getAreaLabel(area.id)}</span>
+                              {progress && (
+                                <div className="flex items-center gap-3">
+                                  <div className="w-24 h-2 bg-muted rounded-full overflow-hidden">
                                     <div 
-                                      className="h-full transition-all duration-500 rounded-full shadow-sm" 
+                                      className="h-full transition-all duration-500 rounded-full" 
                                       style={{ 
                                         width: `${progress.percent}%`, 
-                                        background: `linear-gradient(90deg, ${getAreaColor(area.id)}, ${getAreaColor(area.id)}cc)`
+                                        backgroundColor: getAreaColor(area.id)
                                       }}
                                     />
                                   </div>
+                                  <span 
+                                    className="text-xs font-bold px-2 py-0.5 rounded-full text-white"
+                                    style={{ backgroundColor: getAreaColor(area.id) }}
+                                  >
+                                    {progress.percent}%
+                                  </span>
                                 </div>
                               )}
                             </div>
-                          </div>
-                          
-                          {/* Goals List */}
-                          <div className="p-4 min-h-[180px] max-h-[320px] overflow-y-auto">
-                            <GoalListExpanded areaGoals={period.goals[area.id]} areaId={area.id} period={period} />
+                            
+                            {/* Goals inline */}
+                            <div className="space-y-1.5">
+                              {goalsWithText.map((goal, index) => (
+                                <div key={goal.id} className="flex items-center gap-2 group">
+                                  <Checkbox 
+                                    checked={goal.is_completed} 
+                                    onCheckedChange={() => handleToggleComplete(goal)} 
+                                    className="h-4 w-4"
+                                    style={{ borderColor: getAreaColor(area.id) }}
+                                  />
+                                  <span className={cn(
+                                    "text-sm flex-1",
+                                    goal.is_completed && "line-through opacity-60"
+                                  )}>
+                                    <span className="font-medium text-muted-foreground">{index + 1}º </span>
+                                    {goal.goal_text}
+                                  </span>
+                                  {editable && (
+                                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                      <Button 
+                                        size="icon" 
+                                        variant="ghost" 
+                                        onClick={() => handleStartEdit(goal)} 
+                                        className="h-6 w-6 hover:bg-primary/10 hover:text-primary"
+                                      >
+                                        <Pencil className="w-3 h-3" />
+                                      </Button>
+                                      <Button 
+                                        size="icon" 
+                                        variant="ghost" 
+                                        onClick={() => onDeleteGoal(goal.id)} 
+                                        className="h-6 w-6 hover:bg-destructive/10 hover:text-destructive"
+                                      >
+                                        <Trash2 className="w-3 h-3" />
+                                      </Button>
+                                    </div>
+                                  )}
+                                </div>
+                              ))}
+                              
+                              {goalsWithText.length === 0 && !editable && (
+                                <p className="text-sm italic text-muted-foreground">Sem metas definidas</p>
+                              )}
+                              
+                              {editable && (
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm" 
+                                  className="h-7 text-xs text-muted-foreground hover:text-primary" 
+                                  onClick={() => { setAddGoalDialog({ year: period.year, age: period.age, area: area.id }); setNewGoalText(''); }}
+                                >
+                                  <Plus className="w-3 h-3 mr-1" />
+                                  Adicionar meta
+                                </Button>
+                              )}
+                            </div>
                           </div>
                         </div>
-                      );
-                    })}
-                  </div>
+                      </div>
+                    );
+                  })}
                 </div>
-                {/* Scroll indicator */}
-                <div className="flex items-center justify-center gap-2 py-2 text-xs text-muted-foreground border-t border-border/30">
-                  <span>← Deslize para ver mais áreas →</span>
-                </div>
-              </div>
+              )}
 
               {/* Mobile List */}
               <div className="md:hidden divide-y divide-border">
@@ -529,16 +655,43 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, li
   return (
     <div className="space-y-4">
       {/* Controls */}
-      {periods.length > 1 && (
-        <div className="flex items-center justify-end gap-2">
-          <Button variant="ghost" size="sm" onClick={expandAll} className="text-xs">
-            <ChevronDown className="w-3 h-3 mr-1" />
-            Expandir todos
-          </Button>
-          <Button variant="ghost" size="sm" onClick={collapseAll} className="text-xs">
-            <ChevronUp className="w-3 h-3 mr-1" />
-            Recolher todos
-          </Button>
+      {periods.length > 0 && (
+        <div className="flex items-center justify-between gap-2 flex-wrap">
+          {/* View Toggle */}
+          <div className="hidden md:flex items-center gap-1 bg-muted/50 p-1 rounded-lg">
+            <Button
+              variant={viewMode === 'grid' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setViewMode('grid')}
+              className="h-8 px-3 gap-1.5"
+            >
+              <LayoutGrid className="w-4 h-4" />
+              Grid
+            </Button>
+            <Button
+              variant={viewMode === 'list' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setViewMode('list')}
+              className="h-8 px-3 gap-1.5"
+            >
+              <List className="w-4 h-4" />
+              Lista
+            </Button>
+          </div>
+          
+          {/* Expand/Collapse */}
+          {periods.length > 1 && (
+            <div className="flex items-center gap-2 ml-auto">
+              <Button variant="ghost" size="sm" onClick={expandAll} className="text-xs">
+                <ChevronDown className="w-3 h-3 mr-1" />
+                Expandir todos
+              </Button>
+              <Button variant="ghost" size="sm" onClick={collapseAll} className="text-xs">
+                <ChevronUp className="w-3 h-3 mr-1" />
+                Recolher todos
+              </Button>
+            </div>
+          )}
         </div>
       )}
 
