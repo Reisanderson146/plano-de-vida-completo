@@ -12,7 +12,7 @@ const benefits = [
   { icon: Target, text: 'Planejamento completo das 7 áreas da vida' },
   { icon: Shield, text: 'Seus dados seguros na nuvem' },
   { icon: Zap, text: 'Relatórios e gráficos de progresso' },
-  { icon: Heart, text: 'Acompanhamento de metas por período' },
+  { icon: Heart, text: 'Lembretes personalizados por email' },
   { icon: Sparkles, text: 'Exportação profissional em PDF' },
 ];
 
@@ -64,39 +64,29 @@ export default function Assinatura() {
         backgroundRepeat: 'no-repeat',
       }}
     >
-      {/* Subtle overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/30" />
+      {/* Green overlay - matching original design */}
+      <div className="absolute inset-0 bg-gradient-to-br from-[#2A8C68]/80 via-[#7BC8A4]/70 to-[#A8E6CE]/60" />
       
-      {/* Animated glow effects */}
-      <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-[#A8E6CE]/10 rounded-full blur-[120px] animate-pulse" />
-      <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-[#7BC8A4]/10 rounded-full blur-[100px] animate-pulse delay-1000" />
+      {/* Subtle glow effects */}
+      <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-[#A8E6CE]/20 rounded-full blur-[120px] animate-pulse" />
+      <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-[#7BC8A4]/15 rounded-full blur-[100px] animate-pulse delay-1000" />
 
-      {/* Top Navigation Bar with Login Button */}
-      <div className="absolute top-0 left-0 right-0 z-20 p-4 sm:p-6">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          {/* Logo */}
-          <div className="flex items-center gap-2">
-            <h2 className="text-xl sm:text-2xl font-bold text-white drop-shadow-lg">
-              Plano de Vida
-            </h2>
-          </div>
-
-          {/* Login Button */}
-          <Button
-            onClick={handleLogin}
-            variant="outline"
-            className="bg-white/10 backdrop-blur-md border-white/30 text-white hover:bg-white/20 hover:text-white rounded-xl px-4 sm:px-6 py-2 font-semibold transition-all duration-300 shadow-lg"
-          >
-            <User className="w-4 h-4 mr-2" />
-            <span className="hidden sm:inline">Entrar</span>
-            <span className="sm:hidden">Login</span>
-          </Button>
-        </div>
+      {/* Login Button - Top Right */}
+      <div className="absolute top-4 right-4 sm:top-6 sm:right-6 z-20">
+        <Button
+          onClick={handleLogin}
+          variant="outline"
+          className="bg-white/20 backdrop-blur-md border-white/40 text-white hover:bg-white/30 hover:text-white rounded-xl px-4 sm:px-6 py-2 font-semibold transition-all duration-300 shadow-lg"
+        >
+          <User className="w-4 h-4 mr-2" />
+          <span className="hidden sm:inline">Entrar</span>
+          <span className="sm:hidden">Login</span>
+        </Button>
       </div>
 
-      <div className="relative z-10 min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8 pt-20 sm:pt-24">
+      <div className="relative z-10 min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8">
         
-        {/* Subscription Card */}
+        {/* Subscription Content */}
         <div className="w-full flex flex-col items-center animate-fade-in">
           {/* Header */}
           <div className="text-center mb-6">
