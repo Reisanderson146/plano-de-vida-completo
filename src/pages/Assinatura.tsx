@@ -152,24 +152,35 @@ export default function Assinatura() {
                 })}
               </div>
 
-              {/* CTA Button */}
-              <Button
-                onClick={handleCheckout}
-                disabled={loading}
-                className="w-full h-12 text-base font-bold rounded-xl bg-gradient-to-r from-[#2A8C68] via-[#7BC8A4] to-[#2A8C68] hover:from-[#238058] hover:via-[#6ab893] hover:to-[#238058] text-white shadow-lg shadow-[#2A8C68]/30 transition-all duration-300 hover:scale-[1.02]"
-              >
-                {loading ? (
-                  <div className="flex items-center gap-2">
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Processando...
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-2">
-                    <Gem className="w-4 h-4" />
-                    Assinar Agora
-                  </div>
-                )}
-              </Button>
+              {/* CTA Buttons */}
+              <div className="space-y-2">
+                <Button
+                  onClick={handleCheckout}
+                  disabled={loading}
+                  className="w-full h-12 text-base font-bold rounded-xl bg-gradient-to-r from-[#2A8C68] via-[#7BC8A4] to-[#2A8C68] hover:from-[#238058] hover:via-[#6ab893] hover:to-[#238058] text-white shadow-lg shadow-[#2A8C68]/30 transition-all duration-300 hover:scale-[1.02]"
+                >
+                  {loading ? (
+                    <div className="flex items-center gap-2">
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Processando...
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <Gem className="w-4 h-4" />
+                      Assinar Agora
+                    </div>
+                  )}
+                </Button>
+
+                <Button
+                  onClick={handleAlreadySubscriber}
+                  variant="outline"
+                  className="w-full h-10 text-sm font-medium rounded-xl border-[#2A8C68] text-[#2A8C68] hover:bg-[#2A8C68] hover:text-white transition-all"
+                >
+                  <LogIn className="w-4 h-4 mr-2" />
+                  Já sou assinante
+                </Button>
+              </div>
 
               {/* Trust badges - Compact */}
               <div className="flex items-center justify-center gap-3 pt-1 text-muted-foreground text-xs">
