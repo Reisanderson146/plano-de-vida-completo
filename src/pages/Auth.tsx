@@ -23,6 +23,8 @@ export default function Auth() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [resetEmailSent, setResetEmailSent] = useState(false);
+  const [emailConfirmationPending, setEmailConfirmationPending] = useState(false);
+  const [pendingEmail, setPendingEmail] = useState('');
   const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -144,11 +146,9 @@ export default function Auth() {
         });
       }
     } else {
-      toast({
-        title: 'Cadastro realizado!',
-        description: 'Bem-vindo ao Plano de Vida!',
-      });
-      // Redirect is handled by useEffect based on subscription status
+      // Email confirmation required
+      setPendingEmail(email);
+      setEmailConfirmationPending(true);
     }
   };
 
@@ -186,6 +186,88 @@ export default function Auth() {
       });
     }
   };
+
+  // Email Confirmation Pending View
+  if (emailConfirmationPending) {
+    return (
+      <div 
+        className="min-h-screen flex items-center justify-center p-4 sm:p-6 md:p-8 relative overflow-hidden"
+        style={{
+          backgroundImage: `url(${loginBackground})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+        }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-br from-[#2A8C68]/60 via-[#7BC8A4]/40 to-[#2A8C68]/50 backdrop-blur-[2px]" />
+        <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-[#A8E6CE]/20 rounded-full blur-[120px] animate-pulse" />
+        <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-[#7BC8A4]/15 rounded-full blur-[100px] animate-pulse delay-1000" />
+        
+        <div className="w-full max-w-[440px] animate-fade-in relative z-10">
+          <div className="flex flex-col items-center mb-10 sm:mb-12">
+            <Logo size="2xl" showText={false} showIcon={true} variant="light" className="drop-shadow-2xl mb-6" />
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-white tracking-tight drop-shadow-[0_4px_20px_rgba(0,0,0,0.3)] mb-4">
+              Plano de Vida
+            </h1>
+            <p className="text-white/90 text-center text-lg sm:text-xl font-light tracking-[0.15em] drop-shadow-md">
+              Constância que constrói propósito.
+            </p>
+          </div>
+
+          <Card className="relative border-0 overflow-hidden rounded-[28px] shadow-[0_20px_60px_-10px_rgba(42,140,104,0.35)]">
+            <div className="absolute inset-0 rounded-[28px] p-[1px] bg-gradient-to-br from-white/40 via-[#A8E6CE]/30 to-white/20">
+              <div className="w-full h-full rounded-[27px] bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl" />
+            </div>
+            
+            <div className="relative z-10">
+              <CardHeader className="pb-3 pt-8 px-7 sm:px-9 text-center space-y-3">
+                <div className="mx-auto w-16 h-16 rounded-full bg-[#A8E6CE]/30 flex items-center justify-center mb-2">
+                  <svg className="w-8 h-8 text-[#2A8C68]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <CardTitle className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-[#2A8C68] via-[#7BC8A4] to-[#2A8C68] bg-clip-text text-transparent">
+                  Confirme seu Email
+                </CardTitle>
+                <CardDescription className="text-muted-foreground text-sm sm:text-base font-normal">
+                  Enviamos um link de confirmação para:
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="px-7 sm:px-9 pb-9">
+                <div className="space-y-6">
+                  <div className="p-4 rounded-2xl bg-[#A8E6CE]/20 border border-[#7BC8A4]/30 text-center">
+                    <p className="text-base font-semibold text-[#2A8C68] break-all">
+                      {pendingEmail}
+                    </p>
+                  </div>
+                  
+                  <div className="space-y-3 text-sm text-muted-foreground">
+                    <p className="text-center">
+                      Clique no link enviado para ativar sua conta.
+                    </p>
+                    <p className="text-center text-xs">
+                      Verifique também sua pasta de spam.
+                    </p>
+                  </div>
+                  
+                  <Button 
+                    onClick={() => {
+                      setEmailConfirmationPending(false);
+                      setPendingEmail('');
+                    }}
+                    className="w-full h-14 text-base font-bold rounded-2xl bg-gradient-to-r from-[#2A8C68] via-[#7BC8A4] to-[#2A8C68] hover:from-[#238058] hover:via-[#6ab893] hover:to-[#238058] transition-all duration-300 shadow-lg text-white"
+                  >
+                    <ArrowLeft className="w-5 h-5 mr-2" />
+                    Voltar ao login
+                  </Button>
+                </div>
+              </CardContent>
+            </div>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   // Forgot Password View
   if (showForgotPassword) {

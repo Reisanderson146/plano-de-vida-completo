@@ -67,7 +67,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signIn = async (email: string, password: string) => {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     
-    if (error) return { error };
+    if (error) {
+      // Check if email is not confirmed
+      if (error.message.includes('Email not confirmed')) {
+        return { error: new Error('Email não confirmado. Verifique sua caixa de entrada para ativar sua conta.') };
+      }
+      return { error };
+    }
+    
+    // Check if email is confirmed
+    if (data.user && !data.user.email_confirmed_at) {
+      await supabase.auth.signOut();
+      return { error: new Error('Email não confirmado. Verifique sua caixa de entrada para ativar sua conta.') };
+    }
     
     // Verificar se o usuário está bloqueado
     if (data.user) {
