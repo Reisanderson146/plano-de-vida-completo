@@ -112,7 +112,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    try {
+      await supabase.auth.signOut();
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      // Always clear local state, even if server-side logout fails
+      setUser(null);
+      setSession(null);
+      // Clear any stale data from localStorage
+      localStorage.removeItem('sb-uricxanhdutgjgsymurb-auth-token');
+    }
   };
 
   return (
