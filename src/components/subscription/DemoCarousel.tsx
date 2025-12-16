@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Target, Brain, Heart, Users, DollarSign, Briefcase, Dumbbell, Cross, Check, Sparkles, Calendar, TrendingUp, AlertTriangle, LayoutGrid, FileText, Settings, X, BarChart3 } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
+import { ChevronLeft, ChevronRight, Target, Brain, Heart, Users, DollarSign, Briefcase, Cross, Check, Sparkles, TrendingUp, AlertTriangle, FileText, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
@@ -16,7 +15,6 @@ const demoSlides = [
 function CadastroDemo() {
   return (
     <div className="space-y-3">
-      {/* Plan Type Selection */}
       <div className="grid grid-cols-3 gap-2">
         {[
           { icon: Target, label: 'Individual', active: true },
@@ -29,8 +27,6 @@ function CadastroDemo() {
           </div>
         ))}
       </div>
-
-      {/* Form Fields */}
       <div className="space-y-2">
         <div className="bg-gray-50 rounded-lg p-2">
           <span className="text-[8px] text-gray-500 uppercase">Nome do Plano</span>
@@ -41,8 +37,6 @@ function CadastroDemo() {
           <p className="text-[10px] text-gray-700 italic">"Constância que constrói propósito"</p>
         </div>
       </div>
-
-      {/* Period Config */}
       <div className="grid grid-cols-3 gap-2">
         {[
           { label: 'Ano', value: '2025' },
@@ -69,7 +63,6 @@ function PlanoDemo() {
 
   return (
     <div className="space-y-3">
-      {/* Header */}
       <div className="flex items-center gap-2">
         <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#2A8C68] to-[#7BC8A4] flex items-center justify-center">
           <span className="text-white text-xs font-bold">JP</span>
@@ -80,15 +73,11 @@ function PlanoDemo() {
         </div>
         <span className="text-lg font-bold text-[#2A8C68]">78%</span>
       </div>
-
-      {/* Progress */}
       <div className="bg-[#A8E6CE]/20 rounded-lg p-2 flex items-center gap-2">
         <Target className="w-4 h-4 text-[#2A8C68]" />
         <Progress value={78} className="h-2 flex-1" />
         <span className="text-[9px] font-bold text-[#2A8C68]">15/19</span>
       </div>
-
-      {/* Area Cards */}
       <div className="grid grid-cols-2 gap-2">
         {areas.map((area, i) => (
           <div key={i} className="rounded-lg p-2 bg-gray-50 border border-gray-100">
@@ -115,14 +104,10 @@ function DashboardDemo() {
     { name: 'Intelectual', color: '#3b82f6', value: 90 },
     { name: 'Familiar', color: '#ec4899', value: 70 },
     { name: 'Social', color: '#f97316', value: 60 },
-    { name: 'Financeiro', color: '#10b981', value: 75 },
-    { name: 'Profissional', color: '#06b6d4', value: 80 },
-    { name: 'Saúde', color: '#ef4444', value: 65 },
   ];
 
   return (
     <div className="space-y-3">
-      {/* Stats */}
       <div className="grid grid-cols-4 gap-1.5">
         {[
           { label: 'Metas', value: '21' },
@@ -136,8 +121,6 @@ function DashboardDemo() {
           </div>
         ))}
       </div>
-
-      {/* Radar Preview */}
       <div className="bg-gray-50 rounded-lg p-3 flex items-center justify-center">
         <div className="relative w-24 h-24">
           <svg viewBox="0 0 100 100" className="w-full h-full">
@@ -148,7 +131,7 @@ function DashboardDemo() {
           </svg>
         </div>
         <div className="ml-3 space-y-0.5">
-          {areas.slice(0, 4).map((area, i) => (
+          {areas.map((area, i) => (
             <div key={i} className="flex items-center gap-1">
               <div className="w-2 h-2 rounded-full" style={{ backgroundColor: area.color }} />
               <span className="text-[8px] text-gray-600">{area.name}</span>
@@ -156,8 +139,6 @@ function DashboardDemo() {
           ))}
         </div>
       </div>
-
-      {/* Progress */}
       <div className="flex items-center gap-2 bg-[#A8E6CE]/20 rounded-lg p-2">
         <div className="relative w-10 h-10">
           <svg className="w-10 h-10 transform -rotate-90">
@@ -186,7 +167,6 @@ function RelatoriosDemo() {
 
   return (
     <div className="space-y-3">
-      {/* Stats */}
       <div className="grid grid-cols-4 gap-1.5">
         {[
           { label: 'Total', value: '21', icon: Target },
@@ -201,8 +181,6 @@ function RelatoriosDemo() {
           </div>
         ))}
       </div>
-
-      {/* Progress Chart */}
       <div className="bg-gray-50 rounded-lg p-2">
         <div className="flex items-center justify-between mb-2">
           <span className="text-[9px] font-semibold text-gray-700">Progresso por Área</span>
@@ -232,7 +210,6 @@ function BalancoDemo() {
 
   return (
     <div className="space-y-3">
-      {/* AI Summary */}
       <div className="bg-gradient-to-r from-[#A8E6CE]/40 to-[#7BC8A4]/30 rounded-lg p-2.5 border border-[#7BC8A4]/30">
         <div className="flex items-center gap-1.5 mb-1.5">
           <Sparkles className="w-3.5 h-3.5 text-[#2A8C68]" />
@@ -244,8 +221,6 @@ function BalancoDemo() {
           <span className="text-orange-600 font-medium">⚠</span> Social e Saúde precisam de atenção.
         </p>
       </div>
-
-      {/* Attention Areas */}
       <div className="bg-red-50 rounded-lg p-2.5 border border-red-100">
         <div className="flex items-center gap-1.5 mb-2">
           <AlertTriangle className="w-3 h-3 text-red-500" />
@@ -264,8 +239,6 @@ function BalancoDemo() {
           ))}
         </div>
       </div>
-
-      {/* Actions */}
       <div className="flex gap-2">
         <Button size="sm" variant="outline" className="flex-1 h-7 text-[8px] rounded-lg">
           <FileText className="w-3 h-3 mr-1" />
@@ -288,10 +261,12 @@ interface DemoCarouselProps {
 export default function DemoCarousel({ open, onOpenChange }: DemoCarouselProps) {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+  const [slideDirection, setSlideDirection] = useState<'left' | 'right'>('right');
 
   useEffect(() => {
     if (!open || !isAutoPlaying) return;
     const interval = setInterval(() => {
+      setSlideDirection('right');
       setCurrentSlide((prev) => (prev + 1) % demoSlides.length);
     }, 4000);
     return () => clearInterval(interval);
@@ -305,16 +280,19 @@ export default function DemoCarousel({ open, onOpenChange }: DemoCarouselProps) 
   }, [open]);
 
   const goToSlide = (index: number) => {
+    setSlideDirection(index > currentSlide ? 'right' : 'left');
     setCurrentSlide(index);
     setIsAutoPlaying(false);
   };
 
   const nextSlide = () => {
+    setSlideDirection('right');
     setCurrentSlide((prev) => (prev + 1) % demoSlides.length);
     setIsAutoPlaying(false);
   };
 
   const prevSlide = () => {
+    setSlideDirection('left');
     setCurrentSlide((prev) => (prev - 1 + demoSlides.length) % demoSlides.length);
     setIsAutoPlaying(false);
   };
@@ -323,21 +301,19 @@ export default function DemoCarousel({ open, onOpenChange }: DemoCarouselProps) 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-xs w-[90vw] p-0 gap-0 border-0 bg-transparent shadow-none overflow-hidden animate-scale-in">
-        <div className="relative bg-gradient-to-br from-[#2A8C68] via-[#3d9d78] to-[#7BC8A4] rounded-2xl overflow-hidden shadow-2xl">
-          {/* Close Button */}
-          <Button
-            variant="ghost"
-            size="icon"
+      <DialogContent className="max-w-xs w-[90vw] p-0 gap-0 border-0 bg-transparent shadow-none overflow-hidden [&>button]:hidden">
+        <div className="relative bg-gradient-to-br from-[#2A8C68] via-[#3d9d78] to-[#7BC8A4] rounded-2xl overflow-hidden shadow-2xl animate-scale-in">
+          {/* Close Button - Improved */}
+          <button
             onClick={() => onOpenChange(false)}
-            className="absolute top-2 right-2 z-50 w-6 h-6 rounded-full bg-white/20 hover:bg-white/30 text-white"
+            className="absolute top-3 right-3 z-50 w-7 h-7 rounded-full bg-white shadow-lg flex items-center justify-center hover:scale-110 transition-transform"
           >
-            <X className="w-3 h-3" />
-          </Button>
+            <X className="w-4 h-4 text-gray-600" />
+          </button>
 
           {/* Header */}
           <div className="px-4 pt-4 pb-2 text-center">
-            <h2 className="text-base font-bold text-white">{demoSlides[currentSlide].title}</h2>
+            <h2 className="text-base font-bold text-white transition-all duration-300">{demoSlides[currentSlide].title}</h2>
             <p className="text-white/80 text-[10px]">{demoSlides[currentSlide].subtitle}</p>
           </div>
 
@@ -347,22 +323,32 @@ export default function DemoCarousel({ open, onOpenChange }: DemoCarouselProps) 
               <button
                 key={index}
                 onClick={() => goToSlide(index)}
-                className={`h-1 rounded-full transition-all duration-300 ${
-                  index === currentSlide ? 'bg-white w-5' : 'bg-white/40 w-1 hover:bg-white/60'
+                className={`h-1 rounded-full transition-all duration-500 ${
+                  index === currentSlide ? 'bg-white w-5' : 'bg-white/40 w-1.5 hover:bg-white/60'
                 }`}
               />
             ))}
           </div>
 
-          {/* Content */}
-          <div className="px-3 pb-3">
-            <div className="bg-white rounded-xl p-3 shadow-lg animate-fade-in">
+          {/* Content with slide animation */}
+          <div className="px-3 pb-2 overflow-hidden">
+            <div 
+              key={currentSlide}
+              className={`bg-white rounded-xl p-3 shadow-lg transition-all duration-300 ${
+                slideDirection === 'right' 
+                  ? 'animate-[slideInRight_0.3s_ease-out]' 
+                  : 'animate-[slideInLeft_0.3s_ease-out]'
+              }`}
+              style={{
+                animation: `${slideDirection === 'right' ? 'slideInRight' : 'slideInLeft'} 0.3s ease-out`
+              }}
+            >
               <CurrentComponent />
             </div>
           </div>
 
           {/* Navigation */}
-          <div className="flex items-center justify-between px-3 pb-3">
+          <div className="flex items-center justify-between px-3 pb-2">
             <Button
               variant="ghost"
               size="sm"
@@ -383,7 +369,42 @@ export default function DemoCarousel({ open, onOpenChange }: DemoCarouselProps) 
               <ChevronRight className="w-4 h-4" />
             </Button>
           </div>
+
+          {/* Skip Button */}
+          <div className="px-3 pb-3">
+            <Button
+              variant="ghost"
+              onClick={() => onOpenChange(false)}
+              className="w-full h-8 text-[10px] text-white/80 hover:text-white hover:bg-white/10 rounded-lg"
+            >
+              Pular demonstração
+            </Button>
+          </div>
         </div>
+
+        {/* Custom animation styles */}
+        <style>{`
+          @keyframes slideInRight {
+            from {
+              opacity: 0;
+              transform: translateX(20px);
+            }
+            to {
+              opacity: 1;
+              transform: translateX(0);
+            }
+          }
+          @keyframes slideInLeft {
+            from {
+              opacity: 0;
+              transform: translateX(-20px);
+            }
+            to {
+              opacity: 1;
+              transform: translateX(0);
+            }
+          }
+        `}</style>
       </DialogContent>
     </Dialog>
   );
