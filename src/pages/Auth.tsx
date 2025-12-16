@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { useFormValidation, isValidEmail } from '@/hooks/useFormValidation';
-import { Loader2, Eye, EyeOff, ArrowRight, ArrowLeft } from 'lucide-react';
+import { Loader2, Eye, EyeOff, ArrowRight, ArrowLeft, KeyRound } from 'lucide-react';
 import { Logo } from '@/components/Logo';
 import { supabase } from '@/integrations/supabase/client';
 import loginBackground from '@/assets/login-background.png';
@@ -25,12 +25,44 @@ export default function Auth() {
   const [resetEmailSent, setResetEmailSent] = useState(false);
   const [emailConfirmationPending, setEmailConfirmationPending] = useState(false);
   const [pendingEmail, setPendingEmail] = useState('');
+  const [isPasswordRecovery, setIsPasswordRecovery] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmNewPassword, setConfirmNewPassword] = useState('');
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
   const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const { errors, setFieldError, clearError, hasError, getError, clearAllErrors } = useFormValidation();
 
+  // Detect password recovery flow
   useEffect(() => {
+    const type = searchParams.get('type');
+    
+    if (type === 'recovery') {
+      // Listen for the PASSWORD_RECOVERY event
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+        if (event === 'PASSWORD_RECOVERY') {
+          setIsPasswordRecovery(true);
+        }
+      });
+
+      // Also check if we already have a session from recovery
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session) {
+          setIsPasswordRecovery(true);
+        }
+      });
+
+      return () => subscription.unsubscribe();
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
+    // Don't redirect if in password recovery mode
+    if (isPasswordRecovery) return;
+    
     const checkSubscriptionAndRedirect = async () => {
       if (!user) return;
       
@@ -48,7 +80,7 @@ export default function Auth() {
     };
     
     checkSubscriptionAndRedirect();
-  }, [user, navigate]);
+  }, [user, navigate, isPasswordRecovery]);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -186,6 +218,179 @@ export default function Auth() {
       });
     }
   };
+
+  const handleUpdatePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    clearAllErrors();
+    
+    let hasValidationError = false;
+    
+    if (!newPassword) {
+      setFieldError('new-password', 'Digite sua nova senha');
+      hasValidationError = true;
+    } else if (newPassword.length < 6) {
+      setFieldError('new-password', 'A senha deve ter pelo menos 6 caracteres');
+      hasValidationError = true;
+    }
+    
+    if (!confirmNewPassword) {
+      setFieldError('confirm-new-password', 'Confirme sua nova senha');
+      hasValidationError = true;
+    } else if (newPassword !== confirmNewPassword) {
+      setFieldError('confirm-new-password', 'As senhas não coincidem');
+      hasValidationError = true;
+    }
+    
+    if (hasValidationError) return;
+    
+    setLoading(true);
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    setLoading(false);
+    
+    if (error) {
+      toast({
+        title: 'Erro ao atualizar senha',
+        description: error.message,
+        variant: 'destructive',
+      });
+    } else {
+      // Sign out and redirect to login
+      await supabase.auth.signOut();
+      setIsPasswordRecovery(false);
+      toast({
+        title: 'Senha atualizada!',
+        description: 'Faça login com sua nova senha',
+      });
+      navigate('/auth');
+    }
+  };
+
+  // Password Recovery View - Set New Password
+  if (isPasswordRecovery) {
+    return (
+      <div 
+        className="min-h-screen flex items-center justify-center p-4 sm:p-6 md:p-8 relative overflow-hidden"
+        style={{
+          backgroundImage: `url(${loginBackground})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+        }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-br from-[#2A8C68]/60 via-[#7BC8A4]/40 to-[#2A8C68]/50 backdrop-blur-[2px]" />
+        <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-[#A8E6CE]/20 rounded-full blur-[120px] animate-pulse" />
+        <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-[#7BC8A4]/15 rounded-full blur-[100px] animate-pulse delay-1000" />
+        
+        <div className="w-full max-w-[440px] animate-fade-in relative z-10">
+          <div className="flex flex-col items-center mb-10 sm:mb-12">
+            <Logo size="2xl" showText={false} showIcon={true} variant="light" className="drop-shadow-2xl mb-6" />
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-white tracking-tight drop-shadow-[0_4px_20px_rgba(0,0,0,0.3)] mb-4">
+              Plano de Vida
+            </h1>
+            <p className="text-white/90 text-center text-lg sm:text-xl font-light tracking-[0.15em] drop-shadow-md">
+              Constância que constrói propósito.
+            </p>
+          </div>
+
+          <Card className="relative border-0 overflow-hidden rounded-[28px] shadow-[0_20px_60px_-10px_rgba(42,140,104,0.35)]">
+            <div className="absolute inset-0 rounded-[28px] p-[1px] bg-gradient-to-br from-white/40 via-[#A8E6CE]/30 to-white/20">
+              <div className="w-full h-full rounded-[27px] bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl" />
+            </div>
+            
+            <div className="relative z-10">
+              <CardHeader className="pb-3 pt-8 px-7 sm:px-9 text-center space-y-3">
+                <div className="mx-auto w-16 h-16 rounded-full bg-[#A8E6CE]/30 flex items-center justify-center mb-2">
+                  <KeyRound className="w-8 h-8 text-[#2A8C68]" />
+                </div>
+                <CardTitle className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-[#2A8C68] via-[#7BC8A4] to-[#2A8C68] bg-clip-text text-transparent">
+                  Nova Senha
+                </CardTitle>
+                <CardDescription className="text-muted-foreground text-sm sm:text-base font-normal">
+                  Digite sua nova senha para continuar
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="px-7 sm:px-9 pb-9">
+                <form onSubmit={handleUpdatePassword} className="space-y-5">
+                  <div className="space-y-2">
+                    <Label htmlFor="new-password" className="text-sm font-semibold text-foreground/90">
+                      Nova Senha
+                    </Label>
+                    <div className="relative">
+                      <Input
+                        id="new-password"
+                        type={showNewPassword ? 'text' : 'password'}
+                        placeholder="Mínimo 6 caracteres"
+                        value={newPassword}
+                        onChange={(e) => {
+                          setNewPassword(e.target.value);
+                          clearError('new-password');
+                        }}
+                        className={`h-14 rounded-2xl border-[#7BC8A4]/30 bg-[#A8E6CE]/10 focus:bg-white focus:border-[#2A8C68]/50 focus:ring-2 focus:ring-[#2A8C68]/20 transition-all duration-300 text-base placeholder:text-muted-foreground/50 pr-12 ${hasError('new-password') ? 'border-red-500 focus:border-red-500' : ''}`}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowNewPassword(!showNewPassword)}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        {showNewPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                      </button>
+                    </div>
+                    {hasError('new-password') && (
+                      <p className="text-red-500 text-sm animate-fade-in">{getError('new-password')}</p>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="confirm-new-password" className="text-sm font-semibold text-foreground/90">
+                      Confirmar Nova Senha
+                    </Label>
+                    <div className="relative">
+                      <Input
+                        id="confirm-new-password"
+                        type={showConfirmNewPassword ? 'text' : 'password'}
+                        placeholder="Digite novamente"
+                        value={confirmNewPassword}
+                        onChange={(e) => {
+                          setConfirmNewPassword(e.target.value);
+                          clearError('confirm-new-password');
+                        }}
+                        className={`h-14 rounded-2xl border-[#7BC8A4]/30 bg-[#A8E6CE]/10 focus:bg-white focus:border-[#2A8C68]/50 focus:ring-2 focus:ring-[#2A8C68]/20 transition-all duration-300 text-base placeholder:text-muted-foreground/50 pr-12 ${hasError('confirm-new-password') ? 'border-red-500 focus:border-red-500' : ''}`}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmNewPassword(!showConfirmNewPassword)}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        {showConfirmNewPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                      </button>
+                    </div>
+                    {hasError('confirm-new-password') && (
+                      <p className="text-red-500 text-sm animate-fade-in">{getError('confirm-new-password')}</p>
+                    )}
+                  </div>
+
+                  <Button 
+                    type="submit" 
+                    className="w-full h-14 text-base font-bold rounded-2xl bg-gradient-to-r from-[#2A8C68] via-[#7BC8A4] to-[#2A8C68] hover:from-[#238058] hover:via-[#6ab893] hover:to-[#238058] transition-all duration-300 shadow-lg text-white" 
+                    disabled={loading}
+                  >
+                    {loading ? (
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                    ) : (
+                      <>
+                        Atualizar Senha
+                        <ArrowRight className="w-5 h-5 ml-2" />
+                      </>
+                    )}
+                  </Button>
+                </form>
+              </CardContent>
+            </div>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   // Email Confirmation Pending View
   if (emailConfirmationPending) {
