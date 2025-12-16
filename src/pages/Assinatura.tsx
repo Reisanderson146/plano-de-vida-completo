@@ -75,17 +75,6 @@ export default function Assinatura() {
         backgroundSize: '120px 120px',
       }} />
 
-      {/* Top right login button */}
-      <div className="absolute top-4 right-4 z-20 animate-fade-in-up">
-        <Button
-          onClick={handleAlreadySubscriber}
-          variant="outline"
-          className="bg-white/20 backdrop-blur-sm border-white/40 text-white hover:bg-white/30 hover:text-white transition-all"
-        >
-          <LogIn className="w-4 h-4 mr-2" />
-          Entrar
-        </Button>
-      </div>
 
       <div className="relative z-10 min-h-screen flex flex-col items-center justify-center p-4 sm:p-6">
         {/* Header */}
