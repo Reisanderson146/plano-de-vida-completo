@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Check, Shield, Zap, Target, Sparkles, BadgeCheck, Gem, Loader2, LogIn, Play, ChevronRight } from 'lucide-react';
+import { Check, Shield, Zap, Target, Sparkles, BadgeCheck, Gem, Loader2, LogIn, Play, ChevronRight, Brain, BarChart3, FileText, Cloud, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useAuth } from '@/hooks/useAuth';
@@ -10,10 +10,12 @@ import loginBackground from '@/assets/login-background.png';
 import DemoCarousel from '@/components/subscription/DemoCarousel';
 
 const benefits = [
-  { icon: Target, text: 'Planejamento completo das 7 áreas da vida' },
-  { icon: Shield, text: 'Seus dados seguros na nuvem' },
-  { icon: Zap, text: 'Relatórios e gráficos de progresso' },
-  { icon: Sparkles, text: 'Exportação profissional em PDF' },
+  { icon: Target, text: 'Planejamento das 7 áreas da vida', highlight: false },
+  { icon: Brain, text: 'Resumo inteligente com IA', highlight: true },
+  { icon: BarChart3, text: 'Fechamento de balanço anual', highlight: false },
+  { icon: Zap, text: 'Relatórios e gráficos de progresso', highlight: false },
+  { icon: FileText, text: 'Exportação profissional em PDF', highlight: false },
+  { icon: Cloud, text: 'Seus dados seguros na nuvem', highlight: false },
 ];
 
 export default function Assinatura() {
@@ -61,119 +63,161 @@ export default function Assinatura() {
         backgroundRepeat: 'no-repeat',
       }}
     >
-      {/* Green overlay matching login screen */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[#2A8C68]/70 via-[#7BC8A4]/50 to-[#2A8C68]/60 backdrop-blur-[2px]" />
+      {/* Premium gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-[#1a5c42]/90 via-[#2A8C68]/80 to-[#1a5c42]/90" />
       
-      {/* Animated glow effects */}
-      <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-[#A8E6CE]/20 rounded-full blur-[120px] animate-pulse" />
-      <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-[#7BC8A4]/15 rounded-full blur-[100px] animate-pulse delay-1000" />
+      {/* Animated orbs */}
+      <div className="absolute top-20 left-10 w-[300px] h-[300px] bg-[#A8E6CE]/20 rounded-full blur-[100px] animate-pulse" />
+      <div className="absolute bottom-20 right-10 w-[400px] h-[400px] bg-[#7BC8A4]/15 rounded-full blur-[120px] animate-pulse" style={{ animationDelay: '1s' }} />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#2A8C68]/10 rounded-full blur-[150px]" />
 
-      {/* Watermark pattern */}
-      <div className="absolute inset-0 opacity-[0.03]" style={{
-        backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='50%25' y='50%25' font-size='8' fill='%23ffffff' text-anchor='middle' dominant-baseline='middle' font-family='sans-serif'%3EPREMIUM%3C/text%3E%3C/svg%3E")`,
-        backgroundSize: '120px 120px',
-      }} />
+      {/* Floating particles effect */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {[...Array(20)].map((_, i) => (
+          <div
+            key={i}
+            className="absolute w-1 h-1 bg-white/20 rounded-full animate-pulse"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animationDelay: `${Math.random() * 3}s`,
+              animationDuration: `${2 + Math.random() * 2}s`
+            }}
+          />
+        ))}
+      </div>
 
       <div className="relative z-10 min-h-screen flex flex-col items-center justify-center p-4 sm:p-6">
-        {/* Header */}
-        <div className="text-center mb-6 animate-fade-in-up">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight drop-shadow-[0_4px_20px_rgba(0,0,0,0.3)] mb-2">
-            Plano de Vida
+        {/* Header with glow effect */}
+        <div className="text-center mb-8 animate-fade-in-up">
+          <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full mb-4 border border-white/20">
+            <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+            <span className="text-white/90 text-sm font-medium">Transforme sua vida hoje</span>
+            <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+          </div>
+          
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-black text-white tracking-tight mb-3">
+            <span className="bg-gradient-to-r from-white via-[#A8E6CE] to-white bg-clip-text text-transparent">
+              Plano de Vida
+            </span>
           </h1>
-          <p className="text-white/90 text-base sm:text-lg font-light tracking-wide drop-shadow-md mb-4">
+          <p className="text-white/80 text-lg sm:text-xl font-light tracking-wide mb-6">
             Constância que constrói propósito
           </p>
           
-          {/* Demo Button - Prominent */}
+          {/* Demo Button - Premium style */}
           <Button
             onClick={() => setDemoOpen(true)}
             variant="outline"
-            className="bg-white/20 backdrop-blur-sm border-white/40 text-white hover:bg-white/30 hover:text-white px-6 py-2 rounded-full transition-all group"
+            className="bg-white/10 backdrop-blur-md border-white/30 text-white hover:bg-white/20 hover:text-white hover:border-white/50 px-8 py-3 rounded-full transition-all duration-300 group shadow-lg shadow-black/20"
           >
-            <Play className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" />
+            <Play className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform fill-white" />
             Ver demonstração
-            <ChevronRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+            <ChevronRight className="w-5 h-5 ml-1 group-hover:translate-x-1 transition-transform" />
           </Button>
         </div>
 
-        {/* Main Card */}
-        <Card className="w-full max-w-sm border-0 overflow-hidden rounded-2xl shadow-[0_20px_60px_-10px_rgba(42,140,104,0.35)] animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-          {/* Gradient border effect */}
-          <div className="absolute inset-0 rounded-2xl p-[1px] bg-gradient-to-br from-white/40 via-[#A8E6CE]/30 to-white/20">
-            <div className="w-full h-full rounded-[15px] bg-white/95 backdrop-blur-2xl" />
-          </div>
-
-          <div className="relative z-10">
-            {/* Premium badge */}
-            <div className="relative bg-gradient-to-r from-[#2A8C68] via-[#3d9d78] to-[#2A8C68] py-3 px-4">
-              <div className="relative flex items-center justify-center gap-2">
-                <Gem className="w-4 h-4 text-white" />
-                <span className="text-base font-semibold text-white tracking-widest uppercase">Premium</span>
-                <BadgeCheck className="w-4 h-4 text-white" />
+        {/* Main Card - Premium glass morphism */}
+        <Card className="w-full max-w-md border-0 overflow-hidden rounded-3xl shadow-2xl shadow-black/30 animate-fade-in-up backdrop-blur-xl" style={{ animationDelay: '0.15s' }}>
+          {/* Gradient border glow */}
+          <div className="absolute -inset-[1px] bg-gradient-to-br from-[#A8E6CE]/60 via-white/30 to-[#7BC8A4]/60 rounded-3xl blur-[1px]" />
+          
+          <div className="relative bg-white/95 backdrop-blur-2xl rounded-3xl overflow-hidden">
+            {/* Premium badge header */}
+            <div className="relative bg-gradient-to-r from-[#1a5c42] via-[#2A8C68] to-[#1a5c42] py-4 px-6 overflow-hidden">
+              {/* Shimmer effect */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-pulse" style={{ animationDuration: '2s' }} />
+              
+              <div className="relative flex items-center justify-center gap-3">
+                <Gem className="w-5 h-5 text-[#A8E6CE]" />
+                <span className="text-lg font-bold text-white tracking-[0.2em] uppercase">Premium</span>
+                <BadgeCheck className="w-5 h-5 text-[#A8E6CE]" />
               </div>
             </div>
 
-            <CardContent className="p-4 sm:p-5 space-y-4 bg-white">
-              {/* Price */}
-              <div className="text-center py-2">
-                <div className="flex items-baseline justify-center gap-1">
-                  <span className="text-xs text-muted-foreground line-through">R$ 29,99</span>
-                </div>
-                <div className="flex items-baseline justify-center gap-1">
-                  <span className="text-4xl font-bold bg-gradient-to-r from-[#2A8C68] via-[#7BC8A4] to-[#2A8C68] bg-clip-text text-transparent">
-                    R$ 9,99
-                  </span>
-                  <span className="text-muted-foreground text-sm">/mês</span>
-                </div>
-                <div className="mt-2 inline-flex items-center gap-1 bg-[#A8E6CE]/30 text-[#2A8C68] text-xs font-semibold px-3 py-1 rounded-full">
-                  <Zap className="w-3 h-3" />
-                  Economia de 67%
+            <CardContent className="p-6 space-y-6">
+              {/* Price section */}
+              <div className="text-center py-4 relative">
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#A8E6CE]/10 to-transparent rounded-2xl" />
+                
+                <div className="relative">
+                  <div className="flex items-center justify-center gap-2 mb-1">
+                    <span className="text-sm text-muted-foreground line-through">R$ 29,99</span>
+                    <span className="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full animate-pulse">-67%</span>
+                  </div>
+                  
+                  <div className="flex items-baseline justify-center gap-1">
+                    <span className="text-sm text-muted-foreground">R$</span>
+                    <span className="text-6xl font-black bg-gradient-to-br from-[#2A8C68] via-[#3d9d78] to-[#2A8C68] bg-clip-text text-transparent">
+                      9
+                    </span>
+                    <span className="text-3xl font-bold text-[#2A8C68]">,99</span>
+                    <span className="text-muted-foreground text-sm">/mês</span>
+                  </div>
+                  
+                  <p className="text-xs text-muted-foreground mt-2">
+                    Menos que um café por semana ☕
+                  </p>
                 </div>
               </div>
 
-              {/* Benefits */}
+              {/* Benefits grid */}
               <div className="space-y-2">
                 {benefits.map((benefit, index) => {
                   const Icon = benefit.icon;
                   return (
                     <div 
                       key={index} 
-                      className="flex items-center gap-2 p-2 rounded-lg bg-[#A8E6CE]/10"
+                      className={`flex items-center gap-3 p-3 rounded-xl transition-all duration-300 hover:scale-[1.02] ${
+                        benefit.highlight 
+                          ? 'bg-gradient-to-r from-[#2A8C68]/10 via-[#A8E6CE]/20 to-[#2A8C68]/10 border border-[#2A8C68]/20' 
+                          : 'bg-gray-50/80 hover:bg-[#A8E6CE]/10'
+                      }`}
                     >
-                      <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#A8E6CE]/40 to-[#7BC8A4]/40 flex items-center justify-center flex-shrink-0">
-                        <Icon className="w-3.5 h-3.5 text-[#2A8C68]" />
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                        benefit.highlight 
+                          ? 'bg-gradient-to-br from-[#2A8C68] to-[#7BC8A4] shadow-lg shadow-[#2A8C68]/30' 
+                          : 'bg-gradient-to-br from-[#A8E6CE]/60 to-[#7BC8A4]/60'
+                      }`}>
+                        <Icon className={`w-5 h-5 ${benefit.highlight ? 'text-white' : 'text-[#2A8C68]'}`} />
                       </div>
-                      <span className="text-foreground text-xs sm:text-sm flex-1">{benefit.text}</span>
-                      <Check className="w-4 h-4 text-[#2A8C68] flex-shrink-0" />
+                      <span className={`flex-1 text-sm ${benefit.highlight ? 'font-semibold text-[#2A8C68]' : 'text-foreground'}`}>
+                        {benefit.text}
+                      </span>
+                      <Check className={`w-5 h-5 flex-shrink-0 ${benefit.highlight ? 'text-[#2A8C68]' : 'text-[#7BC8A4]'}`} />
                     </div>
                   );
                 })}
               </div>
 
               {/* CTA Buttons */}
-              <div className="space-y-2">
+              <div className="space-y-3 pt-2">
                 <Button
                   onClick={handleCheckout}
                   disabled={loading}
-                  className="w-full h-12 text-base font-bold rounded-xl bg-gradient-to-r from-[#2A8C68] via-[#7BC8A4] to-[#2A8C68] hover:from-[#238058] hover:via-[#6ab893] hover:to-[#238058] text-white shadow-lg shadow-[#2A8C68]/30 transition-all duration-300 hover:scale-[1.02]"
+                  className="w-full h-14 text-lg font-bold rounded-2xl bg-gradient-to-r from-[#2A8C68] via-[#3d9d78] to-[#2A8C68] hover:from-[#238058] hover:via-[#2f8a6a] hover:to-[#238058] text-white shadow-xl shadow-[#2A8C68]/40 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-[#2A8C68]/50 relative overflow-hidden group"
                 >
+                  {/* Button shine effect */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+                  
                   {loading ? (
                     <div className="flex items-center gap-2">
-                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <Loader2 className="w-5 h-5 animate-spin" />
                       Processando...
                     </div>
                   ) : (
-                    <div className="flex items-center gap-2">
-                      <Gem className="w-4 h-4" />
-                      Assinar Agora
+                    <div className="flex items-center gap-2 relative">
+                      <Gem className="w-5 h-5" />
+                      Começar Agora
+                      <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                     </div>
                   )}
                 </Button>
 
                 <Button
                   onClick={handleAlreadySubscriber}
-                  variant="outline"
-                  className="w-full h-10 text-sm font-medium rounded-xl border-[#2A8C68] text-[#2A8C68] hover:bg-[#2A8C68] hover:text-white transition-all"
+                  variant="ghost"
+                  className="w-full h-12 text-sm font-medium rounded-xl text-[#2A8C68] hover:bg-[#A8E6CE]/20 transition-all"
                 >
                   <LogIn className="w-4 h-4 mr-2" />
                   Já sou assinante
@@ -181,20 +225,27 @@ export default function Assinatura() {
               </div>
 
               {/* Trust badges */}
-              <div className="flex items-center justify-center gap-3 pt-1 text-muted-foreground text-xs">
-                <div className="flex items-center gap-1">
-                  <Shield className="w-3 h-3" />
-                  <span>Seguro</span>
+              <div className="flex items-center justify-center gap-4 pt-2">
+                <div className="flex items-center gap-1.5 text-muted-foreground text-xs">
+                  <Shield className="w-4 h-4 text-[#2A8C68]" />
+                  <span>Pagamento seguro</span>
                 </div>
-                <div className="w-1 h-1 rounded-full bg-muted-foreground/50" />
-                <div className="flex items-center gap-1">
-                  <Zap className="w-3 h-3" />
+                <div className="w-1 h-1 rounded-full bg-muted-foreground/30" />
+                <div className="flex items-center gap-1.5 text-muted-foreground text-xs">
+                  <Zap className="w-4 h-4 text-[#2A8C68]" />
                   <span>Cancele quando quiser</span>
                 </div>
               </div>
             </CardContent>
           </div>
         </Card>
+
+        {/* Social proof */}
+        <div className="mt-8 text-center animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
+          <p className="text-white/60 text-sm">
+            Junte-se a centenas de pessoas transformando suas vidas
+          </p>
+        </div>
       </div>
 
       {/* Demo Modal */}
