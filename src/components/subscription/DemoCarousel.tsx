@@ -1,80 +1,85 @@
 import { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Target, Brain, Heart, Users, DollarSign, Briefcase, Dumbbell, Cross, Check, Sparkles, Calendar, TrendingUp, AlertTriangle, LayoutGrid, List, Play } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Target, Brain, Heart, Users, DollarSign, Briefcase, Dumbbell, Cross, Check, Sparkles, Calendar, TrendingUp, AlertTriangle, LayoutGrid, List, Play, X } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 
 // Demo data with better looking values
 const demoSlides = [
   {
     id: 'cadastro',
     title: 'Crie seu Plano de Vida',
+    subtitle: 'Configure seu plano personalizado em minutos',
     component: CadastroDemo
   },
   {
     id: 'plano',
     title: 'Gerencie suas Metas',
+    subtitle: 'Acompanhe o progresso das 7 áreas da vida',
     component: PlanoDemo
   },
   {
     id: 'relatorios',
     title: 'Relatórios Completos',
+    subtitle: 'Visualize seu progresso com gráficos detalhados',
     component: RelatoriosDemo
   },
   {
     id: 'balanco',
-    title: 'Análise de Progresso',
+    title: 'Análise Inteligente',
+    subtitle: 'IA que te ajuda a identificar pontos de melhoria',
     component: BalancoDemo
   },
 ];
 
 function CadastroDemo() {
   return (
-    <div className="bg-white rounded-lg p-3 space-y-3">
-      <div className="text-center">
-        <h3 className="font-semibold text-[#2A8C68] text-sm">Novo Plano de Vida</h3>
-        <p className="text-[10px] text-muted-foreground">Defina suas metas para os próximos anos</p>
+    <div className="bg-white rounded-xl p-4 sm:p-6 space-y-4 shadow-lg">
+      <div className="text-center mb-2">
+        <span className="text-xs text-[#2A8C68] font-medium bg-[#A8E6CE]/30 px-3 py-1 rounded-full">Passo 1</span>
       </div>
 
       {/* Plan Type Selection */}
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-3 gap-3">
         {[
-          { icon: Target, label: 'Individual', active: true },
-          { icon: Heart, label: 'Familiar', active: false },
-          { icon: Users, label: 'Filho(a)', active: false }
+          { icon: Target, label: 'Individual', desc: 'Plano pessoal', active: true },
+          { icon: Heart, label: 'Familiar', desc: 'Para casal', active: false },
+          { icon: Users, label: 'Filho(a)', desc: 'Para filhos', active: false }
         ].map((type, i) => (
-          <div key={i} className={`p-2 rounded-lg border text-center ${type.active ? 'border-[#2A8C68] bg-[#A8E6CE]/20' : 'border-gray-200'}`}>
-            <type.icon className={`w-4 h-4 mx-auto mb-1 ${type.active ? 'text-[#2A8C68]' : 'text-gray-400'}`} />
-            <span className={`text-[9px] ${type.active ? 'text-[#2A8C68] font-medium' : 'text-gray-500'}`}>{type.label}</span>
+          <div key={i} className={`p-3 rounded-xl border-2 text-center transition-all ${type.active ? 'border-[#2A8C68] bg-[#A8E6CE]/20 scale-105' : 'border-gray-200 hover:border-gray-300'}`}>
+            <type.icon className={`w-6 h-6 mx-auto mb-2 ${type.active ? 'text-[#2A8C68]' : 'text-gray-400'}`} />
+            <span className={`text-sm font-medium block ${type.active ? 'text-[#2A8C68]' : 'text-gray-600'}`}>{type.label}</span>
+            <span className="text-[10px] text-gray-500">{type.desc}</span>
           </div>
         ))}
       </div>
 
       {/* Form Fields Preview */}
-      <div className="space-y-2">
-        <div className="bg-gray-50 rounded-lg p-2">
-          <span className="text-[9px] text-gray-500">Nome do Plano</span>
-          <p className="text-xs font-medium text-gray-700">Meu Plano 2025</p>
+      <div className="space-y-3">
+        <div className="bg-gray-50 rounded-xl p-3 border border-gray-100">
+          <span className="text-[10px] text-gray-500 uppercase tracking-wide">Nome do Plano</span>
+          <p className="text-sm font-semibold text-gray-800 mt-1">Meu Plano de Vida 2025</p>
         </div>
-        <div className="bg-gray-50 rounded-lg p-2">
-          <span className="text-[9px] text-gray-500">Lema Motivacional</span>
-          <p className="text-xs font-medium text-gray-700 italic">"Constância que constrói propósito"</p>
+        <div className="bg-gray-50 rounded-xl p-3 border border-gray-100">
+          <span className="text-[10px] text-gray-500 uppercase tracking-wide">Lema Motivacional</span>
+          <p className="text-sm font-medium text-gray-700 mt-1 italic">"Constância que constrói propósito"</p>
         </div>
       </div>
 
       {/* Period Config */}
-      <div className="grid grid-cols-3 gap-2">
-        <div className="bg-[#A8E6CE]/10 rounded-lg p-2 text-center">
-          <span className="text-[9px] text-gray-500">Ano Inicial</span>
-          <p className="text-xs font-bold text-[#2A8C68]">2025</p>
+      <div className="grid grid-cols-3 gap-3">
+        <div className="bg-gradient-to-br from-[#A8E6CE]/30 to-[#7BC8A4]/20 rounded-xl p-3 text-center">
+          <span className="text-[10px] text-gray-600">Ano Inicial</span>
+          <p className="text-lg font-bold text-[#2A8C68]">2025</p>
         </div>
-        <div className="bg-[#A8E6CE]/10 rounded-lg p-2 text-center">
-          <span className="text-[9px] text-gray-500">Sua Idade</span>
-          <p className="text-xs font-bold text-[#2A8C68]">32</p>
+        <div className="bg-gradient-to-br from-[#A8E6CE]/30 to-[#7BC8A4]/20 rounded-xl p-3 text-center">
+          <span className="text-[10px] text-gray-600">Sua Idade</span>
+          <p className="text-lg font-bold text-[#2A8C68]">32</p>
         </div>
-        <div className="bg-[#A8E6CE]/10 rounded-lg p-2 text-center">
-          <span className="text-[9px] text-gray-500">Período</span>
-          <p className="text-xs font-bold text-[#2A8C68]">5 anos</p>
+        <div className="bg-gradient-to-br from-[#A8E6CE]/30 to-[#7BC8A4]/20 rounded-xl p-3 text-center">
+          <span className="text-[10px] text-gray-600">Período</span>
+          <p className="text-lg font-bold text-[#2A8C68]">5 anos</p>
         </div>
       </div>
     </div>
@@ -83,72 +88,59 @@ function CadastroDemo() {
 
 function PlanoDemo() {
   const areas = [
-    { icon: Cross, name: 'Espiritual', color: 'bg-purple-500', progress: 75, goals: '3/4' },
-    { icon: Brain, name: 'Intelectual', color: 'bg-blue-500', progress: 100, goals: '2/2' },
-    { icon: Heart, name: 'Familiar', color: 'bg-pink-500', progress: 50, goals: '1/2' },
-    { icon: Users, name: 'Social', color: 'bg-orange-500', progress: 66, goals: '2/3' },
+    { icon: Cross, name: 'Espiritual', color: 'bg-purple-500', bgColor: 'bg-purple-50', progress: 75, goals: '3/4' },
+    { icon: Brain, name: 'Intelectual', color: 'bg-blue-500', bgColor: 'bg-blue-50', progress: 100, goals: '2/2' },
+    { icon: Heart, name: 'Familiar', color: 'bg-pink-500', bgColor: 'bg-pink-50', progress: 50, goals: '1/2' },
+    { icon: Users, name: 'Social', color: 'bg-orange-500', bgColor: 'bg-orange-50', progress: 66, goals: '2/3' },
+    { icon: DollarSign, name: 'Financeiro', color: 'bg-emerald-500', bgColor: 'bg-emerald-50', progress: 80, goals: '4/5' },
+    { icon: Briefcase, name: 'Profissional', color: 'bg-cyan-500', bgColor: 'bg-cyan-50', progress: 100, goals: '3/3' },
   ];
 
   return (
-    <div className="bg-white rounded-lg p-3 space-y-3">
+    <div className="bg-white rounded-xl p-4 sm:p-6 space-y-4 shadow-lg">
       {/* Header */}
-      <div className="flex items-center gap-2">
-        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#2A8C68] to-[#7BC8A4] flex items-center justify-center">
-          <span className="text-white text-xs font-bold">JP</span>
+      <div className="flex items-center gap-3">
+        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#2A8C68] to-[#7BC8A4] flex items-center justify-center shadow-lg">
+          <span className="text-white text-lg font-bold">JP</span>
         </div>
         <div className="flex-1">
-          <h3 className="font-semibold text-[#2A8C68] text-sm">Meu Plano 2025</h3>
-          <p className="text-[9px] text-muted-foreground">8 metas • 6 concluídas</p>
+          <h3 className="font-bold text-gray-800 text-base">Meu Plano 2025</h3>
+          <p className="text-xs text-gray-500">19 metas cadastradas</p>
         </div>
-        <div className="text-right">
-          <span className="text-lg font-bold text-[#2A8C68]">75%</span>
+        <div className="text-right bg-[#A8E6CE]/30 px-3 py-1 rounded-full">
+          <span className="text-xl font-bold text-[#2A8C68]">78%</span>
         </div>
       </div>
 
       {/* Progress Bar */}
-      <div className="bg-[#A8E6CE]/20 rounded-full p-2 flex items-center gap-2">
-        <Target className="w-4 h-4 text-[#2A8C68]" />
-        <span className="text-[10px] text-gray-600">Progresso Total</span>
+      <div className="bg-gradient-to-r from-[#A8E6CE]/30 to-[#7BC8A4]/20 rounded-xl p-3 flex items-center gap-3">
+        <Target className="w-5 h-5 text-[#2A8C68]" />
         <div className="flex-1">
-          <Progress value={75} className="h-2" />
+          <div className="flex justify-between mb-1">
+            <span className="text-xs text-gray-600">Progresso Total</span>
+            <span className="text-xs font-bold text-[#2A8C68]">15/19 metas</span>
+          </div>
+          <Progress value={78} className="h-2" />
         </div>
-        <span className="text-[10px] font-bold text-[#2A8C68]">6/8</span>
-      </div>
-
-      {/* View Toggle */}
-      <div className="flex items-center gap-1">
-        <Button size="sm" className="h-6 px-2 text-[9px] bg-[#2A8C68]">
-          <LayoutGrid className="w-3 h-3 mr-1" />
-          Grid
-        </Button>
-        <Button size="sm" variant="outline" className="h-6 px-2 text-[9px]">
-          <List className="w-3 h-3 mr-1" />
-          Lista
-        </Button>
-        <div className="flex-1" />
-        <Button size="sm" className="h-6 px-2 text-[9px] bg-[#2A8C68]">
-          <Play className="w-3 h-3 mr-1" />
-          Modo Foco
-        </Button>
       </div>
 
       {/* Area Cards Grid */}
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         {areas.map((area, i) => (
-          <div key={i} className={`rounded-lg p-2 ${area.color}/10 border border-${area.color}/20`}>
-            <div className="flex items-center gap-1 mb-1">
-              <div className={`w-5 h-5 rounded-md ${area.color} flex items-center justify-center`}>
-                <area.icon className="w-3 h-3 text-white" />
+          <div key={i} className={`rounded-xl p-3 ${area.bgColor} border border-white/50 shadow-sm`}>
+            <div className="flex items-center gap-2 mb-2">
+              <div className={`w-8 h-8 rounded-lg ${area.color} flex items-center justify-center shadow-sm`}>
+                <area.icon className="w-4 h-4 text-white" />
               </div>
-              <span className="text-[10px] font-medium text-gray-700">{area.name}</span>
+              <span className="text-xs font-semibold text-gray-700">{area.name}</span>
             </div>
-            <div className="flex items-center justify-between">
-              <span className="text-[9px] text-gray-500">{area.goals} metas</span>
-              <span className={`text-[10px] font-bold ${area.progress === 100 ? 'text-green-600' : 'text-[#2A8C68]'}`}>
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-[10px] text-gray-500">{area.goals} metas</span>
+              <span className={`text-sm font-bold ${area.progress === 100 ? 'text-green-600' : 'text-gray-700'}`}>
                 {area.progress}%
               </span>
             </div>
-            <Progress value={area.progress} className="h-1 mt-1" />
+            <Progress value={area.progress} className="h-1.5" />
           </div>
         ))}
       </div>
@@ -158,67 +150,67 @@ function PlanoDemo() {
 
 function RelatoriosDemo() {
   const areas = [
-    { name: 'Espiritual', value: 85, color: 'bg-purple-500' },
-    { name: 'Intelectual', value: 90, color: 'bg-blue-500' },
-    { name: 'Familiar', value: 70, color: 'bg-pink-500' },
-    { name: 'Social', value: 60, color: 'bg-orange-500' },
-    { name: 'Financeiro', value: 75, color: 'bg-emerald-500' },
-    { name: 'Profissional', value: 80, color: 'bg-cyan-500' },
-    { name: 'Saúde', value: 65, color: 'bg-red-500' },
+    { name: 'Espiritual', value: 85, color: '#8b5cf6' },
+    { name: 'Intelectual', value: 90, color: '#3b82f6' },
+    { name: 'Familiar', value: 70, color: '#ec4899' },
+    { name: 'Social', value: 60, color: '#f97316' },
+    { name: 'Financeiro', value: 75, color: '#10b981' },
+    { name: 'Profissional', value: 80, color: '#06b6d4' },
+    { name: 'Saúde', value: 65, color: '#ef4444' },
   ];
 
   return (
-    <div className="bg-white rounded-lg p-3 space-y-3">
+    <div className="bg-white rounded-xl p-4 sm:p-6 space-y-4 shadow-lg">
       {/* Stats Row */}
-      <div className="grid grid-cols-4 gap-1">
+      <div className="grid grid-cols-4 gap-2">
         {[
-          { label: 'Total', value: '21', icon: Target },
-          { label: 'Concluídas', value: '16', icon: Check },
-          { label: 'Melhor', value: 'Intel.', icon: TrendingUp },
-          { label: 'Melhorar', value: 'Social', icon: AlertTriangle },
+          { label: 'Total', value: '21', icon: Target, color: 'bg-[#A8E6CE]/30' },
+          { label: 'Concluídas', value: '16', icon: Check, color: 'bg-green-100' },
+          { label: 'Melhor', value: 'Intel.', icon: TrendingUp, color: 'bg-blue-100' },
+          { label: 'Melhorar', value: 'Social', icon: AlertTriangle, color: 'bg-orange-100' },
         ].map((stat, i) => (
-          <div key={i} className="bg-gray-50 rounded-lg p-1.5 text-center">
-            <stat.icon className="w-3 h-3 mx-auto mb-0.5 text-[#2A8C68]" />
-            <p className="text-[10px] font-bold text-gray-800">{stat.value}</p>
-            <span className="text-[8px] text-gray-500">{stat.label}</span>
+          <div key={i} className={`${stat.color} rounded-xl p-2 text-center`}>
+            <stat.icon className="w-4 h-4 mx-auto mb-1 text-gray-600" />
+            <p className="text-sm font-bold text-gray-800">{stat.value}</p>
+            <span className="text-[9px] text-gray-500">{stat.label}</span>
           </div>
         ))}
       </div>
 
       {/* Progress Chart */}
-      <div className="bg-gray-50 rounded-lg p-2">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-[10px] font-medium text-gray-700">Progresso por Área</span>
-          <span className="text-[9px] text-[#2A8C68] font-medium">2025</span>
+      <div className="bg-gray-50 rounded-xl p-4">
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-sm font-semibold text-gray-700">Progresso por Área</span>
+          <span className="text-xs text-[#2A8C68] font-medium bg-[#A8E6CE]/30 px-2 py-0.5 rounded-full">2025</span>
         </div>
-        <div className="space-y-1.5">
+        <div className="space-y-2">
           {areas.map((area, i) => (
             <div key={i} className="flex items-center gap-2">
-              <span className="text-[8px] text-gray-600 w-12 truncate">{area.name}</span>
-              <div className="flex-1 h-3 bg-gray-200 rounded-full overflow-hidden">
+              <span className="text-[10px] text-gray-600 w-16 truncate">{area.name}</span>
+              <div className="flex-1 h-4 bg-gray-200 rounded-full overflow-hidden">
                 <div 
-                  className={`h-full ${area.color} rounded-full transition-all`} 
-                  style={{ width: `${area.value}%` }}
+                  className="h-full rounded-full transition-all" 
+                  style={{ width: `${area.value}%`, backgroundColor: area.color }}
                 />
               </div>
-              <span className="text-[8px] font-medium text-gray-700 w-6">{area.value}%</span>
+              <span className="text-[10px] font-bold text-gray-700 w-8">{area.value}%</span>
             </div>
           ))}
         </div>
       </div>
 
       {/* Overall Progress */}
-      <div className="flex items-center gap-3 bg-[#A8E6CE]/20 rounded-lg p-2">
-        <div className="relative w-10 h-10">
-          <svg className="w-10 h-10 transform -rotate-90">
-            <circle cx="20" cy="20" r="16" fill="none" stroke="#e5e7eb" strokeWidth="3" />
-            <circle cx="20" cy="20" r="16" fill="none" stroke="#2A8C68" strokeWidth="3" strokeDasharray="100.5" strokeDashoffset="24" strokeLinecap="round" />
+      <div className="flex items-center gap-4 bg-gradient-to-r from-[#A8E6CE]/30 to-[#7BC8A4]/20 rounded-xl p-4">
+        <div className="relative w-16 h-16">
+          <svg className="w-16 h-16 transform -rotate-90">
+            <circle cx="32" cy="32" r="26" fill="none" stroke="#e5e7eb" strokeWidth="5" />
+            <circle cx="32" cy="32" r="26" fill="none" stroke="#2A8C68" strokeWidth="5" strokeDasharray="163.4" strokeDashoffset="39" strokeLinecap="round" />
           </svg>
-          <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-[#2A8C68]">76%</span>
+          <span className="absolute inset-0 flex items-center justify-center text-base font-bold text-[#2A8C68]">76%</span>
         </div>
         <div>
-          <p className="text-xs font-semibold text-[#2A8C68]">Excelente!</p>
-          <p className="text-[9px] text-gray-600">16 de 21 metas concluídas</p>
+          <p className="text-base font-bold text-[#2A8C68]">Excelente progresso!</p>
+          <p className="text-xs text-gray-600">Você completou 16 de 21 metas este ano</p>
         </div>
       </div>
     </div>
@@ -227,87 +219,91 @@ function RelatoriosDemo() {
 
 function BalancoDemo() {
   const needsAttention = [
-    { name: 'Social', color: 'bg-orange-500', value: 45 },
-    { name: 'Saúde', color: 'bg-red-500', value: 50 },
-    { name: 'Financeiro', color: 'bg-emerald-500', value: 55 },
+    { name: 'Social', color: '#f97316', value: 45 },
+    { name: 'Saúde', color: '#ef4444', value: 50 },
+    { name: 'Financeiro', color: '#10b981', value: 55 },
   ];
 
   return (
-    <div className="bg-white rounded-lg p-3 space-y-3">
+    <div className="bg-white rounded-xl p-4 sm:p-6 space-y-4 shadow-lg">
       {/* AI Summary */}
-      <div className="bg-gradient-to-r from-[#A8E6CE]/30 to-[#7BC8A4]/20 rounded-lg p-2">
-        <div className="flex items-center gap-1 mb-1">
-          <Sparkles className="w-3 h-3 text-[#2A8C68]" />
-          <span className="text-[10px] font-semibold text-[#2A8C68]">Resumo Inteligente</span>
+      <div className="bg-gradient-to-r from-[#A8E6CE]/40 to-[#7BC8A4]/30 rounded-xl p-4 border border-[#7BC8A4]/30">
+        <div className="flex items-center gap-2 mb-2">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#2A8C68] to-[#7BC8A4] flex items-center justify-center">
+            <Sparkles className="w-4 h-4 text-white" />
+          </div>
+          <span className="text-sm font-bold text-[#2A8C68]">Resumo Inteligente (IA)</span>
         </div>
-        <p className="text-[9px] text-gray-700 leading-relaxed">
-          <strong>Pontos fortes:</strong> Espiritual e Intelectual em ótimo progresso.
+        <p className="text-xs text-gray-700 leading-relaxed">
+          <span className="font-semibold text-green-600">✓ Pontos fortes:</span> Espiritual e Intelectual em ótimo progresso.
           <br />
-          <strong>Atenção:</strong> Social e Saúde precisam de mais dedicação.
+          <span className="font-semibold text-orange-600">⚠ Atenção:</span> Social e Saúde precisam de mais dedicação este mês.
         </p>
       </div>
 
       {/* Areas Needing Attention */}
-      <div className="bg-red-50 rounded-lg p-2">
-        <div className="flex items-center gap-1 mb-2">
-          <AlertTriangle className="w-3 h-3 text-red-500" />
-          <span className="text-[10px] font-semibold text-red-700">Áreas que Precisam de Atenção</span>
+      <div className="bg-gradient-to-r from-red-50 to-orange-50 rounded-xl p-4 border border-red-100">
+        <div className="flex items-center gap-2 mb-3">
+          <AlertTriangle className="w-4 h-4 text-red-500" />
+          <span className="text-sm font-semibold text-red-700">Áreas que Precisam de Atenção</span>
         </div>
-        <div className="space-y-1.5">
+        <div className="space-y-2">
           {needsAttention.map((area, i) => (
-            <div key={i} className="flex items-center gap-2">
-              <div className={`w-2 h-2 rounded-full ${area.color}`} />
-              <span className="text-[9px] text-gray-700 flex-1">{area.name}</span>
-              <div className="w-16 h-2 bg-gray-200 rounded-full overflow-hidden">
+            <div key={i} className="flex items-center gap-3 bg-white/60 rounded-lg p-2">
+              <div className="w-3 h-3 rounded-full" style={{ backgroundColor: area.color }} />
+              <span className="text-xs text-gray-700 flex-1 font-medium">{area.name}</span>
+              <div className="w-20 h-2.5 bg-gray-200 rounded-full overflow-hidden">
                 <div 
-                  className={`h-full ${area.value < 50 ? 'bg-red-400' : 'bg-yellow-400'}`} 
-                  style={{ width: `${area.value}%` }}
+                  className="h-full rounded-full" 
+                  style={{ width: `${area.value}%`, backgroundColor: area.value < 50 ? '#ef4444' : '#f59e0b' }}
                 />
               </div>
-              <span className="text-[8px] font-medium text-gray-600">{area.value}%</span>
+              <span className="text-xs font-bold text-gray-600 w-8">{area.value}%</span>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Year Filter & Export */}
-      <div className="flex items-center gap-2">
-        <div className="flex-1 flex items-center gap-1 bg-gray-100 rounded-lg px-2 py-1">
-          <Calendar className="w-3 h-3 text-gray-500" />
-          <span className="text-[9px] text-gray-600">Ano 2025</span>
-        </div>
-        <Button size="sm" variant="outline" className="h-6 px-2 text-[9px]">
+      {/* Action Buttons */}
+      <div className="flex gap-3">
+        <Button size="sm" variant="outline" className="flex-1 h-10 text-xs rounded-xl">
+          <Calendar className="w-4 h-4 mr-2" />
           Exportar PDF
         </Button>
-      </div>
-
-      {/* Action Buttons */}
-      <div className="flex gap-2">
-        <Button size="sm" variant="outline" className="flex-1 h-7 text-[9px]">
-          Salvar anotação
-        </Button>
-        <Button size="sm" className="flex-1 h-7 text-[9px] bg-[#2A8C68]">
-          <Sparkles className="w-3 h-3 mr-1" />
-          Gerar Resumo IA
+        <Button size="sm" className="flex-1 h-10 text-xs bg-[#2A8C68] hover:bg-[#238058] rounded-xl">
+          <Sparkles className="w-4 h-4 mr-2" />
+          Gerar Novo Resumo
         </Button>
       </div>
     </div>
   );
 }
 
-export default function DemoCarousel() {
+interface DemoCarouselProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+export default function DemoCarousel({ open, onOpenChange }: DemoCarouselProps) {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
 
   useEffect(() => {
-    if (!isAutoPlaying) return;
+    if (!open || !isAutoPlaying) return;
     
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % demoSlides.length);
-    }, 4000);
+    }, 5000);
 
     return () => clearInterval(interval);
-  }, [isAutoPlaying]);
+  }, [open, isAutoPlaying]);
+
+  useEffect(() => {
+    if (open) {
+      setCurrentSlide(0);
+      setIsAutoPlaying(true);
+    }
+  }, [open]);
 
   const goToSlide = (index: number) => {
     setCurrentSlide(index);
@@ -327,56 +323,73 @@ export default function DemoCarousel() {
   const CurrentComponent = demoSlides[currentSlide].component;
 
   return (
-    <div className="w-full max-w-sm mx-auto">
-      <Card className="border-0 overflow-hidden rounded-2xl shadow-lg bg-white/95 backdrop-blur">
-        <CardContent className="p-0">
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-2xl w-[95vw] p-0 gap-0 border-0 bg-transparent shadow-none overflow-hidden">
+        <div className="relative bg-gradient-to-br from-[#2A8C68] via-[#3d9d78] to-[#7BC8A4] rounded-2xl overflow-hidden">
+          {/* Close Button */}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => onOpenChange(false)}
+            className="absolute top-3 right-3 z-50 w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 text-white"
+          >
+            <X className="w-4 h-4" />
+          </Button>
+
           {/* Header */}
-          <div className="bg-gradient-to-r from-[#2A8C68] to-[#7BC8A4] px-4 py-2">
-            <div className="flex items-center justify-between">
-              <h3 className="text-white text-sm font-semibold">{demoSlides[currentSlide].title}</h3>
-              <div className="flex items-center gap-1">
-                {demoSlides.map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => goToSlide(index)}
-                    className={`w-1.5 h-1.5 rounded-full transition-all ${
-                      index === currentSlide ? 'bg-white w-4' : 'bg-white/50'
-                    }`}
-                  />
-                ))}
-              </div>
-            </div>
+          <div className="px-6 pt-6 pb-4 text-center">
+            <h2 className="text-xl sm:text-2xl font-bold text-white mb-1">
+              {demoSlides[currentSlide].title}
+            </h2>
+            <p className="text-white/80 text-sm">
+              {demoSlides[currentSlide].subtitle}
+            </p>
+          </div>
+
+          {/* Slide Indicators */}
+          <div className="flex items-center justify-center gap-2 pb-4">
+            {demoSlides.map((slide, index) => (
+              <button
+                key={index}
+                onClick={() => goToSlide(index)}
+                className={`h-1.5 rounded-full transition-all ${
+                  index === currentSlide ? 'bg-white w-8' : 'bg-white/40 w-1.5 hover:bg-white/60'
+                }`}
+              />
+            ))}
           </div>
 
           {/* Slide Content */}
-          <div className="p-3 min-h-[280px]">
-            <CurrentComponent />
+          <div className="px-4 sm:px-6 pb-6">
+            <div className="transition-all duration-300">
+              <CurrentComponent />
+            </div>
           </div>
 
           {/* Navigation */}
-          <div className="flex items-center justify-between px-3 pb-3">
+          <div className="flex items-center justify-between px-4 pb-4">
             <Button
               variant="ghost"
-              size="sm"
               onClick={prevSlide}
-              className="h-7 px-2 text-[#2A8C68] hover:bg-[#A8E6CE]/20"
+              className="text-white hover:bg-white/20 rounded-xl"
             >
-              <ChevronLeft className="w-4 h-4" />
+              <ChevronLeft className="w-5 h-5 mr-1" />
+              Anterior
             </Button>
-            <span className="text-[10px] text-muted-foreground">
+            <span className="text-white/70 text-sm">
               {currentSlide + 1} / {demoSlides.length}
             </span>
             <Button
               variant="ghost"
-              size="sm"
               onClick={nextSlide}
-              className="h-7 px-2 text-[#2A8C68] hover:bg-[#A8E6CE]/20"
+              className="text-white hover:bg-white/20 rounded-xl"
             >
-              <ChevronRight className="w-4 h-4" />
+              Próximo
+              <ChevronRight className="w-5 h-5 ml-1" />
             </Button>
           </div>
-        </CardContent>
-      </Card>
-    </div>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
