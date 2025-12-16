@@ -7,6 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import loginBackground from '@/assets/login-background.png';
+import DemoCarousel from '@/components/subscription/DemoCarousel';
 
 const benefits = [
   { icon: Target, text: 'Planejamento completo das 7 áreas da vida' },
@@ -75,7 +76,6 @@ export default function Assinatura() {
         backgroundSize: '120px 120px',
       }} />
 
-
       <div className="relative z-10 min-h-screen flex flex-col items-center justify-center p-4 sm:p-6">
         {/* Header */}
         <div className="text-center mb-4 animate-fade-in-up">
@@ -87,105 +87,114 @@ export default function Assinatura() {
           </p>
         </div>
 
-        {/* Main Card - More compact */}
-        <Card className="w-full max-w-sm border-0 overflow-hidden rounded-2xl shadow-[0_20px_60px_-10px_rgba(42,140,104,0.35)] animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-          {/* Gradient border effect */}
-          <div className="absolute inset-0 rounded-2xl p-[1px] bg-gradient-to-br from-white/40 via-[#A8E6CE]/30 to-white/20">
-            <div className="w-full h-full rounded-[15px] bg-white/95 backdrop-blur-2xl" />
+        {/* Main Content - Two Column Layout on larger screens */}
+        <div className="w-full max-w-4xl flex flex-col lg:flex-row items-center justify-center gap-6">
+          
+          {/* Demo Carousel */}
+          <div className="w-full max-w-sm animate-fade-in-up" style={{ animationDelay: '0.05s' }}>
+            <DemoCarousel />
           </div>
 
-          <div className="relative z-10">
-            {/* Premium badge - Compact */}
-            <div className="relative bg-gradient-to-r from-[#2A8C68] via-[#3d9d78] to-[#2A8C68] py-3 px-4">
-              <div className="relative flex items-center justify-center gap-2">
-                <Gem className="w-4 h-4 text-white" />
-                <span className="text-base font-semibold text-white tracking-widest uppercase">Premium</span>
-                <BadgeCheck className="w-4 h-4 text-white" />
-              </div>
+          {/* Subscription Card */}
+          <Card className="w-full max-w-sm border-0 overflow-hidden rounded-2xl shadow-[0_20px_60px_-10px_rgba(42,140,104,0.35)] animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+            {/* Gradient border effect */}
+            <div className="absolute inset-0 rounded-2xl p-[1px] bg-gradient-to-br from-white/40 via-[#A8E6CE]/30 to-white/20">
+              <div className="w-full h-full rounded-[15px] bg-white/95 backdrop-blur-2xl" />
             </div>
 
-            <CardContent className="p-4 sm:p-5 space-y-4 bg-white">
-              {/* Price - Compact */}
-              <div className="text-center py-2">
-                <div className="flex items-baseline justify-center gap-1">
-                  <span className="text-xs text-muted-foreground line-through">R$ 29,99</span>
-                </div>
-                <div className="flex items-baseline justify-center gap-1">
-                  <span className="text-4xl font-bold bg-gradient-to-r from-[#2A8C68] via-[#7BC8A4] to-[#2A8C68] bg-clip-text text-transparent">
-                    R$ 9,99
-                  </span>
-                  <span className="text-muted-foreground text-sm">/mês</span>
-                </div>
-                <div className="mt-2 inline-flex items-center gap-1 bg-[#A8E6CE]/30 text-[#2A8C68] text-xs font-semibold px-3 py-1 rounded-full">
-                  <Zap className="w-3 h-3" />
-                  Economia de 67%
+            <div className="relative z-10">
+              {/* Premium badge - Compact */}
+              <div className="relative bg-gradient-to-r from-[#2A8C68] via-[#3d9d78] to-[#2A8C68] py-3 px-4">
+                <div className="relative flex items-center justify-center gap-2">
+                  <Gem className="w-4 h-4 text-white" />
+                  <span className="text-base font-semibold text-white tracking-widest uppercase">Premium</span>
+                  <BadgeCheck className="w-4 h-4 text-white" />
                 </div>
               </div>
 
-              {/* Benefits - Compact */}
-              <div className="space-y-2">
-                {benefits.map((benefit, index) => {
-                  const Icon = benefit.icon;
-                  return (
-                    <div 
-                      key={index} 
-                      className="flex items-center gap-2 p-2 rounded-lg bg-[#A8E6CE]/10"
-                    >
-                      <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#A8E6CE]/40 to-[#7BC8A4]/40 flex items-center justify-center flex-shrink-0">
-                        <Icon className="w-3.5 h-3.5 text-[#2A8C68]" />
+              <CardContent className="p-4 sm:p-5 space-y-4 bg-white">
+                {/* Price - Compact */}
+                <div className="text-center py-2">
+                  <div className="flex items-baseline justify-center gap-1">
+                    <span className="text-xs text-muted-foreground line-through">R$ 29,99</span>
+                  </div>
+                  <div className="flex items-baseline justify-center gap-1">
+                    <span className="text-4xl font-bold bg-gradient-to-r from-[#2A8C68] via-[#7BC8A4] to-[#2A8C68] bg-clip-text text-transparent">
+                      R$ 9,99
+                    </span>
+                    <span className="text-muted-foreground text-sm">/mês</span>
+                  </div>
+                  <div className="mt-2 inline-flex items-center gap-1 bg-[#A8E6CE]/30 text-[#2A8C68] text-xs font-semibold px-3 py-1 rounded-full">
+                    <Zap className="w-3 h-3" />
+                    Economia de 67%
+                  </div>
+                </div>
+
+                {/* Benefits - Compact */}
+                <div className="space-y-2">
+                  {benefits.map((benefit, index) => {
+                    const Icon = benefit.icon;
+                    return (
+                      <div 
+                        key={index} 
+                        className="flex items-center gap-2 p-2 rounded-lg bg-[#A8E6CE]/10"
+                      >
+                        <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#A8E6CE]/40 to-[#7BC8A4]/40 flex items-center justify-center flex-shrink-0">
+                          <Icon className="w-3.5 h-3.5 text-[#2A8C68]" />
+                        </div>
+                        <span className="text-foreground text-xs sm:text-sm flex-1">{benefit.text}</span>
+                        <Check className="w-4 h-4 text-[#2A8C68] flex-shrink-0" />
                       </div>
-                      <span className="text-foreground text-xs sm:text-sm flex-1">{benefit.text}</span>
-                      <Check className="w-4 h-4 text-[#2A8C68] flex-shrink-0" />
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* CTA Buttons */}
-              <div className="space-y-2">
-                <Button
-                  onClick={handleCheckout}
-                  disabled={loading}
-                  className="w-full h-12 text-base font-bold rounded-xl bg-gradient-to-r from-[#2A8C68] via-[#7BC8A4] to-[#2A8C68] hover:from-[#238058] hover:via-[#6ab893] hover:to-[#238058] text-white shadow-lg shadow-[#2A8C68]/30 transition-all duration-300 hover:scale-[1.02]"
-                >
-                  {loading ? (
-                    <div className="flex items-center gap-2">
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      Processando...
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-2">
-                      <Gem className="w-4 h-4" />
-                      Assinar Agora
-                    </div>
-                  )}
-                </Button>
-
-                <Button
-                  onClick={handleAlreadySubscriber}
-                  variant="outline"
-                  className="w-full h-10 text-sm font-medium rounded-xl border-[#2A8C68] text-[#2A8C68] hover:bg-[#2A8C68] hover:text-white transition-all"
-                >
-                  <LogIn className="w-4 h-4 mr-2" />
-                  Já sou assinante
-                </Button>
-              </div>
-
-              {/* Trust badges - Compact */}
-              <div className="flex items-center justify-center gap-3 pt-1 text-muted-foreground text-xs">
-                <div className="flex items-center gap-1">
-                  <Shield className="w-3 h-3" />
-                  <span>Seguro</span>
+                    );
+                  })}
                 </div>
-                <div className="w-1 h-1 rounded-full bg-muted-foreground/50" />
-                <div className="flex items-center gap-1">
-                  <Zap className="w-3 h-3" />
-                  <span>Cancele quando quiser</span>
+
+                {/* CTA Buttons */}
+                <div className="space-y-2">
+                  <Button
+                    onClick={handleCheckout}
+                    disabled={loading}
+                    className="w-full h-12 text-base font-bold rounded-xl bg-gradient-to-r from-[#2A8C68] via-[#7BC8A4] to-[#2A8C68] hover:from-[#238058] hover:via-[#6ab893] hover:to-[#238058] text-white shadow-lg shadow-[#2A8C68]/30 transition-all duration-300 hover:scale-[1.02]"
+                  >
+                    {loading ? (
+                      <div className="flex items-center gap-2">
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Processando...
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <Gem className="w-4 h-4" />
+                        Assinar Agora
+                      </div>
+                    )}
+                  </Button>
+
+                  <Button
+                    onClick={handleAlreadySubscriber}
+                    variant="outline"
+                    className="w-full h-10 text-sm font-medium rounded-xl border-[#2A8C68] text-[#2A8C68] hover:bg-[#2A8C68] hover:text-white transition-all"
+                  >
+                    <LogIn className="w-4 h-4 mr-2" />
+                    Já sou assinante
+                  </Button>
                 </div>
-              </div>
-            </CardContent>
-          </div>
-        </Card>
+
+                {/* Trust badges - Compact */}
+                <div className="flex items-center justify-center gap-3 pt-1 text-muted-foreground text-xs">
+                  <div className="flex items-center gap-1">
+                    <Shield className="w-3 h-3" />
+                    <span>Seguro</span>
+                  </div>
+                  <div className="w-1 h-1 rounded-full bg-muted-foreground/50" />
+                  <div className="flex items-center gap-1">
+                    <Zap className="w-3 h-3" />
+                    <span>Cancele quando quiser</span>
+                  </div>
+                </div>
+              </CardContent>
+            </div>
+          </Card>
+        </div>
       </div>
     </div>
   );
