@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Check, Shield, Zap, Heart, Target, Sparkles, BadgeCheck, Gem, Loader2, LogIn, Play, ChevronRight } from 'lucide-react';
+import { Check, Shield, Zap, Target, Sparkles, BadgeCheck, Gem, Loader2, LogIn, Play, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useAuth } from '@/hooks/useAuth';
@@ -13,7 +13,6 @@ const benefits = [
   { icon: Target, text: 'Planejamento completo das 7 áreas da vida' },
   { icon: Shield, text: 'Seus dados seguros na nuvem' },
   { icon: Zap, text: 'Relatórios e gráficos de progresso' },
-  { icon: Heart, text: 'Lembretes personalizados por email' },
   { icon: Sparkles, text: 'Exportação profissional em PDF' },
 ];
 

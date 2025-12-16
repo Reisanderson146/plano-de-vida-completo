@@ -330,20 +330,18 @@ export default function DemoCarousel({ open, onOpenChange }: DemoCarouselProps) 
             ))}
           </div>
 
-          {/* Content with slide animation */}
+          {/* Content with slide animation - Fixed height container */}
           <div className="px-3 pb-2 overflow-hidden">
             <div 
               key={currentSlide}
-              className={`bg-white rounded-xl p-3 shadow-lg transition-all duration-300 ${
-                slideDirection === 'right' 
-                  ? 'animate-[slideInRight_0.3s_ease-out]' 
-                  : 'animate-[slideInLeft_0.3s_ease-out]'
-              }`}
+              className="bg-white rounded-xl p-3 shadow-lg min-h-[280px] flex flex-col"
               style={{
                 animation: `${slideDirection === 'right' ? 'slideInRight' : 'slideInLeft'} 0.3s ease-out`
               }}
             >
-              <CurrentComponent />
+              <div className="flex-1">
+                <CurrentComponent />
+              </div>
             </div>
           </div>
 
