@@ -1,0 +1,68 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import HeroSection from "@/components/landing/HeroSection";
+import AreasSection from "@/components/landing/AreasSection";
+import VersiculosSection from "@/components/landing/VersiculosSection";
+import FeaturesSection from "@/components/landing/FeaturesSection";
+import PricingSection from "@/components/landing/PricingSection";
+import FooterSection from "@/components/landing/FooterSection";
+
+const LandingPage = () => {
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+
+  const handleCheckout = async () => {
+    setLoading(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        // User not logged in, redirect to auth page first
+        navigate("/auth?redirect=checkout");
+        return;
+      }
+
+      const { data, error } = await supabase.functions.invoke('create-checkout', {
+        body: {}
+      });
+
+      if (error) throw error;
+
+      if (data?.url) {
+        window.location.href = data.url;
+      }
+    } catch (error: any) {
+      console.error('Checkout error:', error);
+      toast.error("Erro ao iniciar checkout. Tente novamente.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLogin = () => {
+    navigate("/auth");
+  };
+
+  const scrollToPricing = () => {
+    document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  return (
+    <div className="min-h-screen bg-background">
+      <HeroSection onCtaClick={scrollToPricing} />
+      <AreasSection />
+      <VersiculosSection />
+      <FeaturesSection />
+      <PricingSection 
+        onCheckout={handleCheckout}
+        onLogin={handleLogin}
+        loading={loading}
+      />
+      <FooterSection />
+    </div>
+  );
+};
+
+export default LandingPage;
