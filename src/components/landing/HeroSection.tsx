@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { ChevronDown, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 
 interface HeroSectionProps {
   onCtaClick: () => void;
@@ -89,12 +89,6 @@ const HeroSection = ({ onCtaClick }: HeroSectionProps) => {
         </div>
       </div>
 
-      {/* Scroll Indicator */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
-        <button onClick={scrollToFeatures} className="p-2 rounded-full bg-card/50 backdrop-blur-sm border border-border/50 hover:bg-card transition-colors">
-          <ChevronDown className="w-6 h-6 text-muted-foreground" />
-        </button>
-      </div>
     </section>
   );
 };

@@ -12,7 +12,7 @@ const areas = [
 
 const AreasSection = () => {
   return (
-    <section className="py-20 px-4 bg-gradient-to-b from-background to-muted/30">
+    <section className="py-16 pb-8 px-4 bg-gradient-to-b from-background to-muted/30">
       <div className="max-w-6xl mx-auto">
         {/* Section Header */}
         <div className="text-center mb-16 animate-fade-in">
@@ -49,7 +49,7 @@ const AreasSection = () => {
         </div>
 
         {/* Additional Context */}
-        <div className="mt-16 text-center">
+        <div className="mt-10 mb-0 text-center">
           <p className="text-muted-foreground max-w-2xl mx-auto">
             Cada área representa um pilar fundamental da vida. Ao planejar e acompanhar metas em todas elas, 
             você constrói uma vida equilibrada e com propósito divino.

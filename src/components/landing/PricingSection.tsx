@@ -56,8 +56,8 @@ const PricingSection = ({ onCheckout, onLogin, loading }: PricingSectionProps) =
               </div>
             </div>
 
-            <CardHeader className="pt-14 pb-4 text-center relative">
-              <CardTitle className="text-2xl font-bold text-foreground mb-4">
+            <CardHeader className="pt-16 pb-4 text-center relative">
+              <CardTitle className="text-2xl font-bold text-foreground mb-4 mt-2">
                 Plano de Vida Completo
               </CardTitle>
               

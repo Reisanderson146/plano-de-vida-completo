@@ -21,7 +21,7 @@ const versiculos = [
 
 const VersiculosSection = () => {
   return (
-    <section className="py-20 px-4 bg-gradient-to-b from-muted/30 to-background relative overflow-hidden">
+    <section className="py-12 px-4 bg-gradient-to-b from-muted/30 to-background relative overflow-hidden">
       {/* Background Decoration */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-0 left-1/4 w-64 h-64 bg-primary/5 rounded-full blur-3xl" />
