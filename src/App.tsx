@@ -18,7 +18,7 @@ import MeusDados from "./pages/MeusDados";
 import Configuracoes from "./pages/Configuracoes";
 import Conta from "./pages/Conta";
 import CheckoutSuccess from "./pages/CheckoutSuccess";
-import Assinatura from "./pages/Assinatura";
+import LandingPage from "./pages/LandingPage";
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import NotFound from "./pages/NotFound";
@@ -70,10 +70,22 @@ function AdminProtectedRoute({ children }: { children: React.ReactNode }) {
 }
 
 function AppRoutes() {
+  const { user, loading } = useAuth();
+
+  // Show loading while checking auth
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   return (
     <Routes>
-      {/* Rotas públicas */}
-      <Route path="/assinatura" element={<Assinatura />} />
+      {/* Landing Page - rota pública para não autenticados */}
+      <Route path="/landing" element={<LandingPage />} />
+      <Route path="/assinatura" element={<Navigate to="/landing" replace />} />
       <Route path="/auth" element={<Auth />} />
       <Route path="/login" element={<Navigate to="/auth" replace />} />
       
@@ -81,7 +93,7 @@ function AppRoutes() {
       <Route path="/checkout-success" element={<ProtectedRoute><CheckoutSuccess /></ProtectedRoute>} />
       
       {/* Rotas de usuário (requerem login) */}
-      <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+      <Route path="/" element={user ? <ProtectedRoute><Dashboard /></ProtectedRoute> : <Navigate to="/landing" replace />} />
       <Route path="/cadastro" element={<ProtectedRoute><Cadastro /></ProtectedRoute>} />
       <Route path="/consulta" element={<ProtectedRoute><Consulta /></ProtectedRoute>} />
       <Route path="/consulta/:id" element={<ProtectedRoute><ConsultaDetalhes /></ProtectedRoute>} />
