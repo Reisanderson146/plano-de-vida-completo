@@ -669,7 +669,7 @@ export default function Auth() {
                         }}
                         error={hasError('signin-email')}
                         errorMessage={getError('signin-email')}
-                        className="h-14 rounded-2xl border-[#7BC8A4]/30 bg-[#A8E6CE]/10 focus:bg-white focus:border-[#2A8C68]/50 focus:ring-2 focus:ring-[#2A8C68]/20 transition-all duration-300 text-base placeholder:text-muted-foreground/50"
+                        className="h-14 rounded-2xl border-[#7BC8A4]/30 bg-[#A8E6CE]/10 focus:bg-background dark:focus:bg-slate-800 focus:border-[#2A8C68]/50 focus:ring-2 focus:ring-[#2A8C68]/20 transition-all duration-300 text-base placeholder:text-muted-foreground/50"
                       />
                     </div>
                     <div className="space-y-2">
@@ -697,7 +697,7 @@ export default function Auth() {
                           }}
                           error={hasError('signin-password')}
                           errorMessage={getError('signin-password')}
-                          className="h-14 rounded-2xl border-[#7BC8A4]/30 bg-[#A8E6CE]/10 focus:bg-white focus:border-[#2A8C68]/50 focus:ring-2 focus:ring-[#2A8C68]/20 transition-all duration-300 pr-12 text-base placeholder:text-muted-foreground/50"
+                          className="h-14 rounded-2xl border-[#7BC8A4]/30 bg-[#A8E6CE]/10 focus:bg-background dark:focus:bg-slate-800 focus:border-[#2A8C68]/50 focus:ring-2 focus:ring-[#2A8C68]/20 transition-all duration-300 pr-12 text-base placeholder:text-muted-foreground/50"
                         />
                         <button
                           type="button"
@@ -760,7 +760,7 @@ export default function Auth() {
                         }}
                         error={hasError('signup-email')}
                         errorMessage={getError('signup-email')}
-                        className="h-14 rounded-2xl border-[#7BC8A4]/30 bg-[#A8E6CE]/10 focus:bg-white focus:border-[#2A8C68]/50 focus:ring-2 focus:ring-[#2A8C68]/20 transition-all duration-300 text-base placeholder:text-muted-foreground/50"
+                        className="h-14 rounded-2xl border-[#7BC8A4]/30 bg-[#A8E6CE]/10 focus:bg-background dark:focus:bg-slate-800 focus:border-[#2A8C68]/50 focus:ring-2 focus:ring-[#2A8C68]/20 transition-all duration-300 text-base placeholder:text-muted-foreground/50"
                       />
                     </div>
                     <div className="space-y-2">
@@ -779,7 +779,7 @@ export default function Auth() {
                           }}
                           error={hasError('signup-password')}
                           errorMessage={getError('signup-password')}
-                          className="h-14 rounded-2xl border-[#7BC8A4]/30 bg-[#A8E6CE]/10 focus:bg-white focus:border-[#2A8C68]/50 focus:ring-2 focus:ring-[#2A8C68]/20 transition-all duration-300 pr-12 text-base placeholder:text-muted-foreground/50"
+                          className="h-14 rounded-2xl border-[#7BC8A4]/30 bg-[#A8E6CE]/10 focus:bg-background dark:focus:bg-slate-800 focus:border-[#2A8C68]/50 focus:ring-2 focus:ring-[#2A8C68]/20 transition-all duration-300 pr-12 text-base placeholder:text-muted-foreground/50"
                         />
                         <button
                           type="button"
@@ -806,7 +806,7 @@ export default function Auth() {
                           }}
                           error={hasError('signup-confirm-password')}
                           errorMessage={getError('signup-confirm-password')}
-                          className="h-14 rounded-2xl border-[#7BC8A4]/30 bg-[#A8E6CE]/10 focus:bg-white focus:border-[#2A8C68]/50 focus:ring-2 focus:ring-[#2A8C68]/20 transition-all duration-300 pr-12 text-base placeholder:text-muted-foreground/50"
+                          className="h-14 rounded-2xl border-[#7BC8A4]/30 bg-[#A8E6CE]/10 focus:bg-background dark:focus:bg-slate-800 focus:border-[#2A8C68]/50 focus:ring-2 focus:ring-[#2A8C68]/20 transition-all duration-300 pr-12 text-base placeholder:text-muted-foreground/50"
                         />
                         <button
                           type="button"

@@ -1,36 +1,9 @@
-import { useTheme } from 'next-themes';
-import { useEffect, useState, useCallback } from 'react';
 import { Moon, Sun, Monitor } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { applyTheme } from '@/lib/themes';
+import { useUserTheme } from '@/hooks/useUserTheme';
 
 export function DarkModeToggle() {
-  const { theme, setTheme, resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  // Reapply color theme when dark/light mode changes
-  useEffect(() => {
-    if (mounted) {
-      const savedColorTheme = localStorage.getItem('plano-vida-theme') || 'default';
-      setTimeout(() => applyTheme(savedColorTheme), 50);
-    }
-  }, [resolvedTheme, mounted]);
-
-  const handleThemeChange = useCallback((newTheme: string) => {
-    // Add transitioning class for smooth animation
-    document.documentElement.classList.add('theme-transitioning');
-    
-    setTheme(newTheme);
-    
-    // Remove class after transition completes
-    setTimeout(() => {
-      document.documentElement.classList.remove('theme-transitioning');
-    }, 350);
-  }, [setTheme]);
+  const { theme, setTheme, mounted } = useUserTheme();
 
   if (!mounted) {
     return (
@@ -57,7 +30,7 @@ export function DarkModeToggle() {
         return (
           <button
             key={option.value}
-            onClick={() => handleThemeChange(option.value)}
+            onClick={() => setTheme(option.value)}
             className={cn(
               'flex items-center justify-center w-8 h-8 rounded-md transition-all duration-200',
               'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1',
