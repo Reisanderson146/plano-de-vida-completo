@@ -7,10 +7,10 @@ export function DarkModeToggle() {
 
   if (!mounted) {
     return (
-      <div className="flex gap-1 p-1 bg-muted rounded-lg">
-        <div className="w-8 h-8 rounded-md" />
-        <div className="w-8 h-8 rounded-md" />
-        <div className="w-8 h-8 rounded-md" />
+      <div className="flex gap-1 p-1.5 bg-background/80 backdrop-blur-xl rounded-full border border-border/50 shadow-lg">
+        <div className="w-9 h-9 rounded-full" />
+        <div className="w-9 h-9 rounded-full" />
+        <div className="w-9 h-9 rounded-full" />
       </div>
     );
   }
@@ -22,7 +22,7 @@ export function DarkModeToggle() {
   ];
 
   return (
-    <div className="flex gap-1 p-1 bg-muted rounded-lg">
+    <div className="flex gap-1 p-1.5 bg-background/80 backdrop-blur-xl rounded-full border border-border/50 shadow-lg">
       {options.map((option) => {
         const Icon = option.icon;
         const isActive = theme === option.value;
@@ -32,15 +32,26 @@ export function DarkModeToggle() {
             key={option.value}
             onClick={() => setTheme(option.value)}
             className={cn(
-              'flex items-center justify-center w-8 h-8 rounded-md transition-all duration-200',
-              'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1',
+              'relative flex items-center justify-center w-9 h-9 rounded-full transition-all duration-300 ease-out',
+              'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',
               isActive
-                ? 'bg-primary text-primary-foreground shadow-sm'
-                : 'text-muted-foreground hover:text-foreground hover:bg-background/50'
+                ? 'bg-primary text-primary-foreground shadow-md scale-105'
+                : 'text-muted-foreground hover:text-foreground hover:bg-muted/80 hover:scale-105'
             )}
             title={option.label}
+            aria-label={option.label}
           >
-            <Icon className="w-4 h-4" />
+            <Icon 
+              className={cn(
+                'w-4 h-4 transition-all duration-300',
+                isActive && option.value === 'light' && 'animate-[spin_0.5s_ease-out]',
+                isActive && option.value === 'dark' && 'animate-[pulse_0.5s_ease-out]',
+                isActive && 'drop-shadow-sm'
+              )} 
+            />
+            {isActive && (
+              <span className="absolute inset-0 rounded-full bg-primary/20 animate-[ping_0.5s_ease-out]" />
+            )}
           </button>
         );
       })}
