@@ -115,9 +115,10 @@ export default function Dashboard() {
     try {
       let query = supabase
         .from('life_goals')
-        .select('area, is_completed, period_year')
+        .select('area, is_completed, period_year, goal_text')
         .eq('user_id', user!.id)
-        .eq('life_plan_id', selectedPlanId);
+        .eq('life_plan_id', selectedPlanId)
+        .neq('goal_text', ''); // Filter out empty goals
 
       const yearRange = getYearRangeFromDateRange(dateRange);
       if (yearRange.min !== undefined) {
