@@ -8,6 +8,7 @@ import VersiculosSection from "@/components/landing/VersiculosSection";
 import FeaturesSection from "@/components/landing/FeaturesSection";
 import PricingSection from "@/components/landing/PricingSection";
 import FooterSection from "@/components/landing/FooterSection";
+import { DarkModeToggle } from "@/components/theme/DarkModeToggle";
 
 const LandingPage = () => {
   const navigate = useNavigate();
@@ -50,7 +51,12 @@ const LandingPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative">
+      {/* Theme Toggle - Fixed position */}
+      <div className="fixed top-4 right-4 z-50">
+        <DarkModeToggle />
+      </div>
+      
       <HeroSection onCtaClick={scrollToPricing} />
       <AreasSection />
       <VersiculosSection />

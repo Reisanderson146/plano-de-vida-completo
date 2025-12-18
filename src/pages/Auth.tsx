@@ -12,6 +12,7 @@ import { Loader2, Eye, EyeOff, ArrowRight, ArrowLeft, KeyRound } from 'lucide-re
 import { Logo } from '@/components/Logo';
 import { supabase } from '@/integrations/supabase/client';
 import loginBackground from '@/assets/login-background.png';
+import { DarkModeToggle } from '@/components/theme/DarkModeToggle';
 
 export default function Auth() {
   const [email, setEmail] = useState('');
@@ -593,6 +594,11 @@ export default function Auth() {
         backgroundRepeat: 'no-repeat',
       }}
     >
+      {/* Theme Toggle - Fixed position */}
+      <div className="fixed top-4 right-4 z-50">
+        <DarkModeToggle />
+      </div>
+
       {/* Premium green overlay with smooth gradient */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#2A8C68]/60 via-[#7BC8A4]/40 to-[#2A8C68]/50 backdrop-blur-[2px]" />
       

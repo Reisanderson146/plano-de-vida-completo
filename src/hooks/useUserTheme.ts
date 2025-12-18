@@ -1,37 +1,48 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useTheme } from 'next-themes';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from './useAuth';
 import { applyTheme } from '@/lib/themes';
 
+// Key for anonymous users (not logged in)
+const ANONYMOUS_THEME_KEY = 'planodevida-theme-anonymous';
+
 export function useUserTheme() {
-  const { user } = useAuth();
-  const { theme, setTheme, resolvedTheme } = useTheme();
+  const { theme, setTheme: setNextTheme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Load user's theme preference from database when they log in
+  // Get current user ID and load their theme
   useEffect(() => {
     const loadUserTheme = async () => {
-      if (!user?.id || !mounted) {
-        setIsLoading(false);
-        return;
-      }
+      if (!mounted) return;
 
       try {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('theme_id')
-          .eq('id', user.id)
-          .single();
+        const { data: { session } } = await supabase.auth.getSession();
+        const currentUserId = session?.user?.id || null;
+        setUserId(currentUserId);
 
-        if (profile?.theme_id && profile.theme_id !== 'default') {
-          // theme_id can be 'light', 'dark', or 'system'
-          setTheme(profile.theme_id);
+        if (currentUserId) {
+          // Logged in user - load from database
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('theme_id')
+            .eq('id', currentUserId)
+            .single();
+
+          if (profile?.theme_id && profile.theme_id !== 'default') {
+            setNextTheme(profile.theme_id);
+          }
+        } else {
+          // Anonymous user - load from localStorage
+          const savedTheme = localStorage.getItem(ANONYMOUS_THEME_KEY);
+          if (savedTheme) {
+            setNextTheme(savedTheme);
+          }
         }
       } catch (error) {
         console.error('Error loading user theme:', error);
@@ -41,7 +52,34 @@ export function useUserTheme() {
     };
 
     loadUserTheme();
-  }, [user?.id, mounted, setTheme]);
+
+    // Listen for auth changes to reload theme when user logs in/out
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      const newUserId = session?.user?.id || null;
+      setUserId(newUserId);
+
+      if (newUserId && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED')) {
+        // User just logged in - load their theme from database
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('theme_id')
+          .eq('id', newUserId)
+          .single();
+
+        if (profile?.theme_id && profile.theme_id !== 'default') {
+          setNextTheme(profile.theme_id);
+        }
+      } else if (event === 'SIGNED_OUT') {
+        // User logged out - load anonymous theme
+        const savedTheme = localStorage.getItem(ANONYMOUS_THEME_KEY);
+        if (savedTheme) {
+          setNextTheme(savedTheme);
+        }
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [mounted, setNextTheme]);
 
   // Reapply color theme when dark/light mode changes
   useEffect(() => {
@@ -50,30 +88,33 @@ export function useUserTheme() {
     }
   }, [resolvedTheme, mounted]);
 
-  // Save theme preference to database
+  // Save theme preference
   const saveTheme = useCallback(async (newTheme: string) => {
     // Add transitioning class for smooth animation
     document.documentElement.classList.add('theme-transitioning');
     
-    setTheme(newTheme);
+    setNextTheme(newTheme);
     
     // Remove class after transition completes
     setTimeout(() => {
       document.documentElement.classList.remove('theme-transitioning');
     }, 350);
 
-    // Save to database if user is logged in
-    if (user?.id) {
+    if (userId) {
+      // Logged in user - save to database
       try {
         await supabase
           .from('profiles')
           .update({ theme_id: newTheme })
-          .eq('id', user.id);
+          .eq('id', userId);
       } catch (error) {
         console.error('Error saving user theme:', error);
       }
+    } else {
+      // Anonymous user - save to localStorage
+      localStorage.setItem(ANONYMOUS_THEME_KEY, newTheme);
     }
-  }, [user?.id, setTheme]);
+  }, [userId, setNextTheme]);
 
   return {
     theme,
