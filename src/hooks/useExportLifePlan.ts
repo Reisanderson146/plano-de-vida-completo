@@ -73,14 +73,15 @@ export function useExportLifePlan() {
     return defaultColors[areaId];
   };
 
-  // Function to load and normalize image orientation using Canvas
-  const loadImageWithCorrectOrientation = async (imageUrl: string): Promise<string> => {
+  // Function to load and create circular image with correct orientation using Canvas
+  const loadCircularImage = async (imageUrl: string, size: number): Promise<string> => {
     return new Promise((resolve, reject) => {
       const img = new Image();
       img.crossOrigin = 'anonymous';
       
       img.onload = () => {
-        // Create canvas to draw the image with correct orientation
+        // Use higher resolution for better quality (3x the display size)
+        const canvasSize = size * 8;
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
         
@@ -89,15 +90,43 @@ export function useExportLifePlan() {
           return;
         }
         
-        // Set canvas size to match image dimensions
-        canvas.width = img.width;
-        canvas.height = img.height;
+        canvas.width = canvasSize;
+        canvas.height = canvasSize;
         
-        // Draw the image - the browser will automatically handle EXIF orientation
-        ctx.drawImage(img, 0, 0, img.width, img.height);
+        // Create circular clip path
+        ctx.beginPath();
+        ctx.arc(canvasSize / 2, canvasSize / 2, canvasSize / 2, 0, Math.PI * 2);
+        ctx.closePath();
+        ctx.clip();
         
-        // Convert to base64
-        const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+        // Calculate cropping to center the image (cover mode)
+        const aspectRatio = img.width / img.height;
+        let drawWidth, drawHeight, offsetX = 0, offsetY = 0;
+        
+        if (aspectRatio > 1) {
+          // Landscape image
+          drawHeight = canvasSize;
+          drawWidth = canvasSize * aspectRatio;
+          offsetX = -(drawWidth - canvasSize) / 2;
+        } else {
+          // Portrait or square image
+          drawWidth = canvasSize;
+          drawHeight = canvasSize / aspectRatio;
+          offsetY = -(drawHeight - canvasSize) / 2;
+        }
+        
+        // Draw the image centered and cropped
+        ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
+        
+        // Add subtle border
+        ctx.strokeStyle = 'rgba(200, 200, 200, 0.5)';
+        ctx.lineWidth = canvasSize * 0.02;
+        ctx.beginPath();
+        ctx.arc(canvasSize / 2, canvasSize / 2, canvasSize / 2 - canvasSize * 0.01, 0, Math.PI * 2);
+        ctx.stroke();
+        
+        // Convert to high quality PNG for better circular edges
+        const dataUrl = canvas.toDataURL('image/png', 1.0);
         resolve(dataUrl);
       };
       
@@ -131,55 +160,18 @@ export function useExportLifePlan() {
     doc.setFillColor(...primaryColor);
     doc.rect(0, 0, pageWidth, 3, 'F');
 
-    // Add photo if available (oval format)
-    const photoSize = 35;
+    // Add circular photo if available
+    const photoSize = 38;
     const photoX = margin;
-    const photoY = 10;
+    const photoY = 8;
     
     if (plan.photo_url) {
       try {
-        // Load image with correct orientation using Canvas
-        const imgData = await loadImageWithCorrectOrientation(plan.photo_url);
+        // Load and create circular image with high quality
+        const circularImgData = await loadCircularImage(plan.photo_url, photoSize);
         
-        // Create oval clip path by drawing ellipse
-        doc.saveGraphicsState();
-        
-        // Draw oval border first
-        doc.setDrawColor(200, 200, 200);
-        doc.setLineWidth(0.5);
-        doc.ellipse(photoX + photoSize/2, photoY + photoSize/2 + 3, photoSize/2, photoSize/2, 'S');
-        
-        // Add image (will be square but visually looks oval due to positioning)
-        doc.addImage(imgData, 'JPEG', photoX, photoY + 3, photoSize, photoSize);
-        
-        // Draw oval overlay to create oval effect
-        doc.setFillColor(248, 250, 248);
-        
-        // Top left corner
-        doc.moveTo(photoX, photoY + 3);
-        doc.lineTo(photoX + photoSize * 0.15, photoY + 3);
-        doc.lineTo(photoX, photoY + 3 + photoSize * 0.15);
-        doc.fill();
-        
-        // Top right corner
-        doc.moveTo(photoX + photoSize, photoY + 3);
-        doc.lineTo(photoX + photoSize - photoSize * 0.15, photoY + 3);
-        doc.lineTo(photoX + photoSize, photoY + 3 + photoSize * 0.15);
-        doc.fill();
-        
-        // Bottom left corner
-        doc.moveTo(photoX, photoY + 3 + photoSize);
-        doc.lineTo(photoX + photoSize * 0.15, photoY + 3 + photoSize);
-        doc.lineTo(photoX, photoY + 3 + photoSize - photoSize * 0.15);
-        doc.fill();
-        
-        // Bottom right corner
-        doc.moveTo(photoX + photoSize, photoY + 3 + photoSize);
-        doc.lineTo(photoX + photoSize - photoSize * 0.15, photoY + 3 + photoSize);
-        doc.lineTo(photoX + photoSize, photoY + 3 + photoSize - photoSize * 0.15);
-        doc.fill();
-        
-        doc.restoreGraphicsState();
+        // Add the circular image directly (already clipped to circle in canvas)
+        doc.addImage(circularImgData, 'PNG', photoX, photoY + 3, photoSize, photoSize);
       } catch (error) {
         console.error('Error loading photo for PDF:', error);
       }
