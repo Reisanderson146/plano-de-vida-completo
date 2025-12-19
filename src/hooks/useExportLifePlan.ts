@@ -73,6 +73,42 @@ export function useExportLifePlan() {
     return defaultColors[areaId];
   };
 
+  // Function to load and normalize image orientation using Canvas
+  const loadImageWithCorrectOrientation = async (imageUrl: string): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      
+      img.onload = () => {
+        // Create canvas to draw the image with correct orientation
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        if (!ctx) {
+          reject(new Error('Could not get canvas context'));
+          return;
+        }
+        
+        // Set canvas size to match image dimensions
+        canvas.width = img.width;
+        canvas.height = img.height;
+        
+        // Draw the image - the browser will automatically handle EXIF orientation
+        ctx.drawImage(img, 0, 0, img.width, img.height);
+        
+        // Convert to base64
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+        resolve(dataUrl);
+      };
+      
+      img.onerror = () => {
+        reject(new Error('Failed to load image'));
+      };
+      
+      img.src = imageUrl;
+    });
+  };
+
   const exportToPDF = async (options: ExportOptions) => {
     const { plan, goals, areaConfigs, selectedYears } = options;
     const filteredGoals = filterGoalsByYears(goals, selectedYears);
@@ -102,57 +138,48 @@ export function useExportLifePlan() {
     
     if (plan.photo_url) {
       try {
-        const response = await fetch(plan.photo_url);
-        const blob = await response.blob();
-        const reader = new FileReader();
+        // Load image with correct orientation using Canvas
+        const imgData = await loadImageWithCorrectOrientation(plan.photo_url);
         
-        await new Promise<void>((resolve) => {
-          reader.onload = () => {
-            const imgData = reader.result as string;
-            
-            // Create oval clip path by drawing ellipse
-            doc.saveGraphicsState();
-            
-            // Draw oval border first
-            doc.setDrawColor(200, 200, 200);
-            doc.setLineWidth(0.5);
-            doc.ellipse(photoX + photoSize/2, photoY + photoSize/2 + 3, photoSize/2, photoSize/2, 'S');
-            
-            // Add image (will be square but visually looks oval due to positioning)
-            doc.addImage(imgData, 'JPEG', photoX, photoY + 3, photoSize, photoSize);
-            
-            // Draw oval overlay to create oval effect
-            doc.setFillColor(248, 250, 248);
-            
-            // Top left corner
-            doc.moveTo(photoX, photoY + 3);
-            doc.lineTo(photoX + photoSize * 0.15, photoY + 3);
-            doc.lineTo(photoX, photoY + 3 + photoSize * 0.15);
-            doc.fill();
-            
-            // Top right corner
-            doc.moveTo(photoX + photoSize, photoY + 3);
-            doc.lineTo(photoX + photoSize - photoSize * 0.15, photoY + 3);
-            doc.lineTo(photoX + photoSize, photoY + 3 + photoSize * 0.15);
-            doc.fill();
-            
-            // Bottom left corner
-            doc.moveTo(photoX, photoY + 3 + photoSize);
-            doc.lineTo(photoX + photoSize * 0.15, photoY + 3 + photoSize);
-            doc.lineTo(photoX, photoY + 3 + photoSize - photoSize * 0.15);
-            doc.fill();
-            
-            // Bottom right corner
-            doc.moveTo(photoX + photoSize, photoY + 3 + photoSize);
-            doc.lineTo(photoX + photoSize - photoSize * 0.15, photoY + 3 + photoSize);
-            doc.lineTo(photoX + photoSize, photoY + 3 + photoSize - photoSize * 0.15);
-            doc.fill();
-            
-            doc.restoreGraphicsState();
-            resolve();
-          };
-          reader.readAsDataURL(blob);
-        });
+        // Create oval clip path by drawing ellipse
+        doc.saveGraphicsState();
+        
+        // Draw oval border first
+        doc.setDrawColor(200, 200, 200);
+        doc.setLineWidth(0.5);
+        doc.ellipse(photoX + photoSize/2, photoY + photoSize/2 + 3, photoSize/2, photoSize/2, 'S');
+        
+        // Add image (will be square but visually looks oval due to positioning)
+        doc.addImage(imgData, 'JPEG', photoX, photoY + 3, photoSize, photoSize);
+        
+        // Draw oval overlay to create oval effect
+        doc.setFillColor(248, 250, 248);
+        
+        // Top left corner
+        doc.moveTo(photoX, photoY + 3);
+        doc.lineTo(photoX + photoSize * 0.15, photoY + 3);
+        doc.lineTo(photoX, photoY + 3 + photoSize * 0.15);
+        doc.fill();
+        
+        // Top right corner
+        doc.moveTo(photoX + photoSize, photoY + 3);
+        doc.lineTo(photoX + photoSize - photoSize * 0.15, photoY + 3);
+        doc.lineTo(photoX + photoSize, photoY + 3 + photoSize * 0.15);
+        doc.fill();
+        
+        // Bottom left corner
+        doc.moveTo(photoX, photoY + 3 + photoSize);
+        doc.lineTo(photoX + photoSize * 0.15, photoY + 3 + photoSize);
+        doc.lineTo(photoX, photoY + 3 + photoSize - photoSize * 0.15);
+        doc.fill();
+        
+        // Bottom right corner
+        doc.moveTo(photoX + photoSize, photoY + 3 + photoSize);
+        doc.lineTo(photoX + photoSize - photoSize * 0.15, photoY + 3 + photoSize);
+        doc.lineTo(photoX + photoSize, photoY + 3 + photoSize - photoSize * 0.15);
+        doc.fill();
+        
+        doc.restoreGraphicsState();
       } catch (error) {
         console.error('Error loading photo for PDF:', error);
       }
