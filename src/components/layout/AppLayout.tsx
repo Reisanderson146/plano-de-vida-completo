@@ -37,8 +37,10 @@ export function AppLayout({ children }: AppLayoutProps) {
       </div>
       
       <Navbar />
-      <main className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 pb-24 md:pb-10">
-        {children}
+      <main className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-6 sm:py-8 lg:py-10 pb-24 md:pb-10">
+        <div className="w-full">
+          {children}
+        </div>
       </main>
       <BottomNav />
     </div>
