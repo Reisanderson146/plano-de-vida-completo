@@ -2,16 +2,16 @@ import { Link, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   FileText, 
-  Search, 
+  BarChart3, 
   Scale, 
-  User,
-  Settings
+  User
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
   { path: '/', label: 'Início', icon: LayoutDashboard },
   { path: '/consulta', label: 'Planos', icon: FileText },
+  { path: '/relatorios', label: 'Relatórios', icon: BarChart3 },
   { path: '/balanco', label: 'Balanço', icon: Scale },
   { path: '/meus-dados', label: 'Dados', icon: User },
 ];
