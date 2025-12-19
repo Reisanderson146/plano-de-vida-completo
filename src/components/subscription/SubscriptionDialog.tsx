@@ -104,17 +104,17 @@ export function SubscriptionDialog({ open, onOpenChange, onSubscribed }: Subscri
         <DialogTitle className="sr-only">Assine o Plano Premium</DialogTitle>
         
         {/* Premium badge */}
-        <div className="relative bg-gradient-to-r from-[#2A8C68] via-[#3d9d78] to-[#2A8C68] py-5 px-6">
+        <div className="relative bg-gradient-to-r from-[#2A8C68] via-[#3d9d78] to-[#2A8C68] py-5 px-6 animate-fade-in">
           <Button
             variant="ghost"
             size="icon"
-            className="absolute top-3 right-3 text-white/70 hover:text-white hover:bg-white/10"
+            className="absolute top-3 right-3 text-white/70 hover:text-white hover:bg-white/10 transition-all duration-200"
             onClick={() => onOpenChange(false)}
           >
             <X className="w-5 h-5" />
           </Button>
           <div className="relative flex items-center justify-center gap-2">
-            <Gem className="w-5 h-5 text-white" />
+            <Gem className="w-5 h-5 text-white animate-pulse" />
             <span className="text-xl font-semibold text-white tracking-widest uppercase">Premium</span>
             <BadgeCheck className="w-5 h-5 text-white" />
           </div>
@@ -123,7 +123,7 @@ export function SubscriptionDialog({ open, onOpenChange, onSubscribed }: Subscri
 
         <div className="p-6 space-y-5 bg-background">
           {/* Price */}
-          <div className="text-center py-2">
+          <div className="text-center py-2 animate-fade-in" style={{ animationDelay: '100ms', animationFillMode: 'both' }}>
             <div className="flex items-baseline justify-center gap-1">
               <span className="text-sm text-muted-foreground line-through">R$ 29,99</span>
             </div>
@@ -133,7 +133,7 @@ export function SubscriptionDialog({ open, onOpenChange, onSubscribed }: Subscri
               </span>
               <span className="text-muted-foreground">/mês</span>
             </div>
-            <div className="mt-2 inline-flex items-center gap-2 bg-[#A8E6CE]/30 text-[#2A8C68] text-xs font-semibold px-3 py-1 rounded-full">
+            <div className="mt-2 inline-flex items-center gap-2 bg-[#A8E6CE]/30 text-[#2A8C68] text-xs font-semibold px-3 py-1 rounded-full animate-pulse">
               <Zap className="w-3 h-3" />
               Economia de 67%
             </div>
@@ -146,9 +146,10 @@ export function SubscriptionDialog({ open, onOpenChange, onSubscribed }: Subscri
               return (
                 <div 
                   key={index} 
-                  className="flex items-center gap-3 p-2.5 rounded-xl bg-[#A8E6CE]/10"
+                  className="flex items-center gap-3 p-2.5 rounded-xl bg-[#A8E6CE]/10 animate-fade-in"
+                  style={{ animationDelay: `${index * 100}ms`, animationFillMode: 'both' }}
                 >
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#A8E6CE]/40 to-[#7BC8A4]/40 flex items-center justify-center flex-shrink-0">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#A8E6CE]/40 to-[#7BC8A4]/40 flex items-center justify-center flex-shrink-0 transition-transform duration-300 hover:scale-110">
                     <Icon className="w-4 h-4 text-[#2A8C68]" />
                   </div>
                   <span className="text-foreground text-sm flex-1">{benefit.text}</span>
