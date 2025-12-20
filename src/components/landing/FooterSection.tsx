@@ -1,5 +1,3 @@
-import { Heart } from "lucide-react";
-
 const FooterSection = () => {
   return (
     <footer className="py-12 px-4 bg-muted/50 border-t border-border/50">
@@ -19,8 +17,8 @@ const FooterSection = () => {
           <div className="w-24 h-0.5 bg-gradient-to-r from-primary/50 to-emerald-500/50 rounded-full mb-6" />
 
           {/* Copyright */}
-          <p className="text-sm text-muted-foreground flex items-center gap-1">
-            Feito com <Heart className="w-4 h-4 text-rose-500 fill-rose-500" /> © {new Date().getFullYear()} Plano de Vida
+          <p className="text-sm text-muted-foreground">
+            © {new Date().getFullYear()} Plano de Vida. Desenvolvido por Anderson Reis.
           </p>
         </div>
       </div>

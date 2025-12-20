@@ -857,6 +857,9 @@ export default function Auth() {
               Acesso administrativo
             </a>
           </p>
+          <p className="text-xs text-white/40 pt-2">
+            Versão 1.0 • Desenvolvido por Anderson Reis
+          </p>
         </div>
       </div>
     </div>
