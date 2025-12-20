@@ -12,7 +12,7 @@ const FooterSection = () => {
           
           {/* Slogan */}
           <p className="text-muted-foreground mb-6">
-            Constância que constrói propósito
+            Constância que constrói resultados
           </p>
 
           {/* Divider */}

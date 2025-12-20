@@ -52,7 +52,7 @@ const HeroSection = ({ onCtaClick }: HeroSectionProps) => {
 
         {/* Slogan */}
         <p className="text-xl md:text-2xl text-muted-foreground mb-8 font-light">
-          Constância que constrói propósito
+          Constância que constrói resultados
         </p>
 
         {/* Featured Verse */}

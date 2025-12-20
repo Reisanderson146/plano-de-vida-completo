@@ -8,7 +8,13 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Camera, Save, User, Calendar, Mail } from 'lucide-react';
+import { Loader2, Camera, Save, User, Calendar, Mail, Trash2, Pencil } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { useState as useStateEffect, useEffect } from 'react';
 
 interface Profile {
@@ -135,6 +141,47 @@ export default function MeusDados() {
     }
   };
 
+  const handleDeleteAvatar = async () => {
+    if (!user || !avatarUrl) return;
+
+    setUploading(true);
+
+    try {
+      // Delete from storage
+      const fileName = `${user.id}/avatar`;
+      const { error: deleteError } = await supabase.storage
+        .from('avatars')
+        .remove([`${fileName}.jpg`, `${fileName}.jpeg`, `${fileName}.png`, `${fileName}.gif`, `${fileName}.webp`]);
+
+      if (deleteError) {
+        console.error('Storage delete error:', deleteError);
+      }
+
+      // Update profile to remove avatar_url
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ avatar_url: null })
+        .eq('id', user.id);
+
+      if (updateError) throw updateError;
+
+      setAvatarUrl(null);
+      toast({
+        title: 'Foto removida',
+        description: 'Sua foto de perfil foi removida com sucesso.',
+      });
+    } catch (error) {
+      console.error('Error deleting avatar:', error);
+      toast({
+        title: 'Erro ao remover foto',
+        description: 'Não foi possível remover sua foto de perfil.',
+        variant: 'destructive',
+      });
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleSaveProfile = async () => {
     if (!user) return;
 
@@ -213,17 +260,35 @@ export default function MeusDados() {
                     {getInitials()}
                   </AvatarFallback>
                 </Avatar>
-                <button
-                  onClick={handleAvatarClick}
-                  disabled={uploading}
-                  className="absolute bottom-0 right-0 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-md hover:bg-primary/90 transition-colors disabled:opacity-50"
-                >
-                  {uploading ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <Camera className="w-4 h-4 sm:w-5 sm:h-5" />
-                  )}
-                </button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button
+                      disabled={uploading}
+                      className="absolute bottom-0 right-0 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-md hover:bg-primary/90 transition-colors disabled:opacity-50"
+                    >
+                      {uploading ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Camera className="w-4 h-4 sm:w-5 sm:h-5" />
+                      )}
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuItem onClick={handleAvatarClick} className="cursor-pointer">
+                      <Pencil className="w-4 h-4 mr-2" />
+                      {avatarUrl ? 'Alterar foto' : 'Adicionar foto'}
+                    </DropdownMenuItem>
+                    {avatarUrl && (
+                      <DropdownMenuItem 
+                        onClick={handleDeleteAvatar} 
+                        className="cursor-pointer text-destructive focus:text-destructive"
+                      >
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Remover foto
+                      </DropdownMenuItem>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
                 <input
                   ref={fileInputRef}
                   type="file"

@@ -32,7 +32,7 @@ export function AppLayout({ children }: AppLayoutProps) {
           className="hidden lg:block absolute bottom-[25%] right-[5%] text-[4vw] font-semibold text-primary/[0.02] dark:text-primary/[0.03] whitespace-nowrap rotate-6"
           style={{ fontFamily: 'Inter, sans-serif' }}
         >
-          Propósito
+          Resultados
         </div>
       </div>
       
