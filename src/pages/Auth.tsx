@@ -289,7 +289,7 @@ export default function Auth() {
               Plano de Vida
             </h1>
             <p className="text-white/90 text-center text-lg sm:text-xl font-light tracking-[0.15em] drop-shadow-md">
-              Constância que constrói propósito.
+              Constância que constrói resultados.
             </p>
           </div>
 
@@ -416,7 +416,7 @@ export default function Auth() {
               Plano de Vida
             </h1>
             <p className="text-white/90 text-center text-lg sm:text-xl font-light tracking-[0.15em] drop-shadow-md">
-              Constância que constrói propósito.
+              Constância que constrói resultados.
             </p>
           </div>
 
@@ -498,7 +498,7 @@ export default function Auth() {
               Plano de Vida
             </h1>
             <p className="text-white/90 text-center text-lg sm:text-xl font-light tracking-[0.15em] drop-shadow-md">
-              Constância que constrói propósito.
+              Constância que constrói resultados.
             </p>
           </div>
 
@@ -620,7 +620,7 @@ export default function Auth() {
           
           {/* New Slogan with refined typography */}
           <p className="text-white/90 text-center text-lg sm:text-xl font-light tracking-[0.15em] drop-shadow-md">
-            Constância que constrói propósito.
+            Constância que constrói resultados.
           </p>
         </div>
 

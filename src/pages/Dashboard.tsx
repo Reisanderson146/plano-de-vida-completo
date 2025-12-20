@@ -199,7 +199,7 @@ export default function Dashboard() {
         <div className="space-y-1 opacity-0 animate-fade-in-up">
           <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">Dashboard</h1>
           <p className="text-sm sm:text-base text-muted-foreground font-medium">
-            Constância que constrói propósito.
+            Constância que constrói resultados.
           </p>
         </div>
 

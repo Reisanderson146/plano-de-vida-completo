@@ -81,7 +81,7 @@ function CadastroDemo() {
         </div>
         <div className="bg-gray-50 rounded-lg p-2.5 border border-gray-100">
           <span className="text-[8px] text-gray-500 uppercase tracking-wide">Lema</span>
-          <p className="text-[10px] text-gray-700 italic">"Constância que constrói propósito"</p>
+          <p className="text-[10px] text-gray-700 italic">"Constância que constrói resultados"</p>
         </div>
       </div>
       <div className="grid grid-cols-3 gap-2">

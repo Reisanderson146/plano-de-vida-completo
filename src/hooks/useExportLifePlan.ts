@@ -80,8 +80,13 @@ export function useExportLifePlan() {
       img.crossOrigin = 'anonymous';
       
       img.onload = () => {
-        // Use higher resolution for better quality (3x the display size)
+        // Use higher resolution for better quality (8x the display size)
         const canvasSize = size * 8;
+        const shadowOffset = canvasSize * 0.03;
+        const shadowBlur = canvasSize * 0.08;
+        const paddingForShadow = canvasSize * 0.1;
+        const totalCanvasSize = canvasSize + paddingForShadow * 2;
+        
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
         
@@ -90,39 +95,56 @@ export function useExportLifePlan() {
           return;
         }
         
-        canvas.width = canvasSize;
-        canvas.height = canvasSize;
+        canvas.width = totalCanvasSize;
+        canvas.height = totalCanvasSize;
         
-        // Create circular clip path
+        // Draw shadow first
+        ctx.save();
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.25)';
+        ctx.shadowBlur = shadowBlur;
+        ctx.shadowOffsetX = shadowOffset;
+        ctx.shadowOffsetY = shadowOffset;
+        
+        // Draw a circle for the shadow
         ctx.beginPath();
-        ctx.arc(canvasSize / 2, canvasSize / 2, canvasSize / 2, 0, Math.PI * 2);
+        ctx.arc(totalCanvasSize / 2, totalCanvasSize / 2, canvasSize / 2, 0, Math.PI * 2);
+        ctx.closePath();
+        ctx.fillStyle = '#ffffff';
+        ctx.fill();
+        ctx.restore();
+        
+        // Now draw the actual image with circular clip
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(totalCanvasSize / 2, totalCanvasSize / 2, canvasSize / 2, 0, Math.PI * 2);
         ctx.closePath();
         ctx.clip();
         
         // Calculate cropping to center the image (cover mode)
         const aspectRatio = img.width / img.height;
-        let drawWidth, drawHeight, offsetX = 0, offsetY = 0;
+        let drawWidth, drawHeight, offsetX = paddingForShadow, offsetY = paddingForShadow;
         
         if (aspectRatio > 1) {
           // Landscape image
           drawHeight = canvasSize;
           drawWidth = canvasSize * aspectRatio;
-          offsetX = -(drawWidth - canvasSize) / 2;
+          offsetX = paddingForShadow - (drawWidth - canvasSize) / 2;
         } else {
           // Portrait or square image
           drawWidth = canvasSize;
           drawHeight = canvasSize / aspectRatio;
-          offsetY = -(drawHeight - canvasSize) / 2;
+          offsetY = paddingForShadow - (drawHeight - canvasSize) / 2;
         }
         
         // Draw the image centered and cropped
         ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
+        ctx.restore();
         
         // Add subtle border
         ctx.strokeStyle = 'rgba(200, 200, 200, 0.5)';
         ctx.lineWidth = canvasSize * 0.02;
         ctx.beginPath();
-        ctx.arc(canvasSize / 2, canvasSize / 2, canvasSize / 2 - canvasSize * 0.01, 0, Math.PI * 2);
+        ctx.arc(totalCanvasSize / 2, totalCanvasSize / 2, canvasSize / 2 - canvasSize * 0.01, 0, Math.PI * 2);
         ctx.stroke();
         
         // Convert to high quality PNG for better circular edges
@@ -167,11 +189,13 @@ export function useExportLifePlan() {
     
     if (plan.photo_url) {
       try {
-        // Load and create circular image with high quality
+        // Load and create circular image with shadow (returns larger canvas with shadow)
         const circularImgData = await loadCircularImage(plan.photo_url, photoSize);
         
-        // Add the circular image directly (already clipped to circle in canvas)
-        doc.addImage(circularImgData, 'PNG', photoX, photoY + 3, photoSize, photoSize);
+        // Add the circular image with shadow (offset slightly to account for shadow padding)
+        const shadowPadding = photoSize * 0.1;
+        const totalSize = photoSize + shadowPadding * 2;
+        doc.addImage(circularImgData, 'PNG', photoX - shadowPadding, photoY + 3 - shadowPadding, totalSize, totalSize);
       } catch (error) {
         console.error('Error loading photo for PDF:', error);
       }
@@ -376,7 +400,7 @@ export function useExportLifePlan() {
     // Footer on last page
     doc.setFontSize(8);
     doc.setTextColor(160, 160, 160);
-    doc.text('Plano de Vida - Constancia que constroi proposito', pageWidth / 2, pageHeight - 10, { align: 'center' });
+    doc.text('Plano de Vida - Constancia que constroi resultados', pageWidth / 2, pageHeight - 10, { align: 'center' });
 
     // Save
     const yearsText = selectedYears && selectedYears.length > 0 
