@@ -12,21 +12,21 @@ import { DarkModeToggle } from "@/components/theme/DarkModeToggle";
 
 const LandingPage = () => {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<'basic' | 'premium' | null>(null);
 
-  const handleCheckout = async () => {
-    setLoading(true);
+  const handleCheckout = async (tier: 'basic' | 'premium') => {
+    setLoading(tier);
     try {
       const { data: { session } } = await supabase.auth.getSession();
       
       if (!session) {
         // User not logged in, redirect to auth page first
-        navigate("/auth?redirect=checkout");
+        navigate(`/auth?redirect=checkout&tier=${tier}`);
         return;
       }
 
       const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: {}
+        body: { tier }
       });
 
       if (error) throw error;
@@ -38,7 +38,7 @@ const LandingPage = () => {
       console.error('Checkout error:', error);
       toast.error("Erro ao iniciar checkout. Tente novamente.");
     } finally {
-      setLoading(false);
+      setLoading(null);
     }
   };
 
