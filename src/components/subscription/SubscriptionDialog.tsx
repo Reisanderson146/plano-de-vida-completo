@@ -293,26 +293,31 @@ export function SubscriptionDialog({ open, onOpenChange, onSubscribed }: Subscri
             </div>
           )}
 
-          {/* Already Subscribed Button */}
+          {/* Already Subscribed Button - More Visible */}
           <div className="mt-4 pt-4 border-t border-border/50">
-            <Button
-              onClick={handleCheckSubscription}
-              disabled={checkingSubscription}
-              variant="ghost"
-              className="w-full h-9 text-sm font-medium text-muted-foreground hover:text-foreground"
-            >
-              {checkingSubscription ? (
-                <div className="flex items-center gap-2">
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Verificando...
-                </div>
-              ) : (
-                <div className="flex items-center gap-2">
-                  <RefreshCw className="w-4 h-4" />
-                  Já assinei - Verificar
-                </div>
-              )}
-            </Button>
+            <div className="bg-gradient-to-r from-emerald-500/10 to-teal-500/10 rounded-xl p-3 border border-emerald-500/20">
+              <p className="text-xs text-center text-muted-foreground mb-2">
+                Já realizou o pagamento?
+              </p>
+              <Button
+                onClick={handleCheckSubscription}
+                disabled={checkingSubscription}
+                variant="outline"
+                className="w-full h-10 text-sm font-semibold border-emerald-500/50 text-emerald-600 hover:bg-emerald-500/10 hover:text-emerald-700 hover:border-emerald-500"
+              >
+                {checkingSubscription ? (
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Verificando assinatura...
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <BadgeCheck className="w-4 h-4" />
+                    Já sou assinante - Verificar minha conta
+                  </div>
+                )}
+              </Button>
+            </div>
           </div>
 
           {/* Trust badges */}

@@ -213,16 +213,20 @@ const PricingSection = ({ onCheckout, onLogin, loading }: PricingSectionProps) =
           </Card>
         </div>
 
-        {/* Already Subscriber Button */}
+        {/* Already Subscriber Button - More Visible */}
         <div className="text-center mt-8">
-          <Button
-            variant="ghost"
-            size="lg"
-            onClick={onLogin}
-            className="text-muted-foreground hover:text-primary"
-          >
-            Já sou assinante
-          </Button>
+          <div className="inline-flex flex-col items-center gap-2 p-4 rounded-2xl bg-gradient-to-r from-primary/5 to-emerald-500/5 border border-primary/20">
+            <p className="text-sm text-muted-foreground">Já possui uma conta?</p>
+            <Button
+              variant="outline"
+              size="lg"
+              onClick={onLogin}
+              className="border-primary/50 text-primary hover:bg-primary/10 hover:border-primary font-semibold px-8"
+            >
+              <Check className="w-4 h-4 mr-2" />
+              Já sou assinante - Entrar
+            </Button>
+          </div>
         </div>
 
         {/* Trust Badges */}

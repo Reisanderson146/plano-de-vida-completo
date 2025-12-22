@@ -8,7 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAdmin } from '@/hooks/useAdmin';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2, Users, UserCheck, UserX, Shield, TrendingUp, FileText, ChevronDown, ChevronUp, Eye, ShieldCheck, ShieldOff } from 'lucide-react';
+import { Loader2, Users, UserCheck, UserX, Shield, TrendingUp, FileText, ChevronDown, ChevronUp, Eye, ShieldCheck, ShieldOff, Crown, Gem, ArrowUpDown } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, Cell } from 'recharts';
 import { format, subMonths, startOfMonth, endOfMonth } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -21,6 +21,8 @@ interface UserProfile {
   is_blocked: boolean;
   email?: string;
   isAdmin?: boolean;
+  subscription_plan: string | null;
+  subscription_status: string | null;
 }
 
 interface MonthlyStats {
@@ -53,6 +55,8 @@ export default function AdminDashboard() {
   const [loadingPlans, setLoadingPlans] = useState<string | null>(null);
   const [updatingAdminRole, setUpdatingAdminRole] = useState<string | null>(null);
   const [adminConfirmDialog, setAdminConfirmDialog] = useState<{ userId: string; userName: string; isAdmin: boolean } | null>(null);
+  const [updatingSubscription, setUpdatingSubscription] = useState<string | null>(null);
+  const [subscriptionDialog, setSubscriptionDialog] = useState<{ userId: string; userName: string; currentPlan: string | null } | null>(null);
   
   const [totalPlans, setTotalPlans] = useState(0);
   
@@ -268,6 +272,83 @@ export default function AdminDashboard() {
       case 'familiar': return 'Familiar';
       case 'filho': return 'Filho';
       default: return type;
+    }
+  };
+
+  const getSubscriptionLabel = (plan: string | null) => {
+    if (!plan) return 'Sem assinatura';
+    if (plan === 'basic') return 'Basic';
+    if (plan === 'premium') return 'Premium';
+    return plan;
+  };
+
+  const toggleSubscriptionPlan = async (userId: string, currentPlan: string | null) => {
+    setUpdatingSubscription(userId);
+    setSubscriptionDialog(null);
+    
+    const newPlan = currentPlan === 'premium' ? 'basic' : 'premium';
+    
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ 
+          subscription_plan: newPlan,
+          subscription_status: 'active'
+        })
+        .eq('id', userId);
+
+      if (error) throw error;
+
+      setUsers(prev => prev.map(u => 
+        u.id === userId ? { ...u, subscription_plan: newPlan, subscription_status: 'active' } : u
+      ));
+
+      toast({
+        title: 'Plano alterado',
+        description: `Assinatura alterada para ${newPlan === 'premium' ? 'Premium' : 'Basic'}.`,
+      });
+    } catch (error: any) {
+      toast({
+        title: 'Erro ao atualizar plano',
+        description: error.message,
+        variant: 'destructive',
+      });
+    } finally {
+      setUpdatingSubscription(null);
+    }
+  };
+
+  const removeSubscription = async (userId: string) => {
+    setUpdatingSubscription(userId);
+    setSubscriptionDialog(null);
+    
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ 
+          subscription_plan: null,
+          subscription_status: null
+        })
+        .eq('id', userId);
+
+      if (error) throw error;
+
+      setUsers(prev => prev.map(u => 
+        u.id === userId ? { ...u, subscription_plan: null, subscription_status: null } : u
+      ));
+
+      toast({
+        title: 'Assinatura removida',
+        description: 'O usuário não possui mais assinatura ativa.',
+      });
+    } catch (error: any) {
+      toast({
+        title: 'Erro ao remover assinatura',
+        description: error.message,
+        variant: 'destructive',
+      });
+    } finally {
+      setUpdatingSubscription(null);
     }
   };
 
@@ -515,11 +596,26 @@ export default function AdminDashboard() {
                         )}
                       </div>
                       <div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 flex-wrap">
                           <p className="font-medium text-white">{userProfile.full_name || 'Sem nome'}</p>
                           {userProfile.isAdmin && (
                             <Badge variant="outline" className="text-xs border-amber-500/50 text-amber-400">
                               Admin
+                            </Badge>
+                          )}
+                          {userProfile.subscription_plan === 'premium' ? (
+                            <Badge className="text-xs bg-violet-500/20 text-violet-400 border border-violet-500/30 hover:bg-violet-500/30">
+                              <Crown className="w-3 h-3 mr-1" />
+                              Premium
+                            </Badge>
+                          ) : userProfile.subscription_plan === 'basic' ? (
+                            <Badge className="text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/30">
+                              <Gem className="w-3 h-3 mr-1" />
+                              Basic
+                            </Badge>
+                          ) : (
+                            <Badge variant="outline" className="text-xs border-slate-600 text-slate-500">
+                              Sem assinatura
                             </Badge>
                           )}
                           {userProfile.is_blocked && (
@@ -556,30 +652,53 @@ export default function AdminDashboard() {
                         )}
                       </Button>
                       {userProfile.id !== user?.id && (
-                        <Button
-                          variant={userProfile.is_blocked ? "default" : "destructive"}
-                          size="sm"
-                          onClick={() => toggleUserBlock(userProfile.id, userProfile.is_blocked)}
-                          disabled={updatingUser === userProfile.id}
-                          className={userProfile.is_blocked 
-                            ? 'bg-green-600 hover:bg-green-700' 
-                            : ''
-                          }
-                        >
-                          {updatingUser === userProfile.id ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                          ) : userProfile.is_blocked ? (
-                            <>
-                              <UserCheck className="w-4 h-4 mr-1" />
-                              Desbloquear
-                            </>
-                          ) : (
-                            <>
-                              <UserX className="w-4 h-4 mr-1" />
-                              Bloquear
-                            </>
-                          )}
-                        </Button>
+                        <>
+                          {/* Subscription Change Button */}
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setSubscriptionDialog({
+                              userId: userProfile.id,
+                              userName: userProfile.full_name || 'Sem nome',
+                              currentPlan: userProfile.subscription_plan
+                            })}
+                            disabled={updatingSubscription === userProfile.id}
+                            className="border-violet-500/50 text-violet-400 hover:bg-violet-500/10"
+                          >
+                            {updatingSubscription === userProfile.id ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <>
+                                <ArrowUpDown className="w-4 h-4 mr-1" />
+                                Plano
+                              </>
+                            )}
+                          </Button>
+                          <Button
+                            variant={userProfile.is_blocked ? "default" : "destructive"}
+                            size="sm"
+                            onClick={() => toggleUserBlock(userProfile.id, userProfile.is_blocked)}
+                            disabled={updatingUser === userProfile.id}
+                            className={userProfile.is_blocked 
+                              ? 'bg-green-600 hover:bg-green-700' 
+                              : ''
+                            }
+                          >
+                            {updatingUser === userProfile.id ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : userProfile.is_blocked ? (
+                              <>
+                                <UserCheck className="w-4 h-4 mr-1" />
+                                Desbloquear
+                              </>
+                            ) : (
+                              <>
+                                <UserX className="w-4 h-4 mr-1" />
+                                Bloquear
+                              </>
+                            )}
+                          </Button>
+                        </>
                       )}
                     </div>
                   </div>
@@ -659,6 +778,73 @@ export default function AdminDashboard() {
             >
               {adminConfirmDialog?.isAdmin ? 'Remover Admin' : 'Tornar Admin'}
             </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Subscription Change Dialog */}
+      <Dialog open={!!subscriptionDialog} onOpenChange={() => setSubscriptionDialog(null)}>
+        <DialogContent className="bg-slate-800 border-slate-700">
+          <DialogHeader>
+            <DialogTitle className="text-white flex items-center gap-2">
+              <ArrowUpDown className="w-5 h-5 text-violet-400" />
+              Alterar Assinatura
+            </DialogTitle>
+            <DialogDescription className="text-slate-400">
+              Altere o plano de assinatura de <span className="text-white font-medium">{subscriptionDialog?.userName}</span>
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-3 py-4">
+            <p className="text-sm text-slate-400">
+              Plano atual: {' '}
+              <span className={subscriptionDialog?.currentPlan === 'premium' ? 'text-violet-400 font-medium' : subscriptionDialog?.currentPlan === 'basic' ? 'text-emerald-400 font-medium' : 'text-slate-500'}>
+                {subscriptionDialog?.currentPlan === 'premium' ? 'Premium' : subscriptionDialog?.currentPlan === 'basic' ? 'Basic' : 'Sem assinatura'}
+              </span>
+            </p>
+            
+            <div className="grid grid-cols-2 gap-3">
+              <Button
+                onClick={() => subscriptionDialog && toggleSubscriptionPlan(subscriptionDialog.userId, subscriptionDialog.currentPlan === 'basic' ? 'basic' : null)}
+                disabled={subscriptionDialog?.currentPlan === 'basic'}
+                className={subscriptionDialog?.currentPlan === 'basic' 
+                  ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/50 cursor-not-allowed' 
+                  : 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                }
+              >
+                <Gem className="w-4 h-4 mr-2" />
+                Basic
+              </Button>
+              <Button
+                onClick={() => subscriptionDialog && toggleSubscriptionPlan(subscriptionDialog.userId, subscriptionDialog.currentPlan === 'premium' ? 'premium' : 'basic')}
+                disabled={subscriptionDialog?.currentPlan === 'premium'}
+                className={subscriptionDialog?.currentPlan === 'premium' 
+                  ? 'bg-violet-500/20 text-violet-400 border border-violet-500/50 cursor-not-allowed' 
+                  : 'bg-violet-600 hover:bg-violet-700 text-white'
+                }
+              >
+                <Crown className="w-4 h-4 mr-2" />
+                Premium
+              </Button>
+            </div>
+          </div>
+
+          <DialogFooter className="gap-2 flex-col sm:flex-row">
+            <Button
+              variant="ghost"
+              onClick={() => setSubscriptionDialog(null)}
+              className="text-slate-400 hover:text-white hover:bg-slate-700"
+            >
+              Cancelar
+            </Button>
+            {subscriptionDialog?.currentPlan && (
+              <Button
+                variant="destructive"
+                onClick={() => subscriptionDialog && removeSubscription(subscriptionDialog.userId)}
+              >
+                Remover Assinatura
+              </Button>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>
