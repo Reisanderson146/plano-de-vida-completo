@@ -11,13 +11,19 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { useFormValidation } from '@/hooks/useFormValidation';
 import { useImportPlan } from '@/hooks/useImportPlan';
-import { Loader2, Plus, User, Users, Baby, Upload, FileSpreadsheet, FileText, FileType, X, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { Loader2, Plus, User, Users, Baby, Upload, FileSpreadsheet, FileText, FileType, X, CheckCircle2, AlertTriangle, Lock, Crown } from 'lucide-react';
 import { LIFE_AREAS, AREA_HEX_COLORS, LifeArea } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 import { AreaCustomizationEditor, AreaConfig } from '@/components/life-plan/AreaCustomizationEditor';
 import { usePlanAreaCustomizations } from '@/hooks/usePlanAreaCustomizations';
 import { PlanPhotoUpload } from '@/components/life-plan/PlanPhotoUpload';
 import { SubscriptionDialog } from '@/components/subscription/SubscriptionDialog';
+import { 
+  getTierByProductId, 
+  canCreatePlanType, 
+  SubscriptionTier,
+  SUBSCRIPTION_TIERS 
+} from '@/lib/subscription-tiers';
 
 const PLAN_TYPES = [
   { 
@@ -34,7 +40,8 @@ const PLAN_TYPES = [
     description: 'Plano para família',
     icon: Users,
     gradient: 'from-rose-500/15 to-rose-600/5',
-    iconBg: 'bg-rose-500/15 text-rose-600 dark:text-rose-400'
+    iconBg: 'bg-rose-500/15 text-rose-600 dark:text-rose-400',
+    premiumOnly: true
   },
   { 
     id: 'filho', 
@@ -42,7 +49,8 @@ const PLAN_TYPES = [
     description: 'Plano para filho',
     icon: Baby,
     gradient: 'from-amber-500/15 to-amber-600/5',
-    iconBg: 'bg-amber-500/15 text-amber-600 dark:text-amber-400'
+    iconBg: 'bg-amber-500/15 text-amber-600 dark:text-amber-400',
+    premiumOnly: true
   },
 ];
 
@@ -51,6 +59,12 @@ interface ImportedGoal {
   age: number;
   area: LifeArea;
   goalText: string;
+}
+
+interface PlanCounts {
+  individual: number;
+  familiar: number;
+  filho: number;
 }
 
 export default function Cadastro() {
@@ -85,15 +99,18 @@ export default function Cadastro() {
 
   // Subscription state
   const [isSubscribed, setIsSubscribed] = useState<boolean | null>(null);
+  const [subscriptionTier, setSubscriptionTier] = useState<SubscriptionTier | null>(null);
+  const [planCounts, setPlanCounts] = useState<PlanCounts>({ individual: 0, familiar: 0, filho: 0 });
   const [showSubscriptionDialog, setShowSubscriptionDialog] = useState(false);
   const [pendingCreate, setPendingCreate] = useState(false);
 
-  // Check subscription status on mount and handle checkout return
+  // Check subscription status and plan counts on mount
   useEffect(() => {
-    const checkSubscription = async () => {
+    const checkSubscriptionAndPlans = async () => {
       if (!user) return;
       
       try {
+        // Check subscription
         const { data, error } = await supabase.functions.invoke('check-subscription');
         
         if (error) {
@@ -104,11 +121,32 @@ export default function Cadastro() {
         
         const subscribed = data?.subscribed || data?.subscription_status === 'active';
         setIsSubscribed(subscribed);
+        
+        if (subscribed && data?.product_id) {
+          setSubscriptionTier(getTierByProductId(data.product_id));
+        } else if (subscribed) {
+          setSubscriptionTier('basic');
+        }
+
+        // Count existing plans
+        const { data: plansData } = await supabase
+          .from('life_plans')
+          .select('plan_type')
+          .eq('user_id', user.id);
+
+        if (plansData) {
+          const counts: PlanCounts = { individual: 0, familiar: 0, filho: 0 };
+          plansData.forEach(plan => {
+            if (plan.plan_type in counts) {
+              counts[plan.plan_type as keyof PlanCounts]++;
+            }
+          });
+          setPlanCounts(counts);
+        }
 
         // Handle return from checkout
         const checkoutStatus = searchParams.get('checkout');
         if (checkoutStatus === 'success') {
-          // Clear the query param
           setSearchParams({});
           
           if (subscribed) {
@@ -117,16 +155,15 @@ export default function Cadastro() {
               description: 'Você pode criar seu plano de vida agora.',
             });
           } else {
-            // Maybe payment is still processing, wait a bit
             toast({
               title: 'Verificando pagamento...',
               description: 'Aguarde enquanto confirmamos sua assinatura.',
             });
-            // Re-check after a delay
             setTimeout(async () => {
               const { data: retryData } = await supabase.functions.invoke('check-subscription');
               if (retryData?.subscribed || retryData?.subscription_status === 'active') {
                 setIsSubscribed(true);
+                setSubscriptionTier(getTierByProductId(retryData.product_id) || 'basic');
                 toast({
                   title: 'Assinatura confirmada!',
                   description: 'Você pode criar seu plano de vida agora.',
@@ -148,7 +185,7 @@ export default function Cadastro() {
       }
     };
 
-    checkSubscription();
+    checkSubscriptionAndPlans();
   }, [user, searchParams, setSearchParams, toast]);
 
   const validateTitle = async (titleToCheck: string): Promise<boolean> => {
@@ -185,6 +222,17 @@ export default function Cadastro() {
     if (!isSubscribed) {
       setPendingCreate(true);
       setShowSubscriptionDialog(true);
+      return;
+    }
+
+    // Check plan limits
+    const canCreate = canCreatePlanType(subscriptionTier, planType, planCounts);
+    if (!canCreate.allowed) {
+      toast({
+        title: 'Limite de planos atingido',
+        description: canCreate.reason,
+        variant: 'destructive',
+      });
       return;
     }
 
@@ -337,11 +385,36 @@ export default function Cadastro() {
 
   const handleSubscribed = () => {
     setIsSubscribed(true);
-    // If there was a pending create, execute it
+    setSubscriptionTier('basic'); // Default to basic on first subscription
     if (pendingCreate) {
       setPendingCreate(false);
       createPlan();
     }
+  };
+
+  const handlePlanTypeChange = (newType: string) => {
+    const typeConfig = PLAN_TYPES.find(t => t.id === newType);
+    
+    // Check if this plan type is available for the user's tier
+    if (typeConfig?.premiumOnly && subscriptionTier !== 'premium') {
+      toast({
+        title: 'Plano Premium necessário',
+        description: `Planos ${typeConfig.label} são exclusivos do Plano Premium.`,
+      });
+      return;
+    }
+
+    // Check plan limits
+    const canCreate = canCreatePlanType(subscriptionTier, newType, planCounts);
+    if (!canCreate.allowed) {
+      toast({
+        title: 'Limite atingido',
+        description: canCreate.reason,
+      });
+      return;
+    }
+
+    setPlanType(newType);
   };
 
   const importedByArea = importedGoals.reduce((acc, goal) => {
@@ -349,6 +422,10 @@ export default function Cadastro() {
     acc[goal.area].push(goal);
     return acc;
   }, {} as Record<string, ImportedGoal[]>);
+
+  const isBasicTier = subscriptionTier === 'basic';
+  const totalPlans = planCounts.individual + planCounts.familiar + planCounts.filho;
+  const hasReachedLimit = isBasicTier && totalPlans >= 1;
 
   return (
     <AppLayout>
@@ -359,6 +436,34 @@ export default function Cadastro() {
             Crie um novo plano e defina suas metas
           </p>
         </div>
+
+        {/* Upgrade Banner for Basic users who reached limit */}
+        {hasReachedLimit && (
+          <Card className="mb-6 bg-gradient-to-r from-violet-500/10 via-purple-500/5 to-fuchsia-500/10 border-2 border-violet-500/30">
+            <CardContent className="py-6">
+              <div className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500/20 to-purple-600/20 border border-violet-500/30 flex items-center justify-center flex-shrink-0">
+                  <Crown className="w-7 h-7 text-violet-500" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold text-foreground mb-1">
+                    Quer criar outro plano? Sua família cresceu?
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    Faça upgrade para o Plano Premium e crie planos para toda a família!
+                  </p>
+                </div>
+                <Button 
+                  onClick={() => navigate('/conta')} 
+                  className="gap-2 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white"
+                >
+                  <Crown className="w-4 h-4" />
+                  Fazer Upgrade
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         <Card className="border-border/40">
           <CardHeader className="pb-4">
@@ -374,33 +479,49 @@ export default function Cadastro() {
                 <Label className="text-sm font-medium">Tipo de Plano</Label>
                 <RadioGroup
                   value={planType}
-                  onValueChange={setPlanType}
+                  onValueChange={handlePlanTypeChange}
                   className="grid grid-cols-1 sm:grid-cols-3 gap-3"
                 >
                   {PLAN_TYPES.map((type) => {
                     const Icon = type.icon;
                     const isSelected = planType === type.id;
+                    const isLocked = type.premiumOnly && subscriptionTier !== 'premium';
+                    const canCreate = canCreatePlanType(subscriptionTier, type.id, planCounts);
+                    const isDisabled = isLocked || !canCreate.allowed;
+                    
                     return (
-                      <div key={type.id}>
+                      <div key={type.id} className="relative">
                         <RadioGroupItem
                           value={type.id}
                           id={type.id}
                           className="sr-only"
+                          disabled={isDisabled}
                         />
                         <Label
                           htmlFor={type.id}
                           className={cn(
-                            "flex flex-col items-center gap-3 p-5 rounded-2xl border-2 cursor-pointer transition-all duration-200",
-                            isSelected 
-                              ? `bg-gradient-to-br ${type.gradient} border-primary/50 shadow-sm` 
-                              : "border-border/50 hover:border-border hover:bg-muted/30"
+                            "flex flex-col items-center gap-3 p-5 rounded-2xl border-2 cursor-pointer transition-all duration-200 relative",
+                            isDisabled 
+                              ? "opacity-60 cursor-not-allowed border-border/30 bg-muted/20"
+                              : isSelected 
+                                ? `bg-gradient-to-br ${type.gradient} border-primary/50 shadow-sm` 
+                                : "border-border/50 hover:border-border hover:bg-muted/30"
                           )}
                         >
+                          {isLocked && (
+                            <div className="absolute -top-2 -right-2 p-1.5 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 shadow-lg">
+                              <Crown className="w-3 h-3 text-white" />
+                            </div>
+                          )}
                           <div className={cn(
                             "w-12 h-12 rounded-xl flex items-center justify-center transition-colors",
                             isSelected ? type.iconBg : "bg-muted text-muted-foreground"
                           )}>
-                            <Icon className="w-6 h-6" />
+                            {isLocked ? (
+                              <Lock className="w-6 h-6" />
+                            ) : (
+                              <Icon className="w-6 h-6" />
+                            )}
                           </div>
                           <div className="text-center">
                             <span className={cn(
@@ -410,7 +531,7 @@ export default function Cadastro() {
                               {type.label}
                             </span>
                             <span className="text-xs text-muted-foreground">
-                              {type.description}
+                              {isLocked ? 'Premium' : type.description}
                             </span>
                           </div>
                         </Label>
@@ -655,7 +776,7 @@ export default function Cadastro() {
 
               <Button
                 type="submit"
-                disabled={loading}
+                disabled={loading || hasReachedLimit}
                 className="w-full h-12 rounded-xl text-base font-semibold"
                 variant="premium"
               >
