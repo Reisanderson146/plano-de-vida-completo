@@ -34,7 +34,7 @@ const tourSteps: TourStep[] = [
   },
   {
     id: 'dashboard',
-    title: 'Dashboard',
+    title: 'Painel de Controle',
     description: 'Aqui você tem uma visão geral do seu progresso em todas as áreas da vida. Veja quantas metas você já completou e acompanhe sua evolução ao longo do tempo.',
     icon: LayoutDashboard,
     position: 'center'

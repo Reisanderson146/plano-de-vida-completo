@@ -7,6 +7,18 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Subscription tier configuration
+const TIERS = {
+  basic: {
+    priceId: "price_1SeiENRX3OjZbCrQIIbjMVMv", // R$ 9,99/mês
+  },
+  premium: {
+    // IMPORTANT: Create this price in Stripe Dashboard
+    // Product: "Plano Premium" - R$ 29,99/mês recurring
+    priceId: "price_premium_2999", // Replace with actual price ID after creation
+  },
+};
+
 const logStep = (step: string, details?: any) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
   console.log(`[CREATE-CHECKOUT] ${step}${detailsStr}`);
@@ -38,8 +50,19 @@ serve(async (req) => {
     if (!user?.email) throw new Error("User not authenticated or email not available");
     logStep("User authenticated", { userId: user.id });
 
-    const priceId = "price_1SeiENRX3OjZbCrQIIbjMVMv";
-    logStep("Using price ID", { priceId });
+    // Get tier from request body (default to basic)
+    let tier = "basic";
+    try {
+      const body = await req.json();
+      if (body.tier && (body.tier === "basic" || body.tier === "premium")) {
+        tier = body.tier;
+      }
+    } catch {
+      // No body or invalid JSON, use default
+    }
+
+    const priceId = TIERS[tier as keyof typeof TIERS]?.priceId || TIERS.basic.priceId;
+    logStep("Using price ID", { tier, priceId });
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
 
@@ -66,6 +89,7 @@ serve(async (req) => {
       cancel_url: `${req.headers.get("origin")}/cadastro?checkout=cancelled`,
       metadata: {
         user_id: user.id,
+        tier: tier,
       },
     });
 

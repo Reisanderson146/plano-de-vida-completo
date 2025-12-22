@@ -32,7 +32,7 @@ import { useTourContext } from './AppLayout';
 
 
 const navItems = [
-  { path: '/', label: 'Dashboard', icon: LayoutDashboard },
+  { path: '/', label: 'Painel', icon: LayoutDashboard },
   { path: '/consulta', label: 'Planos', icon: FileText },
   { path: '/relatorios', label: 'Relatórios', icon: BarChart3 },
   { path: '/balanco', label: 'Balanço', icon: Scale },

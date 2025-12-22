@@ -7,10 +7,25 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Product IDs for tier identification
+const TIER_PRODUCTS = {
+  basic: "prod_Tbw6ZCYRIgPNee", // Existing product
+  // IMPORTANT: Add premium product ID after creating in Stripe
+  premium: "prod_premium", // Replace with actual product ID
+};
+
 const logStep = (step: string, details?: any) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
   console.log(`[CHECK-SUBSCRIPTION] ${step}${detailsStr}`);
 };
+
+function getTierFromProductId(productId: string | null): 'basic' | 'premium' | null {
+  if (!productId) return null;
+  if (productId === TIER_PRODUCTS.premium) return 'premium';
+  if (productId === TIER_PRODUCTS.basic) return 'basic';
+  // Default to basic for any active subscription with unknown product
+  return 'basic';
+}
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -56,6 +71,7 @@ serve(async (req) => {
         subscribed: false,
         subscription_status: 'inactive',
         subscription_plan: null,
+        product_id: null,
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,
@@ -74,6 +90,7 @@ serve(async (req) => {
     const hasActiveSub = subscriptions.data.length > 0;
     let subscriptionEnd = null;
     let productId = null;
+    let tier: 'basic' | 'premium' | null = null;
 
     if (hasActiveSub) {
       const subscription = subscriptions.data[0];
@@ -84,14 +101,16 @@ serve(async (req) => {
       }
       
       productId = subscription.items?.data?.[0]?.price?.product as string || null;
-      logStep("Active subscription found", { subscriptionId: subscription.id, endDate: subscriptionEnd, productId });
+      tier = getTierFromProductId(productId);
+      
+      logStep("Active subscription found", { subscriptionId: subscription.id, endDate: subscriptionEnd, productId, tier });
 
-      // Update profile to active
+      // Update profile with tier
       await supabaseClient
         .from('profiles')
         .update({ 
           subscription_status: 'active', 
-          subscription_plan: 'premium' 
+          subscription_plan: tier 
         })
         .eq('id', user.id);
     } else {
@@ -107,7 +126,7 @@ serve(async (req) => {
     return new Response(JSON.stringify({
       subscribed: hasActiveSub,
       subscription_status: hasActiveSub ? 'active' : 'inactive',
-      subscription_plan: hasActiveSub ? 'premium' : null,
+      subscription_plan: tier,
       subscription_end: subscriptionEnd,
       product_id: productId,
     }), {
