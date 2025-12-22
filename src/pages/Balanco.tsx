@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { useExportReport } from '@/hooks/useExportReport';
 import { LIFE_AREAS, AREA_HEX_COLORS } from '@/lib/constants';
-import { Loader2, Target, CheckCircle2, AlertTriangle, TrendingDown, Plus, FileText, Folder, User, Users, Baby, Pencil, Trash2 } from 'lucide-react';
+import { Loader2, Target, CheckCircle2, AlertTriangle, TrendingDown, Plus, FileText, Folder, User, Users, Baby, Pencil, Trash2, Sparkles, ArrowRightLeft, Filter } from 'lucide-react';
 import { AISummary } from '@/components/balance/AISummary';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell, LabelList } from 'recharts';
 import { format, startOfYear, endOfYear } from 'date-fns';
@@ -43,7 +43,10 @@ interface BalanceNote {
   title: string;
   content: string;
   created_at: string;
+  is_ai: boolean;
 }
+
+type NoteFilter = 'all' | 'manual' | 'ai';
 
 interface LifePlan {
   id: string;
@@ -89,6 +92,8 @@ export default function Balanco() {
   const [savingNote, setSavingNote] = useState(false);
   const [showNoteForm, setShowNoteForm] = useState(false);
   const [editingNote, setEditingNote] = useState<BalanceNote | null>(null);
+  const [noteFilter, setNoteFilter] = useState<NoteFilter>('all');
+  const [movingNoteId, setMovingNoteId] = useState<string | null>(null);
 
   const currentYear = new Date().getFullYear();
 
@@ -194,7 +199,13 @@ export default function Balanco() {
         .like('title', !dateRange?.from ? '[Balanço%' : `${yearPrefix}%`)
         .order('created_at', { ascending: false });
 
-      setBalanceNotes(notes || []);
+      // Mark notes as AI-generated if title contains "Análise IA"
+      const notesWithType = (notes || []).map(note => ({
+        ...note,
+        is_ai: note.title.includes('Análise IA'),
+      }));
+
+      setBalanceNotes(notesWithType);
     } catch (error) {
       console.error('Error loading balance data:', error);
     } finally {
@@ -301,6 +312,37 @@ export default function Balanco() {
     setNewNoteTitle('');
     setNewNoteContent('');
   };
+
+  const handleMoveNote = async (noteId: string, targetPlanId: string) => {
+    try {
+      const { error } = await supabase
+        .from('notes')
+        .update({ life_plan_id: targetPlanId })
+        .eq('id', noteId);
+
+      if (error) throw error;
+
+      toast({
+        title: 'Anotação movida!',
+        description: 'A anotação foi transferida para o outro plano.',
+      });
+      setMovingNoteId(null);
+      loadData();
+      loadPlans();
+    } catch (error) {
+      toast({
+        title: 'Erro ao mover',
+        description: 'Não foi possível mover a anotação.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const filteredNotes = balanceNotes.filter(note => {
+    if (noteFilter === 'all') return true;
+    if (noteFilter === 'ai') return note.is_ai;
+    return !note.is_ai;
+  });
 
   const totalGoals = stats.reduce((sum, s) => sum + s.total, 0);
   const completedGoals = stats.reduce((sum, s) => sum + s.completed, 0);
@@ -622,19 +664,46 @@ export default function Balanco() {
 
         {/* Balance Notes Section */}
         <Card className="border-border/40">
-          <CardHeader className="flex flex-row items-center justify-between pb-3">
+          <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3">
             <CardTitle className="text-lg flex items-center gap-2.5">
               <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
                 <FileText className="w-5 h-5 text-primary" />
               </div>
               Anotações do Balanço
+              {balanceNotes.length > 0 && (
+                <Badge variant="secondary" className="ml-1">{balanceNotes.length}</Badge>
+              )}
             </CardTitle>
-            {!showNoteForm && (
-              <Button size="sm" onClick={() => setShowNoteForm(true)} className="rounded-xl h-9">
-                <Plus className="w-4 h-4 mr-1.5" />
-                Nova Anotação
-              </Button>
-            )}
+            <div className="flex items-center gap-2">
+              {/* Filter by type */}
+              <Select value={noteFilter} onValueChange={(v: NoteFilter) => setNoteFilter(v)}>
+                <SelectTrigger className="w-[140px] h-9 rounded-xl">
+                  <Filter className="w-4 h-4 mr-2" />
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todas</SelectItem>
+                  <SelectItem value="manual">
+                    <div className="flex items-center gap-2">
+                      <Pencil className="w-3 h-3" />
+                      Manuais
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="ai">
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="w-3 h-3" />
+                      Geradas por IA
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+              {!showNoteForm && (
+                <Button size="sm" onClick={() => setShowNoteForm(true)} className="rounded-xl h-9">
+                  <Plus className="w-4 h-4 mr-1.5" />
+                  Nova
+                </Button>
+              )}
+            </div>
           </CardHeader>
           <CardContent className="space-y-4">
             {/* New Note Form */}
@@ -671,24 +740,83 @@ export default function Balanco() {
             )}
 
             {/* Notes List */}
-            {balanceNotes.length === 0 ? (
+            {filteredNotes.length === 0 ? (
               <div className="text-center py-10 text-muted-foreground">
                 <div className="w-14 h-14 rounded-2xl bg-muted/50 flex items-center justify-center mx-auto mb-4">
                   <FileText className="w-7 h-7 opacity-50" />
                 </div>
-                <p className="font-medium">Nenhuma anotação ainda</p>
-                <p className="text-sm mt-1">Registre suas reflexões sobre o período.</p>
+                <p className="font-medium">
+                  {balanceNotes.length === 0 ? 'Nenhuma anotação ainda' : 'Nenhuma anotação com este filtro'}
+                </p>
+                <p className="text-sm mt-1">
+                  {balanceNotes.length === 0 ? 'Registre suas reflexões sobre o período.' : 'Tente selecionar outro tipo de anotação.'}
+                </p>
               </div>
             ) : (
               <div className="space-y-3">
-                {balanceNotes.map(note => (
+                {filteredNotes.map(note => (
                   <div key={note.id} className="p-4 rounded-xl border border-border/40 bg-background/60 hover:bg-background/80 transition-colors">
                     <div className="flex items-start justify-between gap-2 mb-2">
-                      <h4 className="font-medium text-sm text-foreground flex-1">{note.title.replace(/^\[Balanço [^\]]+\] /, '')}</h4>
+                      <div className="flex items-center gap-2 flex-1">
+                        {note.is_ai && (
+                          <Badge variant="secondary" className="text-xs px-1.5 py-0 gap-1">
+                            <Sparkles className="w-3 h-3" />
+                            IA
+                          </Badge>
+                        )}
+                        <h4 className="font-medium text-sm text-foreground">{note.title.replace(/^\[Balanço [^\]]+\] /, '')}</h4>
+                      </div>
                       <div className="flex items-center gap-1">
                         <span className="text-xs text-muted-foreground whitespace-nowrap">
                           {format(new Date(note.created_at), "dd/MM/yyyy", { locale: ptBR })}
                         </span>
+                        
+                        {/* Move to another plan */}
+                        {plans.length > 1 && (
+                          <AlertDialog open={movingNoteId === note.id} onOpenChange={(open) => !open && setMovingNoteId(null)}>
+                            <AlertDialogTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 rounded-lg"
+                                onClick={() => setMovingNoteId(note.id)}
+                                title="Mover para outro plano"
+                              >
+                                <ArrowRightLeft className="w-3.5 h-3.5" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent className="rounded-2xl">
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Mover anotação</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Selecione o plano de destino para esta anotação.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <div className="py-4 space-y-2">
+                                {plans.filter(p => p.id !== selectedPlanId).map(plan => {
+                                  const config = PLAN_TYPE_CONFIG[plan.plan_type as keyof typeof PLAN_TYPE_CONFIG] || PLAN_TYPE_CONFIG.individual;
+                                  const PlanIcon = config.icon;
+                                  return (
+                                    <Button
+                                      key={plan.id}
+                                      variant="outline"
+                                      className="w-full justify-start gap-2 rounded-xl"
+                                      onClick={() => handleMoveNote(note.id, plan.id)}
+                                    >
+                                      <PlanIcon className="w-4 h-4" />
+                                      {plan.title}
+                                      {plan.member_name && <span className="text-muted-foreground">({plan.member_name})</span>}
+                                    </Button>
+                                  );
+                                })}
+                              </div>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel className="rounded-xl">Cancelar</AlertDialogCancel>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        )}
+
                         <Button
                           variant="ghost"
                           size="icon"
