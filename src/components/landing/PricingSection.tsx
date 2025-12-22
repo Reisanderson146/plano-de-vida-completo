@@ -119,18 +119,15 @@ const PricingSection = ({ onCheckout, onLogin, loading }: PricingSectionProps) =
             {/* Glow Effect */}
             <div className="absolute inset-0 bg-gradient-to-br from-violet-500/10 via-transparent to-purple-500/10" />
             
-            {/* Recommended Badge */}
-            <div className="absolute -top-px left-1/2 -translate-x-1/2">
-              <div className="relative px-6 py-2 bg-gradient-to-r from-violet-600 to-purple-600 rounded-b-xl">
-                <div className="flex items-center gap-2 text-white font-semibold text-sm">
-                  <Crown className="w-4 h-4" />
-                  <span>Recomendado</span>
-                </div>
-                <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 animate-shimmer rounded-b-xl" />
+            {/* Recommended Badge - positioned at top right corner */}
+            <div className="absolute top-3 right-3 z-10">
+              <div className="flex items-center gap-1.5 px-3 py-1 bg-gradient-to-r from-violet-600 to-purple-600 rounded-full text-white font-medium text-xs shadow-lg shadow-violet-500/30">
+                <Crown className="w-3 h-3" />
+                <span>Recomendado</span>
               </div>
             </div>
 
-            <CardHeader className="pt-14 pb-4 text-center relative">
+            <CardHeader className="pt-8 pb-4 text-center relative">
               {/* Badge */}
               <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-gradient-to-r from-violet-500/20 to-purple-500/20 border border-violet-500/30 rounded-full text-violet-600 dark:text-violet-400 text-sm font-semibold mx-auto mb-4">
                 <Crown className="w-4 h-4" />
