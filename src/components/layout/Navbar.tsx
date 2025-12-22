@@ -24,9 +24,11 @@ import {
   Settings,
   Shield,
   CreditCard,
-  HelpCircle
+  HelpCircle,
+  Play
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useTourContext } from './AppLayout';
 
 
 const navItems = [
@@ -40,6 +42,7 @@ export function Navbar() {
   const { signOut, user } = useAuth();
   const { isAdmin } = useAdmin();
   const location = useLocation();
+  const tourContext = useTourContext();
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [fullName, setFullName] = useState<string | null>(null);
 
@@ -151,6 +154,15 @@ export function Navbar() {
                     Como Usar
                   </Link>
                 </DropdownMenuItem>
+                {tourContext && (
+                  <DropdownMenuItem 
+                    onClick={() => tourContext.restartTour()}
+                    className="flex items-center cursor-pointer"
+                  >
+                    <Play className="w-4 h-4 mr-2" />
+                    Ver Tour Novamente
+                  </DropdownMenuItem>
+                )}
                 {isAdmin && (
                   <>
                     <DropdownMenuSeparator />
