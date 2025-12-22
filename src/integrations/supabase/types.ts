@@ -147,6 +147,7 @@ export type Database = {
           content: string
           created_at: string
           id: string
+          life_plan_id: string | null
           title: string
           updated_at: string
           user_id: string
@@ -156,6 +157,7 @@ export type Database = {
           content: string
           created_at?: string
           id?: string
+          life_plan_id?: string | null
           title: string
           updated_at?: string
           user_id: string
@@ -165,11 +167,20 @@ export type Database = {
           content?: string
           created_at?: string
           id?: string
+          life_plan_id?: string | null
           title?: string
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "notes_life_plan_id_fkey"
+            columns: ["life_plan_id"]
+            isOneToOne: false
+            referencedRelation: "life_plans"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       notifications: {
         Row: {
