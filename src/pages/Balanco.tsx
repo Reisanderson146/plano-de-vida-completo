@@ -170,6 +170,7 @@ export default function Balanco() {
         .from('notes')
         .select('id, title, content, created_at')
         .eq('user_id', user.id)
+        .eq('life_plan_id', selectedPlanId)
         .like('title', !dateRange?.from ? '[Balanço%' : `${yearPrefix}%`)
         .order('created_at', { ascending: false });
 
@@ -214,6 +215,7 @@ export default function Balanco() {
       } else {
         const { error } = await supabase.from('notes').insert({
           user_id: user.id,
+          life_plan_id: selectedPlanId,
           title: fullTitle,
           content: newNoteContent,
           area: null,
@@ -548,6 +550,7 @@ export default function Balanco() {
           totalGoals={totalGoals}
           completedGoals={completedGoals}
           planTitle={selectedPlan?.title || 'Plano de Vida'}
+          planId={selectedPlanId}
           period={getDateRangeLabel(dateRange)}
           onNoteSaved={loadData}
         />

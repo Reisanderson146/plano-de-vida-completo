@@ -19,11 +19,12 @@ interface AISummaryProps {
   totalGoals: number;
   completedGoals: number;
   planTitle: string;
+  planId: string;
   period: string;
   onNoteSaved?: () => void;
 }
 
-export function AISummary({ stats, totalGoals, completedGoals, planTitle, period, onNoteSaved }: AISummaryProps) {
+export function AISummary({ stats, totalGoals, completedGoals, planTitle, planId, period, onNoteSaved }: AISummaryProps) {
   const { toast } = useToast();
   const { user } = useAuth();
   const [summary, setSummary] = useState<string | null>(null);
@@ -71,6 +72,7 @@ export function AISummary({ stats, totalGoals, completedGoals, planTitle, period
       
       const { error } = await supabase.from('notes').insert({
         user_id: user.id,
+        life_plan_id: planId,
         title,
         content: summary,
         area: null,
