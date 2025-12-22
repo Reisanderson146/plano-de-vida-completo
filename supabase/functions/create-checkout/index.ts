@@ -8,14 +8,14 @@ const corsHeaders = {
 };
 
 // Subscription tier configuration
+// TODO: Atualizar priceId do premium após criar no Stripe Dashboard
 const TIERS = {
   basic: {
-    priceId: "price_1SeiENRX3OjZbCrQIIbjMVMv", // R$ 9,99/mês
+    priceId: "price_1SeiENRX3OjZbCrQIIbjMVMv", // R$ 9,99/mês - Basic
   },
   premium: {
-    // IMPORTANT: Create this price in Stripe Dashboard
-    // Product: "Plano Premium" - R$ 29,99/mês recurring
-    priceId: "price_premium_2999", // Replace with actual price ID after creation
+    // Criar no Stripe: "Plano Premium" - R$ 29,99/mês recorrente
+    priceId: "PRICE_ID_PREMIUM_AQUI", // Atualizar após criar
   },
 };
 
