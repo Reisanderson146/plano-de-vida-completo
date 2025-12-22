@@ -23,7 +23,8 @@ import {
   User,
   Settings,
   Shield,
-  CreditCard
+  CreditCard,
+  HelpCircle
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -142,6 +143,12 @@ export function Navbar() {
                   <Link to="/conta" className="flex items-center cursor-pointer">
                     <CreditCard className="w-4 h-4 mr-2" />
                     Minha Assinatura
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/guia" className="flex items-center cursor-pointer">
+                    <HelpCircle className="w-4 h-4 mr-2" />
+                    Como Usar
                   </Link>
                 </DropdownMenuItem>
                 {isAdmin && (
