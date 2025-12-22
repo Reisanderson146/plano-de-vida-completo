@@ -25,8 +25,19 @@ export default function CheckoutSuccess() {
         if (error) throw error;
         
         console.log('Subscription verified:', data);
-        setSubscriptionPlan(data?.subscription_plan || 'basic');
+        const plan = data?.subscription_plan || 'basic';
+        setSubscriptionPlan(plan);
         setLoading(false);
+
+        // Send welcome email
+        try {
+          await supabase.functions.invoke('send-welcome-email', {
+            body: { subscriptionPlan: plan }
+          });
+          console.log('Welcome email sent');
+        } catch (emailError) {
+          console.error('Error sending welcome email:', emailError);
+        }
 
         // Trigger confetti celebration
         confetti({
