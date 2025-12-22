@@ -50,6 +50,7 @@ interface LifePlan {
   title: string;
   plan_type: string;
   member_name: string | null;
+  notes_count: number;
 }
 
 const PLAN_TYPE_CONFIG = {
@@ -107,7 +108,7 @@ export default function Balanco() {
     if (!user) return;
 
     try {
-      const { data, error } = await supabase
+      const { data: plansData, error } = await supabase
         .from('life_plans')
         .select('id, title, plan_type, member_name')
         .eq('user_id', user.id)
@@ -115,9 +116,28 @@ export default function Balanco() {
 
       if (error) throw error;
 
-      setPlans(data || []);
-      if (data && data.length > 0) {
-        setSelectedPlanId(data[0].id);
+      // Get notes count per plan
+      const { data: notesCount } = await supabase
+        .from('notes')
+        .select('life_plan_id')
+        .eq('user_id', user.id)
+        .not('life_plan_id', 'is', null);
+
+      const countMap: Record<string, number> = {};
+      notesCount?.forEach(note => {
+        if (note.life_plan_id) {
+          countMap[note.life_plan_id] = (countMap[note.life_plan_id] || 0) + 1;
+        }
+      });
+
+      const plansWithCount = (plansData || []).map(plan => ({
+        ...plan,
+        notes_count: countMap[plan.id] || 0,
+      }));
+
+      setPlans(plansWithCount);
+      if (plansWithCount.length > 0) {
+        setSelectedPlanId(plansWithCount[0].id);
       }
     } catch (error) {
       console.error('Error loading plans:', error);
@@ -372,6 +392,11 @@ export default function Balanco() {
                         <PlanIcon className="w-4 h-4" />
                         <span>{plan.title}</span>
                         {plan.member_name && <span className="text-muted-foreground">({plan.member_name})</span>}
+                        {plan.notes_count > 0 && (
+                          <Badge variant="secondary" className="ml-1 text-xs px-1.5 py-0">
+                            {plan.notes_count}
+                          </Badge>
+                        )}
                       </div>
                     </SelectItem>
                   );
