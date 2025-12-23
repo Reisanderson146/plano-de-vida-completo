@@ -289,31 +289,33 @@ export default function Dashboard() {
         </div>
 
         {/* Pending Goals and Monthly Evolution */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-stretch">
-          <div className="h-full">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-stretch opacity-0 animate-stagger-2">
+          <div className="h-full opacity-0 animate-fade-in" style={{ animationDelay: '100ms' }}>
             <PendingGoalsWidget selectedPlanId={selectedPlanId} onGoalCompleted={handleGoalCompleted} />
           </div>
-          <div className="h-full">
+          <div className="h-full opacity-0 animate-fade-in" style={{ animationDelay: '200ms' }}>
             <MonthlyEvolutionChart selectedPlanId={selectedPlanId} refreshKey={chartRefreshKey} />
           </div>
         </div>
 
         {/* Progress Chart */}
-        <Card className="border-border/40 opacity-0 animate-stagger-3">
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-lg sm:text-xl">Visão Geral do Progresso</CardTitle>
-              <Badge variant="outline" className="font-normal rounded-lg">
-                {dateRange?.from 
-                  ? `${format(dateRange.from, 'yyyy', { locale: ptBR })}${dateRange.to && dateRange.to.getFullYear() !== dateRange.from.getFullYear() ? ` - ${format(dateRange.to, 'yyyy', { locale: ptBR })}` : ''}`
-                  : 'Todos'}
-              </Badge>
-            </div>
-          </CardHeader>
-          <CardContent className="px-3 sm:px-5">
-            <ProgressChart data={stats} />
-          </CardContent>
-        </Card>
+        <div className="opacity-0 animate-fade-in" style={{ animationDelay: '300ms' }}>
+          <Card className="border-border/40">
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg sm:text-xl">Visão Geral do Progresso</CardTitle>
+                <Badge variant="outline" className="font-normal rounded-lg">
+                  {dateRange?.from 
+                    ? `${format(dateRange.from, 'yyyy', { locale: ptBR })}${dateRange.to && dateRange.to.getFullYear() !== dateRange.from.getFullYear() ? ` - ${format(dateRange.to, 'yyyy', { locale: ptBR })}` : ''}`
+                    : 'Todos'}
+                </Badge>
+              </div>
+            </CardHeader>
+            <CardContent className="px-3 sm:px-5">
+              <ProgressChart data={stats} />
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </AppLayout>
   );
