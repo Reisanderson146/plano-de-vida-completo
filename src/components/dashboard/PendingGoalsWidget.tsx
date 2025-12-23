@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-import { useUserStreak } from '@/hooks/useUserStreak';
 import { isSoundEnabled, getSoundVolume, getSoundStyle, soundStyleConfigs } from '@/hooks/useSoundSettings';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
@@ -32,7 +31,6 @@ export function PendingGoalsWidget({ selectedPlanId, onGoalCompleted }: PendingG
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
-  const { incrementGoalsCompleted } = useUserStreak();
   const [goals, setGoals] = useState<PendingGoal[]>([]);
   const [loading, setLoading] = useState(true);
   const [completingId, setCompletingId] = useState<string | null>(null);
@@ -131,9 +129,6 @@ export function PendingGoalsWidget({ selectedPlanId, onGoalCompleted }: PendingG
         colors: ['#22c55e', '#10b981', '#059669'],
       });
 
-      // Update streak
-      await incrementGoalsCompleted(10);
-
       // Remove from list with animation
       setGoals((prev) => prev.filter((g) => g.id !== goalId));
       
@@ -142,7 +137,6 @@ export function PendingGoalsWidget({ selectedPlanId, onGoalCompleted }: PendingG
       
       toast({
         title: '🎉 Meta concluída!',
-        description: '+10 pontos adicionados',
       });
     } catch (error) {
       console.error('Error completing goal:', error);
