@@ -2,6 +2,7 @@ import { cn } from '@/lib/utils';
 import { CheckCircle2, Sparkles, Brain, Heart, Users, Wallet, Briefcase, Dumbbell } from 'lucide-react';
 import { AREA_HEX_COLORS, LifeArea } from '@/lib/constants';
 import { useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface AreaCardProps {
   area: LifeArea;
@@ -9,6 +10,7 @@ interface AreaCardProps {
   total: number;
   completed: number;
   customColor?: string;
+  planId?: string;
 }
 
 const AREA_ICONS: Record<LifeArea, React.ElementType> = {
@@ -48,7 +50,8 @@ function hexToHsl(hex: string): { h: number; s: number; l: number } {
   return { h: Math.round(h * 360), s: Math.round(s * 100), l: Math.round(l * 100) };
 }
 
-export function AreaCard({ area, label, total, completed, customColor }: AreaCardProps) {
+export function AreaCard({ area, label, total, completed, customColor, planId }: AreaCardProps) {
+  const navigate = useNavigate();
   const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
   const isComplete = total > 0 && completed === total;
   const Icon = AREA_ICONS[area];
@@ -68,8 +71,15 @@ export function AreaCard({ area, label, total, completed, customColor }: AreaCar
     };
   }, [colorHex]);
 
+  const handleClick = () => {
+    if (planId) {
+      navigate(`/consulta/${planId}?area=${area}`);
+    }
+  };
+
   return (
     <div 
+      onClick={handleClick}
       className={cn(
         "relative rounded-2xl p-4 sm:p-5 min-w-[140px] sm:min-w-0",
         "border border-border/40",
@@ -77,7 +87,7 @@ export function AreaCard({ area, label, total, completed, customColor }: AreaCar
         "transition-all duration-300 ease-out",
         "hover:-translate-y-1.5 hover:scale-[1.02]"
       )}
-      style={{ 
+      style={{
         background: styles.gradient,
         '--hover-glow': styles.glowColor,
         '--hover-border': styles.borderColor,

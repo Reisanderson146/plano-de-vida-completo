@@ -268,13 +268,13 @@ export default function Dashboard() {
         )}
 
         {/* Area cards */}
-        <div className="overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0 scrollbar-hide opacity-0 animate-stagger-2">
+        <div className="overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0 scrollbar-hide">
           <div className="flex sm:grid sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-3 sm:gap-4 min-w-max sm:min-w-0">
             {LIFE_AREAS.map((area, index) => (
               <div 
                 key={area.id} 
-                className="animate-fade-in"
-                style={{ animationDelay: `${index * 50}ms` }}
+                className="opacity-0 animate-fade-in"
+                style={{ animationDelay: `${index * 50}ms`, animationFillMode: 'forwards' }}
               >
                 <AreaCard
                   area={area.id}
@@ -282,6 +282,7 @@ export default function Dashboard() {
                   total={stats[area.id].total}
                   completed={stats[area.id].completed}
                   customColor={getAreaColor(area.id)}
+                  planId={selectedPlanId}
                 />
               </div>
             ))}
@@ -289,17 +290,26 @@ export default function Dashboard() {
         </div>
 
         {/* Pending Goals and Monthly Evolution */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-stretch opacity-0 animate-stagger-2">
-          <div className="h-full opacity-0 animate-fade-in" style={{ animationDelay: '100ms' }}>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-stretch">
+          <div 
+            className="h-full opacity-0 animate-fade-in" 
+            style={{ animationDelay: '150ms', animationFillMode: 'forwards' }}
+          >
             <PendingGoalsWidget selectedPlanId={selectedPlanId} onGoalCompleted={handleGoalCompleted} />
           </div>
-          <div className="h-full opacity-0 animate-fade-in" style={{ animationDelay: '200ms' }}>
+          <div 
+            className="h-full opacity-0 animate-fade-in" 
+            style={{ animationDelay: '250ms', animationFillMode: 'forwards' }}
+          >
             <MonthlyEvolutionChart selectedPlanId={selectedPlanId} refreshKey={chartRefreshKey} />
           </div>
         </div>
 
         {/* Progress Chart */}
-        <div className="opacity-0 animate-fade-in" style={{ animationDelay: '300ms' }}>
+        <div 
+          className="opacity-0 animate-fade-in" 
+          style={{ animationDelay: '350ms', animationFillMode: 'forwards' }}
+        >
           <Card className="border-border/40">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
