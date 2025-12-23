@@ -223,36 +223,46 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, on
 
   // Play sad sound when unmarking a goal
   const playSadSound = () => {
-    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-    const masterGain = audioContext.createGain();
-    masterGain.connect(audioContext.destination);
-    masterGain.gain.setValueAtTime(0.2, audioContext.currentTime);
+    try {
+      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      
+      // Resume audio context if suspended (browser policy)
+      if (audioContext.state === 'suspended') {
+        audioContext.resume();
+      }
+      
+      const masterGain = audioContext.createGain();
+      masterGain.connect(audioContext.destination);
+      masterGain.gain.setValueAtTime(0.4, audioContext.currentTime); // Increased volume
 
-    // Descending minor notes (sad/disappointed feeling)
-    const sadNotes = [
-      { freq: 392.00, time: 0, duration: 0.25 },      // G4
-      { freq: 349.23, time: 0.15, duration: 0.25 },   // F4
-      { freq: 311.13, time: 0.30, duration: 0.35 },   // Eb4 (minor feel)
-    ];
+      // Descending minor notes (sad/disappointed feeling)
+      const sadNotes = [
+        { freq: 440.00, time: 0, duration: 0.3 },       // A4
+        { freq: 392.00, time: 0.2, duration: 0.3 },     // G4
+        { freq: 329.63, time: 0.4, duration: 0.4 },     // E4 (descending)
+      ];
 
-    sadNotes.forEach(({ freq, time, duration }) => {
-      const oscillator = audioContext.createOscillator();
-      const gainNode = audioContext.createGain();
-      
-      oscillator.type = 'sine';
-      oscillator.connect(gainNode);
-      gainNode.connect(masterGain);
-      
-      oscillator.frequency.setValueAtTime(freq, audioContext.currentTime + time);
-      
-      // Slower, fading envelope
-      gainNode.gain.setValueAtTime(0, audioContext.currentTime + time);
-      gainNode.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + time + 0.05);
-      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + time + duration);
-      
-      oscillator.start(audioContext.currentTime + time);
-      oscillator.stop(audioContext.currentTime + time + duration + 0.05);
-    });
+      sadNotes.forEach(({ freq, time, duration }) => {
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.type = 'triangle'; // Softer, sadder tone
+        oscillator.connect(gainNode);
+        gainNode.connect(masterGain);
+        
+        oscillator.frequency.setValueAtTime(freq, audioContext.currentTime + time);
+        
+        // Slower, fading envelope
+        gainNode.gain.setValueAtTime(0, audioContext.currentTime + time);
+        gainNode.gain.linearRampToValueAtTime(0.5, audioContext.currentTime + time + 0.05);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + time + duration);
+        
+        oscillator.start(audioContext.currentTime + time);
+        oscillator.stop(audioContext.currentTime + time + duration + 0.1);
+      });
+    } catch (error) {
+      console.log('Audio not supported:', error);
+    }
   };
 
   const handleToggleComplete = async (goal: Goal) => {
