@@ -163,7 +163,9 @@ export default function Conta() {
       if (error) throw error;
 
       if (data?.url) {
-        window.location.href = data.url;
+        // Open in new tab to avoid iframe issues
+        window.open(data.url, '_blank');
+        toast.success('Checkout aberto em nova aba. Complete o pagamento lá!');
       } else {
         throw new Error('No checkout URL returned');
       }
