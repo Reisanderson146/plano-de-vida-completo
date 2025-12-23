@@ -12,7 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { LIFE_AREAS, LifeArea } from '@/lib/constants';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { Loader2, Target, Folder, User, Users, Baby, Sparkles, Trophy } from 'lucide-react';
+import { Loader2, Target, Folder, User, Users, Baby, Sparkles, Trophy, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { DateRangeFilter, getYearRangeFromDateRange } from '@/components/filters/DateRangeFilter';
@@ -290,12 +290,14 @@ export default function Dashboard() {
 
         {/* Pending Goals and Monthly Evolution */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <div className="space-y-3">
+          <div className="space-y-4">
             <PendingGoalsWidget selectedPlanId={selectedPlanId} onGoalCompleted={handleGoalCompleted} />
-            <Link to="/historico-metas">
-              <Button variant="soft" size="sm" className="w-full gap-2 bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20">
+            <Link to="/historico-metas" className="block">
+              <Button variant="soft" size="default" className="w-full gap-2 bg-gradient-to-r from-primary/15 to-primary/5 text-primary hover:from-primary/25 hover:to-primary/10 border border-primary/20 shadow-sm group transition-all duration-300">
+                <Star className="w-4 h-4 fill-primary/30 group-hover:fill-primary/50 transition-all" />
                 <Trophy className="w-4 h-4" />
                 Ver histórico de metas concluídas
+                <Sparkles className="w-3.5 h-3.5 opacity-60 group-hover:opacity-100 transition-opacity" />
               </Button>
             </Link>
           </div>
