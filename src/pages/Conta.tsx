@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Gem, BadgeCheck, CreditCard, Calendar, Check, Shield, ExternalLink, Loader2, Crown, Sparkles, Zap, Target, Heart, Users, Baby, User, X, FileText, Download, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Gem, BadgeCheck, CreditCard, Calendar, Check, Shield, ExternalLink, Loader2, Crown, Sparkles, Zap, Target, Heart, Users, Baby, User, X, FileText, Download, ChevronLeft, ChevronRight, Bell, Clock, AlertTriangle, CalendarClock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -25,6 +25,7 @@ interface SubscriptionInfo {
   plan: SubscriptionTier | null;
   subscriptionEnd: string | null;
   productId: string | null;
+  subscriptionStart?: string | null;
 }
 
 interface Benefit {
@@ -431,22 +432,129 @@ export default function Conta() {
           </div>
         )}
 
-        {/* Subscription Info */}
-        {isActive && subscription.subscriptionEnd && (
-          <Card className="border-border/40">
-            <CardContent className="py-4">
-              <div className="flex items-center justify-between flex-wrap gap-4">
-                <div className="flex items-center gap-3">
-                  <Calendar className="w-5 h-5 text-muted-foreground" />
+        {/* Subscription Details Card */}
+        {isActive && (
+          <Card className={cn(
+            "border-2 overflow-hidden",
+            currentPlan === 'premium' 
+              ? "border-violet-500/30 bg-gradient-to-br from-violet-500/5 to-purple-500/5" 
+              : "border-primary/30 bg-gradient-to-br from-primary/5 to-emerald-500/5"
+          )}>
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                {currentPlan === 'premium' ? (
+                  <Crown className="w-5 h-5 text-violet-500" />
+                ) : (
+                  <Gem className="w-5 h-5 text-primary" />
+                )}
+                Detalhes da Assinatura
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Plan Info */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-background/50">
+                  <div className={cn(
+                    "w-10 h-10 rounded-lg flex items-center justify-center",
+                    currentPlan === 'premium' ? "bg-violet-500/20" : "bg-primary/20"
+                  )}>
+                    {currentPlan === 'premium' ? (
+                      <Crown className="w-5 h-5 text-violet-500" />
+                    ) : (
+                      <Gem className="w-5 h-5 text-primary" />
+                    )}
+                  </div>
                   <div>
-                    <p className="text-sm font-medium">Próxima cobrança</p>
-                    <p className="text-sm text-muted-foreground">{formatDate(subscription.subscriptionEnd)}</p>
+                    <p className="text-xs text-muted-foreground">Plano atual</p>
+                    <p className={cn(
+                      "font-semibold",
+                      currentPlan === 'premium' 
+                        ? "text-violet-500" 
+                        : "text-primary"
+                    )}>
+                      {currentPlan === 'premium' ? 'Premium' : 'Basic'}
+                    </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Shield className="w-4 h-4" />
-                  <span>Pagamento seguro via Stripe</span>
+
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-background/50">
+                  <div className="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center">
+                    <Check className="w-5 h-5 text-emerald-500" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Status</p>
+                    <p className="font-semibold text-emerald-500">Ativa</p>
+                  </div>
                 </div>
+              </div>
+
+              {/* Dates */}
+              {subscription.subscriptionEnd && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="flex items-center gap-3 p-3 rounded-lg bg-background/50">
+                    <div className="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center">
+                      <CalendarClock className="w-5 h-5 text-blue-500" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Próxima renovação</p>
+                      <p className="font-medium">{formatDate(subscription.subscriptionEnd)}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3 p-3 rounded-lg bg-background/50">
+                    <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center">
+                      <Shield className="w-5 h-5 text-muted-foreground" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Pagamento</p>
+                      <p className="font-medium text-muted-foreground">Stripe (seguro)</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Renewal Alert */}
+              {subscription.subscriptionEnd && (() => {
+                const daysUntilRenewal = Math.ceil(
+                  (new Date(subscription.subscriptionEnd).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+                );
+                
+                if (daysUntilRenewal <= 7 && daysUntilRenewal > 0) {
+                  return (
+                    <div className="flex items-center gap-3 p-4 rounded-lg bg-amber-500/10 border border-amber-500/30">
+                      <div className="w-10 h-10 rounded-lg bg-amber-500/20 flex items-center justify-center flex-shrink-0">
+                        <AlertTriangle className="w-5 h-5 text-amber-500" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-amber-600 dark:text-amber-400">
+                          Renovação em {daysUntilRenewal} {daysUntilRenewal === 1 ? 'dia' : 'dias'}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          Sua assinatura será renovada automaticamente em {formatDate(subscription.subscriptionEnd)}
+                        </p>
+                      </div>
+                      <Bell className="w-5 h-5 text-amber-500" />
+                    </div>
+                  );
+                }
+                return null;
+              })()}
+
+              {/* Actions */}
+              <div className="flex flex-wrap gap-2 pt-2">
+                <Button 
+                  onClick={handleManageSubscription} 
+                  disabled={portalLoading}
+                  variant="outline"
+                  className="flex-1 sm:flex-none"
+                >
+                  {portalLoading ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <ExternalLink className="w-4 h-4 mr-2" />
+                  )}
+                  Gerenciar no Stripe
+                </Button>
               </div>
             </CardContent>
           </Card>
