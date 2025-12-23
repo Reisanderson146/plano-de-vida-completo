@@ -173,9 +173,9 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    const authLink = linkData?.properties?.action_link;
+    const originalLink = linkData?.properties?.action_link;
     
-    if (!authLink) {
+    if (!originalLink) {
       console.error("No action_link in response:", linkData);
       return new Response(
         JSON.stringify({ error: "Failed to generate auth link" }),
@@ -183,7 +183,19 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    console.log(`Generated link: ${authLink.substring(0, 50)}...`);
+    // Extract the token from the Supabase link and build a proper redirect URL
+    // The original link is like: https://xxx.supabase.co/auth/v1/verify?token=...&type=...&redirect_to=...
+    // We need to redirect to our app which will then verify the token
+    const url = new URL(originalLink);
+    const token = url.searchParams.get("token");
+    const tokenType = url.searchParams.get("type");
+    
+    // Build the proper auth link that goes through Supabase's verify endpoint with correct redirect
+    // The key is to ensure the redirect_to is properly set
+    const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
+    const authLink = `${supabaseUrl}/auth/v1/verify?token=${token}&type=${tokenType}&redirect_to=${encodeURIComponent(baseUrl)}`;
+
+    console.log(`Generated link: ${authLink.substring(0, 80)}...`);
 
     // Get user display name if available
     let displayName = email.split("@")[0];
