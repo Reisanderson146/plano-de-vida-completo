@@ -416,7 +416,7 @@ export default function Auth() {
                           setNewPassword(e.target.value);
                           clearError('new-password');
                         }}
-                        className={`h-14 rounded-2xl border-[#7BC8A4]/30 bg-[#A8E6CE]/10 focus:bg-white focus:border-[#2A8C68]/50 focus:ring-2 focus:ring-[#2A8C68]/20 transition-all duration-300 text-base placeholder:text-muted-foreground/50 pr-12 ${hasError('new-password') ? 'border-red-500 focus:border-red-500' : ''}`}
+                        className={`h-14 rounded-2xl border-[#7BC8A4]/30 bg-[#A8E6CE]/10 focus:bg-background dark:focus:bg-slate-800 focus:border-[#2A8C68]/50 focus:ring-2 focus:ring-[#2A8C68]/20 transition-all duration-300 text-base placeholder:text-muted-foreground/50 pr-12 ${hasError('new-password') ? 'border-red-500 focus:border-red-500' : ''}`}
                       />
                       <button
                         type="button"
@@ -445,7 +445,7 @@ export default function Auth() {
                           setConfirmNewPassword(e.target.value);
                           clearError('confirm-new-password');
                         }}
-                        className={`h-14 rounded-2xl border-[#7BC8A4]/30 bg-[#A8E6CE]/10 focus:bg-white focus:border-[#2A8C68]/50 focus:ring-2 focus:ring-[#2A8C68]/20 transition-all duration-300 text-base placeholder:text-muted-foreground/50 pr-12 ${hasError('confirm-new-password') ? 'border-red-500 focus:border-red-500' : ''}`}
+                        className={`h-14 rounded-2xl border-[#7BC8A4]/30 bg-[#A8E6CE]/10 focus:bg-background dark:focus:bg-slate-800 focus:border-[#2A8C68]/50 focus:ring-2 focus:ring-[#2A8C68]/20 transition-all duration-300 text-base placeholder:text-muted-foreground/50 pr-12 ${hasError('confirm-new-password') ? 'border-red-500 focus:border-red-500' : ''}`}
                       />
                       <button
                         type="button"
@@ -641,7 +641,7 @@ export default function Auth() {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
-                        className="h-14 rounded-2xl border-[#7BC8A4]/30 bg-[#A8E6CE]/10 focus:bg-white focus:border-[#2A8C68]/50 focus:ring-2 focus:ring-[#2A8C68]/20 transition-all duration-300 text-base placeholder:text-muted-foreground/50"
+                        className="h-14 rounded-2xl border-[#7BC8A4]/30 bg-[#A8E6CE]/10 focus:bg-background dark:focus:bg-slate-800 focus:border-[#2A8C68]/50 focus:ring-2 focus:ring-[#2A8C68]/20 transition-all duration-300 text-base placeholder:text-muted-foreground/50"
                       />
                     </div>
                     <Button 
@@ -871,7 +871,7 @@ export default function Auth() {
                         }}
                         error={hasError('signup-name')}
                         errorMessage={getError('signup-name')}
-                        className="h-14 rounded-2xl border-[#7BC8A4]/30 bg-[#A8E6CE]/10 focus:bg-white focus:border-[#2A8C68]/50 focus:ring-2 focus:ring-[#2A8C68]/20 transition-all duration-300 text-base placeholder:text-muted-foreground/50"
+                        className="h-14 rounded-2xl border-[#7BC8A4]/30 bg-[#A8E6CE]/10 focus:bg-background dark:focus:bg-slate-800 focus:border-[#2A8C68]/50 focus:ring-2 focus:ring-[#2A8C68]/20 transition-all duration-300 text-base placeholder:text-muted-foreground/50"
                       />
                     </div>
                     <div className="space-y-2">
