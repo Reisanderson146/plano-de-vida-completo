@@ -39,7 +39,6 @@ const navItems = [
   { path: '/consulta', label: 'Planos', icon: FileText },
   { path: '/relatorios', label: 'Relatórios', icon: BarChart3 },
   { path: '/balanco', label: 'Balanço', icon: Scale },
-  { path: '/conquistas', label: 'Conquistas', icon: Shield },
 ];
 
 export function Navbar() {
