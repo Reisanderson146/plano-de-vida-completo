@@ -8,27 +8,37 @@ const corsHeaders = {
 type AIStyle = 'friendly' | 'balanced' | 'direct';
 
 const getSystemPrompt = (style: AIStyle): string => {
+  const baseRules = `REGRAS IMPORTANTES:
+- NÃO use asteriscos (*), marcadores ou formatação markdown
+- NÃO use emojis ou ícones
+- Escreva em parágrafos fluidos e naturais
+- Use português brasileiro formal mas acessível`;
+
   switch (style) {
     case 'friendly':
-      return `Você é um coach de vida amigável e motivador. Use emojis com moderação (1-2 por parágrafo). 
+      return `Você é um coach de vida amigável e motivador.
 Seja encorajador e celebre as conquistas. Ao apontar áreas de melhoria, seja gentil e ofereça apoio.
-Use frases como "Você está indo muito bem!", "Continue assim!", "Que progresso incrível!".
-Máximo 4-5 frases. Português brasileiro.`;
+Use um tom caloroso e pessoal, como um amigo que torce pelo sucesso da pessoa.
+Máximo 3 parágrafos curtos.
+${baseRules}`;
     
     case 'balanced':
-      return `Você é um mentor equilibrado e construtivo. Reconheça conquistas de forma sincera.
-Aponte melhorias de forma construtiva e ponderada. Seja objetivo mas empático.
-Ofereça uma visão clara do progresso sem ser nem muito formal nem muito informal.
-Máximo 4 frases. Português brasileiro.`;
+      return `Você é um mentor equilibrado e construtivo.
+Reconheça conquistas de forma sincera e aponte melhorias de forma construtiva e ponderada.
+Seja objetivo mas empático, oferecendo uma visão clara do progresso.
+Máximo 2-3 parágrafos curtos.
+${baseRules}`;
     
     case 'direct':
-      return `Você é um consultor direto e prático. Vá direto ao ponto sem rodeios.
-Liste o que está bom e o que precisa melhorar de forma objetiva.
-Sem elogios excessivos ou linguagem motivacional. Apenas fatos e próximos passos.
-Máximo 3 frases curtas. Português brasileiro.`;
+      return `Você é um consultor direto e prático.
+Vá direto ao ponto sem rodeios. Fale o que está bom e o que precisa melhorar de forma objetiva.
+Sem elogios excessivos ou linguagem muito motivacional. Apenas fatos e próximos passos.
+Máximo 2 parágrafos curtos.
+${baseRules}`;
     
     default:
-      return `Você é um assistente direto. Máximo 3 frases curtas. Sem introduções ou despedidas. Apenas o essencial.`;
+      return `Você é um assistente direto. Máximo 2 parágrafos curtos.
+${baseRules}`;
   }
 };
 
@@ -40,50 +50,34 @@ const getUserPrompt = (
   totalGoals: number, 
   overallPercentage: number, 
   areasCompleted: any[], 
-  areasNeedWork: any[],
-  monthlyComparison?: { currentMonth: { completed: number }; previousMonth: { completed: number }; difference: number; trend: 'up' | 'down' | 'same' }
+  areasNeedWork: any[]
 ): string => {
-  let comparisonText = '';
-  if (monthlyComparison) {
-    const trendText = monthlyComparison.trend === 'up' 
-      ? `+${monthlyComparison.difference} metas em relação ao mês anterior (melhora!)`
-      : monthlyComparison.trend === 'down'
-      ? `-${monthlyComparison.difference} metas em relação ao mês anterior (queda)`
-      : 'mesmo desempenho do mês anterior';
-    
-    comparisonText = `\nComparativo mensal: Este mês ${monthlyComparison.currentMonth.completed} metas, mês passado ${monthlyComparison.previousMonth.completed} metas (${trendText})`;
-  }
-
   const baseData = `Plano: "${planTitle}" (${period})
-Progresso: ${completedGoals}/${totalGoals} metas (${overallPercentage}%)
-Áreas BOM (70%+): ${areasCompleted.length > 0 ? areasCompleted.map((a: any) => a.label).join(', ') : 'Nenhuma'}
-Áreas ATENÇÃO (<40%): ${areasNeedWork.length > 0 ? areasNeedWork.map((a: any) => a.label).join(', ') : 'Nenhuma'}${comparisonText}`;
+Progresso geral: ${completedGoals} de ${totalGoals} metas concluídas (${overallPercentage}%)
+Áreas com bom desempenho (acima de 70%): ${areasCompleted.length > 0 ? areasCompleted.map((a: any) => a.label).join(', ') : 'Nenhuma ainda'}
+Áreas que precisam de atenção (abaixo de 40%): ${areasNeedWork.length > 0 ? areasNeedWork.map((a: any) => a.label).join(', ') : 'Nenhuma'}`;
 
   switch (style) {
     case 'friendly':
       return `${baseData}
 
-Faça uma análise motivadora e encorajadora deste progresso. 
+Por favor, faça uma análise motivadora e encorajadora deste progresso.
 Celebre as conquistas e ofereça apoio gentil para as áreas que precisam de atenção.
-${monthlyComparison ? 'Comente sobre a evolução em relação ao mês anterior de forma positiva.' : ''}`;
+Lembre-se: texto limpo, sem formatação especial, emojis ou marcadores.`;
     
     case 'balanced':
       return `${baseData}
 
-Faça uma análise equilibrada:
-1. Reconheça o progresso de forma sincera
-2. Aponte áreas de melhoria de forma construtiva
-3. Sugira brevemente um próximo passo
-${monthlyComparison ? '4. Comente brevemente sobre a comparação com o mês anterior' : ''}`;
+Faça uma análise equilibrada deste progresso:
+Reconheça o que está funcionando, aponte o que pode melhorar e sugira um próximo passo.
+Lembre-se: texto limpo, sem formatação especial, emojis ou marcadores.`;
     
     case 'direct':
       return `${baseData}
 
-Análise direta:
-1. O que está funcionando
-2. O que precisa melhorar
-${monthlyComparison ? '3. Evolução mensal (objetivo)' : ''}
-Seja objetivo e prático.`;
+Faça uma análise direta e objetiva: o que está funcionando e o que precisa melhorar.
+Seja prático e vá direto ao ponto.
+Lembre-se: texto limpo, sem formatação especial, emojis ou marcadores.`;
     
     default:
       return baseData;
@@ -96,7 +90,7 @@ serve(async (req) => {
   }
 
   try {
-    const { stats, totalGoals, completedGoals, planTitle, period, style = 'balanced', monthlyComparison } = await req.json();
+    const { stats, totalGoals, completedGoals, planTitle, period, style = 'balanced' } = await req.json();
     
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
@@ -118,9 +112,10 @@ serve(async (req) => {
       totalGoals, 
       overallPercentage, 
       areasCompleted, 
-      areasNeedWork,
-      monthlyComparison
+      areasNeedWork
     );
+
+    console.log("Generating summary with style:", style);
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -157,7 +152,15 @@ serve(async (req) => {
     }
 
     const data = await response.json();
-    const summary = data.choices?.[0]?.message?.content || "Não foi possível gerar o resumo.";
+    let summary = data.choices?.[0]?.message?.content || "Não foi possível gerar o resumo.";
+    
+    // Clean up any remaining markdown or formatting
+    summary = summary
+      .replace(/\*\*/g, '')
+      .replace(/\*/g, '')
+      .replace(/^[-•]\s*/gm, '')
+      .replace(/^\d+\.\s*/gm, '')
+      .trim();
 
     return new Response(JSON.stringify({ summary, style }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
