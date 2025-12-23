@@ -1,7 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { 
   X, 
   ChevronLeft, 
@@ -12,67 +11,96 @@ import {
   Scale,
   Target,
   Lightbulb,
-  Sparkles
+  Sparkles,
+  Rocket,
+  Trophy,
+  Heart,
+  Zap
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { cn } from '@/lib/utils';
 
 interface TourStep {
   id: string;
   title: string;
+  subtitle: string;
   description: string;
   icon: React.ElementType;
-  position?: 'center' | 'top' | 'bottom';
+  gradient: string;
+  accentColor: string;
+  tips?: string[];
 }
 
 const tourSteps: TourStep[] = [
   {
     id: 'welcome',
-    title: 'Bem-vindo ao Plano de Vida! 🎉',
-    description: 'Este é o seu sistema completo para planejar e acompanhar seus objetivos de vida. Vamos fazer um tour rápido pelas principais funcionalidades!',
-    icon: Sparkles,
-    position: 'center'
+    title: 'Bem-vindo ao Plano de Vida!',
+    subtitle: 'Sua jornada de transformação começa agora',
+    description: 'Você está prestes a descobrir uma ferramenta poderosa para organizar, planejar e conquistar todos os seus objetivos de vida.',
+    icon: Rocket,
+    gradient: 'from-violet-500 via-purple-500 to-fuchsia-500',
+    accentColor: 'violet',
+    tips: ['Planeje com clareza', 'Acompanhe seu progresso', 'Celebre suas conquistas']
   },
   {
     id: 'dashboard',
     title: 'Painel de Controle',
-    description: 'Aqui você tem uma visão geral do seu progresso em todas as áreas da vida. Veja quantas metas você já completou e acompanhe sua evolução ao longo do tempo.',
+    subtitle: 'Sua central de comando',
+    description: 'Visualize todo o seu progresso de forma clara e intuitiva. Gráficos, estatísticas e insights para você saber exatamente onde está e para onde vai.',
     icon: LayoutDashboard,
-    position: 'center'
+    gradient: 'from-blue-500 via-cyan-500 to-teal-500',
+    accentColor: 'blue',
+    tips: ['Veja seu progresso geral', 'Acompanhe metas pendentes', 'Mantenha sua sequência']
   },
   {
     id: 'plans',
     title: 'Planos de Vida',
-    description: 'Crie e gerencie seus planos de vida. Você pode ter planos individuais, para casais ou família. Defina metas para cada área da vida e organize por períodos.',
+    subtitle: 'Organize seus sonhos',
+    description: 'Crie planos personalizados para você, seu casal ou sua família. Cada plano é único e adaptado às suas necessidades específicas.',
     icon: FileText,
-    position: 'center'
+    gradient: 'from-emerald-500 via-green-500 to-lime-500',
+    accentColor: 'emerald',
+    tips: ['Individual, Casal ou Família', 'Organize por períodos', 'Personalize suas áreas']
   },
   {
     id: 'goals',
-    title: 'Metas e Objetivos',
-    description: 'Dentro de cada plano, cadastre suas metas nas 7 áreas: Espiritual, Intelectual, Física, Familiar, Social, Profissional e Financeira. Use metas SMART para melhores resultados!',
+    title: 'Metas nas 7 Áreas',
+    subtitle: 'Equilíbrio em todas as dimensões',
+    description: 'Defina metas nas 7 áreas essenciais da vida: Espiritual, Intelectual, Física, Familiar, Social, Profissional e Financeira.',
     icon: Target,
-    position: 'center'
+    gradient: 'from-orange-500 via-amber-500 to-yellow-500',
+    accentColor: 'orange',
+    tips: ['Espiritual & Intelectual', 'Física & Familiar', 'Social, Profissional & Financeira']
   },
   {
     id: 'reports',
-    title: 'Relatórios',
-    description: 'Acompanhe seu progresso com relatórios detalhados. Veja gráficos de evolução, compare períodos e identifique quais áreas precisam de mais atenção.',
+    title: 'Relatórios Detalhados',
+    subtitle: 'Dados que inspiram ação',
+    description: 'Analise seu progresso com gráficos interativos e relatórios completos. Compare períodos e identifique oportunidades de melhoria.',
     icon: BarChart3,
-    position: 'center'
+    gradient: 'from-rose-500 via-pink-500 to-red-500',
+    accentColor: 'rose',
+    tips: ['Gráficos de evolução', 'Comparativos por período', 'Exportação em PDF']
   },
   {
     id: 'balance',
-    title: 'Balanço',
-    description: 'Faça uma reflexão periódica sobre seu progresso. Use o resumo de IA para obter insights personalizados e mantenha anotações sobre sua jornada.',
+    title: 'Balanço & Reflexão',
+    subtitle: 'Insights com inteligência artificial',
+    description: 'Faça pausas para refletir sobre sua jornada. Use o resumo de IA para obter insights personalizados e orientações para os próximos passos.',
     icon: Scale,
-    position: 'center'
+    gradient: 'from-indigo-500 via-blue-500 to-violet-500',
+    accentColor: 'indigo',
+    tips: ['Resumo com IA', 'Anotações pessoais', 'Reflexões periódicas']
   },
   {
-    id: 'tips',
-    title: 'Dicas para Começar',
-    description: '1. Crie seu primeiro plano de vida\n2. Defina metas para cada área\n3. Revise semanalmente seu progresso\n4. Use lembretes para não esquecer\n5. Celebre cada conquista!',
-    icon: Lightbulb,
-    position: 'center'
+    id: 'start',
+    title: 'Pronto para Começar?',
+    subtitle: 'O primeiro passo é o mais importante',
+    description: 'Sua transformação começa agora! Crie seu primeiro plano de vida e comece a definir suas metas. Cada pequeno passo conta.',
+    icon: Trophy,
+    gradient: 'from-amber-500 via-orange-500 to-red-500',
+    accentColor: 'amber',
+    tips: ['Crie seu primeiro plano', 'Defina suas metas', 'Celebre cada vitória!']
   }
 ];
 
@@ -83,21 +111,35 @@ interface InteractiveTourProps {
 
 export function InteractiveTour({ onComplete, isOpen }: InteractiveTourProps) {
   const [currentStep, setCurrentStep] = useState(0);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [direction, setDirection] = useState<'next' | 'prev'>('next');
   const { user } = useAuth();
 
-  const handleNext = () => {
+  const handleNext = useCallback(() => {
+    if (isAnimating) return;
+    
     if (currentStep < tourSteps.length - 1) {
-      setCurrentStep(currentStep + 1);
+      setDirection('next');
+      setIsAnimating(true);
+      setTimeout(() => {
+        setCurrentStep(prev => prev + 1);
+        setIsAnimating(false);
+      }, 300);
     } else {
       handleComplete();
     }
-  };
+  }, [currentStep, isAnimating]);
 
-  const handlePrevious = () => {
-    if (currentStep > 0) {
-      setCurrentStep(currentStep - 1);
-    }
-  };
+  const handlePrevious = useCallback(() => {
+    if (isAnimating || currentStep === 0) return;
+    
+    setDirection('prev');
+    setIsAnimating(true);
+    setTimeout(() => {
+      setCurrentStep(prev => prev - 1);
+      setIsAnimating(false);
+    }, 300);
+  }, [currentStep, isAnimating]);
 
   const handleComplete = () => {
     if (user?.id) {
@@ -110,109 +152,257 @@ export function InteractiveTour({ onComplete, isOpen }: InteractiveTourProps) {
     handleComplete();
   };
 
+  const goToStep = (index: number) => {
+    if (isAnimating || index === currentStep) return;
+    setDirection(index > currentStep ? 'next' : 'prev');
+    setIsAnimating(true);
+    setTimeout(() => {
+      setCurrentStep(index);
+      setIsAnimating(false);
+    }, 300);
+  };
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!isOpen) return;
+      if (e.key === 'ArrowRight' || e.key === 'Enter') handleNext();
+      if (e.key === 'ArrowLeft') handlePrevious();
+      if (e.key === 'Escape') handleSkip();
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, handleNext, handlePrevious]);
+
   if (!isOpen) return null;
 
   const step = tourSteps[currentStep];
   const StepIcon = step.icon;
   const progress = ((currentStep + 1) / tourSteps.length) * 100;
+  const isLastStep = currentStep === tourSteps.length - 1;
 
   return createPortal(
-    <div className="fixed inset-0 z-[100] flex items-center justify-center">
-      {/* Backdrop */}
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8">
+      {/* Animated backdrop with gradient */}
       <div 
-        className="absolute inset-0 bg-background/80 backdrop-blur-sm"
+        className="absolute inset-0 bg-background/90 backdrop-blur-md"
         onClick={handleSkip}
       />
       
-      {/* Tour Card */}
-      <Card className="relative z-10 w-[90vw] max-w-md mx-4 shadow-2xl border-primary/20 animate-scale-in">
-        {/* Progress bar */}
-        <div className="absolute top-0 left-0 right-0 h-1 bg-muted rounded-t-lg overflow-hidden">
-          <div 
-            className="h-full bg-primary transition-all duration-300 ease-out"
-            style={{ width: `${progress}%` }}
+      {/* Floating particles effect */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {[...Array(20)].map((_, i) => (
+          <div
+            key={i}
+            className={cn(
+              "absolute w-2 h-2 rounded-full opacity-20",
+              `bg-gradient-to-r ${step.gradient}`
+            )}
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animation: `float ${3 + Math.random() * 4}s ease-in-out infinite`,
+              animationDelay: `${Math.random() * 2}s`
+            }}
           />
-        </div>
+        ))}
+      </div>
 
-        <CardHeader className="pt-6 pb-2">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-xl bg-primary/10">
-                <StepIcon className="w-6 h-6 text-primary" />
+      {/* Main Tour Container */}
+      <div 
+        className={cn(
+          "relative z-10 w-full max-w-3xl transition-all duration-300",
+          isAnimating && direction === 'next' && "opacity-0 translate-x-8",
+          isAnimating && direction === 'prev' && "opacity-0 -translate-x-8"
+        )}
+      >
+        {/* Close button */}
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="absolute -top-2 -right-2 md:top-4 md:right-4 h-10 w-10 rounded-full bg-background/80 backdrop-blur-sm border shadow-lg z-20 hover:bg-background"
+          onClick={handleSkip}
+        >
+          <X className="w-5 h-5" />
+        </Button>
+
+        {/* Card with gradient border */}
+        <div className={cn(
+          "relative rounded-3xl p-[2px] shadow-2xl",
+          `bg-gradient-to-br ${step.gradient}`
+        )}>
+          <div className="bg-background rounded-[22px] overflow-hidden">
+            {/* Progress bar */}
+            <div className="h-1.5 bg-muted">
+              <div 
+                className={cn(
+                  "h-full transition-all duration-500 ease-out rounded-full",
+                  `bg-gradient-to-r ${step.gradient}`
+                )}
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+
+            {/* Content */}
+            <div className="p-6 md:p-10">
+              {/* Header with Icon */}
+              <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8 mb-8">
+                {/* Large animated icon */}
+                <div className={cn(
+                  "relative flex-shrink-0 w-24 h-24 md:w-32 md:h-32 rounded-3xl flex items-center justify-center",
+                  `bg-gradient-to-br ${step.gradient}`
+                )}>
+                  <StepIcon className="w-12 h-12 md:w-16 md:h-16 text-white" />
+                  
+                  {/* Pulsing ring effect */}
+                  <div className={cn(
+                    "absolute inset-0 rounded-3xl animate-ping opacity-20",
+                    `bg-gradient-to-br ${step.gradient}`
+                  )} style={{ animationDuration: '2s' }} />
+                  
+                  {/* Sparkle decorations */}
+                  <Sparkles className="absolute -top-2 -right-2 w-6 h-6 text-yellow-400 animate-pulse" />
+                  <Zap className="absolute -bottom-1 -left-1 w-5 h-5 text-yellow-400 animate-pulse" style={{ animationDelay: '0.5s' }} />
+                </div>
+
+                {/* Title and subtitle */}
+                <div className="text-center md:text-left flex-1">
+                  <p className={cn(
+                    "text-sm font-semibold uppercase tracking-wider mb-2",
+                    `bg-gradient-to-r ${step.gradient} bg-clip-text text-transparent`
+                  )}>
+                    {step.subtitle}
+                  </p>
+                  <h2 className="text-2xl md:text-4xl font-bold text-foreground mb-2">
+                    {step.title}
+                  </h2>
+                  <p className="text-sm text-muted-foreground">
+                    Passo {currentStep + 1} de {tourSteps.length}
+                  </p>
+                </div>
               </div>
-              <div>
-                <CardTitle className="text-lg">{step.title}</CardTitle>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  Passo {currentStep + 1} de {tourSteps.length}
-                </p>
+
+              {/* Description */}
+              <p className="text-base md:text-lg text-muted-foreground leading-relaxed mb-8 text-center md:text-left">
+                {step.description}
+              </p>
+
+              {/* Tips section */}
+              {step.tips && (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-8">
+                  {step.tips.map((tip, index) => (
+                    <div 
+                      key={index}
+                      className={cn(
+                        "flex items-center gap-3 p-4 rounded-xl border bg-muted/30 transition-all hover:scale-[1.02]",
+                        "hover:shadow-md"
+                      )}
+                      style={{ animationDelay: `${index * 100}ms` }}
+                    >
+                      <div className={cn(
+                        "w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0",
+                        `bg-gradient-to-br ${step.gradient}`
+                      )}>
+                        <Heart className="w-4 h-4 text-white" />
+                      </div>
+                      <span className="text-sm font-medium text-foreground">{tip}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Step indicators */}
+              <div className="flex justify-center gap-2 mb-8">
+                {tourSteps.map((s, index) => (
+                  <button
+                    key={index}
+                    onClick={() => goToStep(index)}
+                    className={cn(
+                      "h-2.5 rounded-full transition-all duration-300 hover:opacity-80",
+                      index === currentStep 
+                        ? `w-10 bg-gradient-to-r ${step.gradient}` 
+                        : index < currentStep 
+                          ? 'w-2.5 bg-primary/60' 
+                          : 'w-2.5 bg-muted-foreground/30'
+                    )}
+                    aria-label={`Ir para passo ${index + 1}`}
+                  />
+                ))}
+              </div>
+
+              {/* Navigation buttons */}
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                <Button
+                  variant="ghost"
+                  onClick={handleSkip}
+                  className="text-muted-foreground hover:text-foreground order-3 sm:order-1"
+                >
+                  Pular tour
+                </Button>
+                
+                <div className="flex items-center gap-3 order-1 sm:order-2 w-full sm:w-auto">
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    onClick={handlePrevious}
+                    disabled={currentStep === 0}
+                    className="gap-2 flex-1 sm:flex-initial"
+                  >
+                    <ChevronLeft className="w-5 h-5" />
+                    <span className="hidden sm:inline">Anterior</span>
+                  </Button>
+                  <Button
+                    size="lg"
+                    onClick={handleNext}
+                    className={cn(
+                      "gap-2 flex-1 sm:flex-initial text-white shadow-lg transition-all hover:scale-105",
+                      `bg-gradient-to-r ${step.gradient} hover:opacity-90`
+                    )}
+                  >
+                    {isLastStep ? (
+                      <>
+                        <Rocket className="w-5 h-5" />
+                        Começar Agora!
+                      </>
+                    ) : (
+                      <>
+                        Próximo
+                        <ChevronRight className="w-5 h-5" />
+                      </>
+                    )}
+                  </Button>
+                </div>
               </div>
             </div>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="h-8 w-8 rounded-full"
-              onClick={handleSkip}
-            >
-              <X className="w-4 h-4" />
-            </Button>
           </div>
-        </CardHeader>
-
-        <CardContent className="py-4">
-          <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
-            {step.description}
-          </p>
-        </CardContent>
-
-        <CardFooter className="flex items-center justify-between pt-2 pb-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleSkip}
-            className="text-muted-foreground hover:text-foreground"
-          >
-            Pular tour
-          </Button>
-          
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handlePrevious}
-              disabled={currentStep === 0}
-              className="gap-1"
-            >
-              <ChevronLeft className="w-4 h-4" />
-              Anterior
-            </Button>
-            <Button
-              size="sm"
-              onClick={handleNext}
-              className="gap-1"
-            >
-              {currentStep === tourSteps.length - 1 ? 'Começar!' : 'Próximo'}
-              {currentStep < tourSteps.length - 1 && <ChevronRight className="w-4 h-4" />}
-            </Button>
-          </div>
-        </CardFooter>
-
-        {/* Step indicators */}
-        <div className="flex justify-center gap-1.5 pb-4">
-          {tourSteps.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => setCurrentStep(index)}
-              className={`w-2 h-2 rounded-full transition-all ${
-                index === currentStep 
-                  ? 'bg-primary w-4' 
-                  : index < currentStep 
-                    ? 'bg-primary/50' 
-                    : 'bg-muted-foreground/30'
-              }`}
-            />
-          ))}
         </div>
-      </Card>
+
+        {/* Keyboard hints for desktop */}
+        <div className="hidden md:flex justify-center mt-4 gap-4 text-xs text-muted-foreground/60">
+          <span className="flex items-center gap-1">
+            <kbd className="px-2 py-1 bg-muted rounded text-[10px]">←</kbd>
+            <kbd className="px-2 py-1 bg-muted rounded text-[10px]">→</kbd>
+            Navegar
+          </span>
+          <span className="flex items-center gap-1">
+            <kbd className="px-2 py-1 bg-muted rounded text-[10px]">Enter</kbd>
+            Avançar
+          </span>
+          <span className="flex items-center gap-1">
+            <kbd className="px-2 py-1 bg-muted rounded text-[10px]">Esc</kbd>
+            Fechar
+          </span>
+        </div>
+      </div>
+
+      {/* CSS for floating animation */}
+      <style>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0) rotate(0deg); }
+          50% { transform: translateY(-20px) rotate(180deg); }
+        }
+      `}</style>
     </div>,
     document.body
   );
