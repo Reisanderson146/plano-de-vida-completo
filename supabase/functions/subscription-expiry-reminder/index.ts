@@ -15,6 +15,37 @@ const logStep = (step: string, details?: any) => {
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
+const logEmail = async (
+  supabaseClient: any,
+  data: {
+    userId?: string;
+    recipientEmail: string;
+    recipientName?: string;
+    emailType: string;
+    subject: string;
+    status: string;
+    resendId?: string;
+    errorMessage?: string;
+    metadata?: any;
+  }
+) => {
+  try {
+    await supabaseClient.from('email_logs').insert({
+      user_id: data.userId,
+      recipient_email: data.recipientEmail,
+      recipient_name: data.recipientName,
+      email_type: data.emailType,
+      subject: data.subject,
+      status: data.status,
+      resend_id: data.resendId,
+      error_message: data.errorMessage,
+      metadata: data.metadata || {},
+    });
+  } catch (error) {
+    console.error('[SUBSCRIPTION-EXPIRY-REMINDER] Error logging email:', error);
+  }
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -28,6 +59,12 @@ serve(async (req) => {
 
     const resendKey = Deno.env.get("RESEND_API_KEY");
     if (!resendKey) throw new Error("RESEND_API_KEY is not set");
+
+    const supabaseClient = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      { auth: { persistSession: false } }
+    );
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
 
@@ -68,15 +105,17 @@ serve(async (req) => {
               ? 'Premium' 
               : 'Basic';
 
+            const subject = `🔔 Sua assinatura ${planName} será renovada em ${daysUntilExpiry} ${daysUntilExpiry === 1 ? 'dia' : 'dias'}`;
+
             const emailHtml = `
               <!DOCTYPE html>
               <html>
               <head>
                 <meta charset="utf-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>Lembrete de Renovação - Path Journey</title>
+                <title>Lembrete de Renovação - Plano de Vida</title>
               </head>
-              <body style="margin: 0; padding: 0; background-color: #f4f4f5; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+              <body style="margin: 0; padding: 0; background-color: #f4f4f5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
                 <table role="presentation" style="width: 100%; border-collapse: collapse;">
                   <tr>
                     <td align="center" style="padding: 40px 0;">
@@ -84,9 +123,9 @@ serve(async (req) => {
                         
                         <!-- Header -->
                         <tr>
-                          <td style="padding: 40px 40px 30px; text-align: center; background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%); border-radius: 16px 16px 0 0;">
+                          <td style="padding: 40px 40px 30px; text-align: center; background: linear-gradient(135deg, #2A8C68 0%, #7BC8A4 100%); border-radius: 16px 16px 0 0;">
                             <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: bold;">
-                              🚀 Path Journey
+                              🔔 Plano de Vida
                             </h1>
                             <p style="margin: 10px 0 0; color: rgba(255, 255, 255, 0.9); font-size: 16px;">
                               Lembrete de Renovação
@@ -102,7 +141,7 @@ serve(async (req) => {
                             </h2>
                             
                             <p style="margin: 0 0 20px; color: #52525b; font-size: 16px; line-height: 1.6;">
-                              Queremos te informar que sua assinatura do <strong style="color: #8b5cf6;">Plano ${planName}</strong> será renovada automaticamente em <strong>${daysUntilExpiry} ${daysUntilExpiry === 1 ? 'dia' : 'dias'}</strong>.
+                              Queremos te informar que sua assinatura do <strong style="color: #2A8C68;">Plano ${planName}</strong> será renovada automaticamente em <strong>${daysUntilExpiry} ${daysUntilExpiry === 1 ? 'dia' : 'dias'}</strong>.
                             </p>
 
                             <!-- Alert Box -->
@@ -131,8 +170,8 @@ serve(async (req) => {
                             <table role="presentation" style="width: 100%; border-collapse: collapse;">
                               <tr>
                                 <td align="center">
-                                  <a href="https://uricxanhdutgjgsymurb.supabase.co/conta" 
-                                     style="display: inline-block; padding: 16px 32px; background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%); color: #ffffff; text-decoration: none; font-size: 16px; font-weight: 600; border-radius: 12px; box-shadow: 0 4px 14px rgba(139, 92, 246, 0.4);">
+                                  <a href="https://planodevida.io/conta" 
+                                     style="display: inline-block; padding: 16px 32px; background: linear-gradient(135deg, #2A8C68 0%, #7BC8A4 100%); color: #ffffff; text-decoration: none; font-size: 16px; font-weight: 600; border-radius: 12px; box-shadow: 0 4px 14px rgba(42, 140, 104, 0.4);">
                                     Gerenciar Assinatura
                                   </a>
                                 </td>
@@ -144,13 +183,13 @@ serve(async (req) => {
                         <!-- Benefits Reminder -->
                         <tr>
                           <td style="padding: 0 40px 40px;">
-                            <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #f9fafb; border-radius: 12px;">
+                            <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #f0fdf4; border-radius: 12px;">
                               <tr>
                                 <td style="padding: 24px;">
-                                  <p style="margin: 0 0 16px; color: #18181b; font-size: 16px; font-weight: 600;">
+                                  <p style="margin: 0 0 16px; color: #166534; font-size: 16px; font-weight: 600;">
                                     ✨ Benefícios do seu Plano ${planName}:
                                   </p>
-                                  <ul style="margin: 0; padding: 0 0 0 20px; color: #52525b; font-size: 14px; line-height: 1.8;">
+                                  <ul style="margin: 0; padding: 0 0 0 20px; color: #374151; font-size: 14px; line-height: 1.8;">
                                     ${planName === 'Premium' ? `
                                       <li>1 Plano Individual + 1 Familiar + 3 para Filhos</li>
                                       <li>Resumo inteligente com IA</li>
@@ -174,7 +213,7 @@ serve(async (req) => {
                         <tr>
                           <td style="padding: 30px 40px; background-color: #f9fafb; border-radius: 0 0 16px 16px; text-align: center;">
                             <p style="margin: 0 0 10px; color: #71717a; font-size: 14px;">
-                              Obrigado por fazer parte da Path Journey! 💜
+                              Obrigado por fazer parte do Plano de Vida! 🌱
                             </p>
                             <p style="margin: 0; color: #a1a1aa; font-size: 12px;">
                               Este é um email automático. Não responda.
@@ -190,19 +229,39 @@ serve(async (req) => {
               </html>
             `;
 
-            const { error: emailError } = await resend.emails.send({
-              from: "Path Journey <onboarding@resend.dev>",
+            const emailResponse = await resend.emails.send({
+              from: "Plano de Vida <contato@planodevida.io>",
               to: [customer.email],
-              subject: `🔔 Sua assinatura ${planName} será renovada em ${daysUntilExpiry} ${daysUntilExpiry === 1 ? 'dia' : 'dias'}`,
+              subject,
               html: emailHtml,
             });
 
-            if (emailError) {
-              logStep("Error sending email", { email: customer.email, error: emailError });
-              errors.push(`${customer.email}: ${emailError.message}`);
+            if (emailResponse.error) {
+              logStep("Error sending email", { email: customer.email, error: emailResponse.error });
+              errors.push(`${customer.email}: ${emailResponse.error.message}`);
+              
+              await logEmail(supabaseClient, {
+                recipientEmail: customer.email,
+                recipientName: customerName,
+                emailType: 'subscription_expiry_reminder',
+                subject,
+                status: 'error',
+                errorMessage: emailResponse.error.message,
+                metadata: { daysUntilExpiry, planName },
+              });
             } else {
               logStep("Reminder sent", { email: customer.email, daysUntilExpiry });
               remindersSent.push(customer.email);
+              
+              await logEmail(supabaseClient, {
+                recipientEmail: customer.email,
+                recipientName: customerName,
+                emailType: 'subscription_expiry_reminder',
+                subject,
+                status: 'sent',
+                resendId: emailResponse.data?.id,
+                metadata: { daysUntilExpiry, planName },
+              });
             }
           }
         } catch (customerError) {
