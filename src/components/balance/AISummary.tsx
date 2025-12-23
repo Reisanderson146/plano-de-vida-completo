@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Loader2, Sparkles, RefreshCw, Save, Lock, Crown, Heart, Zap, Scale, Check } from 'lucide-react';
@@ -307,44 +308,59 @@ export function AISummary({
             </Button>
           </div>
           <div className="grid grid-cols-3 gap-3">
-            {AI_STYLES.map((style) => {
+            {AI_STYLES.map((style, index) => {
               const Icon = style.icon;
               const isActive = selectedStyle === style.id;
               
               return (
-                <button
+                <motion.button
                   key={style.id}
+                  initial={{ opacity: 0, y: 20, scale: 0.9 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  transition={{ 
+                    duration: 0.4, 
+                    delay: index * 0.1,
+                    ease: [0.25, 0.46, 0.45, 0.94]
+                  }}
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.98 }}
                   onClick={() => handleStyleChange(style.id)}
                   disabled={loading}
                   className={cn(
-                    "relative flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition-all duration-300 transform hover:scale-[1.02]",
+                    "relative flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition-colors duration-300",
                     isActive 
                       ? style.activeColor + " shadow-xl" 
                       : style.bgColor
                   )}
                 >
                   {/* Icon container with glow effect */}
-                  <div className={cn(
-                    "w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300",
-                    isActive 
-                      ? "bg-white/20 shadow-lg" 
-                      : style.iconBg
-                  )}>
+                  <motion.div 
+                    className={cn(
+                      "w-10 h-10 rounded-xl flex items-center justify-center transition-colors duration-300",
+                      isActive 
+                        ? "bg-white/20 shadow-lg" 
+                        : style.iconBg
+                    )}
+                    animate={isActive ? { 
+                      boxShadow: ["0 0 0 0 rgba(255,255,255,0.4)", "0 0 20px 5px rgba(255,255,255,0.1)", "0 0 0 0 rgba(255,255,255,0.4)"]
+                    } : {}}
+                    transition={{ duration: 2, repeat: Infinity }}
+                  >
                     <Icon className={cn(
-                      "w-5 h-5 transition-all duration-300",
+                      "w-5 h-5 transition-colors duration-300",
                       isActive ? "text-white" : style.iconColor
                     )} />
-                  </div>
+                  </motion.div>
                   
                   <div className="flex flex-col items-center gap-0.5">
                     <span className={cn(
-                      "text-sm font-bold transition-all duration-300",
+                      "text-sm font-bold transition-colors duration-300",
                       isActive ? "text-white" : "text-foreground"
                     )}>
                       {style.label}
                     </span>
                     <span className={cn(
-                      "text-[10px] leading-tight text-center transition-all duration-300",
+                      "text-[10px] leading-tight text-center transition-colors duration-300",
                       isActive ? "text-white/80" : "text-muted-foreground"
                     )}>
                       {style.description}
@@ -353,11 +369,16 @@ export function AISummary({
                   
                   {/* Active indicator */}
                   {isActive && (
-                    <div className="absolute -top-1 -right-1 w-5 h-5 bg-white rounded-full flex items-center justify-center shadow-lg">
+                    <motion.div 
+                      initial={{ scale: 0, rotate: -180 }}
+                      animate={{ scale: 1, rotate: 0 }}
+                      transition={{ type: "spring", stiffness: 500, damping: 25 }}
+                      className="absolute -top-1 -right-1 w-5 h-5 bg-white rounded-full flex items-center justify-center shadow-lg"
+                    >
                       <Check className="w-3 h-3 text-emerald-500" />
-                    </div>
+                    </motion.div>
                   )}
-                </button>
+                </motion.button>
               );
             })}
           </div>
