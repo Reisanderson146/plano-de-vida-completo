@@ -7,19 +7,9 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Subscription tier configuration
-const TIERS = {
-  basic: {
-    priceId: "price_1SeiENRX3OjZbCrQIIbjMVMv", // Plano Basic - R$ 9,99/mês
-  },
-  premium: {
-    priceId: "price_1ShLBERX3OjZbCrQFUF993DL", // Plano Premium - R$ 29,99/mês
-  },
-};
-
 const logStep = (step: string, details?: any) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
-  console.log(`[CREATE-CHECKOUT] ${step}${detailsStr}`);
+  console.log(`[LIST-PAYMENTS] ${step}${detailsStr}`);
 };
 
 serve(async (req) => {
@@ -37,7 +27,6 @@ serve(async (req) => {
 
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
     if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not set");
-    logStep("Stripe key verified");
 
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) throw new Error("No authorization header provided");
@@ -48,53 +37,42 @@ serve(async (req) => {
     if (!user?.email) throw new Error("User not authenticated or email not available");
     logStep("User authenticated", { userId: user.id });
 
-    // Get tier from request body (default to basic)
-    let tier = "basic";
-    try {
-      const body = await req.json();
-      if (body.tier && (body.tier === "basic" || body.tier === "premium")) {
-        tier = body.tier;
-      }
-    } catch {
-      // No body or invalid JSON, use default
-    }
-
-    const priceId = TIERS[tier as keyof typeof TIERS]?.priceId || TIERS.basic.priceId;
-    logStep("Using price ID", { tier, priceId });
-
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
 
-    // Check if customer already exists
+    // Find customer by email
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
-    let customerId;
-    if (customers.data.length > 0) {
-      customerId = customers.data[0].id;
-      logStep("Found existing customer", { customerId });
+    
+    if (customers.data.length === 0) {
+      logStep("No customer found");
+      return new Response(JSON.stringify({ payments: [] }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      });
     }
 
-    // Create checkout session
-    const origin = req.headers.get("origin") || "https://app.planosdevida.com";
-    const session = await stripe.checkout.sessions.create({
+    const customerId = customers.data[0].id;
+    logStep("Found customer", { customerId });
+
+    // List invoices for this customer
+    const invoices = await stripe.invoices.list({
       customer: customerId,
-      customer_email: customerId ? undefined : user.email,
-      line_items: [
-        {
-          price: priceId,
-          quantity: 1,
-        },
-      ],
-      mode: "subscription",
-      success_url: `${origin}/checkout-success`,
-      cancel_url: `${origin}/landing`,
-      metadata: {
-        user_id: user.id,
-        tier: tier,
-      },
+      limit: 20,
     });
 
-    logStep("Checkout session created", { sessionId: session.id, url: session.url });
+    const payments = invoices.data.map((invoice: any) => ({
+      id: invoice.id,
+      amount: invoice.amount_paid / 100,
+      currency: invoice.currency,
+      status: invoice.status,
+      date: invoice.created ? new Date(invoice.created * 1000).toISOString() : null,
+      description: invoice.lines.data[0]?.description || 'Assinatura',
+      invoicePdf: invoice.invoice_pdf,
+      hostedInvoiceUrl: invoice.hosted_invoice_url,
+    }));
 
-    return new Response(JSON.stringify({ url: session.url }), {
+    logStep("Retrieved payments", { count: payments.length });
+
+    return new Response(JSON.stringify({ payments }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
     });

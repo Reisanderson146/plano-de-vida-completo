@@ -8,10 +8,9 @@ const corsHeaders = {
 };
 
 // Product IDs for tier identification
-// TODO: Atualizar productId do premium após criar no Stripe Dashboard
 const TIER_PRODUCTS = {
-  basic: "prod_Tbw6ZCYRIgPNee", // Plano Basic - R$ 9,99/mês
-  premium: "PRODUCT_ID_PREMIUM_AQUI", // Atualizar após criar
+  basic: "prod_Tbw6ZCYRIgPNee", // Plano Basic – Plano de Vida - R$ 9,99/mês
+  premium: "prod_TeeUMyrZLlnteX", // Plano Premium– Plano de Vida - R$ 29,99/mês
 };
 
 const logStep = (step: string, details?: any) => {

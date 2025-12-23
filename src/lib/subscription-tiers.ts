@@ -24,10 +24,8 @@ export const SUBSCRIPTION_TIERS = {
   premium: {
     name: 'Premium',
     price: 29.99,
-    // TODO: Atualizar com IDs reais após criar no Stripe Dashboard
-    // Criar produto: "Plano Premium" - R$ 29,99/mês recorrente
-    priceId: 'PRICE_ID_PREMIUM_AQUI',
-    productId: 'PRODUCT_ID_PREMIUM_AQUI',
+    priceId: 'price_1ShLBERX3OjZbCrQFUF993DL',
+    productId: 'prod_TeeUMyrZLlnteX',
     limits: {
       individual: 0,
       familiar: 1,
