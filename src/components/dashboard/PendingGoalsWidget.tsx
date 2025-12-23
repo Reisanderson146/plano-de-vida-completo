@@ -24,9 +24,10 @@ interface PendingGoal {
 
 interface PendingGoalsWidgetProps {
   selectedPlanId: string;
+  onGoalCompleted?: () => void;
 }
 
-export function PendingGoalsWidget({ selectedPlanId }: PendingGoalsWidgetProps) {
+export function PendingGoalsWidget({ selectedPlanId, onGoalCompleted }: PendingGoalsWidgetProps) {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
@@ -91,6 +92,9 @@ export function PendingGoalsWidget({ selectedPlanId }: PendingGoalsWidgetProps) 
 
       // Remove from list with animation
       setGoals((prev) => prev.filter((g) => g.id !== goalId));
+      
+      // Notify parent that a goal was completed
+      onGoalCompleted?.();
       
       toast({
         title: '🎉 Meta concluída!',

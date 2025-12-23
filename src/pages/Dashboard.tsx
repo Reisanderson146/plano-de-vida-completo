@@ -59,10 +59,18 @@ export default function Dashboard() {
     to: endOfYear(new Date())
   });
   const [hasPlans, setHasPlans] = useState(false);
+  const [chartRefreshKey, setChartRefreshKey] = useState(0);
 
   const handlePlanChange = (planId: string) => {
     setSelectedPlanId(planId);
     localStorage.setItem(SELECTED_PLAN_STORAGE_KEY, planId);
+  };
+
+  const handleGoalCompleted = () => {
+    // Refresh the chart by incrementing the key
+    setChartRefreshKey(prev => prev + 1);
+    // Also refresh stats
+    loadStats();
   };
   
   const { getAreaLabel, getAreaColor } = usePlanAreaCustomizations(selectedPlanId || undefined);
@@ -282,8 +290,8 @@ export default function Dashboard() {
 
         {/* Pending Goals and Monthly Evolution */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <PendingGoalsWidget selectedPlanId={selectedPlanId} />
-          <MonthlyEvolutionChart selectedPlanId={selectedPlanId} />
+          <PendingGoalsWidget selectedPlanId={selectedPlanId} onGoalCompleted={handleGoalCompleted} />
+          <MonthlyEvolutionChart selectedPlanId={selectedPlanId} refreshKey={chartRefreshKey} />
         </div>
 
         {/* Progress Chart */}

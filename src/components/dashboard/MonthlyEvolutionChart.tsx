@@ -17,9 +17,10 @@ interface MonthlyData {
 
 interface MonthlyEvolutionChartProps {
   selectedPlanId: string;
+  refreshKey?: number;
 }
 
-export function MonthlyEvolutionChart({ selectedPlanId }: MonthlyEvolutionChartProps) {
+export function MonthlyEvolutionChart({ selectedPlanId, refreshKey }: MonthlyEvolutionChartProps) {
   const { user } = useAuth();
   const [data, setData] = useState<MonthlyData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -28,7 +29,7 @@ export function MonthlyEvolutionChart({ selectedPlanId }: MonthlyEvolutionChartP
     if (user && selectedPlanId) {
       fetchMonthlyData();
     }
-  }, [user, selectedPlanId]);
+  }, [user, selectedPlanId, refreshKey]);
 
   const fetchMonthlyData = async () => {
     if (!user || !selectedPlanId) return;
