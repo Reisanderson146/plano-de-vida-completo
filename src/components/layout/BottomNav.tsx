@@ -4,7 +4,7 @@ import {
   FileText, 
   BarChart3, 
   Scale, 
-  User
+  Trophy
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -13,7 +13,7 @@ const navItems = [
   { path: '/consulta', label: 'Planos', icon: FileText },
   { path: '/relatorios', label: 'Relatórios', icon: BarChart3 },
   { path: '/balanco', label: 'Balanço', icon: Scale },
-  { path: '/meus-dados', label: 'Dados', icon: User },
+  { path: '/conquistas', label: 'Conquistas', icon: Trophy },
 ];
 
 export function BottomNav() {
