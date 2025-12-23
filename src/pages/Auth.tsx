@@ -32,6 +32,13 @@ export default function Auth() {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
   const [isRedirecting, setIsRedirecting] = useState(false);
+  const [emailJustConfirmed, setEmailJustConfirmed] = useState(() => {
+    const sp = new URLSearchParams(window.location.search);
+    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    const hashType = hashParams.get('type');
+    const hashAccessToken = hashParams.get('access_token');
+    return (hashType === 'signup' && !!hashAccessToken) || sp.get('email_confirmed') === 'true';
+  });
   const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -52,7 +59,7 @@ export default function Auth() {
     const isEmailConfirmation = hashType === 'signup' && hashAccessToken;
     
     if (isEmailConfirmation) {
-      // Email was confirmed successfully - show success toast
+      setEmailJustConfirmed(true);
       toast({
         title: '✅ E-mail validado com sucesso!',
         description: 'Sua conta foi ativada. Faça login para continuar.',
@@ -60,12 +67,13 @@ export default function Auth() {
       // Clear the hash to clean up the URL
       window.history.replaceState(null, '', '/auth');
       // Sign out any auto-created session so user can login fresh
-      supabase.auth.signOut();
+      void supabase.auth.signOut();
       return;
     }
 
     // Also check for email_confirmed query param (fallback)
     if (emailConfirmed === 'true') {
+      setEmailJustConfirmed(true);
       toast({
         title: '✅ E-mail validado com sucesso!',
         description: 'Sua conta foi ativada. Faça login para continuar.',
@@ -116,7 +124,10 @@ export default function Auth() {
   useEffect(() => {
     // Don't redirect if in password recovery mode
     if (isPasswordRecovery) return;
-    
+
+    // Don't redirect after email confirmation; keep user on login screen
+    if (emailJustConfirmed) return;
+
     // Redirect with smooth transition when user is authenticated
     if (user && !isRedirecting) {
       setIsRedirecting(true);
@@ -125,7 +136,7 @@ export default function Auth() {
         navigate('/');
       }, 400);
     }
-  }, [user, navigate, isPasswordRecovery, isRedirecting]);
+  }, [user, navigate, isPasswordRecovery, isRedirecting, emailJustConfirmed]);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
