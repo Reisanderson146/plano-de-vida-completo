@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Check, Crown, Sparkles, Shield, Zap, Gem, User, Users, Baby, Heart, Target, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
+import { Check, Crown, Sparkles, Shield, Zap, Gem, User, Users, Baby, Heart, Target, Loader2, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { LucideIcon } from "lucide-react";
 
 interface PricingSectionProps {
   onCheckout: (tier: 'basic' | 'premium') => void;
@@ -10,22 +11,23 @@ interface PricingSectionProps {
   loading: 'basic' | 'premium' | null;
 }
 
-const basicBenefits = [
-  { text: "1 Plano Individual", icon: User },
-  { text: "Planejamento das 7 áreas da vida", icon: Target },
-  { text: "Seus dados seguros na nuvem", icon: Shield },
-  { text: "Exportação profissional em PDF", icon: Zap },
-];
+interface Benefit {
+  text: string;
+  icon: LucideIcon;
+  includedInBasic: boolean;
+  highlight?: boolean;
+}
 
-const premiumBenefits = [
-  { text: "1 Plano Individual", icon: User },
-  { text: "1 Plano Familiar", icon: Users },
-  { text: "2 Planos para Filhos", icon: Baby },
-  { text: "Resumo inteligente com IA", icon: Sparkles, highlight: true },
-  { text: "Relatórios e gráficos de progresso", icon: Check },
-  { text: "Lembretes por email", icon: Heart },
-  { text: "Exportação profissional em PDF", icon: Zap },
-  { text: "Seus dados seguros na nuvem", icon: Shield },
+const allBenefits: Benefit[] = [
+  { text: "1 Plano Individual", icon: User, includedInBasic: true },
+  { text: "Planejamento das 7 áreas da vida", icon: Target, includedInBasic: true },
+  { text: "Seus dados seguros na nuvem", icon: Shield, includedInBasic: true },
+  { text: "Exportação profissional em PDF", icon: Zap, includedInBasic: true },
+  { text: "1 Plano Familiar", icon: Users, includedInBasic: false },
+  { text: "2 Planos para Filhos", icon: Baby, includedInBasic: false },
+  { text: "Resumo inteligente com IA", icon: Sparkles, includedInBasic: false, highlight: true },
+  { text: "Relatórios e gráficos de progresso", icon: Check, includedInBasic: false },
+  { text: "Lembretes por email", icon: Heart, includedInBasic: false },
 ];
 
 const PricingSection = ({ onCheckout, onLogin, loading }: PricingSectionProps) => {
@@ -92,12 +94,12 @@ const PricingSection = ({ onCheckout, onLogin, loading }: PricingSectionProps) =
           {/* Cards Container */}
           <div className="overflow-hidden">
             <div 
-              className="flex transition-transform duration-500 ease-out items-stretch"
+              className="flex transition-transform duration-500 ease-out"
               style={{ transform: `translateX(-${activeCard * 100}%)` }}
             >
               {/* Basic Plan */}
-              <div className="w-full flex-shrink-0 px-2 flex">
-                <Card className="relative overflow-hidden border-2 border-primary/20 bg-card/80 backdrop-blur-sm shadow-xl transition-all duration-300 hover:border-primary/40 hover:shadow-2xl w-full flex flex-col">
+              <div className="w-full flex-shrink-0 px-2">
+                <Card className="relative overflow-hidden border-2 border-primary/20 bg-card/80 backdrop-blur-sm shadow-xl transition-all duration-300 hover:border-primary/40 hover:shadow-2xl">
                   {/* Glow Effect */}
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-emerald-500/5" />
 
@@ -122,15 +124,31 @@ const PricingSection = ({ onCheckout, onLogin, loading }: PricingSectionProps) =
                     <p className="text-xs text-muted-foreground mt-2">1 plano individual</p>
                   </CardHeader>
 
-                  <CardContent className="relative space-y-6 pb-8 flex-1 flex flex-col justify-between">
+                  <CardContent className="relative space-y-6 pb-8">
                     {/* Benefits List */}
                     <ul className="space-y-3">
-                      {basicBenefits.map((benefit, index) => (
+                      {allBenefits.map((benefit, index) => (
                         <li key={index} className="flex items-center gap-3">
-                          <div className="w-6 h-6 rounded-full bg-emerald-500/10 flex items-center justify-center flex-shrink-0">
-                            <benefit.icon className="w-3.5 h-3.5 text-emerald-600" />
+                          <div className={cn(
+                            "w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0",
+                            benefit.includedInBasic 
+                              ? "bg-emerald-500/10" 
+                              : "bg-muted/50"
+                          )}>
+                            {benefit.includedInBasic ? (
+                              <benefit.icon className="w-3.5 h-3.5 text-emerald-600" />
+                            ) : (
+                              <X className="w-3.5 h-3.5 text-muted-foreground/50" />
+                            )}
                           </div>
-                          <span className="text-foreground text-sm">{benefit.text}</span>
+                          <span className={cn(
+                            "text-sm",
+                            benefit.includedInBasic 
+                              ? "text-foreground" 
+                              : "text-muted-foreground/50 line-through"
+                          )}>
+                            {benefit.text}
+                          </span>
                         </li>
                       ))}
                     </ul>
@@ -161,8 +179,8 @@ const PricingSection = ({ onCheckout, onLogin, loading }: PricingSectionProps) =
               </div>
 
               {/* Premium Plan */}
-              <div className="w-full flex-shrink-0 px-2 flex">
-                <Card className="relative overflow-hidden border-2 border-violet-500/40 bg-card/80 backdrop-blur-sm shadow-2xl shadow-violet-500/10 transition-all duration-300 hover:border-violet-500/60 hover:shadow-violet-500/20 w-full flex flex-col">
+              <div className="w-full flex-shrink-0 px-2">
+                <Card className="relative overflow-hidden border-2 border-violet-500/40 bg-card/80 backdrop-blur-sm shadow-2xl shadow-violet-500/10 transition-all duration-300 hover:border-violet-500/60 hover:shadow-violet-500/20">
                   {/* Glow Effect */}
                   <div className="absolute inset-0 bg-gradient-to-br from-violet-500/10 via-transparent to-purple-500/10" />
                   
@@ -198,10 +216,10 @@ const PricingSection = ({ onCheckout, onLogin, loading }: PricingSectionProps) =
                     </div>
                   </CardHeader>
 
-                  <CardContent className="relative space-y-6 pb-8 flex-1 flex flex-col justify-between">
+                  <CardContent className="relative space-y-6 pb-8">
                     {/* Benefits List */}
                     <ul className="space-y-3">
-                      {premiumBenefits.map((benefit, index) => (
+                      {allBenefits.map((benefit, index) => (
                         <li 
                           key={index} 
                           className={cn(
@@ -288,7 +306,7 @@ const PricingSection = ({ onCheckout, onLogin, loading }: PricingSectionProps) =
 
           {/* Plan indicator text */}
           <p className="text-center text-sm text-muted-foreground mt-2">
-            {activeCard === 0 ? "Plano Basic" : "Plano Premium"} • Arraste ou clique para ver outro
+            {activeCard === 0 ? "Plano Basic" : "Plano Premium"} • Clique para ver outro
           </p>
         </div>
 
