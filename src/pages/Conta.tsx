@@ -147,12 +147,12 @@ export default function Conta() {
               : 'border-border/50 hover:border-border'
           }`}>
             {currentPlan === 'basic' && (
-              <div className="absolute top-0 left-0 right-0 bg-gradient-to-r from-[#2A8C68] to-[#7BC8A4] py-2 text-center">
+              <div className="absolute top-0 left-0 right-0 bg-gradient-to-r from-[#2A8C68] to-[#7BC8A4] py-2 text-center rounded-t-lg">
                 <span className="text-white text-sm font-semibold">Seu Plano Atual</span>
               </div>
             )}
             
-            <CardHeader className={`pb-4 ${currentPlan === 'basic' ? 'pt-12' : 'pt-6'}`}>
+            <CardHeader className={`pb-4 ${currentPlan === 'basic' ? 'pt-14' : 'pt-6'}`}>
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-teal-500/20 flex items-center justify-center">
                   <Gem className="w-6 h-6 text-emerald-600" />
@@ -241,7 +241,7 @@ export default function Conta() {
             )}
             
             {currentPlan === 'premium' && (
-              <div className="absolute top-0 left-0 right-0 bg-gradient-to-r from-violet-600 to-purple-600 py-2 text-center">
+              <div className="absolute top-0 left-0 right-0 bg-gradient-to-r from-violet-600 to-purple-600 py-2 text-center rounded-t-lg">
                 <span className="text-white text-sm font-semibold flex items-center justify-center gap-2">
                   <Crown className="w-4 h-4" />
                   Seu Plano Atual
@@ -249,7 +249,7 @@ export default function Conta() {
               </div>
             )}
             
-            <CardHeader className={`pb-4 ${currentPlan === 'premium' ? 'pt-12' : 'pt-6'}`}>
+            <CardHeader className={`pb-4 ${currentPlan === 'premium' ? 'pt-14' : 'pt-6'}`}>
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-500/20 to-purple-500/20 flex items-center justify-center">
                   <Crown className="w-6 h-6 text-violet-600" />
