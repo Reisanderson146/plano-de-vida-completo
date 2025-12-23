@@ -45,17 +45,31 @@ export default function Auth() {
     // Handle recovery flow - check for type=recovery or hash params from Supabase
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
     const hashType = hashParams.get('type');
+    const hashAccessToken = hashParams.get('access_token');
 
     const isRecoveryFlow = type === 'recovery' || hashType === 'recovery';
 
+    // If we detect recovery flow immediately, set state right away
     if (isRecoveryFlow) {
-      // Listen for the PASSWORD_RECOVERY event
-      const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      // If there's an access token in the hash, Supabase will create a session
+      // We need to wait for that and then show the password reset form
+      if (hashAccessToken) {
+        // Supabase will process the token and create a session
+        setIsPasswordRecovery(true);
+      }
+
+      // Listen for auth events
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+        console.log('Auth event during recovery:', event);
         if (event === 'PASSWORD_RECOVERY') {
           setIsPasswordRecovery(true);
         }
-        // Some clients may emit SIGNED_IN during recovery
-        if (event === 'SIGNED_IN') {
+        // Handle SIGNED_IN event during recovery (some Supabase versions emit this)
+        if (event === 'SIGNED_IN' && session) {
+          setIsPasswordRecovery(true);
+        }
+        // Handle initial session event
+        if (event === 'INITIAL_SESSION' && session && isRecoveryFlow) {
           setIsPasswordRecovery(true);
         }
       });
