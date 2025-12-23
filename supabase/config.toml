@@ -23,3 +23,21 @@ verify_jwt = true
 
 [functions.send-welcome-email]
 verify_jwt = true
+
+[functions.cancel-subscription]
+verify_jwt = true
+
+[functions.pause-subscription]
+verify_jwt = true
+
+[functions.list-payments]
+verify_jwt = true
+
+[functions.admin-update-subscription]
+verify_jwt = true
+
+[functions.subscription-expiry-reminder]
+verify_jwt = false
+
+[functions.send-bulk-welcome-email]
+verify_jwt = false
