@@ -42,7 +42,7 @@ export function ProgressChart({ data }: ProgressChartProps) {
   };
 
   return (
-    <div className="w-full h-[250px] sm:h-[350px] lg:h-[400px]">
+    <div className="w-full h-[250px] sm:h-[350px] lg:h-[400px] pb-2">
       <ResponsiveContainer width="100%" height="100%">
         <RadarChart cx="50%" cy="50%" outerRadius="70%" data={chartData}>
           <PolarGrid stroke="hsl(var(--border))" />
@@ -77,7 +77,7 @@ export function ProgressChart({ data }: ProgressChartProps) {
       </ResponsiveContainer>
       
       {/* Legend with area colors */}
-      <div className="flex flex-wrap justify-center gap-2 sm:gap-4 mt-2 px-2">
+      <div className="flex flex-wrap justify-center gap-2 sm:gap-4 mt-4 sm:mt-6 px-2">
         {LIFE_AREAS.map((area) => (
           <div key={area.id} className="flex items-center gap-1.5">
             <div 

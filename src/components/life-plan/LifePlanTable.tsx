@@ -293,10 +293,10 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, on
           <div 
             key={goal.id} 
             className={cn(
-              "p-4 rounded-xl border transition-all duration-200",
+              "p-4 rounded-xl border transition-all duration-200 cursor-pointer",
               goal.is_completed 
-                ? "bg-success/10 border-success/30" 
-                : "bg-card border-border/50 hover:border-border hover:shadow-sm",
+                ? "bg-success/10 border-success/30 hover:-translate-y-1 hover:shadow-lg hover:shadow-success/20" 
+                : "bg-card border-border/50 hover:border-border hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/10",
               shakingGoalId === goal.id && "animate-shake"
             )}
           >
@@ -400,7 +400,7 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, on
       <div className="p-4 space-y-3">
         {/* Area Header Card */}
         <div 
-          className="p-4 rounded-2xl"
+          className="p-4 rounded-2xl transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
           style={{ backgroundColor: `${areaColor}15` }}
         >
           <div className="flex items-center justify-between mb-3">
@@ -445,10 +445,10 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, on
             <div 
               key={goal.id} 
               className={cn(
-                "p-4 rounded-xl border transition-all duration-200",
+                "p-4 rounded-xl border transition-all duration-200 cursor-pointer",
                 goal.is_completed 
-                  ? "bg-success/10 border-success/30" 
-                  : "bg-card border-border/50 hover:border-border",
+                  ? "bg-success/10 border-success/30 hover:-translate-y-1 hover:shadow-lg hover:shadow-success/20" 
+                  : "bg-card border-border/50 hover:border-border hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/10",
                 shakingGoalId === goal.id && "animate-shake"
               )}
             >
