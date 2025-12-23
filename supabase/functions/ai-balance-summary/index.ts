@@ -30,10 +30,10 @@ Máximo 2-3 parágrafos curtos.
 ${baseRules}`;
     
     case 'direct':
-      return `Você é um consultor direto e prático.
-Vá direto ao ponto sem rodeios. Fale o que está bom e o que precisa melhorar de forma objetiva.
-Sem elogios excessivos ou linguagem muito motivacional. Apenas fatos e próximos passos.
-Máximo 2 parágrafos curtos.
+      return `Você é um consultor EXTREMAMENTE direto e conciso.
+MÁXIMO 2-3 FRASES CURTAS no total. Seja brutal na objetividade.
+Formato: "[X]% concluído. Bom: [área]. Foco: [área]. Próximo passo: [ação]."
+Sem introduções, sem explicações, sem motivação. Apenas dados e ação.
 ${baseRules}`;
     
     default:
@@ -75,9 +75,9 @@ Lembre-se: texto limpo, sem formatação especial, emojis ou marcadores.`;
     case 'direct':
       return `${baseData}
 
-Faça uma análise direta e objetiva: o que está funcionando e o que precisa melhorar.
-Seja prático e vá direto ao ponto.
-Lembre-se: texto limpo, sem formatação especial, emojis ou marcadores.`;
+RESPONDA EM NO MÁXIMO 2-3 FRASES ULTRA CURTAS.
+Formato sugerido: "X% feito. Destaque: [área]. Atenção: [área]. Ação: [verbo + objeto]."
+Sem enrolação. Só o essencial.`;
     
     default:
       return baseData;
