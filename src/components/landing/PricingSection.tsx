@@ -18,13 +18,26 @@ interface Benefit {
   highlight?: boolean;
 }
 
-const allBenefits: Benefit[] = [
+// Benefits for Basic plan
+const basicBenefits: Benefit[] = [
   { text: "1 Plano Individual", icon: User, includedInBasic: true },
   { text: "Planejamento das 7 áreas da vida", icon: Target, includedInBasic: true },
   { text: "Seus dados seguros na nuvem", icon: Shield, includedInBasic: true },
   { text: "Exportação profissional em PDF", icon: Zap, includedInBasic: true },
   { text: "1 Plano Familiar", icon: Users, includedInBasic: false },
   { text: "3 Planos para Filhos", icon: Baby, includedInBasic: false },
+  { text: "Resumo inteligente com IA", icon: Sparkles, includedInBasic: false, highlight: true },
+  { text: "Relatórios e gráficos de progresso", icon: Check, includedInBasic: false },
+  { text: "Lembretes por email", icon: Heart, includedInBasic: false },
+];
+
+// Benefits for Premium plan (without individual plan)
+const premiumBenefits: Benefit[] = [
+  { text: "1 Plano Familiar", icon: Users, includedInBasic: false },
+  { text: "3 Planos para Filhos", icon: Baby, includedInBasic: false },
+  { text: "Planejamento das 7 áreas da vida", icon: Target, includedInBasic: true },
+  { text: "Seus dados seguros na nuvem", icon: Shield, includedInBasic: true },
+  { text: "Exportação profissional em PDF", icon: Zap, includedInBasic: true },
   { text: "Resumo inteligente com IA", icon: Sparkles, includedInBasic: false, highlight: true },
   { text: "Relatórios e gráficos de progresso", icon: Check, includedInBasic: false },
   { text: "Lembretes por email", icon: Heart, includedInBasic: false },
@@ -127,7 +140,7 @@ const PricingSection = ({ onCheckout, onLogin, loading }: PricingSectionProps) =
                   <CardContent className="relative space-y-6 pb-8">
                     {/* Benefits List */}
                     <ul className="space-y-3">
-                      {allBenefits.map((benefit, index) => (
+                      {basicBenefits.map((benefit, index) => (
                         <li key={index} className="flex items-center gap-3">
                           <div className={cn(
                             "w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0",
@@ -219,7 +232,7 @@ const PricingSection = ({ onCheckout, onLogin, loading }: PricingSectionProps) =
                   <CardContent className="relative space-y-6 pb-8">
                     {/* Benefits List */}
                     <ul className="space-y-3">
-                      {allBenefits.map((benefit, index) => (
+                      {premiumBenefits.map((benefit, index) => (
                         <li 
                           key={index} 
                           className={cn(
