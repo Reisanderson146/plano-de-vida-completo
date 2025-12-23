@@ -386,82 +386,106 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, on
     const AreaIcon = AREA_ICONS[areaId as LifeArea];
     
     return (
-      <div className="p-4" style={{ backgroundColor: `${areaColor}08` }}>
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2.5">
-            <div 
-              className="w-8 h-8 rounded-lg flex items-center justify-center shadow-sm" 
-              style={{ backgroundColor: areaColor }}
-            >
-              <AreaIcon className="w-4 h-4 text-white" />
+      <div className="p-4 space-y-3">
+        {/* Area Header Card */}
+        <div 
+          className="p-4 rounded-2xl"
+          style={{ backgroundColor: `${areaColor}15` }}
+        >
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-3">
+              <div 
+                className="w-12 h-12 rounded-xl flex items-center justify-center shadow-md" 
+                style={{ backgroundColor: areaColor }}
+              >
+                <AreaIcon className="w-6 h-6 text-white" />
+              </div>
+              <span className="text-base font-bold text-foreground">{getAreaLabel(areaId)}</span>
             </div>
-            <span className="text-sm font-semibold text-foreground">{getAreaLabel(areaId)}</span>
+            {progress && (
+              <span 
+                className="text-sm font-bold px-3 py-1 rounded-lg text-white"
+                style={{ backgroundColor: areaColor }}
+              >
+                {progress.percent}%
+              </span>
+            )}
           </div>
+          
           {progress && (
-            <span 
-              className="text-xs font-bold px-2 py-0.5 rounded-full text-white"
-              style={{ backgroundColor: areaColor }}
-            >
-              {progress.percent}%
-            </span>
+            <div>
+              <p className="text-sm text-muted-foreground mb-2">{progress.completed}/{progress.total} metas</p>
+              <div className="w-full h-2.5 bg-background/80 rounded-full overflow-hidden">
+                <div 
+                  className="h-full transition-all duration-500 rounded-full" 
+                  style={{ 
+                    width: `${progress.percent}%`, 
+                    backgroundColor: areaColor
+                  }}
+                />
+              </div>
+            </div>
           )}
         </div>
-        
-        {progress && (
-          <div className="mb-3">
-            <div className="w-full h-2 bg-background/60 rounded-full overflow-hidden">
-              <div 
-                className="h-full transition-all duration-500 rounded-full" 
-                style={{ 
-                  width: `${progress.percent}%`, 
-                  backgroundColor: areaColor
-                }}
-              />
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">{progress.completed}/{progress.total} metas</p>
-          </div>
-        )}
 
+        {/* Goal Cards */}
         <div className="space-y-2">
           {goalsWithText.map((goal, index) => (
             <div 
               key={goal.id} 
               className={cn(
-                "flex items-start gap-2 p-2 rounded-lg hover:bg-background/60 transition-colors group",
+                "p-4 rounded-xl border transition-all duration-200",
+                goal.is_completed 
+                  ? "bg-success/10 border-success/30" 
+                  : "bg-card border-border/50 hover:border-border",
                 shakingGoalId === goal.id && "animate-shake"
               )}
             >
-              <Checkbox 
-                checked={goal.is_completed} 
-                onCheckedChange={() => handleToggleComplete(goal)} 
-                className="mt-0.5 h-5 w-5 transition-transform hover:scale-110"
-              />
-              <div className="flex-1 min-w-0">
-                <p className={cn(
-                  "text-sm text-foreground",
-                  goal.is_completed && "line-through opacity-60"
-                )}>
-                  <span className="font-medium text-muted-foreground">{index + 1}º </span>
-                  {goal.goal_text}
-                </p>
+              <div className="flex items-start gap-3">
+                <Checkbox 
+                  checked={goal.is_completed} 
+                  onCheckedChange={() => handleToggleComplete(goal)} 
+                  className="mt-0.5 h-5 w-5 rounded-md transition-transform hover:scale-110"
+                  style={{ 
+                    borderColor: goal.is_completed ? 'hsl(var(--success))' : areaColor,
+                  }}
+                />
+                <div className="flex-1 min-w-0">
+                  <p className={cn(
+                    "text-sm leading-relaxed",
+                    goal.is_completed 
+                      ? "line-through text-muted-foreground" 
+                      : "text-foreground"
+                  )}>
+                    <span 
+                      className="font-semibold"
+                      style={{ color: goal.is_completed ? 'hsl(var(--muted-foreground))' : areaColor }}
+                    >
+                      {index + 1}º{' '}
+                    </span>
+                    {goal.goal_text}
+                  </p>
+                </div>
               </div>
               {editable && (
-                <div className="flex gap-1 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                <div className="flex gap-2 mt-3 pt-3 border-t border-border/30">
                   <Button 
-                    size="icon" 
+                    size="sm" 
                     variant="ghost" 
                     onClick={() => handleStartEdit(goal)} 
-                    className="h-7 w-7 hover:bg-primary/10 hover:text-primary transition-all duration-200 hover:scale-110"
+                    className="flex-1 h-8 text-xs hover:bg-primary/10 hover:text-primary"
                   >
-                    <Pencil className="w-3 h-3" />
+                    <Pencil className="w-3 h-3 mr-1.5" />
+                    Editar
                   </Button>
                   <Button 
-                    size="icon" 
+                    size="sm" 
                     variant="ghost" 
                     onClick={() => onDeleteGoal(goal.id)} 
-                    className="h-7 w-7 hover:bg-destructive/10 hover:text-destructive transition-all duration-200 hover:scale-110"
+                    className="flex-1 h-8 text-xs hover:bg-destructive/10 hover:text-destructive"
                   >
-                    <Trash2 className="w-3 h-3" />
+                    <Trash2 className="w-3 h-3 mr-1.5" />
+                    Excluir
                   </Button>
                 </div>
               )}
@@ -469,17 +493,20 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, on
           ))}
           
           {goalsWithText.length === 0 && !editable && (
-            <p className="text-sm italic text-muted-foreground py-2">Sem metas definidas</p>
+            <div className="p-4 rounded-xl border border-dashed border-border/50 text-center">
+              <p className="text-sm italic text-muted-foreground">Sem metas definidas</p>
+            </div>
           )}
           
           {editable && (
             <Button 
-              variant="ghost" 
-              size="sm" 
-              className="w-full text-muted-foreground h-9 text-xs border border-dashed border-muted-foreground/30 hover:border-primary/50 hover:text-primary hover:bg-primary/5 transition-all duration-200 rounded-lg mt-1" 
+              variant="outline" 
+              size="lg" 
+              className="w-full h-12 text-sm font-medium border-2 border-dashed border-muted-foreground/30 hover:border-primary/50 hover:text-primary hover:bg-primary/5 transition-all duration-200 rounded-xl" 
               onClick={() => { setAddGoalDialog({ year: period.year, age: period.age, area: areaId }); setNewGoalText(''); }}
             >
-              <Plus className="w-3.5 h-3.5 mr-1.5" />Adicionar meta
+              <Plus className="w-4 h-4 mr-2" />
+              Adicionar meta
             </Button>
           )}
         </div>
