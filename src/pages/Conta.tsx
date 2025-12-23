@@ -25,9 +25,8 @@ const basicBenefits = [
 ];
 
 const premiumBenefits = [
-  { icon: User, text: '1 Plano Individual' },
   { icon: Users, text: '1 Plano Familiar' },
-  { icon: Baby, text: '2 Planos para Filhos' },
+  { icon: Baby, text: '3 Planos para Filhos' },
   { icon: Sparkles, text: 'Resumo com IA', highlight: true },
   { icon: Shield, text: 'Dados seguros na nuvem' },
   { icon: Target, text: 'Relatórios de progresso' },
@@ -147,12 +146,15 @@ export default function Conta() {
               : 'border-border/50 hover:border-border'
           }`}>
             {currentPlan === 'basic' && (
-              <div className="absolute top-0 left-0 right-0 bg-gradient-to-r from-[#2A8C68] to-[#7BC8A4] py-2 text-center rounded-t-lg">
-                <span className="text-white text-sm font-semibold">Seu Plano Atual</span>
+              <div className="absolute top-3 right-3 z-10">
+                <Badge className="bg-primary text-primary-foreground border-0 shadow-lg">
+                  <BadgeCheck className="w-3.5 h-3.5 mr-1" />
+                  Seu Plano Atual
+                </Badge>
               </div>
             )}
             
-            <CardHeader className={`pb-4 ${currentPlan === 'basic' ? 'pt-14' : 'pt-6'}`}>
+            <CardHeader className="pb-4 pt-6">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-teal-500/20 flex items-center justify-center">
                   <Gem className="w-6 h-6 text-emerald-600" />
@@ -241,15 +243,15 @@ export default function Conta() {
             )}
             
             {currentPlan === 'premium' && (
-              <div className="absolute top-0 left-0 right-0 bg-gradient-to-r from-violet-600 to-purple-600 py-2 text-center rounded-t-lg">
-                <span className="text-white text-sm font-semibold flex items-center justify-center gap-2">
-                  <Crown className="w-4 h-4" />
+              <div className="absolute top-3 right-3 z-10">
+                <Badge className="bg-primary text-primary-foreground border-0 shadow-lg">
+                  <Crown className="w-3.5 h-3.5 mr-1" />
                   Seu Plano Atual
-                </span>
+                </Badge>
               </div>
             )}
             
-            <CardHeader className={`pb-4 ${currentPlan === 'premium' ? 'pt-14' : 'pt-6'}`}>
+            <CardHeader className="pb-4 pt-6">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-500/20 to-purple-500/20 flex items-center justify-center">
                   <Crown className="w-6 h-6 text-violet-600" />
