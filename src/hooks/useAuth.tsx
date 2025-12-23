@@ -99,8 +99,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signUp = async (email: string, password: string, fullName: string) => {
-    // Use a public callback route so email confirmation never lands on a protected page
-    const redirectUrl = `${window.location.origin}/auth/callback`;
+    // Redirect to a public route that already exists in production
+    const redirectUrl = `${window.location.origin}/auth`;
     const { error } = await supabase.auth.signUp({
       email,
       password,
