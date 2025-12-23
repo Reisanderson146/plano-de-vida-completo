@@ -20,6 +20,7 @@ import Configuracoes from "./pages/Configuracoes";
 import Conta from "./pages/Conta";
 import CheckoutSuccess from "./pages/CheckoutSuccess";
 import LandingPage from "./pages/LandingPage";
+import HistoricoMetas from "./pages/HistoricoMetas";
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import NotFound from "./pages/NotFound";
@@ -105,6 +106,7 @@ function AppRoutes() {
       <Route path="/meus-dados" element={<ProtectedRoute><MeusDados /></ProtectedRoute>} />
       <Route path="/configuracoes" element={<ProtectedRoute><Configuracoes /></ProtectedRoute>} />
       <Route path="/conta" element={<ProtectedRoute><Conta /></ProtectedRoute>} />
+      <Route path="/historico-metas" element={<ProtectedRoute><HistoricoMetas /></ProtectedRoute>} />
       
       <Route path="/perfil" element={<Navigate to="/meus-dados" replace />} />
       

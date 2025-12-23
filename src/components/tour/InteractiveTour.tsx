@@ -307,7 +307,7 @@ export function InteractiveTour({ onComplete, isOpen }: InteractiveTourProps) {
       {/* Main Tour Container */}
       <div 
         className={cn(
-          "relative z-10 w-full max-w-3xl transition-all duration-300",
+          "relative z-10 w-full max-w-md md:max-w-lg transition-all duration-300",
           isAnimating && direction === 'next' && "opacity-0 translate-x-8",
           isAnimating && direction === 'prev' && "opacity-0 -translate-x-8"
         )}
@@ -316,20 +316,20 @@ export function InteractiveTour({ onComplete, isOpen }: InteractiveTourProps) {
         <Button 
           variant="ghost" 
           size="icon" 
-          className="absolute -top-2 -right-2 md:top-4 md:right-4 h-10 w-10 rounded-full bg-background/80 backdrop-blur-sm border shadow-lg z-20 hover:bg-background"
+          className="absolute -top-2 -right-2 md:top-2 md:right-2 h-8 w-8 rounded-full bg-background/80 backdrop-blur-sm border shadow-lg z-20 hover:bg-background"
           onClick={handleSkip}
         >
-          <X className="w-5 h-5" />
+          <X className="w-4 h-4" />
         </Button>
 
         {/* Card with gradient border */}
         <div className={cn(
-          "relative rounded-3xl p-[2px] shadow-2xl",
+          "relative rounded-2xl p-[2px] shadow-2xl",
           `bg-gradient-to-br ${step.gradient}`
         )}>
-          <div className="bg-background rounded-[22px] overflow-hidden">
+          <div className="bg-background rounded-[14px] overflow-hidden">
             {/* Progress bar */}
-            <div className="h-1.5 bg-muted">
+            <div className="h-1 bg-muted">
               <div 
                 className={cn(
                   "h-full transition-all duration-500 ease-out rounded-full",
@@ -340,86 +340,83 @@ export function InteractiveTour({ onComplete, isOpen }: InteractiveTourProps) {
             </div>
 
             {/* Content */}
-            <div className="p-6 md:p-10">
+            <div className="p-4 md:p-6">
               {/* Header with Icon */}
-              <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8 mb-8">
-                {/* Large animated icon */}
+              <div className="flex items-center gap-4 mb-4">
+                {/* Smaller animated icon */}
                 <div className={cn(
-                  "relative flex-shrink-0 w-24 h-24 md:w-32 md:h-32 rounded-3xl flex items-center justify-center",
+                  "relative flex-shrink-0 w-14 h-14 md:w-16 md:h-16 rounded-xl flex items-center justify-center",
                   `bg-gradient-to-br ${step.gradient}`
                 )}>
-                  <StepIcon className="w-12 h-12 md:w-16 md:h-16 text-white" />
+                  <StepIcon className="w-7 h-7 md:w-8 md:h-8 text-white" />
                   
                   {/* Pulsing ring effect */}
                   <div className={cn(
-                    "absolute inset-0 rounded-3xl animate-ping opacity-20",
+                    "absolute inset-0 rounded-xl animate-ping opacity-20",
                     `bg-gradient-to-br ${step.gradient}`
                   )} style={{ animationDuration: '2s' }} />
                   
-                  {/* Sparkle decorations */}
-                  <Sparkles className="absolute -top-2 -right-2 w-6 h-6 text-yellow-400 animate-pulse" />
-                  <Zap className="absolute -bottom-1 -left-1 w-5 h-5 text-yellow-400 animate-pulse" style={{ animationDelay: '0.5s' }} />
+                  {/* Sparkle decoration */}
+                  <Sparkles className="absolute -top-1 -right-1 w-4 h-4 text-yellow-400 animate-pulse" />
                 </div>
 
                 {/* Title and subtitle */}
-                <div className="text-center md:text-left flex-1">
+                <div className="flex-1 min-w-0">
                   <p className={cn(
-                    "text-sm font-semibold uppercase tracking-wider mb-2",
+                    "text-xs font-semibold uppercase tracking-wider mb-1",
                     `bg-gradient-to-r ${step.gradient} bg-clip-text text-transparent`
                   )}>
                     {step.subtitle}
                   </p>
-                  <h2 className="text-2xl md:text-4xl font-bold text-foreground mb-2">
+                  <h2 className="text-lg md:text-xl font-bold text-foreground leading-tight">
                     {step.title}
                   </h2>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-xs text-muted-foreground mt-0.5">
                     Passo {currentStep + 1} de {tourSteps.length}
                   </p>
                 </div>
               </div>
 
               {/* Description */}
-              <p className="text-base md:text-lg text-muted-foreground leading-relaxed mb-8 text-center md:text-left">
+              <p className="text-sm text-muted-foreground leading-relaxed mb-4">
                 {step.description}
               </p>
 
-              {/* Tips section */}
+              {/* Tips section - compact */}
               {step.tips && (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-8">
+                <div className="flex flex-wrap gap-2 mb-4">
                   {step.tips.map((tip, index) => (
                     <div 
                       key={index}
                       className={cn(
-                        "flex items-center gap-3 p-4 rounded-xl border bg-muted/30 transition-all hover:scale-[1.02]",
-                        "hover:shadow-md"
+                        "flex items-center gap-2 px-3 py-1.5 rounded-full border bg-muted/30 text-xs"
                       )}
-                      style={{ animationDelay: `${index * 100}ms` }}
                     >
                       <div className={cn(
-                        "w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0",
+                        "w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0",
                         `bg-gradient-to-br ${step.gradient}`
                       )}>
-                        <Heart className="w-4 h-4 text-white" />
+                        <Heart className="w-2 h-2 text-white" />
                       </div>
-                      <span className="text-sm font-medium text-foreground">{tip}</span>
+                      <span className="font-medium text-foreground">{tip}</span>
                     </div>
                   ))}
                 </div>
               )}
 
               {/* Step indicators */}
-              <div className="flex justify-center gap-2 mb-8">
+              <div className="flex justify-center gap-1.5 mb-4">
                 {tourSteps.map((s, index) => (
                   <button
                     key={index}
                     onClick={() => goToStep(index)}
                     className={cn(
-                      "h-2.5 rounded-full transition-all duration-300 hover:opacity-80",
+                      "h-2 rounded-full transition-all duration-300 hover:opacity-80",
                       index === currentStep 
-                        ? `w-10 bg-gradient-to-r ${step.gradient}` 
+                        ? `w-6 bg-gradient-to-r ${step.gradient}` 
                         : index < currentStep 
-                          ? 'w-2.5 bg-primary/60' 
-                          : 'w-2.5 bg-muted-foreground/30'
+                          ? 'w-2 bg-primary/60' 
+                          : 'w-2 bg-muted-foreground/30'
                     )}
                     aria-label={`Ir para passo ${index + 1}`}
                   />
@@ -427,43 +424,43 @@ export function InteractiveTour({ onComplete, isOpen }: InteractiveTourProps) {
               </div>
 
               {/* Navigation buttons */}
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="flex items-center justify-between gap-3">
                 <Button
                   variant="ghost"
+                  size="sm"
                   onClick={handleSkip}
-                  className="text-muted-foreground hover:text-foreground order-3 sm:order-1"
+                  className="text-muted-foreground hover:text-foreground text-xs"
                 >
-                  Pular tour
+                  Pular
                 </Button>
                 
-                <div className="flex items-center gap-3 order-1 sm:order-2 w-full sm:w-auto">
+                <div className="flex items-center gap-2">
                   <Button
                     variant="outline"
-                    size="lg"
+                    size="sm"
                     onClick={handlePrevious}
                     disabled={currentStep === 0}
-                    className="gap-2 flex-1 sm:flex-initial"
+                    className="gap-1 h-8"
                   >
-                    <ChevronLeft className="w-5 h-5" />
-                    <span className="hidden sm:inline">Anterior</span>
+                    <ChevronLeft className="w-4 h-4" />
                   </Button>
                   <Button
-                    size="lg"
+                    size="sm"
                     onClick={handleNext}
                     className={cn(
-                      "gap-2 flex-1 sm:flex-initial text-white shadow-lg transition-all hover:scale-105",
+                      "gap-1.5 h-8 text-white shadow-lg transition-all hover:scale-105",
                       `bg-gradient-to-r ${step.gradient} hover:opacity-90`
                     )}
                   >
                     {isLastStep ? (
                       <>
-                        <Rocket className="w-5 h-5" />
-                        Começar Agora!
+                        <Rocket className="w-4 h-4" />
+                        Começar!
                       </>
                     ) : (
                       <>
                         Próximo
-                        <ChevronRight className="w-5 h-5" />
+                        <ChevronRight className="w-4 h-4" />
                       </>
                     )}
                   </Button>
