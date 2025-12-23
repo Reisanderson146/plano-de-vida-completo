@@ -24,9 +24,15 @@ export function MonthlyEvolutionChart({ selectedPlanId, refreshKey }: MonthlyEvo
   const { user } = useAuth();
   const [data, setData] = useState<MonthlyData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   useEffect(() => {
     if (user && selectedPlanId) {
+      // Show update animation only on refresh (not initial load)
+      if (refreshKey && refreshKey > 0) {
+        setIsUpdating(true);
+        setTimeout(() => setIsUpdating(false), 600);
+      }
       fetchMonthlyData();
     }
   }, [user, selectedPlanId, refreshKey]);
@@ -115,11 +121,11 @@ export function MonthlyEvolutionChart({ selectedPlanId, refreshKey }: MonthlyEvo
   };
 
   return (
-    <Card className="border-border/40">
+    <Card className={`border-border/40 transition-all duration-300 ${isUpdating ? 'ring-2 ring-primary/50 scale-[1.02]' : ''}`}>
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg flex items-center gap-2">
-            <TrendingUp className="w-5 h-5 text-primary" />
+            <TrendingUp className={`w-5 h-5 text-primary transition-transform duration-300 ${isUpdating ? 'scale-125' : ''}`} />
             Evolução Mensal
           </CardTitle>
           {hasData && (
@@ -148,57 +154,61 @@ export function MonthlyEvolutionChart({ selectedPlanId, refreshKey }: MonthlyEvo
             </p>
           </div>
         ) : (
-          <ResponsiveContainer width="100%" height={200}>
-            <AreaChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-              <defs>
-                <linearGradient id="colorCompleted" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.4} />
-                  <stop offset="50%" stopColor="hsl(var(--primary))" stopOpacity={0.15} />
-                  <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid 
-                strokeDasharray="3 3" 
-                vertical={false}
-                stroke="hsl(var(--border))"
-                strokeOpacity={0.5}
-              />
-              <XAxis 
-                dataKey="month" 
-                axisLine={false}
-                tickLine={false}
-                tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
-                tickMargin={8}
-              />
-              <YAxis 
-                axisLine={false}
-                tickLine={false}
-                tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
-                allowDecimals={false}
-                tickMargin={8}
-              />
-              <Tooltip content={<CustomTooltip />} />
-              <Area
-                type="monotone"
-                dataKey="completed"
-                stroke="hsl(var(--primary))"
-                strokeWidth={2.5}
-                fill="url(#colorCompleted)"
-                dot={{ 
-                  fill: 'hsl(var(--primary))', 
-                  strokeWidth: 2,
-                  stroke: 'hsl(var(--background))',
-                  r: 4
-                }}
-                activeDot={{ 
-                  r: 6, 
-                  fill: 'hsl(var(--primary))',
-                  stroke: 'hsl(var(--background))',
-                  strokeWidth: 2
-                }}
-              />
-            </AreaChart>
-          </ResponsiveContainer>
+          <div className={`transition-all duration-500 ${isUpdating ? 'opacity-70 scale-[0.98]' : 'opacity-100 scale-100'}`}>
+            <ResponsiveContainer width="100%" height={200}>
+              <AreaChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="colorCompleted" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.4} />
+                    <stop offset="50%" stopColor="hsl(var(--primary))" stopOpacity={0.15} />
+                    <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid 
+                  strokeDasharray="3 3" 
+                  vertical={false}
+                  stroke="hsl(var(--border))"
+                  strokeOpacity={0.5}
+                />
+                <XAxis 
+                  dataKey="month" 
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
+                  tickMargin={8}
+                />
+                <YAxis 
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
+                  allowDecimals={false}
+                  tickMargin={8}
+                />
+                <Tooltip content={<CustomTooltip />} />
+                <Area
+                  type="monotone"
+                  dataKey="completed"
+                  stroke="hsl(var(--primary))"
+                  strokeWidth={2.5}
+                  fill="url(#colorCompleted)"
+                  animationDuration={800}
+                  animationEasing="ease-out"
+                  dot={{ 
+                    fill: 'hsl(var(--primary))', 
+                    strokeWidth: 2,
+                    stroke: 'hsl(var(--background))',
+                    r: 4
+                  }}
+                  activeDot={{ 
+                    r: 6, 
+                    fill: 'hsl(var(--primary))',
+                    stroke: 'hsl(var(--background))',
+                    strokeWidth: 2
+                  }}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
         )}
       </CardContent>
     </Card>
