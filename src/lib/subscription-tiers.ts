@@ -29,9 +29,9 @@ export const SUBSCRIPTION_TIERS = {
     priceId: 'PRICE_ID_PREMIUM_AQUI',
     productId: 'PRODUCT_ID_PREMIUM_AQUI',
     limits: {
-      individual: 1,
+      individual: 0,
       familiar: 1,
-      filho: 2,
+      filho: 3,
       total: 4,
     },
     features: {
