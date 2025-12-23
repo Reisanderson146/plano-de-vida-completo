@@ -92,12 +92,12 @@ const PricingSection = ({ onCheckout, onLogin, loading }: PricingSectionProps) =
           {/* Cards Container */}
           <div className="overflow-hidden">
             <div 
-              className="flex transition-transform duration-500 ease-out"
+              className="flex transition-transform duration-500 ease-out items-stretch"
               style={{ transform: `translateX(-${activeCard * 100}%)` }}
             >
               {/* Basic Plan */}
-              <div className="w-full flex-shrink-0 px-2">
-                <Card className="relative overflow-hidden border-2 border-primary/20 bg-card/80 backdrop-blur-sm shadow-xl transition-all duration-300 hover:border-primary/40 hover:shadow-2xl">
+              <div className="w-full flex-shrink-0 px-2 flex">
+                <Card className="relative overflow-hidden border-2 border-primary/20 bg-card/80 backdrop-blur-sm shadow-xl transition-all duration-300 hover:border-primary/40 hover:shadow-2xl w-full flex flex-col">
                   {/* Glow Effect */}
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-emerald-500/5" />
 
@@ -122,7 +122,7 @@ const PricingSection = ({ onCheckout, onLogin, loading }: PricingSectionProps) =
                     <p className="text-xs text-muted-foreground mt-2">1 plano individual</p>
                   </CardHeader>
 
-                  <CardContent className="relative space-y-6 pb-8">
+                  <CardContent className="relative space-y-6 pb-8 flex-1 flex flex-col justify-between">
                     {/* Benefits List */}
                     <ul className="space-y-3">
                       {basicBenefits.map((benefit, index) => (
@@ -161,8 +161,8 @@ const PricingSection = ({ onCheckout, onLogin, loading }: PricingSectionProps) =
               </div>
 
               {/* Premium Plan */}
-              <div className="w-full flex-shrink-0 px-2">
-                <Card className="relative overflow-hidden border-2 border-violet-500/40 bg-card/80 backdrop-blur-sm shadow-2xl shadow-violet-500/10 transition-all duration-300 hover:border-violet-500/60 hover:shadow-violet-500/20">
+              <div className="w-full flex-shrink-0 px-2 flex">
+                <Card className="relative overflow-hidden border-2 border-violet-500/40 bg-card/80 backdrop-blur-sm shadow-2xl shadow-violet-500/10 transition-all duration-300 hover:border-violet-500/60 hover:shadow-violet-500/20 w-full flex flex-col">
                   {/* Glow Effect */}
                   <div className="absolute inset-0 bg-gradient-to-br from-violet-500/10 via-transparent to-purple-500/10" />
                   
@@ -198,7 +198,7 @@ const PricingSection = ({ onCheckout, onLogin, loading }: PricingSectionProps) =
                     </div>
                   </CardHeader>
 
-                  <CardContent className="relative space-y-6 pb-8">
+                  <CardContent className="relative space-y-6 pb-8 flex-1 flex flex-col justify-between">
                     {/* Benefits List */}
                     <ul className="space-y-3">
                       {premiumBenefits.map((benefit, index) => (
