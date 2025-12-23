@@ -58,45 +58,86 @@ export function AreaCard({ area, label, total, completed, customColor }: AreaCar
   const styles = useMemo(() => {
     const hsl = hexToHsl(colorHex);
     return {
-      gradient: `linear-gradient(135deg, hsla(${hsl.h}, ${hsl.s}%, ${hsl.l}%, 0.2), hsla(${hsl.h}, ${hsl.s}%, ${Math.min(hsl.l + 10, 100)}%, 0.1))`,
+      gradient: `linear-gradient(135deg, hsla(${hsl.h}, ${hsl.s}%, ${hsl.l}%, 0.15), hsla(${hsl.h}, ${hsl.s}%, ${Math.min(hsl.l + 10, 100)}%, 0.05))`,
+      hoverGradient: `linear-gradient(135deg, hsla(${hsl.h}, ${hsl.s}%, ${hsl.l}%, 0.25), hsla(${hsl.h}, ${hsl.s}%, ${Math.min(hsl.l + 10, 100)}%, 0.12))`,
       iconBg: `hsla(${hsl.h}, ${hsl.s}%, ${hsl.l}%, 0.2)`,
       iconColor: `hsl(${hsl.h}, ${hsl.s}%, ${Math.max(hsl.l - 15, 30)}%)`,
       barGradient: `linear-gradient(90deg, ${colorHex}, hsl(${hsl.h}, ${hsl.s}%, ${Math.min(hsl.l + 15, 85)}%))`,
+      glowColor: `hsla(${hsl.h}, ${hsl.s}%, ${hsl.l}%, 0.4)`,
+      borderColor: `hsla(${hsl.h}, ${hsl.s}%, ${hsl.l}%, 0.3)`,
     };
   }, [colorHex]);
 
   return (
     <div 
       className={cn(
-        "relative rounded-2xl p-4 sm:p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-card-hover min-w-[140px] sm:min-w-0",
+        "relative rounded-2xl p-4 sm:p-5 min-w-[140px] sm:min-w-0",
         "border border-border/40",
-        "group overflow-hidden"
+        "group overflow-hidden cursor-pointer",
+        "transition-all duration-300 ease-out",
+        "hover:-translate-y-1.5 hover:scale-[1.02]"
       )}
-      style={{ background: styles.gradient }}
+      style={{ 
+        background: styles.gradient,
+        '--hover-glow': styles.glowColor,
+        '--hover-border': styles.borderColor,
+      } as React.CSSProperties}
     >
+      {/* Hover glow effect */}
+      <div 
+        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"
+        style={{ 
+          background: styles.hoverGradient,
+          boxShadow: `0 8px 30px -8px ${styles.glowColor}`,
+        }}
+      />
+      
+      {/* Hover border glow */}
+      <div 
+        className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+        style={{ 
+          border: `1px solid ${styles.borderColor}`,
+        }}
+      />
+
       <div className="relative z-10">
         <div 
-          className="w-11 h-11 rounded-xl flex items-center justify-center mb-3"
+          className="w-11 h-11 rounded-xl flex items-center justify-center mb-3 transition-transform duration-300 group-hover:scale-110"
           style={{ backgroundColor: styles.iconBg }}
         >
-          <Icon className="w-5 h-5" strokeWidth={1.75} style={{ color: styles.iconColor }} />
+          <Icon 
+            className="w-5 h-5 transition-all duration-300 group-hover:scale-110" 
+            strokeWidth={1.75} 
+            style={{ color: styles.iconColor }} 
+          />
         </div>
 
-        <h3 className="font-semibold text-foreground text-sm mb-1 truncate">{label}</h3>
+        <h3 className="font-semibold text-foreground text-sm mb-1 truncate transition-colors duration-300">
+          {label}
+        </h3>
 
         <div className="flex items-baseline gap-1.5 mb-3">
-          <span className="text-2xl font-bold text-foreground">{percentage}%</span>
-          {isComplete && <CheckCircle2 className="w-4 h-4 text-success" />}
+          <span className="text-2xl font-bold text-foreground transition-transform duration-300 group-hover:scale-105">
+            {percentage}%
+          </span>
+          {isComplete && (
+            <CheckCircle2 className="w-4 h-4 text-success transition-transform duration-300 group-hover:scale-125" />
+          )}
         </div>
 
         <div className="h-2.5 bg-muted/40 rounded-full overflow-hidden shadow-inner">
           <div
-            className="h-full rounded-full transition-all duration-700 ease-out"
-            style={{ width: `${percentage}%`, background: styles.barGradient }}
+            className="h-full rounded-full transition-all duration-700 ease-out group-hover:shadow-lg"
+            style={{ 
+              width: `${percentage}%`, 
+              background: styles.barGradient,
+            }}
           />
         </div>
 
-        <p className="text-xs text-muted-foreground mt-2">{completed}/{total} metas</p>
+        <p className="text-xs text-muted-foreground mt-2 transition-colors duration-300 group-hover:text-foreground/70">
+          {completed}/{total} metas
+        </p>
       </div>
     </div>
   );
