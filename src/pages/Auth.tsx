@@ -64,23 +64,10 @@ export default function Auth() {
     // Don't redirect if in password recovery mode
     if (isPasswordRecovery) return;
     
-    const checkSubscriptionAndRedirect = async () => {
-      if (!user) return;
-      
-      const { data } = await supabase
-        .from('profiles')
-        .select('subscription_status')
-        .eq('id', user.id)
-        .maybeSingle();
-      
-      if (data?.subscription_status === 'active') {
-        navigate('/');
-      } else {
-        navigate('/assinatura');
-      }
-    };
-    
-    checkSubscriptionAndRedirect();
+    // Redirect immediately when user is authenticated
+    if (user) {
+      navigate('/');
+    }
   }, [user, navigate, isPasswordRecovery]);
 
   const handleSignIn = async (e: React.FormEvent) => {
