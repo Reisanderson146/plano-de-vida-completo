@@ -14,6 +14,37 @@ const logStep = (step: string, details?: any) => {
   console.log(`[SEND-BULK-WELCOME-EMAIL] ${step}${detailsStr}`);
 };
 
+const logEmail = async (
+  supabaseClient: any,
+  data: {
+    userId?: string;
+    recipientEmail: string;
+    recipientName?: string;
+    emailType: string;
+    subject: string;
+    status: string;
+    resendId?: string;
+    errorMessage?: string;
+    metadata?: any;
+  }
+) => {
+  try {
+    await supabaseClient.from('email_logs').insert({
+      user_id: data.userId,
+      recipient_email: data.recipientEmail,
+      recipient_name: data.recipientName,
+      email_type: data.emailType,
+      subject: data.subject,
+      status: data.status,
+      resend_id: data.resendId,
+      error_message: data.errorMessage,
+      metadata: data.metadata || {},
+    });
+  } catch (error) {
+    console.error('[SEND-BULK-WELCOME-EMAIL] Error logging email:', error);
+  }
+};
+
 const handler = async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -66,6 +97,8 @@ const handler = async (req: Request): Promise<Response> => {
             <li>📄 Exportação em PDF</li>
             <li>☁️ Dados Seguros na Nuvem</li>
           `;
+
+        const subject = `🎉 Bem-vindo ao Plano de Vida, ${userName}!`;
 
         const emailHtml = `
           <!DOCTYPE html>
@@ -147,7 +180,7 @@ const handler = async (req: Request): Promise<Response> => {
                           <table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
                             <tr>
                               <td align="center">
-                                <a href="https://planodevidaa.lovable.app/cadastro" 
+                                <a href="https://planodevida.io/cadastro" 
                                    style="display: inline-block; background: linear-gradient(135deg, #2A8C68 0%, #7BC8A4 100%); 
                                           color: #ffffff; text-decoration: none; padding: 16px 40px; 
                                           border-radius: 12px; font-weight: 600; font-size: 16px;
@@ -189,19 +222,39 @@ const handler = async (req: Request): Promise<Response> => {
           </html>
         `;
 
-        const { error: emailError } = await resend.emails.send({
-          from: "Plano de Vida <onboarding@resend.dev>",
+        const emailResponse = await resend.emails.send({
+          from: "Plano de Vida <contato@planodevida.io>",
           to: [user.email],
-          subject: `🎉 Bem-vindo ao Plano de Vida, ${userName}!`,
+          subject,
           html: emailHtml,
         });
 
-        if (emailError) {
-          logStep("Error sending email", { email: user.email, error: emailError });
-          errors.push(`${user.email}: ${emailError.message}`);
+        if (emailResponse.error) {
+          logStep("Error sending email", { email: user.email, error: emailResponse.error });
+          errors.push(`${user.email}: ${emailResponse.error.message}`);
+          
+          await logEmail(supabaseClient, {
+            userId: user.id,
+            recipientEmail: user.email,
+            recipientName: userName,
+            emailType: 'bulk_welcome',
+            subject,
+            status: 'error',
+            errorMessage: emailResponse.error.message,
+          });
         } else {
           logStep("Email sent", { email: user.email });
           emailsSent.push(user.email);
+          
+          await logEmail(supabaseClient, {
+            userId: user.id,
+            recipientEmail: user.email,
+            recipientName: userName,
+            emailType: 'bulk_welcome',
+            subject,
+            status: 'sent',
+            resendId: emailResponse.data?.id,
+          });
         }
       } catch (error) {
         logStep("Error processing user", { email: user.email, error: String(error) });
