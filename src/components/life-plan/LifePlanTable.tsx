@@ -117,24 +117,58 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, on
     setEditDialogOpen(false);
   };
 
-  // Play celebration sound
+  // Play elaborate celebration sound with multiple tones
   const playCelebrationSound = () => {
     const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
+    const masterGain = audioContext.createGain();
+    masterGain.connect(audioContext.destination);
+    masterGain.gain.setValueAtTime(0.25, audioContext.currentTime);
+
+    // Celebratory chord progression: C major arpeggio + triumphant finish
+    const notes = [
+      { freq: 523.25, time: 0, duration: 0.15, type: 'sine' as OscillatorType },      // C5
+      { freq: 659.25, time: 0.08, duration: 0.15, type: 'sine' as OscillatorType },   // E5
+      { freq: 783.99, time: 0.16, duration: 0.15, type: 'sine' as OscillatorType },   // G5
+      { freq: 1046.50, time: 0.24, duration: 0.25, type: 'sine' as OscillatorType },  // C6 (octave higher)
+      { freq: 1318.51, time: 0.35, duration: 0.3, type: 'triangle' as OscillatorType }, // E6 (triumphant note)
+    ];
+
+    notes.forEach(({ freq, time, duration, type }) => {
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      
+      oscillator.type = type;
+      oscillator.connect(gainNode);
+      gainNode.connect(masterGain);
+      
+      oscillator.frequency.setValueAtTime(freq, audioContext.currentTime + time);
+      
+      // Smooth envelope: attack, sustain, release
+      gainNode.gain.setValueAtTime(0, audioContext.currentTime + time);
+      gainNode.gain.linearRampToValueAtTime(0.4, audioContext.currentTime + time + 0.02); // Quick attack
+      gainNode.gain.setValueAtTime(0.35, audioContext.currentTime + time + duration * 0.5); // Sustain
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + time + duration); // Release
+      
+      oscillator.start(audioContext.currentTime + time);
+      oscillator.stop(audioContext.currentTime + time + duration + 0.05);
+    });
+
+    // Add a subtle sparkle/shimmer effect
+    const sparkleOsc = audioContext.createOscillator();
+    const sparkleGain = audioContext.createGain();
+    sparkleOsc.type = 'sine';
+    sparkleOsc.connect(sparkleGain);
+    sparkleGain.connect(masterGain);
     
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
+    sparkleOsc.frequency.setValueAtTime(2093, audioContext.currentTime + 0.4); // C7 - high sparkle
+    sparkleOsc.frequency.exponentialRampToValueAtTime(1568, audioContext.currentTime + 0.55); // G6
     
-    oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime); // C5
-    oscillator.frequency.setValueAtTime(659.25, audioContext.currentTime + 0.1); // E5
-    oscillator.frequency.setValueAtTime(783.99, audioContext.currentTime + 0.2); // G5
+    sparkleGain.gain.setValueAtTime(0, audioContext.currentTime + 0.4);
+    sparkleGain.gain.linearRampToValueAtTime(0.15, audioContext.currentTime + 0.42);
+    sparkleGain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.6);
     
-    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4);
-    
-    oscillator.start(audioContext.currentTime);
-    oscillator.stop(audioContext.currentTime + 0.4);
+    sparkleOsc.start(audioContext.currentTime + 0.4);
+    sparkleOsc.stop(audioContext.currentTime + 0.65);
   };
 
   const handleToggleComplete = async (goal: Goal) => {
