@@ -1,3 +1,4 @@
+import { useState, useEffect, useRef } from 'react';
 import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer, Tooltip } from 'recharts';
 import { LIFE_AREAS, LifeArea, AREA_HEX_COLORS } from '@/lib/constants';
 
@@ -18,7 +19,11 @@ const lightenColor = (hex: string | undefined, percent: number): string => {
 };
 
 export function ProgressChart({ data }: ProgressChartProps) {
-  const chartData = LIFE_AREAS.map((area) => {
+  const [animatedData, setAnimatedData] = useState<typeof chartDataInitial>([]);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const prevDataRef = useRef<string>('');
+
+  const chartDataInitial = LIFE_AREAS.map((area) => {
     const areaData = data[area.id];
     const percentage = areaData.total > 0 
       ? Math.round((areaData.completed / areaData.total) * 100) 
@@ -34,6 +39,27 @@ export function ProgressChart({ data }: ProgressChartProps) {
       color: AREA_HEX_COLORS[area.id],
     };
   });
+
+  // Animate data changes
+  useEffect(() => {
+    const dataKey = JSON.stringify(data);
+    
+    if (prevDataRef.current !== dataKey) {
+      setIsTransitioning(true);
+      
+      // Short delay for fade out effect
+      setTimeout(() => {
+        setAnimatedData(chartDataInitial);
+        setIsTransitioning(false);
+      }, 150);
+      
+      prevDataRef.current = dataKey;
+    } else if (animatedData.length === 0) {
+      setAnimatedData(chartDataInitial);
+    }
+  }, [data]);
+
+  const chartData = animatedData.length > 0 ? animatedData : chartDataInitial;
 
   // Custom tick component with colored labels
   const CustomTick = ({ payload, x, y, textAnchor, ...props }: any) => {
@@ -181,7 +207,11 @@ export function ProgressChart({ data }: ProgressChartProps) {
 
   return (
     <div className="w-full">
-      <div className="w-full h-[250px] sm:h-[320px] lg:h-[350px]">
+      <div 
+        className={`w-full h-[250px] sm:h-[320px] lg:h-[350px] transition-opacity duration-300 ${
+          isTransitioning ? 'opacity-50' : 'opacity-100'
+        }`}
+      >
         <ResponsiveContainer width="100%" height="100%">
           <RadarChart cx="50%" cy="50%" outerRadius="60%" data={chartData}>
             <PolarGrid stroke="hsl(var(--border))" />
@@ -208,8 +238,8 @@ export function ProgressChart({ data }: ProgressChartProps) {
               activeDot={<ActiveDot />}
               isAnimationActive={true}
               animationBegin={0}
-              animationDuration={800}
-              animationEasing="ease-out"
+              animationDuration={600}
+              animationEasing="ease-in-out"
             />
           </RadarChart>
         </ResponsiveContainer>
