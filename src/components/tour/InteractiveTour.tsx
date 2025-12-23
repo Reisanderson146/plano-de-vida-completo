@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
+import confetti from 'canvas-confetti';
 import { Button } from '@/components/ui/button';
 import { 
   X, 
@@ -19,6 +20,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
+import { isSoundEnabled, getSoundVolume } from '@/hooks/useSoundSettings';
 
 interface TourStep {
   id: string;
@@ -141,15 +143,108 @@ export function InteractiveTour({ onComplete, isOpen }: InteractiveTourProps) {
     }, 300);
   }, [currentStep, isAnimating]);
 
+  // Play celebration sound
+  const playCelebrationSound = () => {
+    if (!isSoundEnabled()) return;
+    
+    try {
+      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      
+      if (audioContext.state === 'suspended') {
+        audioContext.resume();
+      }
+      
+      const volume = getSoundVolume();
+      const masterGain = audioContext.createGain();
+      masterGain.connect(audioContext.destination);
+      masterGain.gain.setValueAtTime(volume * 0.4, audioContext.currentTime);
+
+      // Grand celebration fanfare
+      const fanfareNotes = [
+        { freq: 523.25, time: 0, duration: 0.15 },
+        { freq: 659.25, time: 0.1, duration: 0.15 },
+        { freq: 783.99, time: 0.2, duration: 0.15 },
+        { freq: 1046.50, time: 0.3, duration: 0.3 },
+        { freq: 1318.51, time: 0.5, duration: 0.4 },
+      ];
+
+      fanfareNotes.forEach(({ freq, time, duration }) => {
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.type = 'triangle';
+        oscillator.connect(gainNode);
+        gainNode.connect(masterGain);
+        
+        oscillator.frequency.setValueAtTime(freq, audioContext.currentTime + time);
+        
+        gainNode.gain.setValueAtTime(0, audioContext.currentTime + time);
+        gainNode.gain.linearRampToValueAtTime(0.5, audioContext.currentTime + time + 0.03);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + time + duration);
+        
+        oscillator.start(audioContext.currentTime + time);
+        oscillator.stop(audioContext.currentTime + time + duration + 0.05);
+      });
+    } catch (error) {
+      console.log('Audio not supported:', error);
+    }
+  };
+
+  // Fire celebration confetti
+  const fireCelebrationConfetti = () => {
+    const duration = 3000;
+    const animationEnd = Date.now() + duration;
+    
+    const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min;
+
+    const interval = setInterval(() => {
+      const timeLeft = animationEnd - Date.now();
+
+      if (timeLeft <= 0) {
+        return clearInterval(interval);
+      }
+
+      const particleCount = 50 * (timeLeft / duration);
+
+      // Confetti from left
+      confetti({
+        particleCount: Math.floor(particleCount),
+        startVelocity: 30,
+        spread: 60,
+        origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
+        colors: ['#8B5CF6', '#EC4899', '#F59E0B', '#10B981', '#3B82F6'],
+        disableForReducedMotion: true,
+      });
+
+      // Confetti from right
+      confetti({
+        particleCount: Math.floor(particleCount),
+        startVelocity: 30,
+        spread: 60,
+        origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
+        colors: ['#8B5CF6', '#EC4899', '#F59E0B', '#10B981', '#3B82F6'],
+        disableForReducedMotion: true,
+      });
+    }, 250);
+  };
+
   const handleComplete = () => {
     if (user?.id) {
       localStorage.setItem(`tour_completed_${user.id}`, 'true');
     }
+    
+    // Fire celebration effects
+    fireCelebrationConfetti();
+    playCelebrationSound();
+    
     onComplete();
   };
 
   const handleSkip = () => {
-    handleComplete();
+    if (user?.id) {
+      localStorage.setItem(`tour_completed_${user.id}`, 'true');
+    }
+    onComplete();
   };
 
   const goToStep = (index: number) => {
