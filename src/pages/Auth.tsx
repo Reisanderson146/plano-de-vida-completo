@@ -13,6 +13,7 @@ import { Logo } from '@/components/Logo';
 import { supabase } from '@/integrations/supabase/client';
 import loginBackground from '@/assets/login-background.png';
 import { DarkModeToggle } from '@/components/theme/DarkModeToggle';
+import confetti from 'canvas-confetti';
 
 export default function Auth() {
   const [email, setEmail] = useState('');
@@ -137,6 +138,38 @@ export default function Auth() {
       }, 400);
     }
   }, [user, navigate, isPasswordRecovery, isRedirecting, emailJustConfirmed]);
+
+  // Confetti effect when email is confirmed
+  useEffect(() => {
+    if (emailJustConfirmed) {
+      // Fire confetti from both sides
+      const duration = 2000;
+      const end = Date.now() + duration;
+
+      const frame = () => {
+        confetti({
+          particleCount: 3,
+          angle: 60,
+          spread: 55,
+          origin: { x: 0, y: 0.6 },
+          colors: ['#2A8C68', '#7BC8A4', '#A8E6CE', '#ffffff']
+        });
+        confetti({
+          particleCount: 3,
+          angle: 120,
+          spread: 55,
+          origin: { x: 1, y: 0.6 },
+          colors: ['#2A8C68', '#7BC8A4', '#A8E6CE', '#ffffff']
+        });
+
+        if (Date.now() < end) {
+          requestAnimationFrame(frame);
+        }
+      };
+
+      frame();
+    }
+  }, [emailJustConfirmed]);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
