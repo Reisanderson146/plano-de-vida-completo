@@ -56,6 +56,27 @@ export type Database = {
         }
         Relationships: []
       }
+      favorite_quotes: {
+        Row: {
+          created_at: string
+          id: string
+          quote_index: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          quote_index: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          quote_index?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       goal_reminders: {
         Row: {
           created_at: string
