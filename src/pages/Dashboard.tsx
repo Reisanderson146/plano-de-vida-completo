@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { ProgressChart } from '@/components/dashboard/ProgressChart';
 import { AreaCard } from '@/components/dashboard/AreaCard';
-import { StreakWidget } from '@/components/dashboard/StreakWidget';
 import { MotivationalQuote } from '@/components/dashboard/MotivationalQuote';
 import { PendingGoalsWidget } from '@/components/dashboard/PendingGoalsWidget';
 import { MonthlyEvolutionChart } from '@/components/dashboard/MonthlyEvolutionChart';
@@ -208,9 +207,6 @@ export default function Dashboard() {
         {/* Motivational Quote */}
         <MotivationalQuote />
 
-        {/* Streak Widget */}
-        <StreakWidget />
-
         {/* Filters */}
         <div className="flex flex-col sm:flex-row gap-3 opacity-0 animate-stagger-1">
           <Select value={selectedPlanId} onValueChange={handlePlanChange}>
@@ -263,12 +259,6 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* Two column layout for widgets */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <PendingGoalsWidget selectedPlanId={selectedPlanId} />
-          <MonthlyEvolutionChart selectedPlanId={selectedPlanId} />
-        </div>
-
         {/* Area cards */}
         <div className="overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0 scrollbar-hide opacity-0 animate-stagger-2">
           <div className="flex sm:grid sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-3 sm:gap-4 min-w-max sm:min-w-0">
@@ -288,6 +278,12 @@ export default function Dashboard() {
               </div>
             ))}
           </div>
+        </div>
+
+        {/* Pending Goals and Monthly Evolution */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <PendingGoalsWidget selectedPlanId={selectedPlanId} />
+          <MonthlyEvolutionChart selectedPlanId={selectedPlanId} />
         </div>
 
         {/* Progress Chart */}

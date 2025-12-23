@@ -23,7 +23,7 @@ import LandingPage from "./pages/LandingPage";
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import NotFound from "./pages/NotFound";
-import Conquistas from "./pages/Conquistas";
+
 import { Loader2 } from "lucide-react";
 
 const queryClient = new QueryClient();
@@ -105,7 +105,7 @@ function AppRoutes() {
       <Route path="/meus-dados" element={<ProtectedRoute><MeusDados /></ProtectedRoute>} />
       <Route path="/configuracoes" element={<ProtectedRoute><Configuracoes /></ProtectedRoute>} />
       <Route path="/conta" element={<ProtectedRoute><Conta /></ProtectedRoute>} />
-      <Route path="/conquistas" element={<ProtectedRoute><Conquistas /></ProtectedRoute>} />
+      
       <Route path="/perfil" element={<Navigate to="/meus-dados" replace />} />
       
       {/* Rotas de admin separadas */}
