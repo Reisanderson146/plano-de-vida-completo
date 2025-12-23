@@ -36,27 +36,30 @@ const AI_STYLES = [
     label: 'Amigável',
     description: 'Motivacional e encorajador',
     icon: Heart,
-    color: 'from-pink-500 to-rose-500',
-    bgColor: 'bg-pink-500/10 hover:bg-pink-500/20 border-pink-500/30',
-    activeColor: 'bg-gradient-to-r from-pink-500 to-rose-500 text-white border-pink-500',
+    iconColor: 'text-red-500',
+    iconBg: 'bg-red-500/20',
+    bgColor: 'bg-gradient-to-br from-red-50 to-pink-50 dark:from-red-950/30 dark:to-pink-950/30 hover:from-red-100 hover:to-pink-100 dark:hover:from-red-950/50 dark:hover:to-pink-950/50 border-red-200 dark:border-red-800/50',
+    activeColor: 'bg-gradient-to-br from-red-500 to-pink-500 text-white border-red-500 shadow-red-500/30',
   },
   {
     id: 'balanced' as const,
     label: 'Equilibrado',
     description: 'Construtivo e ponderado',
     icon: Scale,
-    color: 'from-violet-500 to-purple-500',
-    bgColor: 'bg-violet-500/10 hover:bg-violet-500/20 border-violet-500/30',
-    activeColor: 'bg-gradient-to-r from-violet-500 to-purple-500 text-white border-violet-500',
+    iconColor: 'text-violet-500',
+    iconBg: 'bg-violet-500/20',
+    bgColor: 'bg-gradient-to-br from-violet-50 to-purple-50 dark:from-violet-950/30 dark:to-purple-950/30 hover:from-violet-100 hover:to-purple-100 dark:hover:from-violet-950/50 dark:hover:to-purple-950/50 border-violet-200 dark:border-violet-800/50',
+    activeColor: 'bg-gradient-to-br from-violet-500 to-purple-500 text-white border-violet-500 shadow-violet-500/30',
   },
   {
     id: 'direct' as const,
     label: 'Direto',
     description: 'Objetivo e prático',
     icon: Zap,
-    color: 'from-amber-500 to-orange-500',
-    bgColor: 'bg-amber-500/10 hover:bg-amber-500/20 border-amber-500/30',
-    activeColor: 'bg-gradient-to-r from-amber-500 to-orange-500 text-white border-amber-500',
+    iconColor: 'text-amber-500',
+    iconBg: 'bg-amber-500/20',
+    bgColor: 'bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 hover:from-amber-100 hover:to-orange-100 dark:hover:from-amber-950/50 dark:hover:to-orange-950/50 border-amber-200 dark:border-amber-800/50',
+    activeColor: 'bg-gradient-to-br from-amber-500 to-orange-500 text-white border-amber-500 shadow-amber-500/30',
   },
 ];
 
@@ -303,7 +306,7 @@ export function AISummary({
               Salvar como padrão
             </Button>
           </div>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-3 gap-3">
             {AI_STYLES.map((style) => {
               const Icon = style.icon;
               const isActive = selectedStyle === style.id;
@@ -314,22 +317,46 @@ export function AISummary({
                   onClick={() => handleStyleChange(style.id)}
                   disabled={loading}
                   className={cn(
-                    "relative flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition-all duration-200",
+                    "relative flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition-all duration-300 transform hover:scale-[1.02]",
                     isActive 
-                      ? style.activeColor + " shadow-lg" 
-                      : style.bgColor + " text-foreground"
+                      ? style.activeColor + " shadow-xl" 
+                      : style.bgColor
                   )}
                 >
-                  <Icon className={cn("w-5 h-5", isActive ? "text-white" : "")} />
-                  <span className={cn("text-xs font-semibold", isActive ? "text-white" : "")}>
-                    {style.label}
-                  </span>
-                  <span className={cn(
-                    "text-[10px] leading-tight text-center",
-                    isActive ? "text-white/80" : "text-muted-foreground"
+                  {/* Icon container with glow effect */}
+                  <div className={cn(
+                    "w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300",
+                    isActive 
+                      ? "bg-white/20 shadow-lg" 
+                      : style.iconBg
                   )}>
-                    {style.description}
-                  </span>
+                    <Icon className={cn(
+                      "w-5 h-5 transition-all duration-300",
+                      isActive ? "text-white" : style.iconColor
+                    )} />
+                  </div>
+                  
+                  <div className="flex flex-col items-center gap-0.5">
+                    <span className={cn(
+                      "text-sm font-bold transition-all duration-300",
+                      isActive ? "text-white" : "text-foreground"
+                    )}>
+                      {style.label}
+                    </span>
+                    <span className={cn(
+                      "text-[10px] leading-tight text-center transition-all duration-300",
+                      isActive ? "text-white/80" : "text-muted-foreground"
+                    )}>
+                      {style.description}
+                    </span>
+                  </div>
+                  
+                  {/* Active indicator */}
+                  {isActive && (
+                    <div className="absolute -top-1 -right-1 w-5 h-5 bg-white rounded-full flex items-center justify-center shadow-lg">
+                      <Check className="w-3 h-3 text-emerald-500" />
+                    </div>
+                  )}
                 </button>
               );
             })}
