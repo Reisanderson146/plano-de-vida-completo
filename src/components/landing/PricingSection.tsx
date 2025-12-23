@@ -388,21 +388,33 @@ const PricingSection = ({ onCheckout, onLogin, loading }: PricingSectionProps) =
                             key={`${currentPlan.id}-${benefitIndex}`}
                             custom={benefitIndex}
                             variants={benefitVariants}
+                            whileHover={isIncluded ? { 
+                              x: 6, 
+                              scale: 1.02,
+                              transition: { duration: 0.2 }
+                            } : {}}
                             className={cn(
-                              "flex items-center gap-3",
-                              benefit.highlight && currentPlan.id === 'premium' && "p-2 -mx-2 rounded-lg bg-gradient-to-r from-violet-500/10 to-purple-500/10 border border-violet-500/20"
+                              "flex items-center gap-3 rounded-lg px-2 py-1.5 -mx-2 transition-colors duration-200",
+                              benefit.highlight && currentPlan.id === 'premium' 
+                                ? "bg-gradient-to-r from-violet-500/10 to-purple-500/10 border border-violet-500/20"
+                                : isIncluded 
+                                  ? "cursor-pointer hover:bg-muted/50" 
+                                  : "opacity-60"
                             )}
                           >
-                            <div className={cn(
-                              "w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0",
-                              !isIncluded 
-                                ? "bg-muted/50"
-                                : benefit.highlight && currentPlan.id === 'premium'
-                                  ? "bg-gradient-to-br from-violet-500 to-purple-600"
-                                  : currentPlan.color === 'emerald'
-                                    ? "bg-emerald-500/10"
-                                    : "bg-violet-500/10"
-                            )}>
+                            <motion.div 
+                              className={cn(
+                                "w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 transition-transform duration-200",
+                                !isIncluded 
+                                  ? "bg-muted/50"
+                                  : benefit.highlight && currentPlan.id === 'premium'
+                                    ? "bg-gradient-to-br from-violet-500 to-purple-600"
+                                    : currentPlan.color === 'emerald'
+                                      ? "bg-emerald-500/10"
+                                      : "bg-violet-500/10"
+                              )}
+                              whileHover={isIncluded ? { scale: 1.15, rotate: 5 } : {}}
+                            >
                               {isIncluded ? (
                                 <benefit.icon className={cn(
                                   "w-3.5 h-3.5",
@@ -415,7 +427,7 @@ const PricingSection = ({ onCheckout, onLogin, loading }: PricingSectionProps) =
                               ) : (
                                 <X className="w-3.5 h-3.5 text-muted-foreground/50" />
                               )}
-                            </div>
+                            </motion.div>
                             <span className={cn(
                               "text-sm flex-1",
                               !isIncluded 
