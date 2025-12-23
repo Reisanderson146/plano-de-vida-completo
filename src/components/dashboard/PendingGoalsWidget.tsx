@@ -230,13 +230,11 @@ export function PendingGoalsWidget({ selectedPlanId, onGoalCompleted }: PendingG
         <CardFooter className="pt-2 pb-4">
           <Link to="/historico-metas" className="w-full">
             <Button 
-              variant="ghost" 
+              variant="outline" 
               size="sm" 
-              className="w-full gap-2 text-primary hover:text-primary hover:bg-primary/10 font-medium"
+              className="w-full h-11 text-sm font-semibold border-primary/30 bg-primary/5 text-primary hover:bg-primary/10 hover:border-primary/50 rounded-xl transition-all duration-200"
             >
-              <Trophy className="w-4 h-4" />
               Ver histórico de metas concluídas
-              <Sparkles className="w-3.5 h-3.5 animate-pulse-soft" />
             </Button>
           </Link>
         </CardFooter>
@@ -309,13 +307,11 @@ export function PendingGoalsWidget({ selectedPlanId, onGoalCompleted }: PendingG
       <CardFooter className="pt-2 pb-4">
         <Link to="/historico-metas" className="w-full">
           <Button 
-            variant="ghost" 
+            variant="outline" 
             size="sm" 
-            className="w-full gap-2 text-primary hover:text-primary hover:bg-primary/10 font-medium"
+            className="w-full h-11 text-sm font-semibold border-primary/30 bg-primary/5 text-primary hover:bg-primary/10 hover:border-primary/50 rounded-xl transition-all duration-200"
           >
-            <Trophy className="w-4 h-4" />
             Ver histórico de metas concluídas
-            <Sparkles className="w-3.5 h-3.5 animate-pulse-soft" />
           </Button>
         </Link>
       </CardFooter>
