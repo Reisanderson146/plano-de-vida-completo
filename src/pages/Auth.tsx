@@ -123,9 +123,9 @@ export default function Auth() {
     
     setLoading(true);
     const { error } = await signIn(email, password);
-    setLoading(false);
     
     if (error) {
+      setLoading(false);
       if (error.message === 'Invalid login credentials') {
         setFieldError('signin-password', 'Email ou senha incorretos');
       } else {
@@ -135,7 +135,9 @@ export default function Auth() {
           variant: 'destructive',
         });
       }
-      // Redirect is handled by useEffect based on subscription status
+    } else {
+      // Login successful - redirect immediately
+      navigate('/', { replace: true });
     }
   };
 
