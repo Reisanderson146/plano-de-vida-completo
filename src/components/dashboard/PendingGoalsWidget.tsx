@@ -121,16 +121,34 @@ export function PendingGoalsWidget({ selectedPlanId, onGoalCompleted }: PendingG
       // Play success sound
       playSuccessSound();
 
-      // Trigger confetti
+      // Trigger confetti with more celebration
       confetti({
-        particleCount: 50,
-        spread: 60,
-        origin: { y: 0.7 },
-        colors: ['#22c55e', '#10b981', '#059669'],
+        particleCount: 80,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ['#22c55e', '#10b981', '#059669', '#fbbf24', '#f59e0b'],
       });
 
-      // Remove from list with animation
-      setGoals((prev) => prev.filter((g) => g.id !== goalId));
+      // Second burst for more impact
+      setTimeout(() => {
+        confetti({
+          particleCount: 40,
+          spread: 100,
+          origin: { y: 0.7, x: 0.3 },
+          colors: ['#8b5cf6', '#6366f1', '#3b82f6'],
+        });
+        confetti({
+          particleCount: 40,
+          spread: 100,
+          origin: { y: 0.7, x: 0.7 },
+          colors: ['#ec4899', '#f43f5e', '#ef4444'],
+        });
+      }, 150);
+
+      // Animate removal with delay for visual feedback
+      setTimeout(() => {
+        setGoals((prev) => prev.filter((g) => g.id !== goalId));
+      }, 400);
       
       // Notify parent that a goal was completed
       onGoalCompleted?.();
@@ -145,7 +163,7 @@ export function PendingGoalsWidget({ selectedPlanId, onGoalCompleted }: PendingG
         variant: 'destructive',
       });
     } finally {
-      setCompletingId(null);
+      setTimeout(() => setCompletingId(null), 400);
     }
   };
 
@@ -240,9 +258,9 @@ export function PendingGoalsWidget({ selectedPlanId, onGoalCompleted }: PendingG
           <div
             key={goal.id}
             className={cn(
-              "flex items-start gap-3 p-3 rounded-xl transition-all duration-300",
+              "flex items-start gap-3 p-3 rounded-xl transition-all duration-500 ease-out",
               "bg-muted/30 hover:bg-muted/50",
-              completingId === goal.id && "scale-95 opacity-50"
+              completingId === goal.id && "scale-90 opacity-0 translate-x-4 bg-success/20"
             )}
             style={{ animationDelay: `${index * 50}ms` }}
           >
