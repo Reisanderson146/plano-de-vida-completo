@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useSubscription } from '@/hooks/useSubscription';
 import { useToast } from '@/hooks/use-toast';
 import { useFormValidation } from '@/hooks/useFormValidation';
 import { useImportPlan } from '@/hooks/useImportPlan';
@@ -19,7 +20,6 @@ import { usePlanAreaCustomizations } from '@/hooks/usePlanAreaCustomizations';
 import { PlanPhotoUpload } from '@/components/life-plan/PlanPhotoUpload';
 import { SubscriptionDialog } from '@/components/subscription/SubscriptionDialog';
 import { 
-  getTierByProductId, 
   canCreatePlanType, 
   SubscriptionTier,
   SUBSCRIPTION_TIERS 
@@ -97,37 +97,18 @@ export default function Cadastro() {
   );
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
 
-  // Subscription state
-  const [isSubscribed, setIsSubscribed] = useState<boolean | null>(null);
-  const [subscriptionTier, setSubscriptionTier] = useState<SubscriptionTier | null>(null);
+  // Subscription state from centralized hook
+  const { tier: subscriptionTier, isActive: isSubscribed, isLoading: subscriptionLoading, refresh: refreshSubscription } = useSubscription();
   const [planCounts, setPlanCounts] = useState<PlanCounts>({ individual: 0, familiar: 0, filho: 0 });
   const [showSubscriptionDialog, setShowSubscriptionDialog] = useState(false);
   const [pendingCreate, setPendingCreate] = useState(false);
 
-  // Check subscription status and plan counts on mount
+  // Load plan counts and handle checkout returns
   useEffect(() => {
-    const checkSubscriptionAndPlans = async () => {
+    const loadPlanCounts = async () => {
       if (!user) return;
       
       try {
-        // Check subscription
-        const { data, error } = await supabase.functions.invoke('check-subscription');
-        
-        if (error) {
-          console.error('Error checking subscription:', error);
-          setIsSubscribed(false);
-          return;
-        }
-        
-        const subscribed = data?.subscribed || data?.subscription_status === 'active';
-        setIsSubscribed(subscribed);
-        
-        if (subscribed && data?.product_id) {
-          setSubscriptionTier(getTierByProductId(data.product_id));
-        } else if (subscribed) {
-          setSubscriptionTier('basic');
-        }
-
         // Count existing plans
         const { data: plansData } = await supabase
           .from('life_plans')
@@ -149,7 +130,7 @@ export default function Cadastro() {
         if (checkoutStatus === 'success') {
           setSearchParams({});
           
-          if (subscribed) {
+          if (isSubscribed) {
             toast({
               title: 'Assinatura confirmada!',
               description: 'Você pode criar seu plano de vida agora.',
@@ -159,16 +140,9 @@ export default function Cadastro() {
               title: 'Verificando pagamento...',
               description: 'Aguarde enquanto confirmamos sua assinatura.',
             });
-            setTimeout(async () => {
-              const { data: retryData } = await supabase.functions.invoke('check-subscription');
-              if (retryData?.subscribed || retryData?.subscription_status === 'active') {
-                setIsSubscribed(true);
-                setSubscriptionTier(getTierByProductId(retryData.product_id) || 'basic');
-                toast({
-                  title: 'Assinatura confirmada!',
-                  description: 'Você pode criar seu plano de vida agora.',
-                });
-              }
+            // Refresh subscription after checkout
+            setTimeout(() => {
+              refreshSubscription();
             }, 3000);
           }
         } else if (checkoutStatus === 'cancelled') {
@@ -181,12 +155,11 @@ export default function Cadastro() {
         }
       } catch (error) {
         console.error('Error:', error);
-        setIsSubscribed(false);
       }
     };
 
-    checkSubscriptionAndPlans();
-  }, [user, searchParams, setSearchParams, toast]);
+    loadPlanCounts();
+  }, [user, searchParams, setSearchParams, toast, isSubscribed, refreshSubscription]);
 
   const validateTitle = async (titleToCheck: string): Promise<boolean> => {
     if (!titleToCheck.trim()) {
@@ -384,8 +357,7 @@ export default function Cadastro() {
   };
 
   const handleSubscribed = () => {
-    setIsSubscribed(true);
-    setSubscriptionTier('basic'); // Default to basic on first subscription
+    refreshSubscription();
     if (pendingCreate) {
       setPendingCreate(false);
       createPlan();
