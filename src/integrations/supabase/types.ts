@@ -321,6 +321,7 @@ export type Database = {
           full_name: string | null
           id: string
           is_blocked: boolean
+          preferred_ai_style: string | null
           subscription_plan: string | null
           subscription_status: string | null
           theme_id: string | null
@@ -333,6 +334,7 @@ export type Database = {
           full_name?: string | null
           id: string
           is_blocked?: boolean
+          preferred_ai_style?: string | null
           subscription_plan?: string | null
           subscription_status?: string | null
           theme_id?: string | null
@@ -345,6 +347,7 @@ export type Database = {
           full_name?: string | null
           id?: string
           is_blocked?: boolean
+          preferred_ai_style?: string | null
           subscription_plan?: string | null
           subscription_status?: string | null
           theme_id?: string | null

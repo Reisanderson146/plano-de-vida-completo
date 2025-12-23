@@ -32,18 +32,40 @@ Máximo 3 frases curtas. Português brasileiro.`;
   }
 };
 
-const getUserPrompt = (style: AIStyle, planTitle: string, period: string, completedGoals: number, totalGoals: number, overallPercentage: number, areasCompleted: any[], areasNeedWork: any[]): string => {
+const getUserPrompt = (
+  style: AIStyle, 
+  planTitle: string, 
+  period: string, 
+  completedGoals: number, 
+  totalGoals: number, 
+  overallPercentage: number, 
+  areasCompleted: any[], 
+  areasNeedWork: any[],
+  monthlyComparison?: { currentMonth: { completed: number }; previousMonth: { completed: number }; difference: number; trend: 'up' | 'down' | 'same' }
+): string => {
+  let comparisonText = '';
+  if (monthlyComparison) {
+    const trendText = monthlyComparison.trend === 'up' 
+      ? `+${monthlyComparison.difference} metas em relação ao mês anterior (melhora!)`
+      : monthlyComparison.trend === 'down'
+      ? `-${monthlyComparison.difference} metas em relação ao mês anterior (queda)`
+      : 'mesmo desempenho do mês anterior';
+    
+    comparisonText = `\nComparativo mensal: Este mês ${monthlyComparison.currentMonth.completed} metas, mês passado ${monthlyComparison.previousMonth.completed} metas (${trendText})`;
+  }
+
   const baseData = `Plano: "${planTitle}" (${period})
 Progresso: ${completedGoals}/${totalGoals} metas (${overallPercentage}%)
 Áreas BOM (70%+): ${areasCompleted.length > 0 ? areasCompleted.map((a: any) => a.label).join(', ') : 'Nenhuma'}
-Áreas ATENÇÃO (<40%): ${areasNeedWork.length > 0 ? areasNeedWork.map((a: any) => a.label).join(', ') : 'Nenhuma'}`;
+Áreas ATENÇÃO (<40%): ${areasNeedWork.length > 0 ? areasNeedWork.map((a: any) => a.label).join(', ') : 'Nenhuma'}${comparisonText}`;
 
   switch (style) {
     case 'friendly':
       return `${baseData}
 
 Faça uma análise motivadora e encorajadora deste progresso. 
-Celebre as conquistas e ofereça apoio gentil para as áreas que precisam de atenção.`;
+Celebre as conquistas e ofereça apoio gentil para as áreas que precisam de atenção.
+${monthlyComparison ? 'Comente sobre a evolução em relação ao mês anterior de forma positiva.' : ''}`;
     
     case 'balanced':
       return `${baseData}
@@ -51,7 +73,8 @@ Celebre as conquistas e ofereça apoio gentil para as áreas que precisam de ate
 Faça uma análise equilibrada:
 1. Reconheça o progresso de forma sincera
 2. Aponte áreas de melhoria de forma construtiva
-3. Sugira brevemente um próximo passo`;
+3. Sugira brevemente um próximo passo
+${monthlyComparison ? '4. Comente brevemente sobre a comparação com o mês anterior' : ''}`;
     
     case 'direct':
       return `${baseData}
@@ -59,6 +82,7 @@ Faça uma análise equilibrada:
 Análise direta:
 1. O que está funcionando
 2. O que precisa melhorar
+${monthlyComparison ? '3. Evolução mensal (objetivo)' : ''}
 Seja objetivo e prático.`;
     
     default:
@@ -72,7 +96,7 @@ serve(async (req) => {
   }
 
   try {
-    const { stats, totalGoals, completedGoals, planTitle, period, style = 'balanced' } = await req.json();
+    const { stats, totalGoals, completedGoals, planTitle, period, style = 'balanced', monthlyComparison } = await req.json();
     
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
@@ -94,7 +118,8 @@ serve(async (req) => {
       totalGoals, 
       overallPercentage, 
       areasCompleted, 
-      areasNeedWork
+      areasNeedWork,
+      monthlyComparison
     );
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
