@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import confetti from 'canvas-confetti';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -651,14 +651,18 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, on
     );
   };
 
-  // Year Card Component
-  const YearCard = ({ period }: { period: PeriodRow }) => {
+  // Render helper: keep element identity stable to avoid flicker on goal updates
+  const renderYearCard = (period: PeriodRow) => {
     const isExpanded = expandedYears.has(period.year);
     const { totalGoals, completedGoals } = getProgressStats(period);
     const progressPercent = totalGoals > 0 ? Math.round((completedGoals / totalGoals) * 100) : 0;
 
     return (
-      <Collapsible open={isExpanded} onOpenChange={() => toggleYear(period.year)}>
+      <Collapsible
+        key={`${period.year}-${period.age}`}
+        open={isExpanded}
+        onOpenChange={() => toggleYear(period.year)}
+      >
         <Card className="overflow-hidden border-border/40">
           <CollapsibleTrigger asChild>
             <CardHeader className="py-4 px-5 cursor-pointer hover:bg-muted/30 transition-all duration-200 bg-gradient-to-r from-primary/5 via-primary/3 to-transparent">
@@ -682,8 +686,8 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, on
                   </div>
                   <div className="hidden sm:flex items-center gap-3">
                     <div className="w-28 h-2.5 bg-muted rounded-full overflow-hidden">
-                      <div 
-                        className="h-full bg-gradient-to-r from-primary to-emerald-500 transition-all duration-500 rounded-full" 
+                      <div
+                        className="h-full bg-gradient-to-r from-primary to-emerald-500 transition-all duration-500 rounded-full"
                         style={{ width: `${progressPercent}%` }}
                       />
                     </div>
@@ -693,9 +697,7 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, on
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="sm:hidden text-sm font-medium text-muted-foreground">
-                    {progressPercent}%
-                  </span>
+                  <span className="sm:hidden text-sm font-medium text-muted-foreground">{progressPercent}%</span>
                   {editable && onDeletePeriod && (
                     <Button
                       variant="ghost"
@@ -709,19 +711,26 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, on
                       <Trash2 className="w-4 h-4" />
                     </Button>
                   )}
-                  <div className={cn(
-                    "w-8 h-8 rounded-lg flex items-center justify-center transition-colors",
-                    isExpanded ? "bg-primary/10" : "bg-muted/50"
-                  )}>
-                    {isExpanded ? <ChevronUp className="w-4 h-4 text-primary" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+                  <div
+                    className={cn(
+                      'w-8 h-8 rounded-lg flex items-center justify-center transition-colors',
+                      isExpanded ? 'bg-primary/10' : 'bg-muted/50'
+                    )}
+                  >
+                    {isExpanded ? (
+                      <ChevronUp className="w-4 h-4 text-primary" />
+                    ) : (
+                      <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                    )}
                   </div>
                 </div>
               </div>
             </CardHeader>
           </CollapsibleTrigger>
-          
+
           <CollapsibleContent className="animate-accordion-down data-[state=closed]:animate-accordion-up">
-            <CardContent className="p-0 animate-fade-in">
+            {/* IMPORTANT: no fade-in here (it was causing blink on re-renders) */}
+            <CardContent className="p-0">
               {/* Desktop/Tablet: Grid View (Horizontal Scroll Cards) */}
               {viewMode === 'grid' && (
                 <div className="hidden md:block border-t border-border">
@@ -731,30 +740,32 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, on
                         const progress = getAreaProgress(period.goals[area.id]);
                         const AreaIcon = AREA_ICONS[area.id as LifeArea];
                         return (
-                          <div 
-                            key={area.id} 
+                          <div
+                            key={area.id}
                             className="w-[280px] flex-shrink-0 rounded-2xl border border-border/40 overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 group/card"
                             style={{ backgroundColor: `${getAreaColor(area.id)}05` }}
                           >
                             {/* Area Header */}
-                            <div 
+                            <div
                               className="px-4 py-4 border-b border-border/20 relative overflow-hidden"
                               style={{ backgroundColor: `${getAreaColor(area.id)}12` }}
                             >
                               {/* Decorative gradient */}
-                              <div 
+                              <div
                                 className="absolute inset-0 opacity-30"
-                                style={{ background: `linear-gradient(135deg, ${getAreaColor(area.id)}40 0%, transparent 50%)` }}
+                                style={{
+                                  background: `linear-gradient(135deg, ${getAreaColor(area.id)}40 0%, transparent 50%)`,
+                                }}
                               />
                               {/* Icon background decoration */}
-                              <div 
+                              <div
                                 className="absolute -right-4 -top-4 w-20 h-20 rounded-full opacity-10"
                                 style={{ backgroundColor: getAreaColor(area.id) }}
                               />
                               <div className="relative">
                                 <div className="flex items-center gap-3">
-                                  <div 
-                                    className="w-10 h-10 rounded-xl flex items-center justify-center shadow-sm transition-transform group-hover/card:scale-110" 
+                                  <div
+                                    className="w-10 h-10 rounded-xl flex items-center justify-center shadow-sm transition-transform group-hover/card:scale-110"
                                     style={{ backgroundColor: getAreaColor(area.id) }}
                                   >
                                     <AreaIcon className="w-5 h-5 text-white" />
@@ -764,8 +775,10 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, on
                                 {progress && (
                                   <div className="mt-3">
                                     <div className="flex items-center justify-between text-xs text-muted-foreground mb-1.5">
-                                      <span className="font-medium">{progress.completed}/{progress.total} metas</span>
-                                      <span 
+                                      <span className="font-medium">
+                                        {progress.completed}/{progress.total} metas
+                                      </span>
+                                      <span
                                         className="font-bold px-2.5 py-0.5 rounded-full text-white text-[11px] shadow-sm"
                                         style={{ backgroundColor: getAreaColor(area.id) }}
                                       >
@@ -773,11 +786,11 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, on
                                       </span>
                                     </div>
                                     <div className="w-full h-2.5 bg-background/60 rounded-full overflow-hidden shadow-inner">
-                                      <div 
-                                        className="h-full transition-all duration-500 rounded-full shadow-sm" 
-                                        style={{ 
-                                          width: `${progress.percent}%`, 
-                                          background: `linear-gradient(90deg, ${getAreaColor(area.id)}, ${getAreaColor(area.id)}cc)`
+                                      <div
+                                        className="h-full transition-all duration-500 rounded-full shadow-sm"
+                                        style={{
+                                          width: `${progress.percent}%`,
+                                          background: `linear-gradient(90deg, ${getAreaColor(area.id)}, ${getAreaColor(area.id)}cc)`,
                                         }}
                                       />
                                     </div>
@@ -785,10 +798,14 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, on
                                 )}
                               </div>
                             </div>
-                            
+
                             {/* Goals List */}
                             <div className="p-4 min-h-[180px] max-h-[320px] overflow-y-auto">
-                              <GoalListExpanded areaGoals={period.goals[area.id]} areaId={area.id} period={period} />
+                              {GoalListExpanded({
+                                areaGoals: period.goals[area.id],
+                                areaId: area.id,
+                                period,
+                              })}
                             </div>
                           </div>
                         );
@@ -808,37 +825,34 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, on
                   {LIFE_AREAS.map((area) => {
                     const progress = getAreaProgress(period.goals[area.id]);
                     const AreaIcon = AREA_ICONS[area.id as LifeArea];
-                    const goalsWithText = filterGoalsByStatus(period.goals[area.id].filter(g => g.goal_text.trim()));
-                    
+                    const goalsWithText = filterGoalsByStatus(period.goals[area.id].filter((g) => g.goal_text.trim()));
+
                     return (
-                      <div 
-                        key={area.id} 
-                        className="p-4 hover:bg-muted/20 transition-colors"
-                      >
+                      <div key={area.id} className="p-4 hover:bg-muted/20 transition-colors">
                         <div className="flex items-start gap-4">
                           {/* Area Info */}
-                          <div 
-                            className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" 
+                          <div
+                            className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
                             style={{ backgroundColor: getAreaColor(area.id) }}
                           >
                             <AreaIcon className="w-5 h-5 text-white" />
                           </div>
-                          
+
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between mb-2">
                               <span className="font-semibold text-foreground">{getAreaLabel(area.id)}</span>
                               {progress && (
                                 <div className="flex items-center gap-3">
                                   <div className="w-24 h-2 bg-muted rounded-full overflow-hidden">
-                                    <div 
-                                      className="h-full transition-all duration-500 rounded-full" 
-                                      style={{ 
-                                        width: `${progress.percent}%`, 
-                                        backgroundColor: getAreaColor(area.id)
+                                    <div
+                                      className="h-full transition-all duration-500 rounded-full"
+                                      style={{
+                                        width: `${progress.percent}%`,
+                                        backgroundColor: getAreaColor(area.id),
                                       }}
                                     />
                                   </div>
-                                  <span 
+                                  <span
                                     className="text-xs font-bold px-2 py-0.5 rounded-full text-white"
                                     style={{ backgroundColor: getAreaColor(area.id) }}
                                   >
@@ -847,38 +861,35 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, on
                                 </div>
                               )}
                             </div>
-                            
+
                             {/* Goals inline */}
                             <div className="space-y-1.5">
                               {goalsWithText.map((goal, index) => (
                                 <div key={goal.id} className="flex items-center gap-2 group">
-                                  <Checkbox 
-                                    checked={goal.is_completed} 
-                                    onCheckedChange={() => handleToggleComplete(goal)} 
+                                  <Checkbox
+                                    checked={goal.is_completed}
+                                    onCheckedChange={() => handleToggleComplete(goal)}
                                     className="h-4 w-4"
                                     style={{ borderColor: getAreaColor(area.id) }}
                                   />
-                                  <span className={cn(
-                                    "text-sm flex-1",
-                                    goal.is_completed && "line-through opacity-60"
-                                  )}>
+                                  <span className={cn('text-sm flex-1', goal.is_completed && 'line-through opacity-60')}>
                                     <span className="font-medium text-muted-foreground">{index + 1}º </span>
                                     {goal.goal_text}
                                   </span>
                                   {editable && (
                                     <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                      <Button 
-                                        size="icon" 
-                                        variant="ghost" 
-                                        onClick={() => handleStartEdit(goal)} 
+                                      <Button
+                                        size="icon"
+                                        variant="ghost"
+                                        onClick={() => handleStartEdit(goal)}
                                         className="h-6 w-6 hover:bg-primary/10 hover:text-primary"
                                       >
                                         <Pencil className="w-3 h-3" />
                                       </Button>
-                                      <Button 
-                                        size="icon" 
-                                        variant="ghost" 
-                                        onClick={() => onDeleteGoal(goal.id)} 
+                                      <Button
+                                        size="icon"
+                                        variant="ghost"
+                                        onClick={() => onDeleteGoal(goal.id)}
                                         className="h-6 w-6 hover:bg-destructive/10 hover:text-destructive"
                                       >
                                         <Trash2 className="w-3 h-3" />
@@ -887,17 +898,20 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, on
                                   )}
                                 </div>
                               ))}
-                              
+
                               {goalsWithText.length === 0 && !editable && (
                                 <p className="text-sm italic text-muted-foreground">Sem metas definidas</p>
                               )}
-                              
+
                               {editable && (
-                                <Button 
-                                  variant="ghost" 
-                                  size="sm" 
-                                  className="h-7 text-xs text-muted-foreground hover:text-primary" 
-                                  onClick={() => { setAddGoalDialog({ year: period.year, age: period.age, area: area.id }); setNewGoalText(''); }}
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-7 text-xs text-muted-foreground hover:text-primary"
+                                  onClick={() => {
+                                    setAddGoalDialog({ year: period.year, age: period.age, area: area.id });
+                                    setNewGoalText('');
+                                  }}
                                 >
                                   <Plus className="w-3 h-3 mr-1" />
                                   Adicionar meta
@@ -915,7 +929,9 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, on
               {/* Mobile List */}
               <div className="md:hidden divide-y divide-border">
                 {LIFE_AREAS.map((area) => (
-                  <MobileGoalList key={area.id} areaGoals={period.goals[area.id]} areaId={area.id} period={period} />
+                  <Fragment key={area.id}>
+                    {MobileGoalList({ areaGoals: period.goals[area.id], areaId: area.id, period })}
+                  </Fragment>
                 ))}
               </div>
             </CardContent>
@@ -1112,10 +1128,7 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, on
 
       {/* Year Cards */}
       <div className="space-y-4">
-        {periods.map((period) => (
-          <YearCard key={`${period.year}-${period.age}`} period={period} />
-        ))}
-        
+        {periods.map(renderYearCard)}
         {periods.length === 0 && (
           <Card>
             <CardContent className="py-12 text-center">
