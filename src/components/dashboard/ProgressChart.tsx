@@ -6,8 +6,10 @@ interface ProgressChartProps {
 }
 
 // Helper to lighten a hex color
-const lightenColor = (hex: string, percent: number): string => {
-  const num = parseInt(hex.replace('#', ''), 16);
+const lightenColor = (hex: string | undefined, percent: number): string => {
+  if (!hex) return '#888888';
+  const cleanHex = hex.replace('#', '');
+  const num = parseInt(cleanHex, 16);
   const amt = Math.round(2.55 * percent);
   const R = Math.min(255, (num >> 16) + amt);
   const G = Math.min(255, ((num >> 8) & 0x00FF) + amt);
@@ -90,7 +92,9 @@ export function ProgressChart({ data }: ProgressChartProps) {
 
   // Custom dot component for radar points with gradient
   const CustomDot = (props: any) => {
-    const { cx, cy, payload, index } = props;
+    const { cx, cy, payload } = props;
+    if (!payload || !payload.color) return null;
+    
     const gradientId = `dotGradient-${payload.areaId}`;
     const lightColor = lightenColor(payload.color, 40);
     
@@ -121,6 +125,8 @@ export function ProgressChart({ data }: ProgressChartProps) {
   // Active dot on hover with gradient
   const ActiveDot = (props: any) => {
     const { cx, cy, payload } = props;
+    if (!payload || !payload.color) return null;
+    
     const gradientId = `activeDotGradient-${payload.areaId}`;
     const lightColor = lightenColor(payload.color, 50);
     
