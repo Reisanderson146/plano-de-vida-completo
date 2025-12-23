@@ -140,14 +140,28 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
+    // Detect origin to determine redirect base
+    const origin = req.headers.get("origin") || req.headers.get("referer") || "";
+    const isPreview = origin.includes("lovableproject.com");
+    const productionUrl = "https://planodevida.io";
+    
+    // Extract preview base URL if in preview mode
+    let previewBaseUrl = "";
+    if (isPreview) {
+      const match = origin.match(/(https:\/\/[^/]+\.lovableproject\.com)/);
+      previewBaseUrl = match ? match[1] : "";
+    }
+    
+    const siteUrl = isPreview && previewBaseUrl ? previewBaseUrl : productionUrl;
+
     // Use dedicated reset-password page for recovery, /auth for others
     let baseUrl: string;
     if (redirectTo) {
       baseUrl = redirectTo;
     } else if (type === "recovery") {
-      baseUrl = "https://planodevida.io/reset-password";
+      baseUrl = `${siteUrl}/reset-password`;
     } else {
-      baseUrl = "https://planodevida.io/auth";
+      baseUrl = `${siteUrl}/auth?confirmed=true`;
     }
     
     console.log(`Generating ${type} link for ${email} with redirect to ${baseUrl}`);
