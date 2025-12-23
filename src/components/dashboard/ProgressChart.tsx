@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer, Tooltip } from 'recharts';
 import { LIFE_AREAS, LifeArea, AREA_HEX_COLORS } from '@/lib/constants';
+import { Loader2 } from 'lucide-react';
 
 interface ProgressChartProps {
   data: Record<LifeArea, { total: number; completed: number }>;
@@ -207,42 +208,51 @@ export function ProgressChart({ data }: ProgressChartProps) {
 
   return (
     <div className="w-full">
-      <div 
-        className={`w-full h-[250px] sm:h-[320px] lg:h-[350px] transition-opacity duration-300 ${
-          isTransitioning ? 'opacity-50' : 'opacity-100'
-        }`}
-      >
-        <ResponsiveContainer width="100%" height="100%">
-          <RadarChart cx="50%" cy="50%" outerRadius="60%" data={chartData}>
-            <PolarGrid stroke="hsl(var(--border))" />
-            <PolarAngleAxis 
-              dataKey="area" 
-              tick={<CustomTick />}
-              tickLine={false}
-            />
-            <PolarRadiusAxis 
-              angle={90} 
-              domain={[0, 100]} 
-              tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 8 }}
-              tickCount={5}
-            />
-            <Tooltip content={<CustomTooltip />} />
-            <Radar
-              name="Progresso"
-              dataKey="value"
-              stroke="hsl(var(--primary))"
-              fill="hsl(var(--primary))"
-              fillOpacity={0.3}
-              strokeWidth={2}
-              dot={<CustomDot />}
-              activeDot={<ActiveDot />}
-              isAnimationActive={true}
-              animationBegin={0}
-              animationDuration={600}
-              animationEasing="ease-in-out"
-            />
-          </RadarChart>
-        </ResponsiveContainer>
+      <div className="relative w-full h-[250px] sm:h-[320px] lg:h-[350px]">
+        {/* Loading overlay */}
+        {isTransitioning && (
+          <div className="absolute inset-0 flex items-center justify-center z-10 bg-background/50 rounded-lg">
+            <Loader2 className="w-8 h-8 text-primary animate-spin" />
+          </div>
+        )}
+        
+        <div 
+          className={`w-full h-full transition-all duration-300 ${
+            isTransitioning ? 'opacity-40 scale-[0.98]' : 'opacity-100 scale-100'
+          }`}
+        >
+          <ResponsiveContainer width="100%" height="100%">
+            <RadarChart cx="50%" cy="50%" outerRadius="60%" data={chartData}>
+              <PolarGrid stroke="hsl(var(--border))" />
+              <PolarAngleAxis 
+                dataKey="area" 
+                tick={<CustomTick />}
+                tickLine={false}
+              />
+              <PolarRadiusAxis 
+                angle={90} 
+                domain={[0, 100]} 
+                tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 8 }}
+                tickCount={5}
+              />
+              <Tooltip content={<CustomTooltip />} />
+              <Radar
+                name="Progresso"
+                dataKey="value"
+                stroke="hsl(var(--primary))"
+                fill="hsl(var(--primary))"
+                fillOpacity={0.3}
+                strokeWidth={2}
+                dot={<CustomDot />}
+                activeDot={<ActiveDot />}
+                isAnimationActive={true}
+                animationBegin={0}
+                animationDuration={600}
+                animationEasing="ease-in-out"
+              />
+            </RadarChart>
+          </ResponsiveContainer>
+        </div>
       </div>
       
       {/* Legend with area colors and gradients */}
