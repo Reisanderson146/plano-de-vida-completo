@@ -231,7 +231,7 @@ export function PendingGoalsWidget({ selectedPlanId, onGoalCompleted }: PendingG
           <Link to="/historico-metas" className="w-full">
             <Button 
               size="sm" 
-              className="w-full h-11 text-sm font-semibold bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl shadow-md shadow-primary/20 transition-all duration-200 animate-[pulse_3s_ease-in-out_infinite]"
+              className="w-full h-11 text-sm font-semibold bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl shadow-md shadow-primary/20 transition-all duration-200 btn-shimmer"
             >
               Ver histórico de metas concluídas
             </Button>
@@ -307,7 +307,7 @@ export function PendingGoalsWidget({ selectedPlanId, onGoalCompleted }: PendingG
         <Link to="/historico-metas" className="w-full">
           <Button 
             size="sm" 
-            className="w-full h-11 text-sm font-semibold bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl shadow-md shadow-primary/20 transition-all duration-200 animate-[pulse_3s_ease-in-out_infinite]"
+            className="w-full h-11 text-sm font-semibold bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl shadow-md shadow-primary/20 transition-all duration-200 btn-shimmer"
           >
             Ver histórico de metas concluídas
           </Button>
