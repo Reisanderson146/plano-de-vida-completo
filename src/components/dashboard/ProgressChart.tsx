@@ -73,6 +73,10 @@ export function ProgressChart({ data }: ProgressChartProps) {
               fill="hsl(var(--primary))"
               fillOpacity={0.3}
               strokeWidth={2}
+              isAnimationActive={true}
+              animationBegin={0}
+              animationDuration={800}
+              animationEasing="ease-out"
             />
           </RadarChart>
         </ResponsiveContainer>
