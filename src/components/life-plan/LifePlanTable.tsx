@@ -221,73 +221,103 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, on
     sparkleOsc.stop(audioContext.currentTime + sparkleDelay + 0.25);
   };
 
+  // Play sad sound when unmarking a goal
+  const playSadSound = () => {
+    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const masterGain = audioContext.createGain();
+    masterGain.connect(audioContext.destination);
+    masterGain.gain.setValueAtTime(0.2, audioContext.currentTime);
+
+    // Descending minor notes (sad/disappointed feeling)
+    const sadNotes = [
+      { freq: 392.00, time: 0, duration: 0.25 },      // G4
+      { freq: 349.23, time: 0.15, duration: 0.25 },   // F4
+      { freq: 311.13, time: 0.30, duration: 0.35 },   // Eb4 (minor feel)
+    ];
+
+    sadNotes.forEach(({ freq, time, duration }) => {
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      
+      oscillator.type = 'sine';
+      oscillator.connect(gainNode);
+      gainNode.connect(masterGain);
+      
+      oscillator.frequency.setValueAtTime(freq, audioContext.currentTime + time);
+      
+      // Slower, fading envelope
+      gainNode.gain.setValueAtTime(0, audioContext.currentTime + time);
+      gainNode.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + time + 0.05);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + time + duration);
+      
+      oscillator.start(audioContext.currentTime + time);
+      oscillator.stop(audioContext.currentTime + time + duration + 0.05);
+    });
+  };
+
   const handleToggleComplete = async (goal: Goal) => {
     const wasCompleted = goal.is_completed;
+    
+    // Update goal first
     await onUpdateGoal(goal.id, { is_completed: !goal.is_completed });
     
-    // Fire elaborate confetti and play sound when completing a goal
+    // Fire confetti and play sound when completing a goal
     if (!wasCompleted) {
-      // Main burst from center
-      confetti({
-        particleCount: 80,
-        spread: 100,
-        origin: { x: 0.5, y: 0.6 },
-        colors: ['#22c55e', '#16a34a', '#4ade80', '#86efac', '#fbbf24', '#f59e0b'],
-        startVelocity: 35,
-        gravity: 0.8,
-        ticks: 150,
-        scalar: 1.2,
+      // Use requestAnimationFrame to avoid flickering
+      requestAnimationFrame(() => {
+        // Main burst from center
+        confetti({
+          particleCount: 60,
+          spread: 80,
+          origin: { x: 0.5, y: 0.6 },
+          colors: ['#22c55e', '#16a34a', '#4ade80', '#86efac'],
+          startVelocity: 30,
+          gravity: 1,
+          ticks: 100,
+          disableForReducedMotion: true,
+        });
+
+        // Side bursts with delay
+        setTimeout(() => {
+          confetti({
+            particleCount: 25,
+            angle: 60,
+            spread: 45,
+            origin: { x: 0.1, y: 0.7 },
+            colors: ['#22c55e', '#4ade80'],
+            startVelocity: 35,
+            disableForReducedMotion: true,
+          });
+          confetti({
+            particleCount: 25,
+            angle: 120,
+            spread: 45,
+            origin: { x: 0.9, y: 0.7 },
+            colors: ['#22c55e', '#4ade80'],
+            startVelocity: 35,
+            disableForReducedMotion: true,
+          });
+        }, 150);
       });
 
-      // Left cannon burst
-      setTimeout(() => {
-        confetti({
-          particleCount: 40,
-          angle: 60,
-          spread: 55,
-          origin: { x: 0, y: 0.7 },
-          colors: ['#22c55e', '#16a34a', '#4ade80'],
-          startVelocity: 45,
-        });
-      }, 100);
-
-      // Right cannon burst
-      setTimeout(() => {
-        confetti({
-          particleCount: 40,
-          angle: 120,
-          spread: 55,
-          origin: { x: 1, y: 0.7 },
-          colors: ['#22c55e', '#16a34a', '#4ade80'],
-          startVelocity: 45,
-        });
-      }, 100);
-
-      // Extra sparkle burst
-      setTimeout(() => {
-        confetti({
-          particleCount: 30,
-          spread: 360,
-          origin: { x: 0.5, y: 0.5 },
-          colors: ['#fbbf24', '#f59e0b', '#ffffff'],
-          startVelocity: 20,
-          gravity: 0.4,
-          scalar: 0.8,
-          shapes: ['circle'],
-        });
-      }, 250);
-
       playCelebrationSound();
+      
+      toast({ 
+        title: 'Meta realizada com sucesso!',
+        description: 'Parabéns por alcançar sua meta!'
+      });
     } else {
-      // Shake animation when unchecking
+      // Shake animation and sad sound when unchecking
       setShakingGoalId(goal.id);
       setTimeout(() => setShakingGoalId(null), 400);
+      
+      playSadSound();
+      
+      toast({ 
+        title: 'Meta desmarcada',
+        description: 'Você pode tentar novamente'
+      });
     }
-    
-    toast({ 
-      title: wasCompleted ? 'Meta desmarcada' : 'Meta realizada com sucesso!',
-      description: wasCompleted ? 'Você pode tentar novamente' : 'Parabéns por alcançar sua meta!'
-    });
   };
 
   const handleAddGoalConfirm = async () => {
