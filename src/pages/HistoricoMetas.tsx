@@ -9,7 +9,8 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { LIFE_AREAS, AREA_HEX_COLORS, LifeArea } from '@/lib/constants';
-import { CheckCircle2, Calendar, Target, ArrowLeft, Trophy, Sparkles, Download, Loader2 } from 'lucide-react';
+import { CheckCircle2, Calendar, Target, ArrowLeft, Trophy, Sparkles } from 'lucide-react';
+import { ExportPdfButton } from '@/components/ui/export-pdf-button';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -258,20 +259,11 @@ export default function HistoricoMetas() {
               Veja todas as metas que você já conquistou
             </p>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
+          <ExportPdfButton 
             onClick={exportToPDF}
-            disabled={exporting || goals.length === 0}
-            className="gap-2"
-          >
-            {exporting ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <Download className="w-4 h-4" />
-            )}
-            Exportar PDF
-          </Button>
+            loading={exporting}
+            disabled={goals.length === 0}
+          />
         </div>
 
         {/* Filters */}

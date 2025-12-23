@@ -10,7 +10,8 @@ import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, ArrowLeft, Pencil, Save, X, Settings, Download, FileText } from 'lucide-react';
+import { Loader2, ArrowLeft, Pencil, Save, X, Settings, FileText } from 'lucide-react';
+import { ExportPdfButton } from '@/components/ui/export-pdf-button';
 import { LIFE_AREAS, AREA_HEX_COLORS, LifeArea } from '@/lib/constants';
 import { AreaCustomizationEditor, AreaConfig } from '@/components/life-plan/AreaCustomizationEditor';
 import { usePlanAreaCustomizations } from '@/hooks/usePlanAreaCustomizations';
@@ -368,10 +369,11 @@ export default function ConsultaDetalhes() {
           )}
           
           <div className="flex gap-2 flex-shrink-0">
-            <Button variant="outline" size="sm" onClick={() => setExportDialogOpen(true)} className="h-10 rounded-xl border-border/50">
-              <Download className="w-4 h-4 mr-1.5" />
-              <span className="hidden sm:inline">Exportar</span>
-            </Button>
+            <ExportPdfButton 
+              onClick={() => setExportDialogOpen(true)} 
+              compact
+              className="border-border/50"
+            />
             <Button variant="outline" size="sm" onClick={() => setAreasDialogOpen(true)} className="h-10 rounded-xl border-border/50">
               <Settings className="w-4 h-4 mr-1.5" />
               <span className="hidden sm:inline">Personalizar</span>
