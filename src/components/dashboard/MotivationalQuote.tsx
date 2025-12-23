@@ -1,15 +1,17 @@
 import { Heart, Quote } from 'lucide-react';
 import { getDailyQuote, MOTIVATIONAL_QUOTES } from '@/lib/motivational-quotes';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useFavoriteQuotes } from '@/hooks/useFavoriteQuotes';
 import { FavoriteQuotesDialog } from './FavoriteQuotesDialog';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export function MotivationalQuote() {
   const { user } = useAuth();
   const quote = useMemo(() => getDailyQuote(), []);
   const { isFavorite, toggleFavorite } = useFavoriteQuotes();
+  const [isAnimating, setIsAnimating] = useState(false);
 
   // Get the current quote index
   const quoteIndex = useMemo(() => {
@@ -22,7 +24,9 @@ export function MotivationalQuote() {
 
   const handleToggleFavorite = async () => {
     if (!user) return;
+    setIsAnimating(true);
     await toggleFavorite(quoteIndex);
+    setTimeout(() => setIsAnimating(false), 300);
   };
 
   return (
@@ -51,18 +55,35 @@ export function MotivationalQuote() {
 
         {user && (
           <div className="flex flex-col items-end gap-2">
-            <button
+            <motion.button
               onClick={handleToggleFavorite}
               className={cn(
-                "p-2 rounded-full transition-all hover:scale-110",
+                "p-2 rounded-full transition-colors",
                 isCurrentFavorite 
                   ? "text-red-500 hover:bg-red-500/10" 
                   : "text-muted-foreground hover:text-red-500 hover:bg-red-500/10"
               )}
               title={isCurrentFavorite ? "Remover dos favoritos" : "Adicionar aos favoritos"}
+              whileTap={{ scale: 0.9 }}
             >
-              <Heart className={cn("w-5 h-5", isCurrentFavorite && "fill-current")} />
-            </button>
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={isCurrentFavorite ? 'filled' : 'empty'}
+                  initial={{ scale: 0.5, opacity: 0 }}
+                  animate={{ 
+                    scale: isAnimating ? [1, 1.3, 1] : 1, 
+                    opacity: 1 
+                  }}
+                  exit={{ scale: 0.5, opacity: 0 }}
+                  transition={{ 
+                    duration: 0.3,
+                    scale: { type: "spring", stiffness: 400, damping: 10 }
+                  }}
+                >
+                  <Heart className={cn("w-5 h-5", isCurrentFavorite && "fill-current")} />
+                </motion.div>
+              </AnimatePresence>
+            </motion.button>
             <FavoriteQuotesDialog />
           </div>
         )}
