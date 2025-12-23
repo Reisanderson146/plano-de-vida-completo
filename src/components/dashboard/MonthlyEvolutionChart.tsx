@@ -77,14 +77,14 @@ export function MonthlyEvolutionChart({ selectedPlanId, refreshKey }: MonthlyEvo
 
   if (loading) {
     return (
-      <Card className="border-border/40">
+      <Card className="border-border/40 h-full flex flex-col">
         <CardHeader className="pb-3">
           <CardTitle className="text-lg flex items-center gap-2">
             <TrendingUp className="w-5 h-5 text-primary" />
             Evolução Mensal
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="flex-1">
           <Skeleton className="h-[200px] w-full rounded-xl" />
         </CardContent>
       </Card>
@@ -121,7 +121,7 @@ export function MonthlyEvolutionChart({ selectedPlanId, refreshKey }: MonthlyEvo
   };
 
   return (
-    <Card className={`border-border/40 transition-all duration-300 ${isUpdating ? 'ring-2 ring-primary/50 scale-[1.02]' : ''}`}>
+    <Card className={`border-border/40 h-full flex flex-col transition-all duration-300 ${isUpdating ? 'ring-2 ring-primary/50 scale-[1.02]' : ''}`}>
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg flex items-center gap-2">
@@ -143,7 +143,7 @@ export function MonthlyEvolutionChart({ selectedPlanId, refreshKey }: MonthlyEvo
           )}
         </div>
       </CardHeader>
-      <CardContent className="pt-0">
+      <CardContent className="pt-0 flex-1 flex flex-col justify-center">
         {!hasData ? (
           <div className="flex flex-col items-center justify-center h-[200px] text-center">
             <div className="w-14 h-14 rounded-2xl bg-muted/50 flex items-center justify-center mb-3">

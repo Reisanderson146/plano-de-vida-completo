@@ -289,11 +289,13 @@ export default function Dashboard() {
         </div>
 
         {/* Pending Goals and Monthly Evolution */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-stretch">
+          <div className="h-full">
             <PendingGoalsWidget selectedPlanId={selectedPlanId} onGoalCompleted={handleGoalCompleted} />
           </div>
-          <MonthlyEvolutionChart selectedPlanId={selectedPlanId} refreshKey={chartRefreshKey} />
+          <div className="h-full">
+            <MonthlyEvolutionChart selectedPlanId={selectedPlanId} refreshKey={chartRefreshKey} />
+          </div>
         </div>
 
         {/* Progress Chart */}

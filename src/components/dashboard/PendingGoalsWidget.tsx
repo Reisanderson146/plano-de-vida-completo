@@ -173,14 +173,14 @@ export function PendingGoalsWidget({ selectedPlanId, onGoalCompleted }: PendingG
 
   if (loading) {
     return (
-      <Card className="border-border/40">
+      <Card className="border-border/40 h-full flex flex-col">
         <CardHeader className="pb-3">
           <CardTitle className="text-lg flex items-center gap-2">
             <Clock className="w-5 h-5 text-primary" />
             Metas Pendentes
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3">
+        <CardContent className="space-y-3 flex-1">
           {[1, 2, 3].map((i) => (
             <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-muted/30">
               <Skeleton className="w-5 h-5 rounded" />
@@ -198,7 +198,7 @@ export function PendingGoalsWidget({ selectedPlanId, onGoalCompleted }: PendingG
 
   if (goals.length === 0) {
     return (
-      <Card className="border-border/40">
+      <Card className="border-border/40 h-full flex flex-col">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg flex items-center gap-2">
@@ -216,7 +216,7 @@ export function PendingGoalsWidget({ selectedPlanId, onGoalCompleted }: PendingG
             </Button>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="flex-1 flex items-center justify-center">
           <div className="flex flex-col items-center justify-center py-6 text-center">
             <div className="w-14 h-14 rounded-2xl bg-success/10 flex items-center justify-center mb-3">
               <Sparkles className="w-7 h-7 text-success" />
@@ -245,7 +245,7 @@ export function PendingGoalsWidget({ selectedPlanId, onGoalCompleted }: PendingG
   }
 
   return (
-    <Card className="border-border/40">
+    <Card className="border-border/40 h-full flex flex-col">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg flex items-center gap-2">
@@ -266,7 +266,7 @@ export function PendingGoalsWidget({ selectedPlanId, onGoalCompleted }: PendingG
           </Button>
         </div>
       </CardHeader>
-      <CardContent className="space-y-2">
+      <CardContent className="space-y-2 flex-1">
         {goals.map((goal, index) => (
           <div
             key={goal.id}
