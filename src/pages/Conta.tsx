@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Gem, BadgeCheck, CreditCard, Calendar, Check, Shield, ExternalLink, Loader2, Crown, Sparkles, Zap, Target, Heart, Users, Baby, User } from 'lucide-react';
+import { Gem, BadgeCheck, CreditCard, Calendar, Check, Shield, ExternalLink, Loader2, Crown, Sparkles, Zap, Target, Heart, Users, Baby, User, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -9,6 +9,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { SUBSCRIPTION_TIERS, getTierByProductId, SubscriptionTier } from '@/lib/subscription-tiers';
+import { cn } from '@/lib/utils';
+import { LucideIcon } from 'lucide-react';
 
 interface SubscriptionInfo {
   status: string;
@@ -17,21 +19,36 @@ interface SubscriptionInfo {
   productId: string | null;
 }
 
-const basicBenefits = [
-  { icon: User, text: '1 Plano Individual' },
-  { icon: Shield, text: 'Dados seguros na nuvem' },
-  { icon: Target, text: 'Planejamento das 7 áreas' },
-  { icon: Zap, text: 'Exportação em PDF' },
+interface Benefit {
+  icon: LucideIcon;
+  text: string;
+  includedInBasic: boolean;
+  highlight?: boolean;
+}
+
+// All benefits - same list for both plans, with strikethrough for Basic
+const allBenefits: Benefit[] = [
+  { icon: User, text: '1 Plano Individual', includedInBasic: true },
+  { icon: Target, text: 'Planejamento das 7 áreas', includedInBasic: true },
+  { icon: Shield, text: 'Dados seguros na nuvem', includedInBasic: true },
+  { icon: Zap, text: 'Exportação em PDF', includedInBasic: true },
+  { icon: Users, text: '1 Plano Familiar', includedInBasic: false },
+  { icon: Baby, text: '3 Planos para Filhos', includedInBasic: false },
+  { icon: Sparkles, text: 'Resumo inteligente com IA', includedInBasic: false, highlight: true },
+  { icon: Check, text: 'Relatórios de progresso', includedInBasic: false },
+  { icon: Heart, text: 'Lembretes por email', includedInBasic: false },
 ];
 
-const premiumBenefits = [
-  { icon: Users, text: '1 Plano Familiar' },
-  { icon: Baby, text: '3 Planos para Filhos' },
-  { icon: Sparkles, text: 'Resumo com IA', highlight: true },
-  { icon: Shield, text: 'Dados seguros na nuvem' },
-  { icon: Target, text: 'Relatórios de progresso' },
-  { icon: Heart, text: 'Lembretes por email' },
-  { icon: Zap, text: 'Exportação em PDF' },
+// Premium benefits (without individual plan)
+const premiumBenefits: Benefit[] = [
+  { icon: Users, text: '1 Plano Familiar', includedInBasic: false },
+  { icon: Baby, text: '3 Planos para Filhos', includedInBasic: false },
+  { icon: Target, text: 'Planejamento das 7 áreas', includedInBasic: true },
+  { icon: Shield, text: 'Dados seguros na nuvem', includedInBasic: true },
+  { icon: Zap, text: 'Exportação em PDF', includedInBasic: true },
+  { icon: Sparkles, text: 'Resumo inteligente com IA', includedInBasic: false, highlight: true },
+  { icon: Check, text: 'Relatórios de progresso', includedInBasic: false },
+  { icon: Heart, text: 'Lembretes por email', includedInBasic: false },
 ];
 
 export default function Conta() {
@@ -140,27 +157,27 @@ export default function Conta() {
         {/* Plans Comparison */}
         <div className="grid md:grid-cols-2 gap-6">
           {/* Basic Plan */}
-          <Card className={`relative overflow-hidden transition-all duration-300 ${
+          <Card className={cn(
+            "relative overflow-hidden transition-all duration-300",
             currentPlan === 'basic' 
-              ? 'border-2 border-primary shadow-lg' 
-              : 'border-border/50 hover:border-border'
-          }`}>
-            {currentPlan === 'basic' && (
-              <div className="absolute top-3 right-3 z-10">
-                <Badge className="bg-primary text-primary-foreground border-0 shadow-lg">
-                  <BadgeCheck className="w-3.5 h-3.5 mr-1" />
-                  Seu Plano Atual
-                </Badge>
-              </div>
-            )}
+              ? "border-2 border-primary/50 shadow-lg shadow-primary/10 ring-1 ring-primary/20" 
+              : "border-border/50 hover:border-border"
+          )}>
             
             <CardHeader className="pb-4 pt-6">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-teal-500/20 flex items-center justify-center">
                   <Gem className="w-6 h-6 text-emerald-600" />
                 </div>
-                <div>
-                  <h2 className="text-xl font-bold">Plano Basic</h2>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-xl font-bold">Plano Basic</h2>
+                    {currentPlan === 'basic' && (
+                      <Badge variant="outline" className="border-primary/50 text-primary text-xs">
+                        Atual
+                      </Badge>
+                    )}
+                  </div>
                   <p className="text-sm text-muted-foreground">Para começar sua jornada</p>
                 </div>
               </div>
@@ -177,14 +194,30 @@ export default function Conta() {
 
               {/* Benefits */}
               <div className="space-y-3">
-                {basicBenefits.map((benefit, index) => {
+                {allBenefits.map((benefit, index) => {
                   const Icon = benefit.icon;
                   return (
                     <div key={index} className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center flex-shrink-0">
-                        <Icon className="w-4 h-4 text-emerald-600" />
+                      <div className={cn(
+                        "w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0",
+                        benefit.includedInBasic 
+                          ? "bg-emerald-500/10" 
+                          : "bg-muted/50"
+                      )}>
+                        {benefit.includedInBasic ? (
+                          <Icon className="w-4 h-4 text-emerald-600" />
+                        ) : (
+                          <X className="w-4 h-4 text-muted-foreground/50" />
+                        )}
                       </div>
-                      <span className="text-sm text-foreground">{benefit.text}</span>
+                      <span className={cn(
+                        "text-sm",
+                        benefit.includedInBasic 
+                          ? "text-foreground" 
+                          : "text-muted-foreground/50 line-through"
+                      )}>
+                        {benefit.text}
+                      </span>
                     </div>
                   );
                 })}
@@ -227,26 +260,18 @@ export default function Conta() {
           </Card>
 
           {/* Premium Plan */}
-          <Card className={`relative overflow-hidden transition-all duration-300 ${
+          <Card className={cn(
+            "relative overflow-hidden transition-all duration-300",
             currentPlan === 'premium' 
-              ? 'border-2 border-violet-500 shadow-lg shadow-violet-500/20' 
-              : 'border-2 border-violet-500/30 hover:border-violet-500/50'
-          }`}>
+              ? "border-2 border-violet-500/50 shadow-lg shadow-violet-500/10 ring-1 ring-violet-500/20" 
+              : "border-2 border-violet-500/30 hover:border-violet-500/50"
+          )}>
             {/* Recommended Badge */}
             {currentPlan !== 'premium' && (
-              <div className="absolute -top-1 -right-1">
+              <div className="absolute top-3 right-3 z-10">
                 <Badge className="bg-gradient-to-r from-violet-600 to-purple-600 text-white border-0 shadow-lg">
                   <Crown className="w-3 h-3 mr-1" />
                   Recomendado
-                </Badge>
-              </div>
-            )}
-            
-            {currentPlan === 'premium' && (
-              <div className="absolute top-3 right-3 z-10">
-                <Badge className="bg-primary text-primary-foreground border-0 shadow-lg">
-                  <Crown className="w-3.5 h-3.5 mr-1" />
-                  Seu Plano Atual
                 </Badge>
               </div>
             )}
@@ -256,10 +281,17 @@ export default function Conta() {
                 <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-500/20 to-purple-500/20 flex items-center justify-center">
                   <Crown className="w-6 h-6 text-violet-600" />
                 </div>
-                <div>
-                  <h2 className="text-xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
-                    Plano Premium
-                  </h2>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
+                      Plano Premium
+                    </h2>
+                    {currentPlan === 'premium' && (
+                      <Badge variant="outline" className="border-violet-500/50 text-violet-600 text-xs">
+                        Atual
+                      </Badge>
+                    )}
+                  </div>
                   <p className="text-sm text-muted-foreground">Para toda a família</p>
                 </div>
               </div>
@@ -285,19 +317,29 @@ export default function Conta() {
                 {premiumBenefits.map((benefit, index) => {
                   const Icon = benefit.icon;
                   return (
-                    <div key={index} className={`flex items-center gap-3 ${benefit.highlight ? 'p-2 -mx-2 rounded-lg bg-gradient-to-r from-violet-500/10 to-purple-500/10' : ''}`}>
-                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                    <div key={index} className={cn(
+                      "flex items-center gap-3",
+                      benefit.highlight && "p-2 -mx-2 rounded-lg bg-gradient-to-r from-violet-500/10 to-purple-500/10"
+                    )}>
+                      <div className={cn(
+                        "w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0",
                         benefit.highlight 
-                          ? 'bg-gradient-to-br from-violet-500 to-purple-600' 
-                          : 'bg-violet-500/10'
-                      }`}>
-                        <Icon className={`w-4 h-4 ${benefit.highlight ? 'text-white' : 'text-violet-600'}`} />
+                          ? "bg-gradient-to-br from-violet-500 to-purple-600" 
+                          : "bg-violet-500/10"
+                      )}>
+                        <Icon className={cn(
+                          "w-4 h-4",
+                          benefit.highlight ? "text-white" : "text-violet-600"
+                        )} />
                       </div>
-                      <span className={`text-sm ${benefit.highlight ? 'font-semibold text-foreground' : 'text-foreground'}`}>
+                      <span className={cn(
+                        "text-sm flex-1",
+                        benefit.highlight ? "font-semibold text-foreground" : "text-foreground"
+                      )}>
                         {benefit.text}
                       </span>
                       {benefit.highlight && (
-                        <Badge variant="outline" className="ml-auto text-xs border-violet-500/30 text-violet-600">
+                        <Badge variant="outline" className="text-xs border-violet-500/30 text-violet-600">
                           Exclusivo
                         </Badge>
                       )}
