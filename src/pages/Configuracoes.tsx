@@ -1,11 +1,14 @@
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Moon, Info } from 'lucide-react';
+import { Moon, Info, Volume2, VolumeX } from 'lucide-react';
 import { DarkModeToggle } from '@/components/theme/DarkModeToggle';
+import { Switch } from '@/components/ui/switch';
 import { useAuth } from '@/hooks/useAuth';
+import { useSoundSettings } from '@/hooks/useSoundSettings';
 
 export default function Configuracoes() {
   const { user } = useAuth();
+  const { soundEnabled, toggleSound } = useSoundSettings();
 
   return (
     <AppLayout>
@@ -36,6 +39,45 @@ export default function Configuracoes() {
                 </div>
               </div>
               <DarkModeToggle />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Sound Settings Card */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              {soundEnabled ? (
+                <Volume2 className="w-5 h-5 text-primary" />
+              ) : (
+                <VolumeX className="w-5 h-5 text-muted-foreground" />
+              )}
+              Sons do Sistema
+            </CardTitle>
+            <CardDescription>Ativar ou desativar sons de feedback</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between p-4 rounded-xl bg-muted/50">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-lg bg-background shadow-sm">
+                  {soundEnabled ? (
+                    <Volume2 className="w-5 h-5 text-primary" />
+                  ) : (
+                    <VolumeX className="w-5 h-5 text-muted-foreground" />
+                  )}
+                </div>
+                <div>
+                  <p className="font-medium">Efeitos Sonoros</p>
+                  <p className="text-sm text-muted-foreground">
+                    {soundEnabled ? 'Sons ativados' : 'Sons desativados'}
+                  </p>
+                </div>
+              </div>
+              <Switch
+                checked={soundEnabled}
+                onCheckedChange={toggleSound}
+                aria-label="Ativar sons do sistema"
+              />
             </div>
           </CardContent>
         </Card>

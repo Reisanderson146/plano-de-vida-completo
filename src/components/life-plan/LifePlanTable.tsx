@@ -9,6 +9,7 @@ import { Pencil, Plus, Trash2, ChevronDown, ChevronUp, Calendar, User, CheckCirc
 import { LIFE_AREAS, LifeArea, AREA_ICONS } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import { isSoundEnabled } from '@/hooks/useSoundSettings';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -119,6 +120,8 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, on
 
   // Play elaborate celebration sound with random variations
   const playCelebrationSound = () => {
+    if (!isSoundEnabled()) return;
+    
     const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
     const masterGain = audioContext.createGain();
     masterGain.connect(audioContext.destination);
@@ -223,6 +226,8 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, on
 
   // Play sad sound when unmarking a goal
   const playSadSound = () => {
+    if (!isSoundEnabled()) return;
+    
     try {
       const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
       
