@@ -87,7 +87,7 @@ export default function CheckoutSuccess() {
               <Button onClick={() => window.location.reload()} variant="outline">
                 Tentar novamente
               </Button>
-              <Button onClick={() => navigate('/')}>Ir para o Dashboard</Button>
+              <Button onClick={() => navigate('/')}>Ir para o Painel</Button>
             </div>
           </CardContent>
         </Card>
@@ -132,7 +132,7 @@ export default function CheckoutSuccess() {
               variant="outline"
               className="w-full"
             >
-              Ir para o Dashboard
+              Ir para o Painel
             </Button>
           </div>
         </CardContent>

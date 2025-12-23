@@ -17,7 +17,7 @@ const features = [
   },
   {
     icon: BarChart3,
-    title: "Dashboard Completo",
+    title: "Painel Completo",
     description: "Visualize seu progresso em gráficos interativos. Veja quais áreas estão bem e quais precisam de mais atenção.",
     highlight: "Gráficos interativos",
     color: "from-violet-500 to-purple-500",

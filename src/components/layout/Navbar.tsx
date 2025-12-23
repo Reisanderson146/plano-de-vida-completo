@@ -6,6 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/Logo';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,7 +26,9 @@ import {
   Shield,
   CreditCard,
   HelpCircle,
-  Play
+  Play,
+  Crown,
+  Gem
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTourContext } from './AppLayout';
@@ -45,6 +48,7 @@ export function Navbar() {
   const tourContext = useTourContext();
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [fullName, setFullName] = useState<string | null>(null);
+  const [subscriptionPlan, setSubscriptionPlan] = useState<string | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -57,13 +61,14 @@ export function Navbar() {
     
     const { data } = await supabase
       .from('profiles')
-      .select('avatar_url, full_name')
+      .select('avatar_url, full_name, subscription_plan')
       .eq('id', user.id)
       .maybeSingle();
 
     if (data) {
       setAvatarUrl(data.avatar_url);
       setFullName(data.full_name);
+      setSubscriptionPlan(data.subscription_plan);
     }
   };
 
@@ -77,14 +82,40 @@ export function Navbar() {
     return 'U';
   };
 
+  const getPlanBadge = () => {
+    if (subscriptionPlan === 'premium') {
+      return (
+        <Badge className="bg-gradient-to-r from-violet-600 to-purple-600 text-white border-0 text-[10px] px-1.5 py-0 h-5 gap-1 shadow-lg shadow-violet-500/30">
+          <Crown className="w-3 h-3" />
+          Premium
+        </Badge>
+      );
+    }
+    if (subscriptionPlan === 'basic') {
+      return (
+        <Badge className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white border-0 text-[10px] px-1.5 py-0 h-5 gap-1">
+          <Gem className="w-3 h-3" />
+          Basic
+        </Badge>
+      );
+    }
+    return null;
+  };
+
   return (
     <nav className="gradient-hero shadow-xl sticky top-0 z-50 backdrop-blur-md border-b border-white/10">
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 sm:h-[72px]">
-          <Link to="/" className="flex items-center group">
-            <Logo size="sm" showText={true} showIcon={false} variant="light" singleLine={true} className="sm:hidden transition-transform group-hover:scale-105" />
-            <Logo size="md" showText={true} showIcon={false} variant="light" singleLine={true} className="hidden sm:flex transition-transform group-hover:scale-105" />
-          </Link>
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Link to="/" className="flex items-center group">
+              <Logo size="sm" showText={true} showIcon={false} variant="light" singleLine={true} className="sm:hidden transition-transform group-hover:scale-105" />
+              <Logo size="md" showText={true} showIcon={false} variant="light" singleLine={true} className="hidden sm:flex transition-transform group-hover:scale-105" />
+            </Link>
+            {/* Plan Badge - Always visible */}
+            <div className="hidden xs:block">
+              {getPlanBadge()}
+            </div>
+          </div>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-1 bg-white/10 backdrop-blur-md rounded-2xl px-2 py-1.5 shadow-inner">
@@ -110,6 +141,11 @@ export function Navbar() {
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3">
+            {/* Plan Badge on mobile - inside dropdown area */}
+            <div className="xs:hidden">
+              {getPlanBadge()}
+            </div>
+            
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="flex items-center gap-2 bg-white/10 hover:bg-white/20 transition-all duration-300 rounded-2xl p-1.5 pr-3 sm:pr-4 shadow-inner hover:shadow-lg">
@@ -126,7 +162,10 @@ export function Navbar() {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
                 <div className="px-2 py-2">
-                  <p className="text-sm font-medium">{fullName || 'Usuário'}</p>
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm font-medium">{fullName || 'Usuário'}</p>
+                    {getPlanBadge()}
+                  </div>
                   <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
                 </div>
                 <DropdownMenuSeparator />

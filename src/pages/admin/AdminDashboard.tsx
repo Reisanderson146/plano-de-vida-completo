@@ -377,7 +377,7 @@ export default function AdminDashboard() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-white">Dashboard</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-white">Painel Admin</h1>
             <p className="text-slate-400">Gerencie usuários e visualize estatísticas</p>
           </div>
         </div>

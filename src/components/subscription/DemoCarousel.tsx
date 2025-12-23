@@ -8,7 +8,7 @@ const demoSlides = [
   { id: 'welcome', title: 'Bem-vindo', subtitle: 'Conheça o Plano de Vida', component: WelcomeDemo },
   { id: 'cadastro', title: 'Crie seu Plano', subtitle: 'Configure em minutos', component: CadastroDemo },
   { id: 'plano', title: 'Suas Metas', subtitle: 'Acompanhe o progresso', component: PlanoDemo },
-  { id: 'dashboard', title: 'Dashboard', subtitle: 'Visão geral completa', component: DashboardDemo },
+  { id: 'dashboard', title: 'Painel', subtitle: 'Visão geral completa', component: DashboardDemo },
   { id: 'balanco', title: 'Balanço + IA', subtitle: 'Insights inteligentes', component: BalancoDemo },
   { id: 'relatorios', title: 'Relatórios', subtitle: 'Gráficos detalhados', component: RelatoriosDemo },
 ];
