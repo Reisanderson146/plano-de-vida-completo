@@ -78,10 +78,39 @@ export function AISummary({
   const { user } = useAuth();
   const navigate = useNavigate();
   const [summary, setSummary] = useState<string | null>(null);
+  const [displayedText, setDisplayedText] = useState<string>('');
+  const [isTyping, setIsTyping] = useState(false);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [savingPreference, setSavingPreference] = useState(false);
   const [selectedStyle, setSelectedStyle] = useState<AIStyle>('balanced');
+
+  // Typewriter effect
+  useEffect(() => {
+    if (!summary) {
+      setDisplayedText('');
+      setIsTyping(false);
+      return;
+    }
+
+    setIsTyping(true);
+    setDisplayedText('');
+    
+    let currentIndex = 0;
+    const typingSpeed = 15; // milliseconds per character
+    
+    const typeInterval = setInterval(() => {
+      if (currentIndex < summary.length) {
+        setDisplayedText(summary.slice(0, currentIndex + 1));
+        currentIndex++;
+      } else {
+        clearInterval(typeInterval);
+        setIsTyping(false);
+      }
+    }, typingSpeed);
+
+    return () => clearInterval(typeInterval);
+  }, [summary]);
 
   const canUseAI = hasAIAccess(subscriptionTier);
 
@@ -412,18 +441,34 @@ export function AISummary({
         )}
 
         {summary && !loading && (
-          <div className="space-y-4">
+          <motion.div 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            className="space-y-4"
+          >
             <div className="prose prose-sm dark:prose-invert max-w-none">
-              <div className="whitespace-pre-wrap text-foreground/90 leading-relaxed p-4 rounded-xl bg-background/50 border border-violet-500/20">
-                {summary}
+              <div className="whitespace-pre-wrap text-foreground/90 leading-relaxed p-4 rounded-xl bg-background/50 border border-violet-500/20 min-h-[80px]">
+                {displayedText}
+                {isTyping && (
+                  <motion.span
+                    animate={{ opacity: [1, 0] }}
+                    transition={{ duration: 0.5, repeat: Infinity }}
+                    className="inline-block w-0.5 h-4 bg-violet-500 ml-0.5 align-middle"
+                  />
+                )}
               </div>
             </div>
-            <div className="flex flex-wrap justify-end gap-2 pt-2">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: isTyping ? 0.5 : 1 }}
+              className="flex flex-wrap justify-end gap-2 pt-2"
+            >
               <Button 
                 variant="outline" 
                 size="sm" 
                 onClick={saveAsNote} 
-                disabled={saving} 
+                disabled={saving || isTyping} 
                 className="gap-2 border-violet-500/30 hover:bg-violet-500/10 hover:border-violet-500/50"
               >
                 {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
@@ -433,13 +478,14 @@ export function AISummary({
                 variant="ghost" 
                 size="sm" 
                 onClick={() => generateSummary()} 
+                disabled={isTyping}
                 className="gap-2 hover:bg-violet-500/10 text-violet-600 dark:text-violet-400"
               >
                 <RefreshCw className="w-4 h-4" />
                 Gerar novo resumo
               </Button>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         )}
       </CardContent>
     </Card>
