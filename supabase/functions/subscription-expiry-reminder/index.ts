@@ -234,6 +234,10 @@ serve(async (req) => {
               to: [customer.email],
               subject,
               html: emailHtml,
+              headers: {
+                "List-Unsubscribe": "<mailto:cancelar@planodevida.io?subject=Unsubscribe>, <https://planodevida.io/configuracoes>",
+                "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+              },
             });
 
             if (emailResponse.error) {
