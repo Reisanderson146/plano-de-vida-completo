@@ -2,6 +2,10 @@ import { useEffect, useState } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { ProgressChart } from '@/components/dashboard/ProgressChart';
 import { AreaCard } from '@/components/dashboard/AreaCard';
+import { StreakWidget } from '@/components/dashboard/StreakWidget';
+import { MotivationalQuote } from '@/components/dashboard/MotivationalQuote';
+import { PendingGoalsWidget } from '@/components/dashboard/PendingGoalsWidget';
+import { MonthlyEvolutionChart } from '@/components/dashboard/MonthlyEvolutionChart';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -17,6 +21,7 @@ import { DateRange } from 'react-day-picker';
 import { format, startOfYear, endOfYear } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { usePlanAreaCustomizations } from '@/hooks/usePlanAreaCustomizations';
+
 type AreaStats = Record<LifeArea, { total: number; completed: number }>;
 
 interface LifePlan {
@@ -56,13 +61,12 @@ export default function Dashboard() {
   });
   const [hasPlans, setHasPlans] = useState(false);
 
-  // Persist selected plan to localStorage
   const handlePlanChange = (planId: string) => {
     setSelectedPlanId(planId);
     localStorage.setItem(SELECTED_PLAN_STORAGE_KEY, planId);
   };
   
-  const { getAreaLabel, getAreaColor, refetch: refetchCustomizations } = usePlanAreaCustomizations(selectedPlanId || undefined);
+  const { getAreaLabel, getAreaColor } = usePlanAreaCustomizations(selectedPlanId || undefined);
 
   useEffect(() => {
     if (user) {
@@ -90,14 +94,12 @@ export default function Dashboard() {
       setHasPlans((data?.length ?? 0) > 0);
       
       if (data && data.length > 0) {
-        // Check if stored plan exists in user's plans
         const storedPlanId = localStorage.getItem(SELECTED_PLAN_STORAGE_KEY);
         const storedPlanExists = storedPlanId && data.some(p => p.id === storedPlanId);
         
         if (storedPlanExists) {
           setSelectedPlanId(storedPlanId);
         } else {
-          // Default to first plan and save it
           setSelectedPlanId(data[0].id);
           localStorage.setItem(SELECTED_PLAN_STORAGE_KEY, data[0].id);
         }
@@ -118,7 +120,7 @@ export default function Dashboard() {
         .select('area, is_completed, period_year, goal_text')
         .eq('user_id', user!.id)
         .eq('life_plan_id', selectedPlanId)
-        .neq('goal_text', ''); // Filter out empty goals
+        .neq('goal_text', '');
 
       const yearRange = getYearRangeFromDateRange(dateRange);
       if (yearRange.min !== undefined) {
@@ -203,6 +205,12 @@ export default function Dashboard() {
           </p>
         </div>
 
+        {/* Motivational Quote */}
+        <MotivationalQuote />
+
+        {/* Streak Widget */}
+        <StreakWidget />
+
         {/* Filters */}
         <div className="flex flex-col sm:flex-row gap-3 opacity-0 animate-stagger-1">
           <Select value={selectedPlanId} onValueChange={handlePlanChange}>
@@ -255,6 +263,12 @@ export default function Dashboard() {
           </div>
         )}
 
+        {/* Two column layout for widgets */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <PendingGoalsWidget selectedPlanId={selectedPlanId} />
+          <MonthlyEvolutionChart selectedPlanId={selectedPlanId} />
+        </div>
+
         {/* Area cards */}
         <div className="overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0 scrollbar-hide opacity-0 animate-stagger-2">
           <div className="flex sm:grid sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-3 sm:gap-4 min-w-max sm:min-w-0">
@@ -275,6 +289,7 @@ export default function Dashboard() {
             ))}
           </div>
         </div>
+
         {/* Progress Chart */}
         <Card className="border-border/40 opacity-0 animate-stagger-3">
           <CardHeader className="pb-3">
