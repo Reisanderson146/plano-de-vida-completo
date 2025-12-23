@@ -344,7 +344,7 @@ export default function Relatorios() {
         </div>
 
         {/* Charts */}
-        <div className="grid gap-5 grid-cols-1 lg:grid-cols-2">
+        <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
           <Card className="border-border/40">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
@@ -405,7 +405,7 @@ export default function Relatorios() {
         </div>
 
         {/* Overall Progress */}
-        <Card className="border-border/40">
+        <Card className="border-border/40 mt-2">
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-base sm:text-lg">Progresso Geral</CardTitle>
