@@ -143,6 +143,10 @@ const handler = async (req: Request): Promise<Response> => {
       to: [to],
       subject: `🎉 Bem-vindo ao Plano de Vida, ${userName}!`,
       html: emailHtml,
+      headers: {
+        "List-Unsubscribe": "<mailto:cancelar@planodevida.io?subject=Unsubscribe>, <https://planodevida.io/configuracoes>",
+        "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+      },
     });
 
     console.log("[TEST-EMAIL] Email sent successfully:", emailResponse);
