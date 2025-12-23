@@ -4,26 +4,30 @@ import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { 
   Shield, 
-  Users, 
   LogOut, 
   LayoutDashboard,
-  ChevronRight,
-  Home
+  Home,
+  Settings,
+  Bell,
+  Moon,
+  Sun
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useState } from 'react';
 
 interface AdminLayoutProps {
   children: ReactNode;
 }
 
 const navItems = [
-  { href: '/admin/dashboard', label: 'Painel Admin', icon: LayoutDashboard },
+  { href: '/admin/dashboard', label: 'Painel', icon: LayoutDashboard },
 ];
 
 export function AdminLayout({ children }: AdminLayoutProps) {
   const { signOut } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const [isDark, setIsDark] = useState(true);
 
   const handleSignOut = async () => {
     await signOut();
@@ -31,24 +35,32 @@ export function AdminLayout({ children }: AdminLayoutProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+      {/* Subtle grid pattern */}
+      <div className="fixed inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAwIDEwIEwgNDAgMTAgTSAxMCAwIEwgMTAgNDAgTSAwIDIwIEwgNDAgMjAgTSAyMCAwIEwgMjAgNDAgTSAwIDMwIEwgNDAgMzAgTSAzMCAwIEwgMzAgNDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjAyKSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-40 pointer-events-none" />
+      
+      {/* Gradient orbs */}
+      <div className="fixed top-0 left-1/4 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="fixed bottom-0 right-1/4 w-96 h-96 bg-violet-500/10 rounded-full blur-3xl pointer-events-none" />
+      
       {/* Top Navigation */}
-      <header className="sticky top-0 z-50 border-b border-slate-700/50 bg-slate-900/80 backdrop-blur-xl">
+      <header className="sticky top-0 z-50 border-b border-slate-800/50 bg-slate-900/80 backdrop-blur-xl">
         <div className="container mx-auto px-4">
           <div className="flex h-16 items-center justify-between">
             {/* Logo */}
-            <Link to="/admin/dashboard" className="flex items-center gap-3">
-              <div className="p-2 rounded-xl bg-amber-500/20 border border-amber-500/30">
+            <Link to="/admin/dashboard" className="flex items-center gap-3 group">
+              <div className="relative p-2.5 rounded-xl bg-gradient-to-br from-amber-500/20 to-amber-600/10 border border-amber-500/20 transition-all duration-300 group-hover:border-amber-500/40 group-hover:shadow-lg group-hover:shadow-amber-500/10">
                 <Shield className="w-5 h-5 text-amber-400" />
+                <div className="absolute inset-0 rounded-xl bg-amber-500/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
               </div>
               <div>
-                <span className="text-lg font-bold text-white">Admin</span>
-                <span className="text-xs text-slate-400 block -mt-0.5">Plano de Vida</span>
+                <span className="text-lg font-bold text-white tracking-tight">Admin Panel</span>
+                <span className="text-[10px] text-slate-500 block -mt-0.5 font-medium tracking-wider uppercase">Plano de Vida</span>
               </div>
             </Link>
 
-            {/* Navigation */}
-            <nav className="hidden md:flex items-center gap-1">
+            {/* Center Navigation */}
+            <nav className="hidden md:flex items-center gap-1 bg-slate-800/50 rounded-full px-1.5 py-1 border border-slate-700/50">
               {navItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = location.pathname === item.href;
@@ -57,9 +69,9 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                     key={item.href}
                     to={item.href}
                     className={cn(
-                      "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all",
+                      "flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200",
                       isActive 
-                        ? "bg-amber-500/20 text-amber-400" 
+                        ? "bg-amber-500/20 text-amber-400 shadow-inner" 
                         : "text-slate-400 hover:text-white hover:bg-slate-700/50"
                     )}
                   >
@@ -74,18 +86,29 @@ export function AdminLayout({ children }: AdminLayoutProps) {
             <div className="flex items-center gap-2">
               <Button
                 variant="ghost"
+                size="icon"
+                className="text-slate-400 hover:text-white hover:bg-slate-700/50 rounded-full w-9 h-9"
+              >
+                <Bell className="w-4 h-4" />
+              </Button>
+              
+              <Button
+                variant="ghost"
                 size="sm"
                 onClick={() => navigate('/')}
-                className="text-slate-400 hover:text-white hover:bg-slate-700/50"
+                className="text-slate-400 hover:text-white hover:bg-slate-700/50 rounded-full"
               >
                 <Home className="w-4 h-4 mr-2" />
-                <span className="hidden sm:inline">Área do Usuário</span>
+                <span className="hidden sm:inline">App</span>
               </Button>
+              
+              <div className="w-px h-6 bg-slate-700" />
+              
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={handleSignOut}
-                className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                className="text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-full"
               >
                 <LogOut className="w-4 h-4 mr-2" />
                 <span className="hidden sm:inline">Sair</span>
@@ -95,25 +118,20 @@ export function AdminLayout({ children }: AdminLayoutProps) {
         </div>
       </header>
 
-      {/* Breadcrumb */}
-      <div className="border-b border-slate-700/30 bg-slate-800/30">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center gap-2 py-3 text-sm">
-            <Link to="/admin/dashboard" className="text-slate-500 hover:text-slate-300 transition-colors">
-              Admin
-            </Link>
-            <ChevronRight className="w-4 h-4 text-slate-600" />
-            <span className="text-slate-300 font-medium">
-              {navItems.find(item => item.href === location.pathname)?.label || 'Painel Admin'}
-            </span>
-          </div>
-        </div>
-      </div>
-
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-6">
+      <main className="relative container mx-auto px-4 py-6">
         {children}
       </main>
+      
+      {/* Footer */}
+      <footer className="border-t border-slate-800/50 bg-slate-900/50 mt-8">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between text-xs text-slate-500">
+            <span>© 2024 Plano de Vida. Admin Panel.</span>
+            <span>v1.0.0</span>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
