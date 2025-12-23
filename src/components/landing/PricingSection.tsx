@@ -24,7 +24,7 @@ const allBenefits: Benefit[] = [
   { text: "Seus dados seguros na nuvem", icon: Shield, includedInBasic: true },
   { text: "Exportação profissional em PDF", icon: Zap, includedInBasic: true },
   { text: "1 Plano Familiar", icon: Users, includedInBasic: false },
-  { text: "2 Planos para Filhos", icon: Baby, includedInBasic: false },
+  { text: "3 Planos para Filhos", icon: Baby, includedInBasic: false },
   { text: "Resumo inteligente com IA", icon: Sparkles, includedInBasic: false, highlight: true },
   { text: "Relatórios e gráficos de progresso", icon: Check, includedInBasic: false },
   { text: "Lembretes por email", icon: Heart, includedInBasic: false },
@@ -212,7 +212,7 @@ const PricingSection = ({ onCheckout, onLogin, loading }: PricingSectionProps) =
                     </div>
                     <div className="mt-2 inline-flex items-center gap-1 bg-violet-500/20 text-violet-600 dark:text-violet-400 text-xs font-semibold px-2.5 py-0.5 rounded-full">
                       <Zap className="w-3 h-3" />
-                      4 planos incluídos
+                      5 planos incluídos
                     </div>
                   </CardHeader>
 
