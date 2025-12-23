@@ -140,8 +140,15 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // Default to /auth (already exists on prod), but allow overriding per request
-    const baseUrl = redirectTo || "https://planodevida.io/auth";
+    // Use dedicated reset-password page for recovery, /auth for others
+    let baseUrl: string;
+    if (redirectTo) {
+      baseUrl = redirectTo;
+    } else if (type === "recovery") {
+      baseUrl = "https://planodevida.io/reset-password";
+    } else {
+      baseUrl = "https://planodevida.io/auth";
+    }
     
     console.log(`Generating ${type} link for ${email} with redirect to ${baseUrl}`);
 
