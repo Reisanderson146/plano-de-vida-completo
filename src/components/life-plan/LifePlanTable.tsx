@@ -281,19 +281,22 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, on
     return goals.filter(g => !g.is_completed);
   };
 
-  // Expanded Goal List Component for horizontal cards
+  // Expanded Goal List Component for horizontal cards - consistent with mobile design
   const GoalListExpanded = ({ areaGoals, areaId, period }: { areaGoals: Goal[]; areaId: LifeArea; period: PeriodRow }) => {
     const areaColor = getAreaColor(areaId);
     const goalsWithText = filterGoalsByStatus(areaGoals.filter(g => g.goal_text.trim()));
 
     return (
-      <div className="space-y-3">
+      <div className="space-y-2">
+        {/* Goal Cards - matching mobile style */}
         {goalsWithText.map((goal, index) => (
           <div 
             key={goal.id} 
             className={cn(
-              "p-3 rounded-lg border border-border/30 bg-background/50 group transition-all hover:shadow-sm",
-              goal.is_completed && "bg-success/5 border-success/20",
+              "p-4 rounded-xl border transition-all duration-200",
+              goal.is_completed 
+                ? "bg-success/10 border-success/30" 
+                : "bg-card border-border/50 hover:border-border hover:shadow-sm",
               shakingGoalId === goal.id && "animate-shake"
             )}
           >
@@ -301,52 +304,59 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, on
               <Checkbox 
                 checked={goal.is_completed} 
                 onCheckedChange={() => handleToggleComplete(goal)} 
-                className="mt-0.5 h-5 w-5 rounded"
-                style={{ borderColor: areaColor }}
+                className="mt-0.5 h-5 w-5 rounded-md transition-transform hover:scale-110"
+                style={{ 
+                  borderColor: goal.is_completed ? 'hsl(var(--success))' : areaColor,
+                }}
               />
               <div className="flex-1 min-w-0">
                 <p className={cn(
-                  "text-sm text-foreground leading-relaxed",
-                  goal.is_completed && "line-through opacity-60"
+                  "text-sm leading-relaxed",
+                  goal.is_completed 
+                    ? "line-through text-muted-foreground" 
+                    : "text-foreground"
                 )}>
-                  <span className="font-semibold" style={{ color: areaColor }}>{index + 1}º </span>
+                  <span 
+                    className="font-semibold"
+                    style={{ color: goal.is_completed ? 'hsl(var(--muted-foreground))' : areaColor }}
+                  >
+                    {index + 1}º{' '}
+                  </span>
                   {goal.goal_text}
                 </p>
               </div>
             </div>
-            <div className="flex gap-1 mt-2 pt-2 border-t border-border/20 opacity-0 group-hover:opacity-100 transition-opacity">
-              <Button 
-                size="sm" 
-                variant="ghost" 
-                onClick={() => setReminderDialog({ goalId: goal.id, goalText: goal.goal_text })}
-                className="h-7 text-xs flex-1 text-primary hover:text-primary hover:bg-primary/10"
-              >
-                <Bell className="w-3 h-3 mr-1" />
-                Lembrete
-              </Button>
-              {editable && (
-                <>
-                  <Button 
-                    size="sm" 
-                    variant="ghost" 
-                    onClick={() => handleStartEdit(goal)} 
-                    className="h-7 text-xs flex-1"
-                  >
-                    <Pencil className="w-3 h-3 mr-1" />
-                    Editar
-                  </Button>
-                  <Button 
-                    size="sm" 
-                    variant="ghost" 
-                    onClick={() => onDeleteGoal(goal.id)} 
-                    className="h-7 text-xs flex-1 hover:text-destructive hover:bg-destructive/10"
-                  >
-                    <Trash2 className="w-3 h-3 mr-1" />
-                    Excluir
-                  </Button>
-                </>
-              )}
-            </div>
+            {editable && (
+              <div className="flex gap-2 mt-3 pt-3 border-t border-border/30">
+                <Button 
+                  size="sm" 
+                  variant="ghost" 
+                  onClick={() => setReminderDialog({ goalId: goal.id, goalText: goal.goal_text })}
+                  className="flex-1 h-8 text-xs text-primary hover:text-primary hover:bg-primary/10"
+                >
+                  <Bell className="w-3 h-3 mr-1.5" />
+                  Lembrete
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant="ghost" 
+                  onClick={() => handleStartEdit(goal)} 
+                  className="flex-1 h-8 text-xs hover:bg-primary/10 hover:text-primary"
+                >
+                  <Pencil className="w-3 h-3 mr-1.5" />
+                  Editar
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant="ghost" 
+                  onClick={() => onDeleteGoal(goal.id)} 
+                  className="flex-1 h-8 text-xs hover:bg-destructive/10 hover:text-destructive"
+                >
+                  <Trash2 className="w-3 h-3 mr-1.5" />
+                  Excluir
+                </Button>
+              </div>
+            )}
           </div>
         ))}
         
@@ -366,7 +376,8 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, on
           <Button 
             variant="outline" 
             size="sm" 
-            className="w-full h-9 text-sm border-dashed border-primary/30 hover:border-primary hover:bg-primary/5 transition-colors" 
+            className="w-full h-10 text-sm font-medium border-dashed border-2 rounded-xl hover:bg-primary/5 transition-colors" 
+            style={{ borderColor: `${areaColor}50` }}
             onClick={() => { setAddGoalDialog({ year: period.year, age: period.age, area: areaId }); setNewGoalText(''); }}
           >
             <Plus className="w-4 h-4 mr-2" style={{ color: areaColor }} />
@@ -583,8 +594,8 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, on
             </CardHeader>
           </CollapsibleTrigger>
           
-          <CollapsibleContent>
-            <CardContent className="p-0">
+          <CollapsibleContent className="animate-accordion-down data-[state=closed]:animate-accordion-up">
+            <CardContent className="p-0 animate-fade-in">
               {/* Desktop/Tablet: Grid View (Horizontal Scroll Cards) */}
               {viewMode === 'grid' && (
                 <div className="hidden md:block border-t border-border">

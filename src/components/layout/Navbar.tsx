@@ -111,10 +111,6 @@ export function Navbar() {
               <Logo size="sm" showText={true} showIcon={false} variant="light" singleLine={true} className="sm:hidden transition-transform group-hover:scale-105" />
               <Logo size="md" showText={true} showIcon={false} variant="light" singleLine={true} className="hidden sm:flex transition-transform group-hover:scale-105" />
             </Link>
-            {/* Plan Badge - Always visible */}
-            <div className="hidden xs:block">
-              {getPlanBadge()}
-            </div>
           </div>
 
           {/* Desktop Navigation */}
@@ -141,10 +137,6 @@ export function Navbar() {
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3">
-            {/* Plan Badge on mobile - inside dropdown area */}
-            <div className="xs:hidden">
-              {getPlanBadge()}
-            </div>
             
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
