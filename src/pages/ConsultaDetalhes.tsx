@@ -307,7 +307,7 @@ export default function ConsultaDetalhes() {
 
   return (
     <AppLayout>
-      <div className="space-y-5 sm:space-y-6 animate-fade-in">
+      <div className="space-y-5 sm:space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center gap-4">
           <Link to="/consulta">
