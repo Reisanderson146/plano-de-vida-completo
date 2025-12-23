@@ -140,7 +140,8 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    const baseUrl = redirectTo || "https://planodevida.io/auth/callback";
+    // Default to /auth (already exists on prod), but allow overriding per request
+    const baseUrl = redirectTo || "https://planodevida.io/auth";
     
     console.log(`Generating ${type} link for ${email} with redirect to ${baseUrl}`);
 
