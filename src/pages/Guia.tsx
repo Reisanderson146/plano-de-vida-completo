@@ -27,11 +27,11 @@ import { Link } from 'react-router-dom';
 const guideSteps = [
   {
     id: 'dashboard',
-    title: 'Dashboard',
+    title: 'Painel de Controle',
     icon: LayoutDashboard,
     description: 'Sua central de controle e visão geral do progresso',
     content: {
-      overview: 'O Dashboard é a tela inicial do sistema. Aqui você tem uma visão completa do seu progresso em todos os planos de vida.',
+      overview: 'O Painel de Controle é a tela inicial do sistema. Aqui você tem uma visão completa do seu progresso em todos os planos de vida.',
       features: [
         { title: 'Visão Geral', description: 'Veja o total de metas cadastradas e quantas já foram concluídas.' },
         { title: 'Progresso por Área', description: 'Acompanhe seu avanço em cada área da vida (Espiritual, Familiar, Saúde, etc.).' },

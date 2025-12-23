@@ -17,7 +17,7 @@ interface AdminLayoutProps {
 }
 
 const navItems = [
-  { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/admin/dashboard', label: 'Painel Admin', icon: LayoutDashboard },
 ];
 
 export function AdminLayout({ children }: AdminLayoutProps) {
@@ -104,7 +104,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
             </Link>
             <ChevronRight className="w-4 h-4 text-slate-600" />
             <span className="text-slate-300 font-medium">
-              {navItems.find(item => item.href === location.pathname)?.label || 'Dashboard'}
+              {navItems.find(item => item.href === location.pathname)?.label || 'Painel Admin'}
             </span>
           </div>
         </div>

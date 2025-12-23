@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Gem, BadgeCheck, CreditCard, Calendar, Check, Shield, ExternalLink, Loader2, Crown, Sparkles, Zap, Target, Heart, Users, Baby, User, X, FileText, Download, ChevronLeft, ChevronRight, Bell, Clock, AlertTriangle, CalendarClock } from 'lucide-react';
+import { Gem, BadgeCheck, CreditCard, Calendar, Check, Shield, ExternalLink, Loader2, Crown, Sparkles, Zap, Target, Heart, Users, Baby, User, X, FileText, Download, ChevronLeft, ChevronRight, Bell, Clock, AlertTriangle, CalendarClock, Pause, Play, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -19,6 +19,17 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface SubscriptionInfo {
   status: string;
@@ -86,6 +97,8 @@ export default function Conta() {
     subscriptionEnd: null,
     productId: null,
   });
+  const [cancelLoading, setCancelLoading] = useState(false);
+  const [pauseLoading, setPauseLoading] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -174,6 +187,44 @@ export default function Conta() {
       toast.error('Erro ao iniciar pagamento. Tente novamente.');
     } finally {
       setCheckoutLoading(null);
+    }
+  };
+
+  const handleCancelSubscription = async () => {
+    setCancelLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('cancel-subscription', {
+        body: { immediately: false }
+      });
+
+      if (error) throw error;
+
+      toast.success(data?.message || 'Assinatura será cancelada no fim do período');
+      loadSubscription();
+    } catch (error: any) {
+      console.error('Error canceling subscription:', error);
+      toast.error(error.message || 'Erro ao cancelar assinatura');
+    } finally {
+      setCancelLoading(false);
+    }
+  };
+
+  const handlePauseSubscription = async () => {
+    setPauseLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('pause-subscription', {
+        body: { action: 'pause' }
+      });
+
+      if (error) throw error;
+
+      toast.success(data?.message || 'Assinatura pausada com sucesso');
+      loadSubscription();
+    } catch (error: any) {
+      console.error('Error pausing subscription:', error);
+      toast.error(error.message || 'Erro ao pausar assinatura');
+    } finally {
+      setPauseLoading(false);
     }
   };
 
@@ -543,20 +594,82 @@ export default function Conta() {
               })()}
 
               {/* Actions */}
-              <div className="flex flex-wrap gap-2 pt-2">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2">
                 <Button 
                   onClick={handleManageSubscription} 
                   disabled={portalLoading}
                   variant="outline"
-                  className="flex-1 sm:flex-none"
+                  className="w-full"
                 >
                   {portalLoading ? (
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                   ) : (
                     <ExternalLink className="w-4 h-4 mr-2" />
                   )}
-                  Gerenciar no Stripe
+                  Gerenciar
                 </Button>
+
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button 
+                      variant="outline"
+                      className="w-full border-amber-500/30 text-amber-600 hover:bg-amber-500/10"
+                      disabled={pauseLoading}
+                    >
+                      {pauseLoading ? (
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      ) : (
+                        <Pause className="w-4 h-4 mr-2" />
+                      )}
+                      Pausar
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Pausar assinatura?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Sua assinatura será pausada temporariamente. Você pode reativá-la a qualquer momento pelo portal do Stripe.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                      <AlertDialogAction onClick={handlePauseSubscription} className="bg-amber-600 hover:bg-amber-700">
+                        Pausar Assinatura
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button 
+                      variant="outline"
+                      className="w-full border-destructive/30 text-destructive hover:bg-destructive/10"
+                      disabled={cancelLoading}
+                    >
+                      {cancelLoading ? (
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      ) : (
+                        <XCircle className="w-4 h-4 mr-2" />
+                      )}
+                      Cancelar
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Cancelar assinatura?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Sua assinatura será cancelada no fim do período atual. Você continuará tendo acesso até a data de renovação.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Voltar</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleCancelSubscription} className="bg-destructive hover:bg-destructive/90">
+                        Confirmar Cancelamento
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
             </CardContent>
           </Card>
