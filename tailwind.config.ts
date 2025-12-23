@@ -148,6 +148,10 @@ export default {
           "10%, 30%, 50%, 70%, 90%": { transform: "translateX(-3px)" },
           "20%, 40%, 60%, 80%": { transform: "translateX(3px)" },
         },
+        "glow-pulse": {
+          "0%, 100%": { boxShadow: "0 0 8px hsl(var(--primary) / 0.3)" },
+          "50%": { boxShadow: "0 0 20px hsl(var(--primary) / 0.5)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.25s ease-out",
@@ -168,6 +172,7 @@ export default {
         "stagger-4": "stagger-fade 0.4s ease-out 0.4s forwards",
         "stagger-5": "stagger-fade 0.4s ease-out 0.5s forwards",
         "shake": "shake 0.4s ease-in-out",
+        "glow-pulse": "glow-pulse 2s ease-in-out infinite",
       },
     },
   },
