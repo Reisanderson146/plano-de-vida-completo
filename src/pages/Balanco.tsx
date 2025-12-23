@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { useSubscription } from '@/hooks/useSubscription';
 import { supabase } from '@/integrations/supabase/client';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,7 +11,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { useExportReport } from '@/hooks/useExportReport';
 import { LIFE_AREAS, AREA_HEX_COLORS } from '@/lib/constants';
-import { getTierByProductId, SubscriptionTier } from '@/lib/subscription-tiers';
 import { Loader2, Target, CheckCircle2, AlertTriangle, TrendingDown, Plus, FileText, Folder, User, Users, Baby, Pencil, Trash2, Sparkles, ArrowRightLeft, Filter } from 'lucide-react';
 import { ExportPdfButton } from '@/components/ui/export-pdf-button';
 import { AISummary } from '@/components/balance/AISummary';
@@ -78,6 +78,7 @@ const getStatusLabel = (percentage: number) => {
 
 export default function Balanco() {
   const { user } = useAuth();
+  const { tier: subscriptionTier } = useSubscription();
   const { toast } = useToast();
   const { exportToPDF } = useExportReport();
   const [loading, setLoading] = useState(true);
@@ -96,30 +97,14 @@ export default function Balanco() {
   const [editingNote, setEditingNote] = useState<BalanceNote | null>(null);
   const [noteFilter, setNoteFilter] = useState<NoteFilter>('all');
   const [movingNoteId, setMovingNoteId] = useState<string | null>(null);
-  const [subscriptionTier, setSubscriptionTier] = useState<SubscriptionTier | null>(null);
 
   const currentYear = new Date().getFullYear();
 
   useEffect(() => {
     if (user) {
       loadPlans();
-      loadSubscriptionTier();
     }
   }, [user]);
-
-  const loadSubscriptionTier = async () => {
-    if (!user) return;
-    try {
-      const { data } = await supabase.functions.invoke('check-subscription');
-      if (data?.product_id) {
-        setSubscriptionTier(getTierByProductId(data.product_id));
-      } else if (data?.subscription_status === 'active') {
-        setSubscriptionTier('basic');
-      }
-    } catch (error) {
-      console.error('Error loading subscription tier:', error);
-    }
-  };
 
   useEffect(() => {
     if (user && selectedPlanId) {
