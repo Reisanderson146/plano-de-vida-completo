@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Target, Brain, Heart, Users, DollarSign, Briefcase, Cross, Check, Sparkles, TrendingUp, AlertTriangle, FileText, X, BarChart3, Dumbbell } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Target, Brain, Heart, Users, DollarSign, Briefcase, Cross, Check, Sparkles, TrendingUp, AlertTriangle, Download, X, BarChart3, Dumbbell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
@@ -259,7 +259,7 @@ function BalancoDemo() {
       {/* Action buttons */}
       <div className="flex gap-2">
         <Button size="sm" variant="outline" className="flex-1 h-8 text-[9px] rounded-lg border-gray-200">
-          <FileText className="w-3.5 h-3.5 mr-1" />
+          <Download className="w-3.5 h-3.5 mr-1" />
           Exportar PDF
         </Button>
         <Button size="sm" className="flex-1 h-8 text-[9px] bg-[#2A8C68] hover:bg-[#238058] rounded-lg">

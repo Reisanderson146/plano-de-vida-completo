@@ -10,7 +10,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { useExportReport } from '@/hooks/useExportReport';
 import { useToast } from '@/hooks/use-toast';
 import { LIFE_AREAS, LifeArea, AREA_HEX_COLORS } from '@/lib/constants';
-import { Loader2, TrendingUp, TrendingDown, Target, CheckCircle2, FileText, Folder, User, Users, Baby } from 'lucide-react';
+import { Loader2, TrendingUp, TrendingDown, Target, CheckCircle2, Folder, User, Users, Baby } from 'lucide-react';
+import { ExportPdfButton } from '@/components/ui/export-pdf-button';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { DateRangeFilter, getYearRangeFromDateRange } from '@/components/filters/DateRangeFilter';
 import { DateRange } from 'react-day-picker';
@@ -257,10 +258,7 @@ export default function Relatorios() {
           <DateRangeFilter value={dateRange} onChange={setDateRange} />
 
           <div className="flex gap-2 sm:ml-auto">
-            <Button variant="outline" size="sm" onClick={handleExport} className="flex-1 sm:flex-none h-11 rounded-xl">
-              <FileText className="w-4 h-4 mr-2" />
-              Exportar PDF
-            </Button>
+            <ExportPdfButton onClick={handleExport} />
           </div>
         </div>
 

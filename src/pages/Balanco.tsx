@@ -12,6 +12,7 @@ import { useExportReport } from '@/hooks/useExportReport';
 import { LIFE_AREAS, AREA_HEX_COLORS } from '@/lib/constants';
 import { getTierByProductId, SubscriptionTier } from '@/lib/subscription-tiers';
 import { Loader2, Target, CheckCircle2, AlertTriangle, TrendingDown, Plus, FileText, Folder, User, Users, Baby, Pencil, Trash2, Sparkles, ArrowRightLeft, Filter } from 'lucide-react';
+import { ExportPdfButton } from '@/components/ui/export-pdf-button';
 import { AISummary } from '@/components/balance/AISummary';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell, LabelList } from 'recharts';
 import { format, startOfYear, endOfYear } from 'date-fns';
@@ -471,15 +472,7 @@ export default function Balanco() {
 
             {/* Export Button */}
             <div className="flex gap-2 sm:ml-auto">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleExport}
-                className="flex-1 sm:flex-none"
-              >
-                <FileText className="w-4 h-4 mr-2" />
-                PDF
-              </Button>
+              <ExportPdfButton onClick={handleExport} />
             </div>
           </div>
 
