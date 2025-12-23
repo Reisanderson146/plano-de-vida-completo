@@ -9,7 +9,7 @@ import { Pencil, Plus, Trash2, ChevronDown, ChevronUp, Calendar, User, CheckCirc
 import { LIFE_AREAS, LifeArea, AREA_ICONS } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
-import { isSoundEnabled } from '@/hooks/useSoundSettings';
+import { isSoundEnabled, getSoundVolume, getSoundStyle, soundStyleConfigs } from '@/hooks/useSoundSettings';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -122,106 +122,64 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, on
   const playCelebrationSound = () => {
     if (!isSoundEnabled()) return;
     
-    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-    const masterGain = audioContext.createGain();
-    masterGain.connect(audioContext.destination);
-    masterGain.gain.setValueAtTime(0.25, audioContext.currentTime);
-
-    // Different chord progressions for variety
-    const soundVariations = [
-      // Variation 1: C major arpeggio (original - triumphant)
-      [
-        { freq: 523.25, time: 0, duration: 0.15 },      // C5
-        { freq: 659.25, time: 0.08, duration: 0.15 },   // E5
-        { freq: 783.99, time: 0.16, duration: 0.15 },   // G5
-        { freq: 1046.50, time: 0.24, duration: 0.25 },  // C6
-        { freq: 1318.51, time: 0.35, duration: 0.3 },   // E6
-      ],
-      // Variation 2: G major arpeggio (bright & cheerful)
-      [
-        { freq: 392.00, time: 0, duration: 0.12 },      // G4
-        { freq: 493.88, time: 0.06, duration: 0.12 },   // B4
-        { freq: 587.33, time: 0.12, duration: 0.12 },   // D5
-        { freq: 783.99, time: 0.18, duration: 0.2 },    // G5
-        { freq: 987.77, time: 0.28, duration: 0.25 },   // B5
-      ],
-      // Variation 3: F major arpeggio (warm & satisfying)
-      [
-        { freq: 349.23, time: 0, duration: 0.14 },      // F4
-        { freq: 440.00, time: 0.07, duration: 0.14 },   // A4
-        { freq: 523.25, time: 0.14, duration: 0.14 },   // C5
-        { freq: 698.46, time: 0.21, duration: 0.22 },   // F5
-        { freq: 880.00, time: 0.32, duration: 0.28 },   // A5
-      ],
-      // Variation 4: A minor to C major (emotional resolution)
-      [
-        { freq: 440.00, time: 0, duration: 0.12 },      // A4
-        { freq: 523.25, time: 0.08, duration: 0.12 },   // C5
-        { freq: 659.25, time: 0.16, duration: 0.15 },   // E5
-        { freq: 783.99, time: 0.26, duration: 0.2 },    // G5
-        { freq: 1046.50, time: 0.38, duration: 0.3 },   // C6
-      ],
-      // Variation 5: Pentatonic scale (magical feel)
-      [
-        { freq: 523.25, time: 0, duration: 0.1 },       // C5
-        { freq: 587.33, time: 0.05, duration: 0.1 },    // D5
-        { freq: 659.25, time: 0.1, duration: 0.1 },     // E5
-        { freq: 783.99, time: 0.15, duration: 0.1 },    // G5
-        { freq: 880.00, time: 0.2, duration: 0.15 },    // A5
-        { freq: 1046.50, time: 0.28, duration: 0.25 },  // C6
-      ],
-    ];
-
-    // Randomly select a variation
-    const selectedNotes = soundVariations[Math.floor(Math.random() * soundVariations.length)];
-    
-    // Random oscillator type for variety
-    const oscTypes: OscillatorType[] = ['sine', 'triangle'];
-    const primaryType = oscTypes[Math.floor(Math.random() * oscTypes.length)];
-    
-    // Random pitch shift (subtle variation within ±5%)
-    const pitchShift = 0.97 + Math.random() * 0.06;
-
-    selectedNotes.forEach(({ freq, time, duration }, index) => {
-      const oscillator = audioContext.createOscillator();
-      const gainNode = audioContext.createGain();
+    try {
+      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
       
-      // Last note gets triangle for softer finish
-      oscillator.type = index === selectedNotes.length - 1 ? 'triangle' : primaryType;
-      oscillator.connect(gainNode);
-      gainNode.connect(masterGain);
+      if (audioContext.state === 'suspended') {
+        audioContext.resume();
+      }
       
-      oscillator.frequency.setValueAtTime(freq * pitchShift, audioContext.currentTime + time);
+      const volume = getSoundVolume();
+      const style = getSoundStyle();
+      const config = soundStyleConfigs[style];
       
-      // Smooth envelope
-      gainNode.gain.setValueAtTime(0, audioContext.currentTime + time);
-      gainNode.gain.linearRampToValueAtTime(0.4, audioContext.currentTime + time + 0.02);
-      gainNode.gain.setValueAtTime(0.35, audioContext.currentTime + time + duration * 0.5);
-      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + time + duration);
-      
-      oscillator.start(audioContext.currentTime + time);
-      oscillator.stop(audioContext.currentTime + time + duration + 0.05);
-    });
+      const masterGain = audioContext.createGain();
+      masterGain.connect(audioContext.destination);
+      masterGain.gain.setValueAtTime(volume * 0.5, audioContext.currentTime);
 
-    // Random sparkle effect
-    const sparkleDelay = 0.35 + Math.random() * 0.1;
-    const sparkleFreq = 1800 + Math.random() * 400;
-    
-    const sparkleOsc = audioContext.createOscillator();
-    const sparkleGain = audioContext.createGain();
-    sparkleOsc.type = 'sine';
-    sparkleOsc.connect(sparkleGain);
-    sparkleGain.connect(masterGain);
-    
-    sparkleOsc.frequency.setValueAtTime(sparkleFreq, audioContext.currentTime + sparkleDelay);
-    sparkleOsc.frequency.exponentialRampToValueAtTime(sparkleFreq * 0.75, audioContext.currentTime + sparkleDelay + 0.15);
-    
-    sparkleGain.gain.setValueAtTime(0, audioContext.currentTime + sparkleDelay);
-    sparkleGain.gain.linearRampToValueAtTime(0.12, audioContext.currentTime + sparkleDelay + 0.02);
-    sparkleGain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + sparkleDelay + 0.2);
-    
-    sparkleOsc.start(audioContext.currentTime + sparkleDelay);
-    sparkleOsc.stop(audioContext.currentTime + sparkleDelay + 0.25);
+      // Add some randomization for variety
+      const pitchShift = 0.98 + Math.random() * 0.04;
+
+      config.celebrationNotes.forEach(({ freq, time, duration }, index) => {
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.type = config.oscillatorType;
+        oscillator.connect(gainNode);
+        gainNode.connect(masterGain);
+        
+        oscillator.frequency.setValueAtTime(freq * pitchShift, audioContext.currentTime + time);
+        
+        gainNode.gain.setValueAtTime(0, audioContext.currentTime + time);
+        gainNode.gain.linearRampToValueAtTime(0.5, audioContext.currentTime + time + 0.02);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + time + duration);
+        
+        oscillator.start(audioContext.currentTime + time);
+        oscillator.stop(audioContext.currentTime + time + duration + 0.05);
+      });
+
+      // Sparkle effect
+      const sparkleDelay = 0.3;
+      const sparkleFreq = 1800 + Math.random() * 400;
+      
+      const sparkleOsc = audioContext.createOscillator();
+      const sparkleGain = audioContext.createGain();
+      sparkleOsc.type = 'sine';
+      sparkleOsc.connect(sparkleGain);
+      sparkleGain.connect(masterGain);
+      
+      sparkleOsc.frequency.setValueAtTime(sparkleFreq, audioContext.currentTime + sparkleDelay);
+      sparkleOsc.frequency.exponentialRampToValueAtTime(sparkleFreq * 0.75, audioContext.currentTime + sparkleDelay + 0.15);
+      
+      sparkleGain.gain.setValueAtTime(0, audioContext.currentTime + sparkleDelay);
+      sparkleGain.gain.linearRampToValueAtTime(0.1, audioContext.currentTime + sparkleDelay + 0.02);
+      sparkleGain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + sparkleDelay + 0.2);
+      
+      sparkleOsc.start(audioContext.currentTime + sparkleDelay);
+      sparkleOsc.stop(audioContext.currentTime + sparkleDelay + 0.25);
+    } catch (error) {
+      console.log('Audio not supported:', error);
+    }
   };
 
   // Play sad sound when unmarking a goal
@@ -231,33 +189,28 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, on
     try {
       const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
       
-      // Resume audio context if suspended (browser policy)
       if (audioContext.state === 'suspended') {
         audioContext.resume();
       }
       
+      const volume = getSoundVolume();
+      const style = getSoundStyle();
+      const config = soundStyleConfigs[style];
+      
       const masterGain = audioContext.createGain();
       masterGain.connect(audioContext.destination);
-      masterGain.gain.setValueAtTime(0.4, audioContext.currentTime); // Increased volume
+      masterGain.gain.setValueAtTime(volume * 0.6, audioContext.currentTime);
 
-      // Descending minor notes (sad/disappointed feeling)
-      const sadNotes = [
-        { freq: 440.00, time: 0, duration: 0.3 },       // A4
-        { freq: 392.00, time: 0.2, duration: 0.3 },     // G4
-        { freq: 329.63, time: 0.4, duration: 0.4 },     // E4 (descending)
-      ];
-
-      sadNotes.forEach(({ freq, time, duration }) => {
+      config.sadNotes.forEach(({ freq, time, duration }) => {
         const oscillator = audioContext.createOscillator();
         const gainNode = audioContext.createGain();
         
-        oscillator.type = 'triangle'; // Softer, sadder tone
+        oscillator.type = 'triangle';
         oscillator.connect(gainNode);
         gainNode.connect(masterGain);
         
         oscillator.frequency.setValueAtTime(freq, audioContext.currentTime + time);
         
-        // Slower, fading envelope
         gainNode.gain.setValueAtTime(0, audioContext.currentTime + time);
         gainNode.gain.linearRampToValueAtTime(0.5, audioContext.currentTime + time + 0.05);
         gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + time + duration);

@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { useUserStreak } from '@/hooks/useUserStreak';
-import { isSoundEnabled } from '@/hooks/useSoundSettings';
+import { isSoundEnabled, getSoundVolume, getSoundStyle, soundStyleConfigs } from '@/hooks/useSoundSettings';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -72,23 +72,41 @@ export function PendingGoalsWidget({ selectedPlanId, onGoalCompleted }: PendingG
   const playSuccessSound = () => {
     if (!isSoundEnabled()) return;
     
-    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
-    
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-    
-    // Pleasant success sound - two quick ascending tones
-    oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime); // C5
-    oscillator.frequency.setValueAtTime(659.25, audioContext.currentTime + 0.1); // E5
-    oscillator.frequency.setValueAtTime(783.99, audioContext.currentTime + 0.2); // G5
-    
-    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4);
-    
-    oscillator.start(audioContext.currentTime);
-    oscillator.stop(audioContext.currentTime + 0.4);
+    try {
+      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      
+      if (audioContext.state === 'suspended') {
+        audioContext.resume();
+      }
+      
+      const volume = getSoundVolume();
+      const style = getSoundStyle();
+      const config = soundStyleConfigs[style];
+      
+      const masterGain = audioContext.createGain();
+      masterGain.connect(audioContext.destination);
+      masterGain.gain.setValueAtTime(volume * 0.5, audioContext.currentTime);
+
+      config.celebrationNotes.forEach(({ freq, time, duration }) => {
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.type = config.oscillatorType;
+        oscillator.connect(gainNode);
+        gainNode.connect(masterGain);
+        
+        oscillator.frequency.setValueAtTime(freq, audioContext.currentTime + time);
+        
+        gainNode.gain.setValueAtTime(0, audioContext.currentTime + time);
+        gainNode.gain.linearRampToValueAtTime(0.5, audioContext.currentTime + time + 0.02);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + time + duration);
+        
+        oscillator.start(audioContext.currentTime + time);
+        oscillator.stop(audioContext.currentTime + time + duration + 0.05);
+      });
+    } catch (error) {
+      console.log('Audio not supported:', error);
+    }
   };
 
   const handleCompleteGoal = async (goalId: string) => {
