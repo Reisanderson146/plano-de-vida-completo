@@ -141,14 +141,58 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, on
     const wasCompleted = goal.is_completed;
     await onUpdateGoal(goal.id, { is_completed: !goal.is_completed });
     
-    // Fire confetti and play sound when completing a goal
+    // Fire elaborate confetti and play sound when completing a goal
     if (!wasCompleted) {
+      // Main burst from center
       confetti({
-        particleCount: 100,
-        spread: 70,
-        origin: { y: 0.6 },
-        colors: ['#22c55e', '#16a34a', '#4ade80', '#86efac']
+        particleCount: 80,
+        spread: 100,
+        origin: { x: 0.5, y: 0.6 },
+        colors: ['#22c55e', '#16a34a', '#4ade80', '#86efac', '#fbbf24', '#f59e0b'],
+        startVelocity: 35,
+        gravity: 0.8,
+        ticks: 150,
+        scalar: 1.2,
       });
+
+      // Left cannon burst
+      setTimeout(() => {
+        confetti({
+          particleCount: 40,
+          angle: 60,
+          spread: 55,
+          origin: { x: 0, y: 0.7 },
+          colors: ['#22c55e', '#16a34a', '#4ade80'],
+          startVelocity: 45,
+        });
+      }, 100);
+
+      // Right cannon burst
+      setTimeout(() => {
+        confetti({
+          particleCount: 40,
+          angle: 120,
+          spread: 55,
+          origin: { x: 1, y: 0.7 },
+          colors: ['#22c55e', '#16a34a', '#4ade80'],
+          startVelocity: 45,
+        });
+      }, 100);
+
+      // Extra sparkle burst
+      setTimeout(() => {
+        confetti({
+          particleCount: 30,
+          spread: 360,
+          origin: { x: 0.5, y: 0.5 },
+          colors: ['#fbbf24', '#f59e0b', '#ffffff'],
+          startVelocity: 20,
+          gravity: 0.4,
+          scalar: 0.8,
+          shapes: ['circle'],
+        });
+      }, 250);
+
       playCelebrationSound();
     } else {
       // Shake animation when unchecking
