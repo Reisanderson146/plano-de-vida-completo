@@ -293,7 +293,7 @@ export default function Dashboard() {
           <div className="space-y-3">
             <PendingGoalsWidget selectedPlanId={selectedPlanId} onGoalCompleted={handleGoalCompleted} />
             <Link to="/historico-metas">
-              <Button variant="ghost" size="sm" className="w-full text-muted-foreground hover:text-foreground gap-2">
+              <Button variant="soft" size="sm" className="w-full gap-2 bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20">
                 <Trophy className="w-4 h-4" />
                 Ver histórico de metas concluídas
               </Button>
