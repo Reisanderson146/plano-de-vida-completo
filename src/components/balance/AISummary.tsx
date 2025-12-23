@@ -2,11 +2,12 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, Sparkles, RefreshCw, Save, Lock, Crown } from 'lucide-react';
+import { Loader2, Sparkles, RefreshCw, Save, Lock, Crown, Heart, Zap, Scale } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { hasAIAccess, SubscriptionTier } from '@/lib/subscription-tiers';
+import { cn } from '@/lib/utils';
 
 interface AreaStats {
   area: string;
@@ -27,6 +28,38 @@ interface AISummaryProps {
   onNoteSaved?: () => void;
 }
 
+type AIStyle = 'friendly' | 'balanced' | 'direct';
+
+const AI_STYLES = [
+  {
+    id: 'friendly' as const,
+    label: 'Amigável',
+    description: 'Motivacional e encorajador',
+    icon: Heart,
+    color: 'from-pink-500 to-rose-500',
+    bgColor: 'bg-pink-500/10 hover:bg-pink-500/20 border-pink-500/30',
+    activeColor: 'bg-gradient-to-r from-pink-500 to-rose-500 text-white border-pink-500',
+  },
+  {
+    id: 'balanced' as const,
+    label: 'Equilibrado',
+    description: 'Construtivo e ponderado',
+    icon: Scale,
+    color: 'from-violet-500 to-purple-500',
+    bgColor: 'bg-violet-500/10 hover:bg-violet-500/20 border-violet-500/30',
+    activeColor: 'bg-gradient-to-r from-violet-500 to-purple-500 text-white border-violet-500',
+  },
+  {
+    id: 'direct' as const,
+    label: 'Direto',
+    description: 'Objetivo e prático',
+    icon: Zap,
+    color: 'from-amber-500 to-orange-500',
+    bgColor: 'bg-amber-500/10 hover:bg-amber-500/20 border-amber-500/30',
+    activeColor: 'bg-gradient-to-r from-amber-500 to-orange-500 text-white border-amber-500',
+  },
+];
+
 export function AISummary({ 
   stats, 
   totalGoals, 
@@ -43,10 +76,11 @@ export function AISummary({
   const [summary, setSummary] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [selectedStyle, setSelectedStyle] = useState<AIStyle>('balanced');
 
   const canUseAI = hasAIAccess(subscriptionTier);
 
-  const generateSummary = async () => {
+  const generateSummary = async (style: AIStyle = selectedStyle) => {
     if (!canUseAI) return;
     
     setLoading(true);
@@ -58,6 +92,7 @@ export function AISummary({
           completedGoals,
           planTitle,
           period,
+          style,
         },
       });
 
@@ -85,7 +120,8 @@ export function AISummary({
 
     setSaving(true);
     try {
-      const title = `[Balanço ${period}] Análise IA - ${planTitle}`;
+      const styleLabel = AI_STYLES.find(s => s.id === selectedStyle)?.label || 'IA';
+      const title = `[Balanço ${period}] Análise ${styleLabel} - ${planTitle}`;
       
       const { error } = await supabase.from('notes').insert({
         user_id: user.id,
@@ -112,6 +148,14 @@ export function AISummary({
       });
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleStyleChange = (style: AIStyle) => {
+    setSelectedStyle(style);
+    if (summary) {
+      // If already has a summary, regenerate with new style
+      generateSummary(style);
     }
   };
 
@@ -188,13 +232,49 @@ export function AISummary({
       </CardHeader>
       
       <CardContent className="relative">
+        {/* Style Selection */}
+        <div className="mb-5">
+          <p className="text-xs font-medium text-muted-foreground mb-3">Escolha o estilo da análise:</p>
+          <div className="grid grid-cols-3 gap-2">
+            {AI_STYLES.map((style) => {
+              const Icon = style.icon;
+              const isActive = selectedStyle === style.id;
+              
+              return (
+                <button
+                  key={style.id}
+                  onClick={() => handleStyleChange(style.id)}
+                  disabled={loading}
+                  className={cn(
+                    "relative flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition-all duration-200",
+                    isActive 
+                      ? style.activeColor + " shadow-lg" 
+                      : style.bgColor + " text-foreground"
+                  )}
+                >
+                  <Icon className={cn("w-5 h-5", isActive ? "text-white" : "")} />
+                  <span className={cn("text-xs font-semibold", isActive ? "text-white" : "")}>
+                    {style.label}
+                  </span>
+                  <span className={cn(
+                    "text-[10px] leading-tight text-center",
+                    isActive ? "text-white/80" : "text-muted-foreground"
+                  )}>
+                    {style.description}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
         {!summary && !loading && (
-          <div className="text-center py-6">
-            <p className="text-muted-foreground mb-4">
+          <div className="text-center py-4">
+            <p className="text-muted-foreground mb-4 text-sm">
               Use a inteligência artificial para obter uma análise personalizada do seu progresso.
             </p>
             <Button 
-              onClick={generateSummary} 
+              onClick={() => generateSummary()} 
               className="gap-2 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white shadow-lg shadow-violet-500/25"
             >
               <Sparkles className="w-4 h-4" />
@@ -209,7 +289,9 @@ export function AISummary({
               <Loader2 className="w-8 h-8 animate-spin text-violet-500" />
               <div className="absolute inset-0 blur-lg bg-violet-500/30 animate-pulse" />
             </div>
-            <p className="text-sm text-muted-foreground">Analisando seu progresso...</p>
+            <p className="text-sm text-muted-foreground">
+              Analisando seu progresso no modo {AI_STYLES.find(s => s.id === selectedStyle)?.label.toLowerCase()}...
+            </p>
           </div>
         )}
 
@@ -234,7 +316,7 @@ export function AISummary({
               <Button 
                 variant="ghost" 
                 size="sm" 
-                onClick={generateSummary} 
+                onClick={() => generateSummary()} 
                 className="gap-2 hover:bg-violet-500/10 text-violet-600 dark:text-violet-400"
               >
                 <RefreshCw className="w-4 h-4" />
