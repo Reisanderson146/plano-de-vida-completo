@@ -62,7 +62,7 @@ const plans = [
     name: 'Premium',
     subtitle: 'Para Toda Família',
     price: 'R$ 29,99',
-    description: '5 planos incluídos',
+    description: '4 planos incluídos',
     icon: Crown,
     benefits: premiumBenefits,
     color: 'violet',
@@ -251,8 +251,22 @@ const PricingSection = ({ onCheckout, onLogin, loading }: PricingSectionProps) =
                 initial="enter"
                 animate="center"
                 exit="exit"
-                className="w-full"
+                className="w-full relative"
               >
+                {/* Recommended Badge - positioned above the card */}
+                {currentPlan.recommended && (
+                  <motion.div 
+                    className="flex justify-center mb-3"
+                    initial={{ scale: 0, y: 10 }}
+                    animate={{ scale: 1, y: 0 }}
+                    transition={{ delay: 0.1, type: "spring", stiffness: 300 }}
+                  >
+                    <div className="flex items-center gap-1.5 px-4 py-1.5 bg-gradient-to-r from-violet-600 to-purple-600 rounded-full text-white font-medium text-sm shadow-lg shadow-violet-500/30">
+                      <Crown className="w-3.5 h-3.5" />
+                      <span>Recomendado</span>
+                    </div>
+                  </motion.div>
+                )}
                 <Card className={cn(
                   "relative overflow-hidden border-2 bg-card/80 backdrop-blur-sm shadow-xl",
                   currentPlan.color === 'emerald' 
@@ -272,20 +286,6 @@ const PricingSection = ({ onCheckout, onLogin, loading }: PricingSectionProps) =
                     }}
                   />
                   
-                  {/* Recommended Badge */}
-                  {currentPlan.recommended && (
-                    <motion.div 
-                      className="absolute top-3 right-3 z-10"
-                      initial={{ scale: 0, rotate: -20 }}
-                      animate={{ scale: 1, rotate: 0 }}
-                      transition={{ delay: 0.2, type: "spring", stiffness: 300 }}
-                    >
-                      <div className="flex items-center gap-1.5 px-3 py-1 bg-gradient-to-r from-violet-600 to-purple-600 rounded-full text-white font-medium text-xs shadow-lg shadow-violet-500/30">
-                        <Crown className="w-3 h-3" />
-                        <span>Recomendado</span>
-                      </div>
-                    </motion.div>
-                  )}
 
                   <CardHeader className="pt-8 pb-4 text-center relative">
                     {/* Badge */}
