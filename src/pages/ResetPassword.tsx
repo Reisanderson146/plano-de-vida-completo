@@ -248,7 +248,7 @@ export default function ResetPassword() {
                         setNewPassword(e.target.value);
                         setPasswordError(null);
                       }}
-                      className={`h-14 rounded-2xl border-[#7BC8A4]/30 bg-[#A8E6CE]/10 focus:bg-white focus:border-[#2A8C68]/50 focus:ring-2 focus:ring-[#2A8C68]/20 transition-all duration-300 text-base placeholder:text-muted-foreground/50 pr-12 ${passwordError ? 'border-red-500 focus:border-red-500' : ''}`}
+                      className={`h-14 rounded-2xl border-[#7BC8A4]/30 bg-[#A8E6CE]/10 focus:bg-background dark:focus:bg-slate-800 focus:border-[#2A8C68]/50 focus:ring-2 focus:ring-[#2A8C68]/20 transition-all duration-300 text-base placeholder:text-muted-foreground/50 pr-12 ${passwordError ? 'border-red-500 focus:border-red-500' : ''}`}
                     />
                     <button
                       type="button"
@@ -277,7 +277,7 @@ export default function ResetPassword() {
                         setConfirmPassword(e.target.value);
                         setConfirmError(null);
                       }}
-                      className={`h-14 rounded-2xl border-[#7BC8A4]/30 bg-[#A8E6CE]/10 focus:bg-white focus:border-[#2A8C68]/50 focus:ring-2 focus:ring-[#2A8C68]/20 transition-all duration-300 text-base placeholder:text-muted-foreground/50 pr-12 ${confirmError ? 'border-red-500 focus:border-red-500' : ''}`}
+                      className={`h-14 rounded-2xl border-[#7BC8A4]/30 bg-[#A8E6CE]/10 focus:bg-background dark:focus:bg-slate-800 focus:border-[#2A8C68]/50 focus:ring-2 focus:ring-[#2A8C68]/20 transition-all duration-300 text-base placeholder:text-muted-foreground/50 pr-12 ${confirmError ? 'border-red-500 focus:border-red-500' : ''}`}
                     />
                     <button
                       type="button"
