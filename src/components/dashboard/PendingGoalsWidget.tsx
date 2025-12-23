@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
@@ -6,9 +7,10 @@ import { useUserStreak } from '@/hooks/useUserStreak';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { LIFE_AREAS, AREA_HEX_COLORS, LifeArea } from '@/lib/constants';
-import { CheckCircle2, Clock, Sparkles } from 'lucide-react';
+import { CheckCircle2, Clock, Sparkles, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import confetti from 'canvas-confetti';
 
@@ -25,6 +27,7 @@ interface PendingGoalsWidgetProps {
 }
 
 export function PendingGoalsWidget({ selectedPlanId }: PendingGoalsWidgetProps) {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
   const { incrementGoalsCompleted } = useUserStreak();
@@ -129,14 +132,29 @@ export function PendingGoalsWidget({ selectedPlanId }: PendingGoalsWidgetProps) 
     );
   }
 
+  const handleCreateGoal = () => {
+    navigate(`/consulta/${selectedPlanId}`);
+  };
+
   if (goals.length === 0) {
     return (
       <Card className="border-border/40">
         <CardHeader className="pb-3">
-          <CardTitle className="text-lg flex items-center gap-2">
-            <CheckCircle2 className="w-5 h-5 text-success" />
-            Metas Pendentes
-          </CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <CheckCircle2 className="w-5 h-5 text-success" />
+              Metas Pendentes
+            </CardTitle>
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-8 gap-1.5"
+              onClick={handleCreateGoal}
+            >
+              <Plus className="w-4 h-4" />
+              Nova Meta
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col items-center justify-center py-6 text-center">
@@ -156,13 +174,24 @@ export function PendingGoalsWidget({ selectedPlanId }: PendingGoalsWidgetProps) 
   return (
     <Card className="border-border/40">
       <CardHeader className="pb-3">
-        <CardTitle className="text-lg flex items-center gap-2">
-          <Clock className="w-5 h-5 text-primary" />
-          Metas Pendentes
-          <Badge variant="secondary" className="ml-auto rounded-lg">
-            {goals.length} {goals.length === 1 ? 'meta' : 'metas'}
-          </Badge>
-        </CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Clock className="w-5 h-5 text-primary" />
+            Metas Pendentes
+            <Badge variant="secondary" className="rounded-lg">
+              {goals.length}
+            </Badge>
+          </CardTitle>
+          <Button
+            size="sm"
+            variant="outline"
+            className="h-8 gap-1.5"
+            onClick={handleCreateGoal}
+          >
+            <Plus className="w-4 h-4" />
+            Nova Meta
+          </Button>
+        </div>
       </CardHeader>
       <CardContent className="space-y-2">
         {goals.map((goal, index) => (
