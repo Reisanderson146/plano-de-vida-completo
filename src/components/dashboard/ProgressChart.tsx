@@ -42,49 +42,51 @@ export function ProgressChart({ data }: ProgressChartProps) {
   };
 
   return (
-    <div className="w-full h-[250px] sm:h-[350px] lg:h-[400px] pb-2">
-      <ResponsiveContainer width="100%" height="100%">
-        <RadarChart cx="50%" cy="50%" outerRadius="70%" data={chartData}>
-          <PolarGrid stroke="hsl(var(--border))" />
-          <PolarAngleAxis 
-            dataKey="area" 
-            tick={<CustomTick />}
-            tickLine={false}
-          />
-          <PolarRadiusAxis 
-            angle={90} 
-            domain={[0, 100]} 
-            tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 8 }}
-            tickCount={5}
-          />
-          <Tooltip 
-            formatter={(value: number, name: string) => [`${value}%`, 'Progresso']}
-            contentStyle={{
-              backgroundColor: 'hsl(var(--card))',
-              border: '1px solid hsl(var(--border))',
-              borderRadius: 'var(--radius)',
-            }}
-          />
-          <Radar
-            name="Progresso"
-            dataKey="value"
-            stroke="hsl(var(--primary))"
-            fill="hsl(var(--primary))"
-            fillOpacity={0.3}
-            strokeWidth={2}
-          />
-        </RadarChart>
-      </ResponsiveContainer>
+    <div className="w-full">
+      <div className="w-full h-[250px] sm:h-[320px] lg:h-[350px]">
+        <ResponsiveContainer width="100%" height="100%">
+          <RadarChart cx="50%" cy="50%" outerRadius="60%" data={chartData}>
+            <PolarGrid stroke="hsl(var(--border))" />
+            <PolarAngleAxis 
+              dataKey="area" 
+              tick={<CustomTick />}
+              tickLine={false}
+            />
+            <PolarRadiusAxis 
+              angle={90} 
+              domain={[0, 100]} 
+              tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 8 }}
+              tickCount={5}
+            />
+            <Tooltip 
+              formatter={(value: number, name: string) => [`${value}%`, 'Progresso']}
+              contentStyle={{
+                backgroundColor: 'hsl(var(--card))',
+                border: '1px solid hsl(var(--border))',
+                borderRadius: 'var(--radius)',
+              }}
+            />
+            <Radar
+              name="Progresso"
+              dataKey="value"
+              stroke="hsl(var(--primary))"
+              fill="hsl(var(--primary))"
+              fillOpacity={0.3}
+              strokeWidth={2}
+            />
+          </RadarChart>
+        </ResponsiveContainer>
+      </div>
       
       {/* Legend with area colors */}
-      <div className="flex flex-wrap justify-center gap-2 sm:gap-4 mt-4 sm:mt-6 px-2">
+      <div className="flex flex-wrap justify-center gap-2 sm:gap-3 mt-2 px-2">
         {LIFE_AREAS.map((area) => (
           <div key={area.id} className="flex items-center gap-1.5">
             <div 
-              className="w-3 h-3 rounded-full" 
+              className="w-2.5 h-2.5 rounded-full flex-shrink-0" 
               style={{ backgroundColor: AREA_HEX_COLORS[area.id] }}
             />
-            <span className="text-xs text-muted-foreground">{area.label}</span>
+            <span className="text-[10px] sm:text-xs text-muted-foreground">{area.label}</span>
           </div>
         ))}
       </div>
