@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { useUserStreak } from '@/hooks/useUserStreak';
+import { isSoundEnabled } from '@/hooks/useSoundSettings';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -69,6 +70,8 @@ export function PendingGoalsWidget({ selectedPlanId, onGoalCompleted }: PendingG
   };
 
   const playSuccessSound = () => {
+    if (!isSoundEnabled()) return;
+    
     const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
     const oscillator = audioContext.createOscillator();
     const gainNode = audioContext.createGain();
