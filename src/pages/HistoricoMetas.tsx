@@ -9,10 +9,13 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { LIFE_AREAS, AREA_HEX_COLORS, LifeArea } from '@/lib/constants';
-import { CheckCircle2, Calendar, Target, ArrowLeft, Trophy, Sparkles } from 'lucide-react';
+import { CheckCircle2, Calendar, Target, ArrowLeft, Trophy, Sparkles, Download, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { useToast } from '@/hooks/use-toast';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 interface CompletedGoal {
   id: string;
@@ -32,9 +35,11 @@ interface LifePlan {
 export default function HistoricoMetas() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { toast } = useToast();
   const [goals, setGoals] = useState<CompletedGoal[]>([]);
   const [plans, setPlans] = useState<LifePlan[]>([]);
   const [loading, setLoading] = useState(true);
+  const [exporting, setExporting] = useState(false);
   const [selectedPlanId, setSelectedPlanId] = useState<string>('all');
   const [selectedArea, setSelectedArea] = useState<string>('all');
   const [selectedYear, setSelectedYear] = useState<string>('all');
@@ -126,6 +131,111 @@ export default function HistoricoMetas() {
     return acc;
   }, {} as Record<string, CompletedGoal[]>);
 
+  const exportToPDF = async () => {
+    if (goals.length === 0) {
+      toast({
+        title: 'Nenhuma meta para exportar',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setExporting(true);
+
+    try {
+      const doc = new jsPDF();
+      const pageWidth = doc.internal.pageSize.getWidth();
+      
+      // Header
+      doc.setFontSize(20);
+      doc.setTextColor(34, 197, 94); // Green color
+      doc.text('Histórico de Metas Concluídas', pageWidth / 2, 20, { align: 'center' });
+      
+      // Subtitle with filters
+      doc.setFontSize(10);
+      doc.setTextColor(100, 100, 100);
+      const filterText = [
+        selectedPlanId !== 'all' ? plans.find(p => p.id === selectedPlanId)?.title : 'Todos os planos',
+        selectedArea !== 'all' ? getAreaLabel(selectedArea as LifeArea) : 'Todas as áreas',
+        selectedYear !== 'all' ? selectedYear : 'Todos os anos',
+      ].join(' • ');
+      doc.text(filterText, pageWidth / 2, 28, { align: 'center' });
+      
+      // Stats
+      doc.setFontSize(11);
+      doc.setTextColor(60, 60, 60);
+      doc.text(`Total de metas concluídas: ${goals.length}`, 14, 40);
+      doc.text(`Gerado em: ${format(new Date(), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}`, 14, 46);
+      
+      // Table data
+      const tableData = goals.map((goal) => [
+        goal.goal_text.length > 60 ? goal.goal_text.substring(0, 60) + '...' : goal.goal_text,
+        getAreaLabel(goal.area),
+        goal.period_year.toString(),
+        goal.life_plan_title || '-',
+        goal.completed_at ? format(new Date(goal.completed_at), 'dd/MM/yyyy', { locale: ptBR }) : '-',
+      ]);
+      
+      // Create table
+      autoTable(doc, {
+        startY: 55,
+        head: [['Meta', 'Área', 'Ano', 'Plano', 'Concluída em']],
+        body: tableData,
+        headStyles: {
+          fillColor: [34, 197, 94],
+          textColor: [255, 255, 255],
+          fontStyle: 'bold',
+          fontSize: 9,
+        },
+        bodyStyles: {
+          fontSize: 8,
+          textColor: [60, 60, 60],
+        },
+        alternateRowStyles: {
+          fillColor: [245, 245, 245],
+        },
+        columnStyles: {
+          0: { cellWidth: 70 },
+          1: { cellWidth: 25 },
+          2: { cellWidth: 15 },
+          3: { cellWidth: 40 },
+          4: { cellWidth: 25 },
+        },
+        margin: { left: 14, right: 14 },
+      });
+      
+      // Footer
+      const pageCount = doc.internal.pages.length - 1;
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(8);
+        doc.setTextColor(150, 150, 150);
+        doc.text(
+          `Página ${i} de ${pageCount} - Plano de Vida`,
+          pageWidth / 2,
+          doc.internal.pageSize.getHeight() - 10,
+          { align: 'center' }
+        );
+      }
+      
+      // Save
+      const fileName = `historico-metas-${format(new Date(), 'yyyy-MM-dd')}.pdf`;
+      doc.save(fileName);
+      
+      toast({
+        title: 'PDF exportado com sucesso!',
+      });
+    } catch (error) {
+      console.error('Error exporting PDF:', error);
+      toast({
+        title: 'Erro ao exportar PDF',
+        variant: 'destructive',
+      });
+    } finally {
+      setExporting(false);
+    }
+  };
+
   return (
     <AppLayout>
       <div className="max-w-4xl mx-auto space-y-6">
@@ -148,6 +258,20 @@ export default function HistoricoMetas() {
               Veja todas as metas que você já conquistou
             </p>
           </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={exportToPDF}
+            disabled={exporting || goals.length === 0}
+            className="gap-2"
+          >
+            {exporting ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Download className="w-4 h-4" />
+            )}
+            Exportar PDF
+          </Button>
         </div>
 
         {/* Filters */}
