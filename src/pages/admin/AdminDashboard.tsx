@@ -1,18 +1,38 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AdminLayout } from '@/components/layout/AdminLayout';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { useAdmin } from '@/hooks/useAdmin';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2, Users, UserCheck, UserX, Shield, TrendingUp, FileText, ChevronDown, ChevronUp, Eye, ShieldCheck, ShieldOff, Crown, Gem, ArrowUpDown } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, Cell } from 'recharts';
+import { 
+  Loader2, 
+  Users, 
+  UserCheck, 
+  UserX, 
+  Shield, 
+  TrendingUp, 
+  FileText,
+  Crown,
+  Gem,
+  ArrowUpDown,
+  Search,
+  Filter
+} from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, Cell, AreaChart, Area } from 'recharts';
 import { format, subMonths, startOfMonth, endOfMonth } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+
+// Import new admin components
+import { AdminStatsCard } from '@/components/admin/AdminStatsCard';
+import { AdminUserCard } from '@/components/admin/AdminUserCard';
+import { AdminChartCard } from '@/components/admin/AdminChartCard';
+import { AdminHeader } from '@/components/admin/AdminHeader';
+import { AdminManageSection } from '@/components/admin/AdminManageSection';
 
 interface UserProfile {
   id: string;
@@ -28,6 +48,7 @@ interface UserProfile {
 interface MonthlyStats {
   month: string;
   count: number;
+  fullMonth: string;
 }
 
 interface UserPlan {
@@ -57,11 +78,9 @@ export default function AdminDashboard() {
   const [adminConfirmDialog, setAdminConfirmDialog] = useState<{ userId: string; userName: string; isAdmin: boolean } | null>(null);
   const [updatingSubscription, setUpdatingSubscription] = useState<string | null>(null);
   const [subscriptionDialog, setSubscriptionDialog] = useState<{ userId: string; userName: string; currentPlan: string | null } | null>(null);
-  
   const [totalPlans, setTotalPlans] = useState(0);
-  
-  const [selectedUserPlans, setSelectedUserPlans] = useState<UserPlan[] | null>(null);
-  const [selectedUserName, setSelectedUserName] = useState<string>('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'blocked' | 'admin'>('all');
 
   useEffect(() => {
     if (!adminLoading) {
@@ -117,6 +136,7 @@ export default function AdminDashboard() {
 
         stats.push({
           month: format(monthDate, 'MMM', { locale: ptBR }),
+          fullMonth: format(monthDate, 'MMMM yyyy', { locale: ptBR }),
           count,
         });
       }
@@ -266,22 +286,6 @@ export default function AdminDashboard() {
     }
   };
 
-  const getPlanTypeLabel = (type: string) => {
-    switch (type) {
-      case 'individual': return 'Individual';
-      case 'familiar': return 'Familiar';
-      case 'filho': return 'Filho';
-      default: return type;
-    }
-  };
-
-  const getSubscriptionLabel = (plan: string | null) => {
-    if (!plan) return 'Sem assinatura';
-    if (plan === 'basic') return 'Basic';
-    if (plan === 'premium') return 'Premium';
-    return plan;
-  };
-
   const toggleSubscriptionPlan = async (userId: string, currentPlan: string | null) => {
     setUpdatingSubscription(userId);
     setSubscriptionDialog(null);
@@ -352,11 +356,29 @@ export default function AdminDashboard() {
     }
   };
 
+  // Filter users based on search and status
+  const filteredUsers = users.filter(userProfile => {
+    const matchesSearch = !searchQuery || 
+      userProfile.full_name?.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const matchesFilter = 
+      filterStatus === 'all' ||
+      (filterStatus === 'active' && !userProfile.is_blocked) ||
+      (filterStatus === 'blocked' && userProfile.is_blocked) ||
+      (filterStatus === 'admin' && userProfile.isAdmin);
+    
+    return matchesSearch && matchesFilter;
+  });
+
   if (adminLoading || loading) {
     return (
       <AdminLayout>
-        <div className="min-h-[60vh] flex items-center justify-center">
-          <Loader2 className="w-8 h-8 animate-spin text-amber-400" />
+        <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4">
+          <div className="relative">
+            <div className="w-16 h-16 rounded-full border-4 border-slate-700 border-t-amber-500 animate-spin" />
+            <Shield className="w-6 h-6 text-amber-400 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+          </div>
+          <p className="text-slate-400 text-sm animate-pulse">Carregando painel administrativo...</p>
         </div>
       </AdminLayout>
     );
@@ -370,398 +392,245 @@ export default function AdminDashboard() {
   const activeUsers = users.filter(u => !u.is_blocked).length;
   const blockedUsers = users.filter(u => u.is_blocked).length;
   const adminCount = users.filter(u => u.isAdmin).length;
+  const premiumUsers = users.filter(u => u.subscription_plan === 'premium').length;
+  const basicUsers = users.filter(u => u.subscription_plan === 'basic').length;
 
   return (
     <AdminLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-white">Painel Admin</h1>
-            <p className="text-slate-400">Gerencie usuários e visualize estatísticas</p>
-          </div>
+        <AdminHeader onRefresh={loadData} isLoading={loading} />
+
+        {/* Stats Cards - Main Row */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <AdminStatsCard
+            title="Total de Usuários"
+            value={totalUsers}
+            icon={Users}
+            iconColor="text-blue-400"
+            iconBgColor="bg-blue-500/20"
+            description={`${activeUsers} ativos`}
+          />
+          <AdminStatsCard
+            title="Usuários Ativos"
+            value={activeUsers}
+            icon={UserCheck}
+            iconColor="text-emerald-400"
+            iconBgColor="bg-emerald-500/20"
+            trend={{ value: Math.round((activeUsers / totalUsers) * 100), isPositive: true }}
+          />
+          <AdminStatsCard
+            title="Bloqueados"
+            value={blockedUsers}
+            icon={UserX}
+            iconColor="text-red-400"
+            iconBgColor="bg-red-500/20"
+          />
+          <AdminStatsCard
+            title="Total de Planos"
+            value={totalPlans}
+            icon={FileText}
+            iconColor="text-purple-400"
+            iconBgColor="bg-purple-500/20"
+            description="Planos criados"
+          />
         </div>
 
-        {/* Stats Cards - Row 1 */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <Card className="bg-slate-800/50 border-slate-700/50">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-blue-500/20">
-                  <Users className="w-5 h-5 text-blue-400" />
-                </div>
-                <div>
-                  <p className="text-xs text-slate-400">Total de Usuários</p>
-                  <p className="text-2xl font-bold text-white">{totalUsers}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-slate-800/50 border-slate-700/50">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-green-500/20">
-                  <UserCheck className="w-5 h-5 text-green-400" />
-                </div>
-                <div>
-                  <p className="text-xs text-slate-400">Usuários Ativos</p>
-                  <p className="text-2xl font-bold text-green-400">{activeUsers}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-slate-800/50 border-slate-700/50">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-red-500/20">
-                  <UserX className="w-5 h-5 text-red-400" />
-                </div>
-                <div>
-                  <p className="text-xs text-slate-400">Usuários Bloqueados</p>
-                  <p className="text-2xl font-bold text-red-400">{blockedUsers}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+        {/* Secondary Stats */}
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+          <AdminStatsCard
+            title="Administradores"
+            value={adminCount}
+            icon={Shield}
+            iconColor="text-amber-400"
+            iconBgColor="bg-amber-500/20"
+          />
+          <AdminStatsCard
+            title="Premium"
+            value={premiumUsers}
+            icon={Crown}
+            iconColor="text-violet-400"
+            iconBgColor="bg-violet-500/20"
+            description={`${Math.round((premiumUsers / totalUsers) * 100) || 0}% do total`}
+          />
+          <AdminStatsCard
+            title="Basic"
+            value={basicUsers}
+            icon={Gem}
+            iconColor="text-teal-400"
+            iconBgColor="bg-teal-500/20"
+            description={`${Math.round((basicUsers / totalUsers) * 100) || 0}% do total`}
+          />
         </div>
 
-        {/* Stats Cards - Row 2 */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Card className="bg-slate-800/50 border-slate-700/50">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-purple-500/20">
-                  <FileText className="w-5 h-5 text-purple-400" />
-                </div>
-                <div>
-                  <p className="text-xs text-slate-400">Total de Planos</p>
-                  <p className="text-2xl font-bold text-white">{totalPlans}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-slate-800/50 border-slate-700/50">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-amber-500/20">
-                  <Shield className="w-5 h-5 text-amber-400" />
-                </div>
-                <div>
-                  <p className="text-xs text-slate-400">Administradores</p>
-                  <p className="text-2xl font-bold text-amber-400">{adminCount}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Registration Chart */}
-        <Card className="bg-slate-800/50 border-slate-700/50">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg flex items-center gap-2 text-white">
-              <TrendingUp className="w-5 h-5 text-amber-400" />
-              Cadastros de Usuários por Mês
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[250px]">
+        {/* Charts Row */}
+        <div className="grid lg:grid-cols-2 gap-4">
+          {/* Registration Chart */}
+          <AdminChartCard
+            title="Cadastros por Mês"
+            icon={TrendingUp}
+            iconColor="text-amber-400"
+          >
+            <div className="h-[280px]">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={monthlyStats}>
-                  <XAxis dataKey="month" tick={{ fill: '#94a3b8', fontSize: 12 }} />
-                  <YAxis tick={{ fill: '#94a3b8', fontSize: 12 }} allowDecimals={false} />
+                <AreaChart data={monthlyStats}>
+                  <defs>
+                    <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="#f59e0b" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <XAxis 
+                    dataKey="month" 
+                    tick={{ fill: '#94a3b8', fontSize: 12 }} 
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <YAxis 
+                    tick={{ fill: '#94a3b8', fontSize: 12 }} 
+                    allowDecimals={false} 
+                    axisLine={false}
+                    tickLine={false}
+                  />
                   <Tooltip 
-                    formatter={(value) => [value, 'Usuários Cadastrados']}
+                    formatter={(value) => [value, 'Novos Usuários']}
+                    labelFormatter={(label, payload) => payload?.[0]?.payload?.fullMonth || label}
                     contentStyle={{
                       backgroundColor: '#1e293b',
                       border: '1px solid #334155',
-                      borderRadius: '8px',
-                      color: '#f1f5f9'
+                      borderRadius: '12px',
+                      color: '#f1f5f9',
+                      boxShadow: '0 10px 25px -5px rgba(0,0,0,0.3)'
                     }}
                   />
-                  <Bar dataKey="count" radius={[4, 4, 0, 0]}>
-                    {monthlyStats.map((_, index) => (
-                      <Cell key={`cell-${index}`} fill="#f59e0b" />
-                    ))}
-                  </Bar>
-                </BarChart>
+                  <Area 
+                    type="monotone" 
+                    dataKey="count" 
+                    stroke="#f59e0b" 
+                    strokeWidth={2}
+                    fillOpacity={1} 
+                    fill="url(#colorCount)" 
+                  />
+                </AreaChart>
               </ResponsiveContainer>
             </div>
-          </CardContent>
-        </Card>
+          </AdminChartCard>
 
-        {/* Admin Management Section */}
-        <Card className="bg-slate-800/50 border-amber-500/30">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg flex items-center gap-2 text-amber-400">
-              <Shield className="w-5 h-5" />
-              Gerenciar Administradores
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-slate-400 mb-4">
-              Conceda ou remova permissões de administrador para outros usuários.
-            </p>
-            {users.filter(u => u.id !== user?.id).length === 0 ? (
-              <div className="text-center py-4 text-slate-500">
-                <Shield className="w-10 h-10 mx-auto mb-2 opacity-50" />
-                <p>Nenhum outro usuário cadastrado.</p>
+          {/* Admin Management */}
+          <AdminManageSection
+            users={users}
+            currentUserId={user?.id}
+            updatingAdminRole={updatingAdminRole}
+            onOpenConfirmDialog={(userProfile) => setAdminConfirmDialog({
+              userId: userProfile.id,
+              userName: userProfile.full_name || 'Sem nome',
+              isAdmin: userProfile.isAdmin || false
+            })}
+          />
+        </div>
+
+        {/* Users List Section */}
+        <div className="rounded-2xl bg-gradient-to-br from-slate-800/80 to-slate-900/80 border border-slate-700/50 overflow-hidden">
+          {/* Header */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-5 py-4 border-b border-slate-700/50">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-blue-500/20">
+                <Users className="w-5 h-5 text-blue-400" />
               </div>
-            ) : (
-              <div className="space-y-2">
-                {users.filter(u => u.id !== user?.id).map((userProfile) => (
-                  <div 
-                    key={userProfile.id} 
-                    className={`flex items-center justify-between gap-3 p-3 rounded-lg border ${
-                      userProfile.isAdmin 
-                        ? 'border-amber-500/30 bg-amber-500/5' 
-                        : 'border-slate-700 bg-slate-800/30'
+              <div>
+                <h3 className="font-semibold text-white">Lista de Usuários</h3>
+                <p className="text-xs text-slate-400">{filteredUsers.length} de {totalUsers} usuários</p>
+              </div>
+            </div>
+            
+            {/* Search and Filter */}
+            <div className="flex items-center gap-2">
+              <div className="relative">
+                <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <Input
+                  placeholder="Buscar usuário..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-9 w-48 bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400 focus:border-amber-500/50"
+                />
+              </div>
+              
+              <div className="flex gap-1">
+                {(['all', 'active', 'blocked', 'admin'] as const).map((status) => (
+                  <Button
+                    key={status}
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setFilterStatus(status)}
+                    className={`text-xs ${
+                      filterStatus === status 
+                        ? 'bg-amber-500/20 text-amber-400' 
+                        : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
                     }`}
                   >
-                    <div className="flex items-center gap-3">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                        userProfile.isAdmin ? 'bg-amber-500/20' : 'bg-slate-700'
-                      }`}>
-                        {userProfile.isAdmin ? (
-                          <Shield className="w-4 h-4 text-amber-400" />
-                        ) : (
-                          <Users className="w-4 h-4 text-slate-400" />
-                        )}
-                      </div>
-                      <div>
-                        <p className="font-medium text-sm text-white">{userProfile.full_name || 'Sem nome'}</p>
-                        <p className="text-xs text-slate-400">
-                          {userProfile.isAdmin ? 'Administrador' : 'Usuário comum'}
-                        </p>
-                      </div>
-                    </div>
-                    <Button
-                      variant={userProfile.isAdmin ? "outline" : "default"}
-                      size="sm"
-                      onClick={() => setAdminConfirmDialog({
-                        userId: userProfile.id,
-                        userName: userProfile.full_name || 'Sem nome',
-                        isAdmin: userProfile.isAdmin || false
-                      })}
-                      disabled={updatingAdminRole === userProfile.id}
-                      className={userProfile.isAdmin 
-                        ? 'border-amber-500/50 text-amber-400 hover:bg-amber-500/10' 
-                        : 'bg-amber-500 text-slate-900 hover:bg-amber-600'
-                      }
-                    >
-                      {updatingAdminRole === userProfile.id ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                      ) : userProfile.isAdmin ? (
-                        <>
-                          <ShieldOff className="w-4 h-4 mr-1" />
-                          Remover
-                        </>
-                      ) : (
-                        <>
-                          <ShieldCheck className="w-4 h-4 mr-1" />
-                          Tornar Admin
-                        </>
-                      )}
-                    </Button>
-                  </div>
+                    {status === 'all' && 'Todos'}
+                    {status === 'active' && 'Ativos'}
+                    {status === 'blocked' && 'Bloqueados'}
+                    {status === 'admin' && 'Admins'}
+                  </Button>
                 ))}
               </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Users List */}
-        <Card className="bg-slate-800/50 border-slate-700/50">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg flex items-center gap-2 text-white">
-              <Users className="w-5 h-5 text-blue-400" />
-              Lista de Usuários
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {users.map((userProfile) => (
-                <div key={userProfile.id} className="space-y-2">
-                  <div className="flex items-center justify-between gap-3 p-3 rounded-lg bg-slate-700/30 border border-slate-700">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                        userProfile.isAdmin ? 'bg-amber-500/20' : 'bg-slate-700'
-                      }`}>
-                        {userProfile.isAdmin ? (
-                          <Shield className="w-5 h-5 text-amber-400" />
-                        ) : (
-                          <Users className="w-5 h-5 text-slate-400" />
-                        )}
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <p className="font-medium text-white">{userProfile.full_name || 'Sem nome'}</p>
-                          {userProfile.isAdmin && (
-                            <Badge variant="outline" className="text-xs border-amber-500/50 text-amber-400">
-                              Admin
-                            </Badge>
-                          )}
-                          {userProfile.subscription_plan === 'premium' ? (
-                            <Badge className="text-xs bg-violet-500/20 text-violet-400 border border-violet-500/30 hover:bg-violet-500/30">
-                              <Crown className="w-3 h-3 mr-1" />
-                              Premium
-                            </Badge>
-                          ) : userProfile.subscription_plan === 'basic' ? (
-                            <Badge className="text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/30">
-                              <Gem className="w-3 h-3 mr-1" />
-                              Basic
-                            </Badge>
-                          ) : (
-                            <Badge variant="outline" className="text-xs border-slate-600 text-slate-500">
-                              Sem assinatura
-                            </Badge>
-                          )}
-                          {userProfile.is_blocked && (
-                            <Badge variant="destructive" className="text-xs">
-                              Bloqueado
-                            </Badge>
-                          )}
-                        </div>
-                        <p className="text-xs text-slate-400">
-                          Cadastrado em {format(new Date(userProfile.created_at), 'dd/MM/yyyy', { locale: ptBR })}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => loadUserPlans(userProfile.id)}
-                        disabled={loadingPlans === userProfile.id}
-                        className="text-slate-400 hover:text-white hover:bg-slate-700"
-                      >
-                        {loadingPlans === userProfile.id ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : (
-                          <>
-                            <Eye className="w-4 h-4 mr-1" />
-                            Planos
-                            {expandedUser === userProfile.id ? (
-                              <ChevronUp className="w-4 h-4 ml-1" />
-                            ) : (
-                              <ChevronDown className="w-4 h-4 ml-1" />
-                            )}
-                          </>
-                        )}
-                      </Button>
-                      {userProfile.id !== user?.id && (
-                        <>
-                          {/* Subscription Change Button */}
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setSubscriptionDialog({
-                              userId: userProfile.id,
-                              userName: userProfile.full_name || 'Sem nome',
-                              currentPlan: userProfile.subscription_plan
-                            })}
-                            disabled={updatingSubscription === userProfile.id}
-                            className="border-violet-500/50 text-violet-400 hover:bg-violet-500/10"
-                          >
-                            {updatingSubscription === userProfile.id ? (
-                              <Loader2 className="w-4 h-4 animate-spin" />
-                            ) : (
-                              <>
-                                <ArrowUpDown className="w-4 h-4 mr-1" />
-                                Plano
-                              </>
-                            )}
-                          </Button>
-                          <Button
-                            variant={userProfile.is_blocked ? "default" : "destructive"}
-                            size="sm"
-                            onClick={() => toggleUserBlock(userProfile.id, userProfile.is_blocked)}
-                            disabled={updatingUser === userProfile.id}
-                            className={userProfile.is_blocked 
-                              ? 'bg-green-600 hover:bg-green-700' 
-                              : ''
-                            }
-                          >
-                            {updatingUser === userProfile.id ? (
-                              <Loader2 className="w-4 h-4 animate-spin" />
-                            ) : userProfile.is_blocked ? (
-                              <>
-                                <UserCheck className="w-4 h-4 mr-1" />
-                                Desbloquear
-                              </>
-                            ) : (
-                              <>
-                                <UserX className="w-4 h-4 mr-1" />
-                                Bloquear
-                              </>
-                            )}
-                          </Button>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                  
-                  {/* Expanded plans */}
-                  {expandedUser === userProfile.id && userPlans[userProfile.id] && (
-                    <div className="ml-4 pl-4 border-l-2 border-slate-700 space-y-2">
-                      {userPlans[userProfile.id].length === 0 ? (
-                        <p className="text-sm text-slate-500 py-2">Nenhum plano criado</p>
-                      ) : (
-                        userPlans[userProfile.id].map((plan) => (
-                          <div 
-                            key={plan.id} 
-                            className="p-3 rounded-lg bg-slate-700/20 border border-slate-700/50"
-                          >
-                            <div className="flex items-center justify-between">
-                              <div>
-                                <p className="font-medium text-white text-sm">{plan.title}</p>
-                                <div className="flex items-center gap-2 mt-1">
-                                  <Badge variant="outline" className="text-xs border-slate-600 text-slate-400">
-                                    {getPlanTypeLabel(plan.plan_type)}
-                                  </Badge>
-                                  {plan.member_name && (
-                                    <span className="text-xs text-slate-500">
-                                      {plan.member_name}
-                                    </span>
-                                  )}
-                                </div>
-                              </div>
-                              <div className="text-right">
-                                <p className="text-sm font-medium text-white">
-                                  {plan.completed_count}/{plan.goals_count}
-                                </p>
-                                <p className="text-xs text-slate-500">metas realizadas</p>
-                              </div>
-                            </div>
-                          </div>
-                        ))
-                      )}
-                    </div>
-                  )}
-                </div>
-              ))}
             </div>
-          </CardContent>
-        </Card>
+          </div>
+          
+          {/* Users Grid */}
+          <div className="p-4 space-y-3 max-h-[600px] overflow-y-auto scrollbar-premium">
+            {filteredUsers.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12 text-slate-500">
+                <Users className="w-12 h-12 opacity-30 mb-3" />
+                <p className="text-sm">Nenhum usuário encontrado</p>
+                <p className="text-xs text-slate-600 mt-1">Tente ajustar os filtros de busca</p>
+              </div>
+            ) : (
+              filteredUsers.map((userProfile) => (
+                <AdminUserCard
+                  key={userProfile.id}
+                  user={userProfile}
+                  currentUserId={user?.id}
+                  plans={userPlans[userProfile.id]}
+                  isExpanded={expandedUser === userProfile.id}
+                  isLoadingPlans={loadingPlans === userProfile.id}
+                  isUpdatingUser={updatingUser === userProfile.id}
+                  isUpdatingSubscription={updatingSubscription === userProfile.id}
+                  onToggleExpand={() => loadUserPlans(userProfile.id)}
+                  onToggleBlock={() => toggleUserBlock(userProfile.id, userProfile.is_blocked)}
+                  onOpenSubscriptionDialog={() => setSubscriptionDialog({
+                    userId: userProfile.id,
+                    userName: userProfile.full_name || 'Sem nome',
+                    currentPlan: userProfile.subscription_plan
+                  })}
+                />
+              ))
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Admin Confirm Dialog */}
       <Dialog open={!!adminConfirmDialog} onOpenChange={() => setAdminConfirmDialog(null)}>
-        <DialogContent className="bg-slate-800 border-slate-700">
+        <DialogContent className="bg-slate-800 border-slate-700 max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-white">
-              {adminConfirmDialog?.isAdmin ? 'Remover permissão de Admin?' : 'Conceder permissão de Admin?'}
-            </DialogTitle>
-            <DialogDescription className="text-slate-400">
+            <div className="flex items-center gap-3 mb-2">
+              <div className={`p-3 rounded-xl ${adminConfirmDialog?.isAdmin ? 'bg-red-500/20' : 'bg-amber-500/20'}`}>
+                <Shield className={`w-6 h-6 ${adminConfirmDialog?.isAdmin ? 'text-red-400' : 'text-amber-400'}`} />
+              </div>
+              <DialogTitle className="text-xl text-white">
+                {adminConfirmDialog?.isAdmin ? 'Remover permissão?' : 'Conceder permissão?'}
+              </DialogTitle>
+            </div>
+            <DialogDescription className="text-slate-400 pl-14">
               {adminConfirmDialog?.isAdmin 
-                ? `${adminConfirmDialog?.userName} perderá acesso ao painel administrativo.`
-                : `${adminConfirmDialog?.userName} terá acesso total ao painel administrativo.`
+                ? `${adminConfirmDialog?.userName} perderá acesso ao painel administrativo e todas as funcionalidades de admin.`
+                : `${adminConfirmDialog?.userName} terá acesso total ao painel administrativo, podendo gerenciar outros usuários.`
               }
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter className="gap-2">
+          <DialogFooter className="gap-2 mt-4">
             <Button
               variant="ghost"
               onClick={() => setAdminConfirmDialog(null)}
@@ -772,8 +641,8 @@ export default function AdminDashboard() {
             <Button
               onClick={() => adminConfirmDialog && toggleAdminRole(adminConfirmDialog.userId, adminConfirmDialog.isAdmin)}
               className={adminConfirmDialog?.isAdmin 
-                ? 'bg-red-600 hover:bg-red-700' 
-                : 'bg-amber-500 text-slate-900 hover:bg-amber-600'
+                ? 'bg-red-600 hover:bg-red-700 text-white' 
+                : 'bg-gradient-to-r from-amber-500 to-amber-600 text-white hover:from-amber-600 hover:to-amber-700'
               }
             >
               {adminConfirmDialog?.isAdmin ? 'Remover Admin' : 'Tornar Admin'}
@@ -784,47 +653,59 @@ export default function AdminDashboard() {
 
       {/* Subscription Change Dialog */}
       <Dialog open={!!subscriptionDialog} onOpenChange={() => setSubscriptionDialog(null)}>
-        <DialogContent className="bg-slate-800 border-slate-700">
+        <DialogContent className="bg-slate-800 border-slate-700 max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-white flex items-center gap-2">
-              <ArrowUpDown className="w-5 h-5 text-violet-400" />
-              Alterar Assinatura
-            </DialogTitle>
-            <DialogDescription className="text-slate-400">
-              Altere o plano de assinatura de <span className="text-white font-medium">{subscriptionDialog?.userName}</span>
-            </DialogDescription>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-3 rounded-xl bg-violet-500/20">
+                <ArrowUpDown className="w-6 h-6 text-violet-400" />
+              </div>
+              <div>
+                <DialogTitle className="text-xl text-white">Alterar Assinatura</DialogTitle>
+                <DialogDescription className="text-slate-400">
+                  {subscriptionDialog?.userName}
+                </DialogDescription>
+              </div>
+            </div>
           </DialogHeader>
           
-          <div className="space-y-3 py-4">
-            <p className="text-sm text-slate-400">
-              Plano atual: {' '}
-              <span className={subscriptionDialog?.currentPlan === 'premium' ? 'text-violet-400 font-medium' : subscriptionDialog?.currentPlan === 'basic' ? 'text-emerald-400 font-medium' : 'text-slate-500'}>
+          <div className="space-y-4 py-4">
+            <div className="flex items-center gap-2 text-sm text-slate-400">
+              <span>Plano atual:</span>
+              <Badge className={
+                subscriptionDialog?.currentPlan === 'premium' 
+                  ? 'bg-violet-500/20 text-violet-400 border-violet-500/30' 
+                  : subscriptionDialog?.currentPlan === 'basic' 
+                    ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' 
+                    : 'bg-slate-500/20 text-slate-400 border-slate-500/30'
+              }>
                 {subscriptionDialog?.currentPlan === 'premium' ? 'Premium' : subscriptionDialog?.currentPlan === 'basic' ? 'Basic' : 'Sem assinatura'}
-              </span>
-            </p>
+              </Badge>
+            </div>
             
             <div className="grid grid-cols-2 gap-3">
               <Button
                 onClick={() => subscriptionDialog && toggleSubscriptionPlan(subscriptionDialog.userId, subscriptionDialog.currentPlan === 'basic' ? 'basic' : null)}
                 disabled={subscriptionDialog?.currentPlan === 'basic'}
-                className={subscriptionDialog?.currentPlan === 'basic' 
-                  ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/50 cursor-not-allowed' 
-                  : 'bg-emerald-600 hover:bg-emerald-700 text-white'
-                }
+                className={`h-24 flex-col gap-2 ${
+                  subscriptionDialog?.currentPlan === 'basic' 
+                    ? 'bg-emerald-500/10 text-emerald-400/50 border border-emerald-500/20 cursor-not-allowed' 
+                    : 'bg-gradient-to-br from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white border-0'
+                }`}
               >
-                <Gem className="w-4 h-4 mr-2" />
-                Basic
+                <Gem className="w-6 h-6" />
+                <span className="font-semibold">Basic</span>
               </Button>
               <Button
                 onClick={() => subscriptionDialog && toggleSubscriptionPlan(subscriptionDialog.userId, subscriptionDialog.currentPlan === 'premium' ? 'premium' : 'basic')}
                 disabled={subscriptionDialog?.currentPlan === 'premium'}
-                className={subscriptionDialog?.currentPlan === 'premium' 
-                  ? 'bg-violet-500/20 text-violet-400 border border-violet-500/50 cursor-not-allowed' 
-                  : 'bg-violet-600 hover:bg-violet-700 text-white'
-                }
+                className={`h-24 flex-col gap-2 ${
+                  subscriptionDialog?.currentPlan === 'premium' 
+                    ? 'bg-violet-500/10 text-violet-400/50 border border-violet-500/20 cursor-not-allowed' 
+                    : 'bg-gradient-to-br from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white border-0'
+                }`}
               >
-                <Crown className="w-4 h-4 mr-2" />
-                Premium
+                <Crown className="w-6 h-6" />
+                <span className="font-semibold">Premium</span>
               </Button>
             </div>
           </div>
@@ -841,6 +722,7 @@ export default function AdminDashboard() {
               <Button
                 variant="destructive"
                 onClick={() => subscriptionDialog && removeSubscription(subscriptionDialog.userId)}
+                className="bg-red-600 hover:bg-red-700"
               >
                 Remover Assinatura
               </Button>
