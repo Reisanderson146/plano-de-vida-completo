@@ -5,6 +5,16 @@ interface ProgressChartProps {
   data: Record<LifeArea, { total: number; completed: number }>;
 }
 
+// Helper to lighten a hex color
+const lightenColor = (hex: string, percent: number): string => {
+  const num = parseInt(hex.replace('#', ''), 16);
+  const amt = Math.round(2.55 * percent);
+  const R = Math.min(255, (num >> 16) + amt);
+  const G = Math.min(255, ((num >> 8) & 0x00FF) + amt);
+  const B = Math.min(255, (num & 0x0000FF) + amt);
+  return `#${(0x1000000 + R * 0x10000 + G * 0x100 + B).toString(16).slice(1)}`;
+};
+
 export function ProgressChart({ data }: ProgressChartProps) {
   const chartData = LIFE_AREAS.map((area) => {
     const areaData = data[area.id];
@@ -60,7 +70,9 @@ export function ProgressChart({ data }: ProgressChartProps) {
         <div className="flex items-center gap-2 mb-1">
           <div 
             className="w-3 h-3 rounded-full"
-            style={{ backgroundColor: item.color }}
+            style={{ 
+              background: `linear-gradient(135deg, ${lightenColor(item.color, 30)} 0%, ${item.color} 100%)` 
+            }}
           />
           <span className="font-semibold text-sm text-foreground">{item.area}</span>
         </div>
@@ -76,50 +88,86 @@ export function ProgressChart({ data }: ProgressChartProps) {
     );
   };
 
-  // Custom dot component for radar points
+  // Custom dot component for radar points with gradient
   const CustomDot = (props: any) => {
-    const { cx, cy, payload } = props;
-    
-    return (
-      <circle
-        cx={cx}
-        cy={cy}
-        r={5}
-        fill={payload.color}
-        stroke="hsl(var(--background))"
-        strokeWidth={2}
-        className="cursor-pointer transition-all duration-200 hover:r-7"
-        style={{
-          filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))',
-        }}
-      />
-    );
-  };
-
-  // Active dot on hover
-  const ActiveDot = (props: any) => {
-    const { cx, cy, payload } = props;
+    const { cx, cy, payload, index } = props;
+    const gradientId = `dotGradient-${payload.areaId}`;
+    const lightColor = lightenColor(payload.color, 40);
     
     return (
       <g>
+        <defs>
+          <radialGradient id={gradientId} cx="30%" cy="30%" r="70%">
+            <stop offset="0%" stopColor={lightColor} />
+            <stop offset="100%" stopColor={payload.color} />
+          </radialGradient>
+        </defs>
+        <circle
+          cx={cx}
+          cy={cy}
+          r={6}
+          fill={`url(#${gradientId})`}
+          stroke="hsl(var(--background))"
+          strokeWidth={2}
+          className="cursor-pointer"
+          style={{
+            filter: `drop-shadow(0 2px 6px ${payload.color}50)`,
+          }}
+        />
+      </g>
+    );
+  };
+
+  // Active dot on hover with gradient
+  const ActiveDot = (props: any) => {
+    const { cx, cy, payload } = props;
+    const gradientId = `activeDotGradient-${payload.areaId}`;
+    const lightColor = lightenColor(payload.color, 50);
+    
+    return (
+      <g>
+        <defs>
+          <radialGradient id={gradientId} cx="30%" cy="30%" r="70%">
+            <stop offset="0%" stopColor={lightColor} />
+            <stop offset="100%" stopColor={payload.color} />
+          </radialGradient>
+        </defs>
+        {/* Outer glow ring */}
+        <circle
+          cx={cx}
+          cy={cy}
+          r={14}
+          fill={payload.color}
+          fillOpacity={0.15}
+          className="animate-pulse-soft"
+        />
+        {/* Middle glow */}
         <circle
           cx={cx}
           cy={cy}
           r={10}
           fill={payload.color}
-          fillOpacity={0.2}
-          className="animate-pulse-soft"
+          fillOpacity={0.25}
         />
+        {/* Main dot with gradient */}
         <circle
           cx={cx}
           cy={cy}
-          r={6}
-          fill={payload.color}
+          r={7}
+          fill={`url(#${gradientId})`}
           stroke="hsl(var(--background))"
           strokeWidth={2}
           style={{
-            filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.3))',
+            filter: `drop-shadow(0 3px 10px ${payload.color}80)`,
           }}
+        />
+        {/* Shine effect */}
+        <circle
+          cx={cx - 2}
+          cy={cy - 2}
+          r={2}
+          fill="white"
+          fillOpacity={0.6}
         />
       </g>
     );
@@ -161,13 +209,16 @@ export function ProgressChart({ data }: ProgressChartProps) {
         </ResponsiveContainer>
       </div>
       
-      {/* Legend with area colors */}
+      {/* Legend with area colors and gradients */}
       <div className="flex flex-wrap justify-center gap-2 sm:gap-3 mt-2 px-2">
         {LIFE_AREAS.map((area) => (
           <div key={area.id} className="flex items-center gap-1.5">
             <div 
-              className="w-2.5 h-2.5 rounded-full flex-shrink-0" 
-              style={{ backgroundColor: AREA_HEX_COLORS[area.id] }}
+              className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+              style={{ 
+                background: `linear-gradient(135deg, ${lightenColor(AREA_HEX_COLORS[area.id], 30)} 0%, ${AREA_HEX_COLORS[area.id]} 100%)`,
+                boxShadow: `0 1px 3px ${AREA_HEX_COLORS[area.id]}40`
+              }}
             />
             <span className="text-[10px] sm:text-xs text-muted-foreground">{area.label}</span>
           </div>
