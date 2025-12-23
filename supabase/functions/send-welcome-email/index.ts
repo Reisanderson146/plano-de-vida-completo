@@ -218,6 +218,15 @@ const handler = async (req: Request): Promise<Response> => {
                       <p style="margin: 10px 0 0 0; color: #9ca3af; font-size: 12px;">
                         Você recebeu este email porque se inscreveu no Plano de Vida.
                       </p>
+                      <p style="margin: 15px 0 0 0;">
+                        <a href="https://planodevida.io/configuracoes" style="color: #6b7280; font-size: 12px; text-decoration: underline;">
+                          Gerenciar preferências de email
+                        </a>
+                        <span style="color: #d1d5db; margin: 0 8px;">|</span>
+                        <a href="mailto:cancelar@planodevida.io?subject=Cancelar%20inscri%C3%A7%C3%A3o" style="color: #6b7280; font-size: 12px; text-decoration: underline;">
+                          Cancelar inscrição
+                        </a>
+                      </p>
                     </td>
                   </tr>
                 </table>

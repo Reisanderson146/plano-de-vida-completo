@@ -179,6 +179,15 @@ const handler = async (req: Request): Promise<Response> => {
                   <tr>
                     <td style="background-color: #f9fafb; padding: 25px 30px; text-align: center; border-top: 1px solid #e5e7eb;">
                       <p style="margin: 0; color: #9ca3af; font-size: 13px;">© ${new Date().getFullYear()} Plano de Vida. Todos os direitos reservados.</p>
+                      <p style="margin: 15px 0 0 0;">
+                        <a href="https://planodevida.io/configuracoes" style="color: #6b7280; font-size: 12px; text-decoration: underline;">
+                          Gerenciar preferências de email
+                        </a>
+                        <span style="color: #d1d5db; margin: 0 8px;">|</span>
+                        <a href="mailto:cancelar@planodevida.io?subject=Cancelar%20inscri%C3%A7%C3%A3o" style="color: #6b7280; font-size: 12px; text-decoration: underline;">
+                          Cancelar inscrição
+                        </a>
+                      </p>
                     </td>
                   </tr>
                 </table>
@@ -260,6 +269,15 @@ const handler = async (req: Request): Promise<Response> => {
                   <tr>
                     <td style="background-color: #f9fafb; padding: 25px 30px; text-align: center; border-top: 1px solid #e5e7eb;">
                       <p style="margin: 0; color: #9ca3af; font-size: 13px;">© ${new Date().getFullYear()} Plano de Vida. Todos os direitos reservados.</p>
+                      <p style="margin: 15px 0 0 0;">
+                        <a href="https://planodevida.io/configuracoes" style="color: #6b7280; font-size: 12px; text-decoration: underline;">
+                          Gerenciar preferências de email
+                        </a>
+                        <span style="color: #d1d5db; margin: 0 8px;">|</span>
+                        <a href="mailto:cancelar@planodevida.io?subject=Cancelar%20inscri%C3%A7%C3%A3o" style="color: #6b7280; font-size: 12px; text-decoration: underline;">
+                          Cancelar inscrição
+                        </a>
+                      </p>
                     </td>
                   </tr>
                 </table>
