@@ -38,14 +38,42 @@ export default function Auth() {
   const { toast } = useToast();
   const { errors, setFieldError, clearError, hasError, getError, clearAllErrors } = useFormValidation();
 
-  // Detect password recovery flow
+  // Detect password recovery flow and email confirmation
   useEffect(() => {
     const type = searchParams.get('type');
+    const emailConfirmed = searchParams.get('email_confirmed');
 
     // Handle recovery flow - check for type=recovery or hash params from Supabase
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
     const hashType = hashParams.get('type');
     const hashAccessToken = hashParams.get('access_token');
+
+    // Check for email confirmation success (type=signup in hash means email was confirmed)
+    const isEmailConfirmation = hashType === 'signup' && hashAccessToken;
+    
+    if (isEmailConfirmation) {
+      // Email was confirmed successfully - show success toast
+      toast({
+        title: '✅ E-mail validado com sucesso!',
+        description: 'Sua conta foi ativada. Faça login para continuar.',
+      });
+      // Clear the hash to clean up the URL
+      window.history.replaceState(null, '', '/auth');
+      // Sign out any auto-created session so user can login fresh
+      supabase.auth.signOut();
+      return;
+    }
+
+    // Also check for email_confirmed query param (fallback)
+    if (emailConfirmed === 'true') {
+      toast({
+        title: '✅ E-mail validado com sucesso!',
+        description: 'Sua conta foi ativada. Faça login para continuar.',
+      });
+      // Clean up URL
+      window.history.replaceState(null, '', '/auth');
+      return;
+    }
 
     const isRecoveryFlow = type === 'recovery' || hashType === 'recovery';
 
@@ -83,7 +111,7 @@ export default function Auth() {
 
       return () => subscription.unsubscribe();
     }
-  }, [searchParams]);
+  }, [searchParams, toast]);
 
   useEffect(() => {
     // Don't redirect if in password recovery mode
