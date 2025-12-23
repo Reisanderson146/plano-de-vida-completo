@@ -399,7 +399,7 @@ export default function Relatorios() {
               </div>
             </CardHeader>
             <CardContent className="px-3 sm:px-5">
-              <ProgressChart data={stats} />
+              <ProgressChart data={stats} showAreaFilter={true} />
             </CardContent>
           </Card>
         </div>

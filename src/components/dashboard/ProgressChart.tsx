@@ -2,9 +2,12 @@ import { useState, useEffect, useRef } from 'react';
 import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer, Tooltip } from 'recharts';
 import { LIFE_AREAS, LifeArea, AREA_HEX_COLORS } from '@/lib/constants';
 import { Loader2 } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
 
 interface ProgressChartProps {
   data: Record<LifeArea, { total: number; completed: number }>;
+  showAreaFilter?: boolean;
 }
 
 // Helper to lighten a hex color
@@ -19,9 +22,10 @@ const lightenColor = (hex: string | undefined, percent: number): string => {
   return `#${(0x1000000 + R * 0x10000 + G * 0x100 + B).toString(16).slice(1)}`;
 };
 
-export function ProgressChart({ data }: ProgressChartProps) {
+export function ProgressChart({ data, showAreaFilter = false }: ProgressChartProps) {
   const [animatedData, setAnimatedData] = useState<typeof chartDataInitial>([]);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [selectedAreas, setSelectedAreas] = useState<Set<LifeArea>>(new Set(LIFE_AREAS.map(a => a.id)));
   const prevDataRef = useRef<string>('');
 
   const chartDataInitial = LIFE_AREAS.map((area) => {
@@ -60,7 +64,42 @@ export function ProgressChart({ data }: ProgressChartProps) {
     }
   }, [data]);
 
-  const chartData = animatedData.length > 0 ? animatedData : chartDataInitial;
+  // Toggle area selection
+  const toggleArea = (areaId: LifeArea) => {
+    setSelectedAreas(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(areaId)) {
+        // Don't allow deselecting if only one area is selected
+        if (newSet.size > 1) {
+          newSet.delete(areaId);
+        }
+      } else {
+        newSet.add(areaId);
+      }
+      return newSet;
+    });
+  };
+
+  // Select/deselect all areas
+  const toggleAllAreas = () => {
+    if (selectedAreas.size === LIFE_AREAS.length) {
+      // If all selected, select only the first one
+      setSelectedAreas(new Set([LIFE_AREAS[0].id]));
+    } else {
+      // Select all
+      setSelectedAreas(new Set(LIFE_AREAS.map(a => a.id)));
+    }
+  };
+
+  // Filter chart data based on selected areas
+  const filteredChartData = (animatedData.length > 0 ? animatedData : chartDataInitial)
+    .map(item => ({
+      ...item,
+      value: selectedAreas.has(item.areaId as LifeArea) ? item.value : 0,
+      isSelected: selectedAreas.has(item.areaId as LifeArea),
+    }));
+
+  const chartData = filteredChartData;
 
   // Custom tick component with colored labels
   const CustomTick = ({ payload, x, y, textAnchor, ...props }: any) => {
@@ -208,6 +247,41 @@ export function ProgressChart({ data }: ProgressChartProps) {
 
   return (
     <div className="w-full">
+      {/* Area Filter */}
+      {showAreaFilter && (
+        <div className="flex flex-wrap justify-center gap-1.5 sm:gap-2 mb-4 px-2">
+          <Badge
+            variant={selectedAreas.size === LIFE_AREAS.length ? "default" : "outline"}
+            className="cursor-pointer transition-all hover:scale-105 text-[10px] sm:text-xs"
+            onClick={toggleAllAreas}
+          >
+            {selectedAreas.size === LIFE_AREAS.length ? 'Todas' : 'Selecionar Todas'}
+          </Badge>
+          {LIFE_AREAS.map((area) => {
+            const isSelected = selectedAreas.has(area.id);
+            return (
+              <Badge
+                key={area.id}
+                variant="outline"
+                className={cn(
+                  "cursor-pointer transition-all hover:scale-105 text-[10px] sm:text-xs",
+                  isSelected && "ring-2 ring-offset-1"
+                )}
+                style={{
+                  backgroundColor: isSelected ? `${AREA_HEX_COLORS[area.id]}20` : 'transparent',
+                  borderColor: AREA_HEX_COLORS[area.id],
+                  color: isSelected ? AREA_HEX_COLORS[area.id] : 'hsl(var(--muted-foreground))',
+                  ['--tw-ring-color' as any]: isSelected ? AREA_HEX_COLORS[area.id] : 'transparent',
+                }}
+                onClick={() => toggleArea(area.id)}
+              >
+                {area.label}
+              </Badge>
+            );
+          })}
+        </div>
+      )}
+
       <div className="relative w-full h-[250px] sm:h-[320px] lg:h-[350px]">
         {/* Loading overlay */}
         {isTransitioning && (
@@ -256,20 +330,22 @@ export function ProgressChart({ data }: ProgressChartProps) {
       </div>
       
       {/* Legend with area colors and gradients */}
-      <div className="flex flex-wrap justify-center gap-2 sm:gap-3 mt-2 px-2">
-        {LIFE_AREAS.map((area) => (
-          <div key={area.id} className="flex items-center gap-1.5">
-            <div 
-              className="w-2.5 h-2.5 rounded-full flex-shrink-0"
-              style={{ 
-                background: `linear-gradient(135deg, ${lightenColor(AREA_HEX_COLORS[area.id], 30)} 0%, ${AREA_HEX_COLORS[area.id]} 100%)`,
-                boxShadow: `0 1px 3px ${AREA_HEX_COLORS[area.id]}40`
-              }}
-            />
-            <span className="text-[10px] sm:text-xs text-muted-foreground">{area.label}</span>
-          </div>
-        ))}
-      </div>
+      {!showAreaFilter && (
+        <div className="flex flex-wrap justify-center gap-2 sm:gap-3 mt-2 px-2">
+          {LIFE_AREAS.map((area) => (
+            <div key={area.id} className="flex items-center gap-1.5">
+              <div 
+                className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                style={{ 
+                  background: `linear-gradient(135deg, ${lightenColor(AREA_HEX_COLORS[area.id], 30)} 0%, ${AREA_HEX_COLORS[area.id]} 100%)`,
+                  boxShadow: `0 1px 3px ${AREA_HEX_COLORS[area.id]}40`
+                }}
+              />
+              <span className="text-[10px] sm:text-xs text-muted-foreground">{area.label}</span>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
