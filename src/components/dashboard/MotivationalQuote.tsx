@@ -47,7 +47,7 @@ function HeartParticles({ isActive }: { isActive: boolean }) {
             ease: "easeOut"
           }}
         >
-          <Heart className="w-4 h-4 text-red-500 fill-red-500" />
+          <Heart className="w-4 h-4 text-destructive fill-destructive" />
         </motion.div>
       ))}
     </AnimatePresence>
@@ -118,10 +118,10 @@ export function MotivationalQuote() {
               <motion.button
                 onClick={handleToggleFavorite}
                 className={cn(
-                  "p-2 rounded-full transition-colors relative z-10 border",
-                  isCurrentFavorite 
-                    ? "text-red-500 bg-red-50 border-red-200 hover:bg-red-100 dark:bg-red-500/10 dark:border-red-500/30 dark:hover:bg-red-500/20" 
-                    : "text-gray-500 bg-gray-100 border-gray-200 hover:text-red-500 hover:bg-red-50 hover:border-red-200 dark:text-gray-400 dark:bg-gray-800 dark:border-gray-700 dark:hover:text-red-500 dark:hover:bg-red-500/10 dark:hover:border-red-500/30"
+                  "p-2 rounded-full transition-colors relative z-10 border bg-background/60 backdrop-blur-sm",
+                  isCurrentFavorite
+                    ? "text-destructive border-destructive/40 bg-destructive/10 hover:bg-destructive/15"
+                    : "text-destructive/60 border-destructive/25 hover:text-destructive hover:border-destructive/40 hover:bg-destructive/10"
                 )}
                 title={isCurrentFavorite ? "Remover dos favoritos" : "Adicionar aos favoritos"}
                 whileTap={{ scale: 0.9 }}
@@ -130,17 +130,24 @@ export function MotivationalQuote() {
                   <motion.div
                     key={isCurrentFavorite ? 'filled' : 'empty'}
                     initial={{ scale: 0.5, opacity: 0 }}
-                    animate={{ 
-                      scale: isAnimating ? [1, 1.3, 1] : 1, 
-                      opacity: 1 
+                    animate={{
+                      scale: isAnimating ? [1, 1.3, 1] : 1,
+                      opacity: 1,
                     }}
                     exit={{ scale: 0.5, opacity: 0 }}
-                    transition={{ 
+                    transition={{
                       duration: 0.3,
-                      scale: { type: "spring", stiffness: 400, damping: 10 }
+                      scale: { type: "spring", stiffness: 400, damping: 10 },
                     }}
                   >
-                    <Heart className={cn("w-5 h-5", isCurrentFavorite && "fill-red-500")} />
+                    <Heart
+                      className={cn(
+                        "w-5 h-5 transition-colors",
+                        isCurrentFavorite
+                          ? "fill-destructive text-destructive"
+                          : "fill-transparent text-destructive/60"
+                      )}
+                    />
                   </motion.div>
                 </AnimatePresence>
               </motion.button>
