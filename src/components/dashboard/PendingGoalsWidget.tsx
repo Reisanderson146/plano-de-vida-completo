@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
@@ -8,9 +8,9 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { LIFE_AREAS, AREA_HEX_COLORS, LifeArea } from '@/lib/constants';
-import { CheckCircle2, Clock, Sparkles, Plus } from 'lucide-react';
+import { CheckCircle2, Clock, Sparkles, Plus, Trophy } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import confetti from 'canvas-confetti';
 
@@ -227,6 +227,19 @@ export function PendingGoalsWidget({ selectedPlanId, onGoalCompleted }: PendingG
             </p>
           </div>
         </CardContent>
+        <CardFooter className="pt-2 pb-4">
+          <Link to="/historico-metas" className="w-full">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="w-full gap-2 text-primary hover:text-primary hover:bg-primary/10 font-medium"
+            >
+              <Trophy className="w-4 h-4" />
+              Ver histórico de metas concluídas
+              <Sparkles className="w-3.5 h-3.5 animate-pulse-soft" />
+            </Button>
+          </Link>
+        </CardFooter>
       </Card>
     );
   }
@@ -293,6 +306,19 @@ export function PendingGoalsWidget({ selectedPlanId, onGoalCompleted }: PendingG
           </div>
         ))}
       </CardContent>
+      <CardFooter className="pt-2 pb-4">
+        <Link to="/historico-metas" className="w-full">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="w-full gap-2 text-primary hover:text-primary hover:bg-primary/10 font-medium"
+          >
+            <Trophy className="w-4 h-4" />
+            Ver histórico de metas concluídas
+            <Sparkles className="w-3.5 h-3.5 animate-pulse-soft" />
+          </Button>
+        </Link>
+      </CardFooter>
     </Card>
   );
 }

@@ -12,7 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { LIFE_AREAS, LifeArea } from '@/lib/constants';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { Loader2, Target, Folder, User, Users, Baby, Sparkles, Trophy } from 'lucide-react';
+import { Loader2, Target, Folder, User, Users, Baby, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { DateRangeFilter, getYearRangeFromDateRange } from '@/components/filters/DateRangeFilter';
@@ -290,21 +290,8 @@ export default function Dashboard() {
 
         {/* Pending Goals and Monthly Evolution */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <div className="space-y-4">
+          <div>
             <PendingGoalsWidget selectedPlanId={selectedPlanId} onGoalCompleted={handleGoalCompleted} />
-            <Link to="/historico-metas" className="block">
-              <div className="relative overflow-hidden rounded-lg animate-glow-pulse">
-                <Button 
-                  variant="outline" 
-                  size="default" 
-                  className="w-full gap-2.5 bg-card hover:bg-accent/50 border-primary/30 text-foreground font-medium transition-all duration-300"
-                >
-                  <Trophy className="w-4 h-4 text-primary" />
-                  Ver histórico de metas concluídas
-                  <Sparkles className="w-4 h-4 text-primary animate-pulse-soft" />
-                </Button>
-              </div>
-            </Link>
           </div>
           <MonthlyEvolutionChart selectedPlanId={selectedPlanId} refreshKey={chartRefreshKey} />
         </div>
