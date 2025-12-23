@@ -207,15 +207,14 @@ const PricingSection = ({ onCheckout, onLogin, loading }: PricingSectionProps) =
         </motion.div>
 
         {/* Carousel Container */}
-        <div className="relative max-w-md mx-auto" style={{ perspective: "1000px" }}>
-          {/* Navigation Arrows - Desktop */}
+        <div className="relative max-w-md mx-auto px-12 md:px-16" style={{ perspective: "1000px" }}>
+          {/* Navigation Arrows */}
           <motion.button
             onClick={scrollPrev}
             className={cn(
-              "absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 md:-translate-x-14 z-20",
-              "w-12 h-12 rounded-full bg-card border border-border shadow-lg",
+              "absolute left-0 top-1/2 -translate-y-1/2 z-20",
+              "w-10 h-10 md:w-12 md:h-12 rounded-full bg-card border border-border shadow-lg",
               "flex items-center justify-center",
-              "hidden md:flex",
               !canScrollPrev && "opacity-30 cursor-not-allowed"
             )}
             disabled={!canScrollPrev}
@@ -223,16 +222,15 @@ const PricingSection = ({ onCheckout, onLogin, loading }: PricingSectionProps) =
             whileHover={canScrollPrev ? { scale: 1.1, boxShadow: "0 10px 30px rgba(0,0,0,0.15)" } : {}}
             whileTap={canScrollPrev ? { scale: 0.95 } : {}}
           >
-            <ChevronLeft className="w-6 h-6 text-foreground" />
+            <ChevronLeft className="w-5 h-5 md:w-6 md:h-6 text-foreground" />
           </motion.button>
           
           <motion.button
             onClick={scrollNext}
             className={cn(
-              "absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 md:translate-x-14 z-20",
-              "w-12 h-12 rounded-full bg-card border border-border shadow-lg",
+              "absolute right-0 top-1/2 -translate-y-1/2 z-20",
+              "w-10 h-10 md:w-12 md:h-12 rounded-full bg-card border border-border shadow-lg",
               "flex items-center justify-center",
-              "hidden md:flex",
               !canScrollNext && "opacity-30 cursor-not-allowed"
             )}
             disabled={!canScrollNext}
@@ -240,7 +238,7 @@ const PricingSection = ({ onCheckout, onLogin, loading }: PricingSectionProps) =
             whileHover={canScrollNext ? { scale: 1.1, boxShadow: "0 10px 30px rgba(0,0,0,0.15)" } : {}}
             whileTap={canScrollNext ? { scale: 0.95 } : {}}
           >
-            <ChevronRight className="w-6 h-6 text-foreground" />
+            <ChevronRight className="w-5 h-5 md:w-6 md:h-6 text-foreground" />
           </motion.button>
 
           {/* Animated Card Display */}
