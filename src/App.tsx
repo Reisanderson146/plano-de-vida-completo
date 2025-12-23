@@ -8,6 +8,7 @@ import { ThemeProvider } from "next-themes";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { useAdmin } from "@/hooks/useAdmin";
 import Auth from "./pages/Auth";
+import AuthCallback from "./pages/AuthCallback";
 import Dashboard from "./pages/Dashboard";
 import Cadastro from "./pages/Cadastro";
 import Consulta from "./pages/Consulta";
@@ -90,6 +91,8 @@ function AppRoutes() {
       <Route path="/landing" element={<LandingPage />} />
       <Route path="/assinatura" element={<Navigate to="/landing" replace />} />
       <Route path="/auth" element={<Auth />} />
+      <Route path="/auth/callback" element={<AuthCallback />} />
+      <Route path="/confirm" element={<AuthCallback />} />
       <Route path="/login" element={<Navigate to="/auth" replace />} />
       
       {/* Rota de sucesso do checkout */}
