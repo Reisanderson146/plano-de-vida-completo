@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, Sparkles, RefreshCw, Save, Lock, Crown, Heart, Zap, Scale, TrendingUp, TrendingDown, Minus, Check } from 'lucide-react';
+import { Loader2, Sparkles, RefreshCw, Save, Lock, Crown, Heart, Zap, Scale, Check } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
@@ -15,13 +15,6 @@ interface AreaStats {
   total: number;
   completed: number;
   percentage: number;
-}
-
-interface MonthlyComparison {
-  currentMonth: { completed: number; total: number; percentage: number };
-  previousMonth: { completed: number; total: number; percentage: number };
-  difference: number;
-  trend: 'up' | 'down' | 'same';
 }
 
 interface AISummaryProps {
@@ -85,8 +78,6 @@ export function AISummary({
   const [saving, setSaving] = useState(false);
   const [savingPreference, setSavingPreference] = useState(false);
   const [selectedStyle, setSelectedStyle] = useState<AIStyle>('balanced');
-  const [preferenceLoaded, setPreferenceLoaded] = useState(false);
-  const [monthlyComparison, setMonthlyComparison] = useState<MonthlyComparison | null>(null);
 
   const canUseAI = hasAIAccess(subscriptionTier);
 
@@ -107,65 +98,11 @@ export function AISummary({
         }
       } catch (error) {
         console.error('Error loading preferred style:', error);
-      } finally {
-        setPreferenceLoaded(true);
       }
     };
 
     loadPreferredStyle();
   }, [user]);
-
-  // Load monthly comparison data
-  useEffect(() => {
-    const loadMonthlyComparison = async () => {
-      if (!user || !planId) return;
-
-      try {
-        const now = new Date();
-        const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-        const previousMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-        const previousMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
-
-        // Get goals completed this month
-        const { data: currentMonthData, error: currentError } = await supabase
-          .from('life_goals')
-          .select('id, is_completed, completed_at')
-          .eq('life_plan_id', planId)
-          .eq('user_id', user.id);
-
-        if (currentError) throw currentError;
-
-        // Calculate current month completions
-        const currentMonthCompleted = currentMonthData?.filter(g => 
-          g.is_completed && 
-          g.completed_at && 
-          new Date(g.completed_at) >= currentMonthStart
-        ).length || 0;
-
-        // Calculate previous month completions
-        const previousMonthCompleted = currentMonthData?.filter(g => 
-          g.is_completed && 
-          g.completed_at && 
-          new Date(g.completed_at) >= previousMonthStart &&
-          new Date(g.completed_at) <= previousMonthEnd
-        ).length || 0;
-
-        const difference = currentMonthCompleted - previousMonthCompleted;
-        const trend: 'up' | 'down' | 'same' = difference > 0 ? 'up' : difference < 0 ? 'down' : 'same';
-
-        setMonthlyComparison({
-          currentMonth: { completed: currentMonthCompleted, total: totalGoals, percentage: totalGoals > 0 ? Math.round((currentMonthCompleted / totalGoals) * 100) : 0 },
-          previousMonth: { completed: previousMonthCompleted, total: totalGoals, percentage: totalGoals > 0 ? Math.round((previousMonthCompleted / totalGoals) * 100) : 0 },
-          difference: Math.abs(difference),
-          trend,
-        });
-      } catch (error) {
-        console.error('Error loading monthly comparison:', error);
-      }
-    };
-
-    loadMonthlyComparison();
-  }, [user, planId, totalGoals]);
 
   const savePreferredStyle = async (style: AIStyle) => {
     if (!user) return;
@@ -208,7 +145,6 @@ export function AISummary({
           planTitle,
           period,
           style,
-          monthlyComparison,
         },
       });
 
@@ -275,11 +211,6 @@ export function AISummary({
     }
   };
 
-  const getMonthName = (offset: number = 0) => {
-    const date = new Date();
-    date.setMonth(date.getMonth() + offset);
-    return date.toLocaleString('pt-BR', { month: 'long' });
-  };
 
   if (totalGoals === 0) {
     return null;
@@ -354,37 +285,6 @@ export function AISummary({
       </CardHeader>
       
       <CardContent className="relative">
-        {/* Monthly Comparison */}
-        {monthlyComparison && (monthlyComparison.currentMonth.completed > 0 || monthlyComparison.previousMonth.completed > 0) && (
-          <div className="mb-5 p-3 rounded-xl bg-background/50 border border-violet-500/20">
-            <p className="text-xs font-medium text-muted-foreground mb-2">Comparativo mensal:</p>
-            <div className="flex items-center gap-3">
-              <div className="flex-1 text-center p-2 rounded-lg bg-muted/50">
-                <p className="text-[10px] text-muted-foreground capitalize">{getMonthName(-1)}</p>
-                <p className="text-lg font-bold">{monthlyComparison.previousMonth.completed}</p>
-                <p className="text-[10px] text-muted-foreground">metas</p>
-              </div>
-              <div className={cn(
-                "flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold",
-                monthlyComparison.trend === 'up' && "bg-emerald-500/20 text-emerald-600 dark:text-emerald-400",
-                monthlyComparison.trend === 'down' && "bg-red-500/20 text-red-600 dark:text-red-400",
-                monthlyComparison.trend === 'same' && "bg-gray-500/20 text-gray-600 dark:text-gray-400"
-              )}>
-                {monthlyComparison.trend === 'up' && <TrendingUp className="w-3 h-3" />}
-                {monthlyComparison.trend === 'down' && <TrendingDown className="w-3 h-3" />}
-                {monthlyComparison.trend === 'same' && <Minus className="w-3 h-3" />}
-                {monthlyComparison.trend !== 'same' ? `${monthlyComparison.difference}` : '='}
-              </div>
-              <div className="flex-1 text-center p-2 rounded-lg bg-violet-500/10 border border-violet-500/20">
-                <p className="text-[10px] text-muted-foreground capitalize">{getMonthName(0)}</p>
-                <p className="text-lg font-bold text-violet-600 dark:text-violet-400">{monthlyComparison.currentMonth.completed}</p>
-                <p className="text-[10px] text-muted-foreground">metas</p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Style Selection */}
         <div className="mb-5">
           <div className="flex items-center justify-between mb-3">
             <p className="text-xs font-medium text-muted-foreground">Escolha o estilo da análise:</p>
