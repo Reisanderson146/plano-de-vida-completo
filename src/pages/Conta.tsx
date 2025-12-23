@@ -158,10 +158,10 @@ export default function Conta() {
         <div className="grid md:grid-cols-2 gap-6">
           {/* Basic Plan */}
           <Card className={cn(
-            "relative overflow-hidden transition-all duration-300",
+            "relative overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-xl",
             currentPlan === 'basic' 
               ? "border-2 border-primary/50 shadow-lg shadow-primary/10 ring-1 ring-primary/20" 
-              : "border-border/50 hover:border-border"
+              : "border-border/50 hover:border-primary/30 hover:shadow-primary/5"
           )}>
             
             <CardHeader className="pb-4 pt-6">
@@ -261,10 +261,10 @@ export default function Conta() {
 
           {/* Premium Plan */}
           <Card className={cn(
-            "relative overflow-hidden transition-all duration-300",
+            "relative overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-xl",
             currentPlan === 'premium' 
               ? "border-2 border-violet-500/50 shadow-lg shadow-violet-500/10 ring-1 ring-violet-500/20" 
-              : "border-2 border-violet-500/30 hover:border-violet-500/50"
+              : "border-2 border-violet-500/30 hover:border-violet-500/50 hover:shadow-violet-500/10"
           )}>
             {/* Recommended Badge */}
             {currentPlan !== 'premium' && (
