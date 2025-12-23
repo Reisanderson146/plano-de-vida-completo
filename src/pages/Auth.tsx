@@ -581,6 +581,20 @@ export default function Auth() {
         backgroundRepeat: 'no-repeat',
       }}
     >
+      {/* Loading Overlay */}
+      {loading && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-background/80 backdrop-blur-sm">
+          <div className="flex flex-col items-center gap-4 p-8 rounded-3xl bg-card/95 shadow-2xl border border-border/50">
+            <div className="relative">
+              <div className="w-16 h-16 border-4 border-primary/20 rounded-full" />
+              <div className="absolute inset-0 w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+            </div>
+            <p className="text-lg font-medium text-foreground">Entrando...</p>
+            <p className="text-sm text-muted-foreground">Aguarde um momento</p>
+          </div>
+        </div>
+      )}
+
       {/* Theme Toggle - Fixed position */}
       <div className="fixed top-4 right-4 z-50">
         <DarkModeToggle />
