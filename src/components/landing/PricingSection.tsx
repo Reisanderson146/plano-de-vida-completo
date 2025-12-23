@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Check, Crown, Sparkles, Shield, Zap, Gem, User, Users, Baby, Heart, Target, Loader2, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { LucideIcon } from "lucide-react";
+import useEmblaCarousel from "embla-carousel-react";
 
 interface PricingSectionProps {
   onCheckout: (tier: 'basic' | 'premium') => void;
@@ -44,10 +45,69 @@ const premiumBenefits: Benefit[] = [
 ];
 
 const PricingSection = ({ onCheckout, onLogin, loading }: PricingSectionProps) => {
-  const [activeCard, setActiveCard] = useState<0 | 1>(0);
+  const [emblaRef, emblaApi] = useEmblaCarousel({ 
+    loop: false,
+    align: 'center',
+    containScroll: 'trimSnaps'
+  });
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [canScrollPrev, setCanScrollPrev] = useState(false);
+  const [canScrollNext, setCanScrollNext] = useState(false);
 
-  const goToNext = () => setActiveCard(1);
-  const goToPrev = () => setActiveCard(0);
+  const scrollPrev = useCallback(() => {
+    if (emblaApi) emblaApi.scrollPrev();
+  }, [emblaApi]);
+
+  const scrollNext = useCallback(() => {
+    if (emblaApi) emblaApi.scrollNext();
+  }, [emblaApi]);
+
+  const scrollTo = useCallback((index: number) => {
+    if (emblaApi) emblaApi.scrollTo(index);
+  }, [emblaApi]);
+
+  const onSelect = useCallback(() => {
+    if (!emblaApi) return;
+    setSelectedIndex(emblaApi.selectedScrollSnap());
+    setCanScrollPrev(emblaApi.canScrollPrev());
+    setCanScrollNext(emblaApi.canScrollNext());
+  }, [emblaApi]);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+    onSelect();
+    emblaApi.on('select', onSelect);
+    emblaApi.on('reInit', onSelect);
+    return () => {
+      emblaApi.off('select', onSelect);
+      emblaApi.off('reInit', onSelect);
+    };
+  }, [emblaApi, onSelect]);
+
+  const plans = [
+    {
+      id: 'basic' as const,
+      name: 'Basic',
+      subtitle: 'Para Começar',
+      price: 'R$ 9,99',
+      description: '1 plano individual',
+      icon: Gem,
+      benefits: basicBenefits,
+      color: 'emerald',
+      recommended: false,
+    },
+    {
+      id: 'premium' as const,
+      name: 'Premium',
+      subtitle: 'Para Toda Família',
+      price: 'R$ 29,99',
+      description: '5 planos incluídos',
+      icon: Crown,
+      benefits: premiumBenefits,
+      color: 'violet',
+      recommended: true,
+    },
+  ];
 
   return (
     <section id="pricing" className="py-20 px-4 bg-gradient-to-b from-background to-muted/30 relative overflow-hidden">
@@ -75,252 +135,227 @@ const PricingSection = ({ onCheckout, onLogin, loading }: PricingSectionProps) =
 
         {/* Carousel Container */}
         <div className="relative max-w-md mx-auto animate-fade-in">
-          {/* Navigation Arrows */}
+          {/* Navigation Arrows - Desktop */}
           <button
-            onClick={goToPrev}
+            onClick={scrollPrev}
             className={cn(
-              "absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 md:-translate-x-12 z-20",
-              "w-10 h-10 rounded-full bg-card border border-border shadow-lg",
+              "absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 md:-translate-x-14 z-20",
+              "w-12 h-12 rounded-full bg-card border border-border shadow-lg",
               "flex items-center justify-center transition-all duration-200",
-              activeCard === 0 ? "opacity-30 cursor-not-allowed" : "hover:bg-muted hover:scale-110"
+              "hidden md:flex",
+              !canScrollPrev ? "opacity-30 cursor-not-allowed" : "hover:bg-muted hover:scale-110 hover:shadow-xl"
             )}
-            disabled={activeCard === 0}
+            disabled={!canScrollPrev}
             aria-label="Plano anterior"
           >
-            <ChevronLeft className="w-5 h-5 text-foreground" />
+            <ChevronLeft className="w-6 h-6 text-foreground" />
           </button>
           
           <button
-            onClick={goToNext}
+            onClick={scrollNext}
             className={cn(
-              "absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 md:translate-x-12 z-20",
-              "w-10 h-10 rounded-full bg-card border border-border shadow-lg",
+              "absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 md:translate-x-14 z-20",
+              "w-12 h-12 rounded-full bg-card border border-border shadow-lg",
               "flex items-center justify-center transition-all duration-200",
-              activeCard === 1 ? "opacity-30 cursor-not-allowed" : "hover:bg-muted hover:scale-110"
+              "hidden md:flex",
+              !canScrollNext ? "opacity-30 cursor-not-allowed" : "hover:bg-muted hover:scale-110 hover:shadow-xl"
             )}
-            disabled={activeCard === 1}
+            disabled={!canScrollNext}
             aria-label="Próximo plano"
           >
-            <ChevronRight className="w-5 h-5 text-foreground" />
+            <ChevronRight className="w-6 h-6 text-foreground" />
           </button>
 
-          {/* Cards Container */}
-          <div className="overflow-hidden">
-            <div 
-              className="flex transition-transform duration-500 ease-out"
-              style={{ transform: `translateX(-${activeCard * 100}%)` }}
-            >
-              {/* Basic Plan */}
-              <div className="w-full flex-shrink-0 px-2">
-                <Card className="relative overflow-hidden border-2 border-primary/20 bg-card/80 backdrop-blur-sm shadow-xl transition-all duration-300 hover:border-primary/40 hover:shadow-2xl">
-                  {/* Glow Effect */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-emerald-500/5" />
-
-                  <CardHeader className="pt-8 pb-4 text-center relative">
-                    {/* Badge */}
-                    <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border border-emerald-500/20 rounded-full text-emerald-600 dark:text-emerald-400 text-sm font-semibold mx-auto mb-4">
-                      <Gem className="w-4 h-4" />
-                      <span>Basic</span>
-                    </div>
+          {/* Embla Carousel */}
+          <div className="overflow-hidden" ref={emblaRef}>
+            <div className="flex touch-pan-y">
+              {plans.map((plan, index) => (
+                <div key={plan.id} className="flex-[0_0_100%] min-w-0 px-2">
+                  <Card className={cn(
+                    "relative overflow-hidden border-2 bg-card/80 backdrop-blur-sm shadow-xl transition-all duration-300",
+                    plan.color === 'emerald' 
+                      ? "border-primary/20 hover:border-primary/40 hover:shadow-2xl"
+                      : "border-violet-500/40 shadow-violet-500/10 hover:border-violet-500/60 hover:shadow-violet-500/20"
+                  )}>
+                    {/* Glow Effect */}
+                    <div className={cn(
+                      "absolute inset-0",
+                      plan.color === 'emerald'
+                        ? "bg-gradient-to-br from-primary/5 via-transparent to-emerald-500/5"
+                        : "bg-gradient-to-br from-violet-500/10 via-transparent to-purple-500/10"
+                    )} />
                     
-                    <CardTitle className="text-xl font-bold text-foreground mb-4">
-                      Para Começar
-                    </CardTitle>
-                    
-                    {/* Price */}
-                    <div className="flex items-baseline justify-center gap-1">
-                      <span className="text-4xl font-bold text-foreground">
-                        R$ 9,99
-                      </span>
-                      <span className="text-muted-foreground">/mês</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-2">1 plano individual</p>
-                  </CardHeader>
+                    {/* Recommended Badge */}
+                    {plan.recommended && (
+                      <div className="absolute top-3 right-3 z-10">
+                        <div className="flex items-center gap-1.5 px-3 py-1 bg-gradient-to-r from-violet-600 to-purple-600 rounded-full text-white font-medium text-xs shadow-lg shadow-violet-500/30">
+                          <Crown className="w-3 h-3" />
+                          <span>Recomendado</span>
+                        </div>
+                      </div>
+                    )}
 
-                  <CardContent className="relative space-y-6 pb-8">
-                    {/* Benefits List */}
-                    <ul className="space-y-3">
-                      {basicBenefits.map((benefit, index) => (
-                        <li key={index} className="flex items-center gap-3">
-                          <div className={cn(
-                            "w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0",
-                            benefit.includedInBasic 
-                              ? "bg-emerald-500/10" 
-                              : "bg-muted/50"
-                          )}>
-                            {benefit.includedInBasic ? (
-                              <benefit.icon className="w-3.5 h-3.5 text-emerald-600" />
-                            ) : (
-                              <X className="w-3.5 h-3.5 text-muted-foreground/50" />
-                            )}
-                          </div>
-                          <span className={cn(
-                            "text-sm",
-                            benefit.includedInBasic 
-                              ? "text-foreground" 
-                              : "text-muted-foreground/50 line-through"
-                          )}>
-                            {benefit.text}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
+                    <CardHeader className="pt-8 pb-4 text-center relative">
+                      {/* Badge */}
+                      <div className={cn(
+                        "inline-flex items-center gap-2 px-4 py-1.5 border rounded-full text-sm font-semibold mx-auto mb-4",
+                        plan.color === 'emerald'
+                          ? "bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400"
+                          : "bg-gradient-to-r from-violet-500/20 to-purple-500/20 border-violet-500/30 text-violet-600 dark:text-violet-400"
+                      )}>
+                        <plan.icon className="w-4 h-4" />
+                        <span>{plan.name}</span>
+                      </div>
+                      
+                      <CardTitle className={cn(
+                        "text-xl font-bold mb-4",
+                        plan.color === 'emerald'
+                          ? "text-foreground"
+                          : "bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent"
+                      )}>
+                        {plan.subtitle}
+                      </CardTitle>
+                      
+                      {/* Price */}
+                      <div className="flex items-baseline justify-center gap-1">
+                        <span className={cn(
+                          "text-4xl font-bold",
+                          plan.color === 'emerald'
+                            ? "text-foreground"
+                            : "bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent"
+                        )}>
+                          {plan.price}
+                        </span>
+                        <span className="text-muted-foreground">/mês</span>
+                      </div>
+                      
+                      {plan.color === 'emerald' ? (
+                        <p className="text-xs text-muted-foreground mt-2">{plan.description}</p>
+                      ) : (
+                        <div className="mt-2 inline-flex items-center gap-1 bg-violet-500/20 text-violet-600 dark:text-violet-400 text-xs font-semibold px-2.5 py-0.5 rounded-full">
+                          <Zap className="w-3 h-3" />
+                          {plan.description}
+                        </div>
+                      )}
+                    </CardHeader>
 
-                    {/* CTA Button */}
-                    <div className="pt-4">
-                      <Button
-                        size="lg"
-                        onClick={() => onCheckout('basic')}
-                        disabled={loading !== null}
-                        className="w-full py-6 text-lg font-semibold bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-lg shadow-emerald-500/20 transition-all duration-300 hover:scale-[1.02]"
-                      >
-                        {loading === 'basic' ? (
-                          <div className="flex items-center gap-2">
-                            <Loader2 className="w-5 h-5 animate-spin" />
-                            <span>Processando...</span>
-                          </div>
-                        ) : (
-                          <div className="flex items-center gap-2">
-                            <Gem className="w-5 h-5" />
-                            <span>Assinar Basic</span>
-                          </div>
-                        )}
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
+                    <CardContent className="relative space-y-6 pb-8">
+                      {/* Benefits List */}
+                      <ul className="space-y-3">
+                        {plan.benefits.map((benefit, benefitIndex) => {
+                          const isIncluded = plan.id === 'basic' ? benefit.includedInBasic : true;
+                          
+                          return (
+                            <li 
+                              key={benefitIndex} 
+                              className={cn(
+                                "flex items-center gap-3",
+                                benefit.highlight && plan.id === 'premium' && "p-2 -mx-2 rounded-lg bg-gradient-to-r from-violet-500/10 to-purple-500/10 border border-violet-500/20"
+                              )}
+                            >
+                              <div className={cn(
+                                "w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0",
+                                !isIncluded 
+                                  ? "bg-muted/50"
+                                  : benefit.highlight && plan.id === 'premium'
+                                    ? "bg-gradient-to-br from-violet-500 to-purple-600"
+                                    : plan.color === 'emerald'
+                                      ? "bg-emerald-500/10"
+                                      : "bg-violet-500/10"
+                              )}>
+                                {isIncluded ? (
+                                  <benefit.icon className={cn(
+                                    "w-3.5 h-3.5",
+                                    benefit.highlight && plan.id === 'premium'
+                                      ? "text-white"
+                                      : plan.color === 'emerald'
+                                        ? "text-emerald-600"
+                                        : "text-violet-600"
+                                  )} />
+                                ) : (
+                                  <X className="w-3.5 h-3.5 text-muted-foreground/50" />
+                                )}
+                              </div>
+                              <span className={cn(
+                                "text-sm flex-1",
+                                !isIncluded 
+                                  ? "text-muted-foreground/50 line-through"
+                                  : benefit.highlight ? "font-semibold text-foreground" : "text-foreground"
+                              )}>
+                                {benefit.text}
+                              </span>
+                              {benefit.highlight && plan.id === 'premium' && (
+                                <span className="text-[10px] bg-violet-500/20 text-violet-600 dark:text-violet-400 px-1.5 py-0.5 rounded-full">
+                                  Exclusivo
+                                </span>
+                              )}
+                            </li>
+                          );
+                        })}
+                      </ul>
 
-              {/* Premium Plan */}
-              <div className="w-full flex-shrink-0 px-2">
-                <Card className="relative overflow-hidden border-2 border-violet-500/40 bg-card/80 backdrop-blur-sm shadow-2xl shadow-violet-500/10 transition-all duration-300 hover:border-violet-500/60 hover:shadow-violet-500/20">
-                  {/* Glow Effect */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-violet-500/10 via-transparent to-purple-500/10" />
-                  
-                  {/* Recommended Badge - positioned at top right corner */}
-                  <div className="absolute top-3 right-3 z-10">
-                    <div className="flex items-center gap-1.5 px-3 py-1 bg-gradient-to-r from-violet-600 to-purple-600 rounded-full text-white font-medium text-xs shadow-lg shadow-violet-500/30">
-                      <Crown className="w-3 h-3" />
-                      <span>Recomendado</span>
-                    </div>
-                  </div>
-
-                  <CardHeader className="pt-8 pb-4 text-center relative">
-                    {/* Badge */}
-                    <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-gradient-to-r from-violet-500/20 to-purple-500/20 border border-violet-500/30 rounded-full text-violet-600 dark:text-violet-400 text-sm font-semibold mx-auto mb-4">
-                      <Crown className="w-4 h-4" />
-                      <span>Premium</span>
-                    </div>
-                    
-                    <CardTitle className="text-xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent mb-4">
-                      Para Toda Família
-                    </CardTitle>
-                    
-                    {/* Price */}
-                    <div className="flex items-baseline justify-center gap-1">
-                      <span className="text-4xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
-                        R$ 29,99
-                      </span>
-                      <span className="text-muted-foreground">/mês</span>
-                    </div>
-                    <div className="mt-2 inline-flex items-center gap-1 bg-violet-500/20 text-violet-600 dark:text-violet-400 text-xs font-semibold px-2.5 py-0.5 rounded-full">
-                      <Zap className="w-3 h-3" />
-                      5 planos incluídos
-                    </div>
-                  </CardHeader>
-
-                  <CardContent className="relative space-y-6 pb-8">
-                    {/* Benefits List */}
-                    <ul className="space-y-3">
-                      {premiumBenefits.map((benefit, index) => (
-                        <li 
-                          key={index} 
+                      {/* CTA Button */}
+                      <div className="pt-4">
+                        <Button
+                          size="lg"
+                          onClick={() => onCheckout(plan.id)}
+                          disabled={loading !== null}
                           className={cn(
-                            "flex items-center gap-3",
-                            benefit.highlight && "p-2 -mx-2 rounded-lg bg-gradient-to-r from-violet-500/10 to-purple-500/10 border border-violet-500/20"
+                            "w-full py-6 text-lg font-semibold shadow-lg transition-all duration-300 hover:scale-[1.02]",
+                            plan.color === 'emerald'
+                              ? "bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-emerald-500/20"
+                              : "bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 shadow-violet-500/25"
                           )}
                         >
-                          <div className={cn(
-                            "w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0",
-                            benefit.highlight 
-                              ? "bg-gradient-to-br from-violet-500 to-purple-600" 
-                              : "bg-violet-500/10"
-                          )}>
-                            <benefit.icon className={cn(
-                              "w-3.5 h-3.5",
-                              benefit.highlight ? "text-white" : "text-violet-600"
-                            )} />
-                          </div>
-                          <span className={cn(
-                            "text-sm flex-1",
-                            benefit.highlight ? "font-semibold text-foreground" : "text-foreground"
-                          )}>
-                            {benefit.text}
-                          </span>
-                          {benefit.highlight && (
-                            <span className="text-[10px] bg-violet-500/20 text-violet-600 dark:text-violet-400 px-1.5 py-0.5 rounded-full">
-                              Exclusivo
-                            </span>
+                          {loading === plan.id ? (
+                            <div className="flex items-center gap-2">
+                              <Loader2 className="w-5 h-5 animate-spin" />
+                              <span>Processando...</span>
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-2">
+                              <plan.icon className="w-5 h-5" />
+                              <span>Assinar {plan.name}</span>
+                            </div>
                           )}
-                        </li>
-                      ))}
-                    </ul>
-
-                    {/* CTA Button */}
-                    <div className="pt-4">
-                      <Button
-                        size="lg"
-                        onClick={() => onCheckout('premium')}
-                        disabled={loading !== null}
-                        className="w-full py-6 text-lg font-semibold bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 shadow-lg shadow-violet-500/25 transition-all duration-300 hover:scale-[1.02]"
-                      >
-                        {loading === 'premium' ? (
-                          <div className="flex items-center gap-2">
-                            <Loader2 className="w-5 h-5 animate-spin" />
-                            <span>Processando...</span>
-                          </div>
-                        ) : (
-                          <div className="flex items-center gap-2">
-                            <Crown className="w-5 h-5" />
-                            <span>Assinar Premium</span>
-                          </div>
-                        )}
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              ))}
             </div>
           </div>
 
           {/* Dots Navigation */}
           <div className="flex items-center justify-center gap-3 mt-6">
-            <button
-              onClick={() => setActiveCard(0)}
-              className={cn(
-                "w-3 h-3 rounded-full transition-all duration-300",
-                activeCard === 0 
-                  ? "bg-primary scale-110" 
-                  : "bg-muted-foreground/30 hover:bg-muted-foreground/50"
-              )}
-              aria-label="Ver plano Basic"
-            />
-            <button
-              onClick={() => setActiveCard(1)}
-              className={cn(
-                "w-3 h-3 rounded-full transition-all duration-300",
-                activeCard === 1 
-                  ? "bg-violet-500 scale-110" 
-                  : "bg-muted-foreground/30 hover:bg-muted-foreground/50"
-              )}
-              aria-label="Ver plano Premium"
-            />
+            {plans.map((plan, index) => (
+              <button
+                key={plan.id}
+                onClick={() => scrollTo(index)}
+                className={cn(
+                  "w-3 h-3 rounded-full transition-all duration-300",
+                  selectedIndex === index 
+                    ? plan.color === 'emerald' ? "bg-primary scale-125" : "bg-violet-500 scale-125"
+                    : "bg-muted-foreground/30 hover:bg-muted-foreground/50"
+                )}
+                aria-label={`Ver plano ${plan.name}`}
+              />
+            ))}
           </div>
 
-          {/* Plan indicator text */}
-          <p className="text-center text-sm text-muted-foreground mt-2">
-            {activeCard === 0 ? "Plano Basic" : "Plano Premium"} • Clique para ver outro
-          </p>
+          {/* Plan indicator text with swipe hint on mobile */}
+          <div className="text-center mt-3">
+            <p className="text-sm text-muted-foreground">
+              Plano {plans[selectedIndex]?.name}
+            </p>
+            <p className="text-xs text-muted-foreground/70 mt-1 md:hidden">
+              ← Deslize para ver outros planos →
+            </p>
+            <p className="text-xs text-muted-foreground/70 mt-1 hidden md:block">
+              Clique nas setas ou nos pontos para navegar
+            </p>
+          </div>
         </div>
 
         {/* Already Subscriber Button - More Visible */}
