@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
-import { Download, FileText } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Download, FileText, Mail, Loader2 } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -16,6 +17,7 @@ import { LifeArea } from '@/lib/constants';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { supabase } from '@/integrations/supabase/client';
 
 interface Goal {
   id: string;
@@ -54,6 +56,9 @@ export function ExportPlanDialog({ open, onOpenChange, plan, goals, areaConfigs 
   const years = getUniqueYears(goals);
   const [exportType, setExportType] = useState<'all' | 'selected'>('all');
   const [selectedYears, setSelectedYears] = useState<number[]>(years);
+  const [shareByEmail, setShareByEmail] = useState(false);
+  const [recipientEmail, setRecipientEmail] = useState('');
+  const [isSending, setIsSending] = useState(false);
 
   const handleYearToggle = (year: number) => {
     setSelectedYears(prev => 
@@ -71,7 +76,7 @@ export function ExportPlanDialog({ open, onOpenChange, plan, goals, areaConfigs 
     setSelectedYears([]);
   };
 
-  const handleExport = () => {
+  const handleExport = async () => {
     const yearsToExport = exportType === 'all' ? undefined : selectedYears;
     
     if (exportType === 'selected' && selectedYears.length === 0) {
@@ -83,21 +88,102 @@ export function ExportPlanDialog({ open, onOpenChange, plan, goals, areaConfigs 
       return;
     }
 
-    try {
-      exportToPDF({ plan, goals, areaConfigs, selectedYears: yearsToExport });
+    if (shareByEmail) {
+      if (!recipientEmail || !recipientEmail.includes('@')) {
+        toast({
+          title: 'E-mail inválido',
+          description: 'Insira um e-mail válido para enviar o PDF.',
+          variant: 'destructive',
+        });
+        return;
+      }
 
-      toast({
-        title: 'Exportação concluída!',
-        description: 'Seu plano foi exportado em PDF.',
-      });
-      
-      onOpenChange(false);
-    } catch (error: any) {
-      toast({
-        title: 'Erro ao exportar',
-        description: error.message,
-        variant: 'destructive',
-      });
+      setIsSending(true);
+      try {
+        // Generate PDF as base64
+        const { jsPDF } = await import('jspdf');
+        await import('jspdf-autotable');
+        
+        // Create a simple summary for email
+        const filteredGoals = yearsToExport 
+          ? goals.filter(g => yearsToExport.includes(g.period_year))
+          : goals;
+        
+        const completedGoals = filteredGoals.filter(g => g.is_completed).length;
+        const totalGoals = filteredGoals.length;
+        const progressPercent = totalGoals > 0 ? Math.round((completedGoals / totalGoals) * 100) : 0;
+
+        // Build goals summary by year
+        const goalsByYear: Record<number, typeof filteredGoals> = {};
+        filteredGoals.forEach(goal => {
+          if (!goalsByYear[goal.period_year]) {
+            goalsByYear[goal.period_year] = [];
+          }
+          goalsByYear[goal.period_year].push(goal);
+        });
+
+        let goalsHtml = '';
+        Object.keys(goalsByYear).sort((a, b) => Number(a) - Number(b)).forEach(year => {
+          const yearGoals = goalsByYear[Number(year)];
+          goalsHtml += `<h3 style="color: #1e3a5f; margin-top: 20px;">${year}</h3><ul>`;
+          yearGoals.forEach(goal => {
+            const status = goal.is_completed ? '✅' : '⏳';
+            const areaConfig = areaConfigs.find(a => a.id === goal.area);
+            goalsHtml += `<li>${status} <strong>${areaConfig?.label || goal.area}:</strong> ${goal.goal_text}</li>`;
+          });
+          goalsHtml += '</ul>';
+        });
+
+        const { data, error } = await supabase.functions.invoke('send-pdf-email', {
+          body: {
+            recipientEmail,
+            recipientName: recipientEmail.split('@')[0],
+            planTitle: plan.title,
+            planMotto: plan.motto,
+            totalGoals,
+            completedGoals,
+            progressPercent,
+            goalsHtml,
+          },
+        });
+
+        if (error) throw error;
+
+        toast({
+          title: 'E-mail enviado!',
+          description: `O resumo do plano foi enviado para ${recipientEmail}.`,
+        });
+        
+        setRecipientEmail('');
+        setShareByEmail(false);
+        onOpenChange(false);
+      } catch (error: any) {
+        console.error('Error sending email:', error);
+        toast({
+          title: 'Erro ao enviar e-mail',
+          description: error.message || 'Tente novamente mais tarde.',
+          variant: 'destructive',
+        });
+      } finally {
+        setIsSending(false);
+      }
+    } else {
+      try {
+        exportToPDF({ plan, goals, areaConfigs, selectedYears: yearsToExport });
+
+        toast({
+          title: 'Exportação concluída!',
+          description: 'Seu plano foi exportado em PDF.',
+        });
+        
+        onOpenChange(false);
+      } catch (error: any) {
+        toast({
+          title: 'Erro ao exportar',
+          description: error.message,
+          variant: 'destructive',
+        });
+      }
     }
   };
 
@@ -185,15 +271,56 @@ export function ExportPlanDialog({ open, onOpenChange, plan, goals, areaConfigs 
               </div>
             )}
           </div>
+
+          {/* Share by Email Option */}
+          <div className="space-y-2 border-t pt-3">
+            <div className="flex items-center space-x-2">
+              <Checkbox 
+                id="share-email" 
+                checked={shareByEmail}
+                onCheckedChange={(checked) => setShareByEmail(checked === true)}
+              />
+              <Label htmlFor="share-email" className="cursor-pointer text-sm flex items-center gap-1.5">
+                <Mail className="w-3.5 h-3.5" />
+                Enviar por e-mail
+              </Label>
+            </div>
+            
+            {shareByEmail && (
+              <div className="animate-fade-in">
+                <Input
+                  type="email"
+                  placeholder="Digite o e-mail do destinatário"
+                  value={recipientEmail}
+                  onChange={(e) => setRecipientEmail(e.target.value)}
+                  className="h-8 text-sm"
+                />
+              </div>
+            )}
+          </div>
         </div>
 
         <DialogFooter className="flex-shrink-0 gap-2 sm:gap-0">
-          <Button variant="ghost" size="sm" onClick={() => onOpenChange(false)}>
+          <Button variant="ghost" size="sm" onClick={() => onOpenChange(false)} disabled={isSending}>
             Cancelar
           </Button>
-          <Button size="sm" onClick={handleExport} className="gap-1.5">
-            <Download className="w-3.5 h-3.5" />
-            Exportar PDF
+          <Button size="sm" onClick={handleExport} className="gap-1.5" disabled={isSending}>
+            {isSending ? (
+              <>
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                Enviando...
+              </>
+            ) : shareByEmail ? (
+              <>
+                <Mail className="w-3.5 h-3.5" />
+                Enviar por E-mail
+              </>
+            ) : (
+              <>
+                <Download className="w-3.5 h-3.5" />
+                Exportar PDF
+              </>
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>
