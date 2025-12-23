@@ -708,6 +708,21 @@ export default function Auth() {
           
           {/* Card content */}
           <div className="relative z-10">
+            {/* Email Confirmed Banner */}
+            {emailJustConfirmed && (
+              <div className="mx-7 sm:mx-9 mt-6 p-4 rounded-2xl bg-gradient-to-r from-[#2A8C68]/20 via-[#A8E6CE]/30 to-[#2A8C68]/20 border border-[#7BC8A4]/40 flex items-center gap-3 animate-fade-in">
+                <div className="w-10 h-10 rounded-full bg-[#2A8C68] flex items-center justify-center flex-shrink-0">
+                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-[#2A8C68]">E-mail confirmado com sucesso!</p>
+                  <p className="text-xs text-[#2A8C68]/80">Sua conta foi ativada. Faça login para continuar.</p>
+                </div>
+              </div>
+            )}
+            
             <CardHeader className="pb-3 pt-8 px-7 sm:px-9 text-center space-y-3">
               <CardTitle className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-[#2A8C68] via-[#7BC8A4] to-[#2A8C68] bg-clip-text text-transparent">
                 Bem-vindo!
