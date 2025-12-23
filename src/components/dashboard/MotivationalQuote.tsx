@@ -6,6 +6,7 @@ import { FavoriteQuotesDialog } from './FavoriteQuotesDialog';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from 'sonner';
 
 // Heart particles component
 function HeartParticles({ isActive }: { isActive: boolean }) {
@@ -81,7 +82,16 @@ export function MotivationalQuote() {
       setTimeout(() => setShowParticles(false), 800);
     }
     
-    await toggleFavorite(quoteIndex);
+    const success = await toggleFavorite(quoteIndex);
+    
+    if (success) {
+      if (wasFavorite) {
+        toast.success('Frase removida dos favoritos');
+      } else {
+        toast.success('Frase adicionada aos favoritos!');
+      }
+    }
+    
     setTimeout(() => setIsAnimating(false), 300);
   };
 
