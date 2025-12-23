@@ -118,10 +118,10 @@ export function MotivationalQuote() {
               <motion.button
                 onClick={handleToggleFavorite}
                 className={cn(
-                  "p-2 rounded-full transition-colors relative z-10",
+                  "p-2 rounded-full transition-colors relative z-10 border",
                   isCurrentFavorite 
-                    ? "text-red-500 hover:bg-red-500/10" 
-                    : "text-muted-foreground hover:text-red-500 hover:bg-red-500/10"
+                    ? "text-red-500 bg-red-50 border-red-200 hover:bg-red-100 dark:bg-red-500/10 dark:border-red-500/30 dark:hover:bg-red-500/20" 
+                    : "text-gray-500 bg-gray-100 border-gray-200 hover:text-red-500 hover:bg-red-50 hover:border-red-200 dark:text-gray-400 dark:bg-gray-800 dark:border-gray-700 dark:hover:text-red-500 dark:hover:bg-red-500/10 dark:hover:border-red-500/30"
                 )}
                 title={isCurrentFavorite ? "Remover dos favoritos" : "Adicionar aos favoritos"}
                 whileTap={{ scale: 0.9 }}
@@ -140,7 +140,7 @@ export function MotivationalQuote() {
                       scale: { type: "spring", stiffness: 400, damping: 10 }
                     }}
                   >
-                    <Heart className={cn("w-5 h-5", isCurrentFavorite && "fill-current")} />
+                    <Heart className={cn("w-5 h-5", isCurrentFavorite && "fill-red-500")} />
                   </motion.div>
                 </AnimatePresence>
               </motion.button>
