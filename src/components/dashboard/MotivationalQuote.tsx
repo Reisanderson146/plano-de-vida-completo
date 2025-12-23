@@ -7,11 +7,59 @@ import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 
+// Heart particles component
+function HeartParticles({ isActive }: { isActive: boolean }) {
+  const particles = useMemo(() => 
+    Array.from({ length: 8 }).map((_, i) => ({
+      id: i,
+      x: (Math.random() - 0.5) * 80,
+      y: -Math.random() * 60 - 20,
+      rotation: Math.random() * 360,
+      scale: 0.4 + Math.random() * 0.4,
+      delay: Math.random() * 0.15,
+    })), 
+  []);
+
+  return (
+    <AnimatePresence>
+      {isActive && particles.map((particle) => (
+        <motion.div
+          key={particle.id}
+          className="absolute pointer-events-none"
+          initial={{ 
+            opacity: 1, 
+            x: 0, 
+            y: 0, 
+            scale: 0,
+            rotate: 0 
+          }}
+          animate={{ 
+            opacity: [1, 1, 0], 
+            x: particle.x, 
+            y: particle.y,
+            scale: particle.scale,
+            rotate: particle.rotation
+          }}
+          exit={{ opacity: 0 }}
+          transition={{ 
+            duration: 0.8,
+            delay: particle.delay,
+            ease: "easeOut"
+          }}
+        >
+          <Heart className="w-4 h-4 text-red-500 fill-red-500" />
+        </motion.div>
+      ))}
+    </AnimatePresence>
+  );
+}
+
 export function MotivationalQuote() {
   const { user } = useAuth();
   const quote = useMemo(() => getDailyQuote(), []);
   const { isFavorite, toggleFavorite } = useFavoriteQuotes();
   const [isAnimating, setIsAnimating] = useState(false);
+  const [showParticles, setShowParticles] = useState(false);
 
   // Get the current quote index
   const quoteIndex = useMemo(() => {
@@ -24,7 +72,15 @@ export function MotivationalQuote() {
 
   const handleToggleFavorite = async () => {
     if (!user) return;
+    const wasFavorite = isCurrentFavorite;
     setIsAnimating(true);
+    
+    // Show particles only when adding to favorites
+    if (!wasFavorite) {
+      setShowParticles(true);
+      setTimeout(() => setShowParticles(false), 800);
+    }
+    
     await toggleFavorite(quoteIndex);
     setTimeout(() => setIsAnimating(false), 300);
   };
@@ -55,35 +111,40 @@ export function MotivationalQuote() {
 
         {user && (
           <div className="flex flex-col items-end gap-2">
-            <motion.button
-              onClick={handleToggleFavorite}
-              className={cn(
-                "p-2 rounded-full transition-colors",
-                isCurrentFavorite 
-                  ? "text-red-500 hover:bg-red-500/10" 
-                  : "text-muted-foreground hover:text-red-500 hover:bg-red-500/10"
-              )}
-              title={isCurrentFavorite ? "Remover dos favoritos" : "Adicionar aos favoritos"}
-              whileTap={{ scale: 0.9 }}
-            >
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={isCurrentFavorite ? 'filled' : 'empty'}
-                  initial={{ scale: 0.5, opacity: 0 }}
-                  animate={{ 
-                    scale: isAnimating ? [1, 1.3, 1] : 1, 
-                    opacity: 1 
-                  }}
-                  exit={{ scale: 0.5, opacity: 0 }}
-                  transition={{ 
-                    duration: 0.3,
-                    scale: { type: "spring", stiffness: 400, damping: 10 }
-                  }}
-                >
-                  <Heart className={cn("w-5 h-5", isCurrentFavorite && "fill-current")} />
-                </motion.div>
-              </AnimatePresence>
-            </motion.button>
+            <div className="relative">
+              {/* Heart particles */}
+              <HeartParticles isActive={showParticles} />
+              
+              <motion.button
+                onClick={handleToggleFavorite}
+                className={cn(
+                  "p-2 rounded-full transition-colors relative z-10",
+                  isCurrentFavorite 
+                    ? "text-red-500 hover:bg-red-500/10" 
+                    : "text-muted-foreground hover:text-red-500 hover:bg-red-500/10"
+                )}
+                title={isCurrentFavorite ? "Remover dos favoritos" : "Adicionar aos favoritos"}
+                whileTap={{ scale: 0.9 }}
+              >
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={isCurrentFavorite ? 'filled' : 'empty'}
+                    initial={{ scale: 0.5, opacity: 0 }}
+                    animate={{ 
+                      scale: isAnimating ? [1, 1.3, 1] : 1, 
+                      opacity: 1 
+                    }}
+                    exit={{ scale: 0.5, opacity: 0 }}
+                    transition={{ 
+                      duration: 0.3,
+                      scale: { type: "spring", stiffness: 400, damping: 10 }
+                    }}
+                  >
+                    <Heart className={cn("w-5 h-5", isCurrentFavorite && "fill-current")} />
+                  </motion.div>
+                </AnimatePresence>
+              </motion.button>
+            </div>
             <FavoriteQuotesDialog />
           </div>
         )}
