@@ -23,6 +23,7 @@ import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, Cell, AreaCh
 import { format, subMonths, startOfMonth, endOfMonth } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -81,6 +82,8 @@ export default function AdminDashboard() {
   const [totalPlans, setTotalPlans] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'blocked' | 'admin'>('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const usersPerPage = 10;
 
   useEffect(() => {
     if (!adminLoading) {
@@ -370,6 +373,17 @@ export default function AdminDashboard() {
     return matchesSearch && matchesFilter;
   });
 
+  // Pagination
+  const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
+  const startIndex = (currentPage - 1) * usersPerPage;
+  const endIndex = startIndex + usersPerPage;
+  const paginatedUsers = filteredUsers.slice(startIndex, endIndex);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, filterStatus]);
+
   if (adminLoading || loading) {
     return (
       <AdminLayout>
@@ -579,15 +593,15 @@ export default function AdminDashboard() {
           </div>
           
           {/* Users Grid */}
-          <div className="p-4 space-y-3 max-h-[600px] overflow-y-auto scrollbar-premium">
-            {filteredUsers.length === 0 ? (
+          <div className="p-4 space-y-3">
+            {paginatedUsers.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-slate-500">
                 <Users className="w-12 h-12 opacity-30 mb-3" />
                 <p className="text-sm">Nenhum usuário encontrado</p>
                 <p className="text-xs text-slate-600 mt-1">Tente ajustar os filtros de busca</p>
               </div>
             ) : (
-              filteredUsers.map((userProfile) => (
+              paginatedUsers.map((userProfile) => (
                 <AdminUserCard
                   key={userProfile.id}
                   user={userProfile}
@@ -608,6 +622,88 @@ export default function AdminDashboard() {
               ))
             )}
           </div>
+          
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between px-5 py-4 border-t border-slate-700/50 bg-slate-800/30">
+              <p className="text-sm text-slate-400">
+                Mostrando <span className="text-white font-medium">{startIndex + 1}</span> a{' '}
+                <span className="text-white font-medium">{Math.min(endIndex, filteredUsers.length)}</span> de{' '}
+                <span className="text-white font-medium">{filteredUsers.length}</span> usuários
+              </p>
+              
+              <div className="flex items-center gap-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setCurrentPage(1)}
+                  disabled={currentPage === 1}
+                  className="text-slate-400 hover:text-white hover:bg-slate-700/50 disabled:opacity-30"
+                >
+                  <ChevronsLeft className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                  disabled={currentPage === 1}
+                  className="text-slate-400 hover:text-white hover:bg-slate-700/50 disabled:opacity-30"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </Button>
+                
+                <div className="flex items-center gap-1 mx-2">
+                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                    let pageNum: number;
+                    if (totalPages <= 5) {
+                      pageNum = i + 1;
+                    } else if (currentPage <= 3) {
+                      pageNum = i + 1;
+                    } else if (currentPage >= totalPages - 2) {
+                      pageNum = totalPages - 4 + i;
+                    } else {
+                      pageNum = currentPage - 2 + i;
+                    }
+                    
+                    return (
+                      <Button
+                        key={pageNum}
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setCurrentPage(pageNum)}
+                        className={`w-8 h-8 p-0 ${
+                          currentPage === pageNum
+                            ? 'bg-amber-500/20 text-amber-400 hover:bg-amber-500/30'
+                            : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
+                        }`}
+                      >
+                        {pageNum}
+                      </Button>
+                    );
+                  })}
+                </div>
+                
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                  disabled={currentPage === totalPages}
+                  className="text-slate-400 hover:text-white hover:bg-slate-700/50 disabled:opacity-30"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setCurrentPage(totalPages)}
+                  disabled={currentPage === totalPages}
+                  className="text-slate-400 hover:text-white hover:bg-slate-700/50 disabled:opacity-30"
+                >
+                  <ChevronsRight className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
