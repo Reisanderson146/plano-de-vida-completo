@@ -100,16 +100,41 @@ const cardVariants = {
 };
 
 const benefitVariants = {
-  hidden: { opacity: 0, x: -20 },
+  hidden: { opacity: 0, x: -30, scale: 0.95 },
   visible: (i: number) => ({
     opacity: 1,
     x: 0,
+    scale: 1,
     transition: {
-      delay: 0.1 + i * 0.05,
-      duration: 0.3,
-      type: "tween" as const,
+      delay: 0.15 + i * 0.06,
+      duration: 0.4,
+      ease: [0.25, 0.46, 0.45, 0.94] as const,
     },
   }),
+  exit: { 
+    opacity: 0, 
+    x: 20, 
+    scale: 0.95,
+    transition: { duration: 0.2 }
+  },
+};
+
+const benefitsContainerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.06,
+      delayChildren: 0.1,
+    },
+  },
+  exit: {
+    opacity: 0,
+    transition: {
+      staggerChildren: 0.03,
+      staggerDirection: -1,
+    },
+  },
 };
 
 const PricingSection = ({ onCheckout, onLogin, loading }: PricingSectionProps) => {
@@ -348,17 +373,21 @@ const PricingSection = ({ onCheckout, onLogin, loading }: PricingSectionProps) =
 
                   <CardContent className="relative space-y-6 pb-8">
                     {/* Benefits List with staggered animation */}
-                    <ul className="space-y-3">
+                    <motion.ul 
+                      className="space-y-3"
+                      key={`benefits-${selectedIndex}`}
+                      variants={benefitsContainerVariants}
+                      initial="hidden"
+                      animate="visible"
+                    >
                       {currentPlan.benefits.map((benefit, benefitIndex) => {
                         const isIncluded = currentPlan.id === 'basic' ? benefit.includedInBasic : true;
                         
                         return (
                           <motion.li 
-                            key={benefitIndex}
+                            key={`${currentPlan.id}-${benefitIndex}`}
                             custom={benefitIndex}
                             variants={benefitVariants}
-                            initial="hidden"
-                            animate="visible"
                             className={cn(
                               "flex items-center gap-3",
                               benefit.highlight && currentPlan.id === 'premium' && "p-2 -mx-2 rounded-lg bg-gradient-to-r from-violet-500/10 to-purple-500/10 border border-violet-500/20"
@@ -408,7 +437,7 @@ const PricingSection = ({ onCheckout, onLogin, loading }: PricingSectionProps) =
                           </motion.li>
                         );
                       })}
-                    </ul>
+                    </motion.ul>
 
                     {/* CTA Button */}
                     <motion.div 
