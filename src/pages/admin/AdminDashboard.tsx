@@ -23,10 +23,11 @@ import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, Cell, AreaCh
 import { format, subMonths, startOfMonth, endOfMonth } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ArrowUpIcon, ArrowDownIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 // Import new admin components
 import { AdminStatsCard } from '@/components/admin/AdminStatsCard';
@@ -83,7 +84,9 @@ export default function AdminDashboard() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'blocked' | 'admin'>('all');
   const [currentPage, setCurrentPage] = useState(1);
-  const usersPerPage = 10;
+  const [usersPerPage, setUsersPerPage] = useState(10);
+  const [sortBy, setSortBy] = useState<'name' | 'date' | 'plan'>('date');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
   useEffect(() => {
     if (!adminLoading) {
@@ -360,18 +363,41 @@ export default function AdminDashboard() {
   };
 
   // Filter users based on search and status
-  const filteredUsers = users.filter(userProfile => {
-    const matchesSearch = !searchQuery || 
-      userProfile.full_name?.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    const matchesFilter = 
-      filterStatus === 'all' ||
-      (filterStatus === 'active' && !userProfile.is_blocked) ||
-      (filterStatus === 'blocked' && userProfile.is_blocked) ||
-      (filterStatus === 'admin' && userProfile.isAdmin);
-    
-    return matchesSearch && matchesFilter;
-  });
+  const filteredUsers = users
+    .filter(userProfile => {
+      const matchesSearch = !searchQuery || 
+        userProfile.full_name?.toLowerCase().includes(searchQuery.toLowerCase());
+      
+      const matchesFilter = 
+        filterStatus === 'all' ||
+        (filterStatus === 'active' && !userProfile.is_blocked) ||
+        (filterStatus === 'blocked' && userProfile.is_blocked) ||
+        (filterStatus === 'admin' && userProfile.isAdmin);
+      
+      return matchesSearch && matchesFilter;
+    })
+    .sort((a, b) => {
+      let comparison = 0;
+      
+      switch (sortBy) {
+        case 'name':
+          const nameA = (a.full_name || '').toLowerCase();
+          const nameB = (b.full_name || '').toLowerCase();
+          comparison = nameA.localeCompare(nameB);
+          break;
+        case 'date':
+          comparison = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+          break;
+        case 'plan':
+          const planOrder = { premium: 3, basic: 2, null: 1 };
+          const planA = planOrder[a.subscription_plan as keyof typeof planOrder] || 0;
+          const planB = planOrder[b.subscription_plan as keyof typeof planOrder] || 0;
+          comparison = planA - planB;
+          break;
+      }
+      
+      return sortOrder === 'asc' ? comparison : -comparison;
+    });
 
   // Pagination
   const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
@@ -382,7 +408,16 @@ export default function AdminDashboard() {
   // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery, filterStatus]);
+  }, [searchQuery, filterStatus, usersPerPage]);
+
+  const handleSort = (field: 'name' | 'date' | 'plan') => {
+    if (sortBy === field) {
+      setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(field);
+      setSortOrder('asc');
+    }
+  };
 
   if (adminLoading || loading) {
     return (
@@ -558,7 +593,7 @@ export default function AdminDashboard() {
             </div>
             
             {/* Search and Filter */}
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <div className="relative">
                 <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                 <Input
@@ -589,6 +624,64 @@ export default function AdminDashboard() {
                   </Button>
                 ))}
               </div>
+            </div>
+          </div>
+          
+          {/* Sorting and Per Page Options */}
+          <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-3 border-b border-slate-700/30 bg-slate-800/20">
+            {/* Sorting */}
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-slate-500">Ordenar por:</span>
+              <div className="flex gap-1">
+                {([
+                  { key: 'name', label: 'Nome' },
+                  { key: 'date', label: 'Data' },
+                  { key: 'plan', label: 'Plano' }
+                ] as const).map(({ key, label }) => (
+                  <Button
+                    key={key}
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleSort(key)}
+                    className={`text-xs h-7 px-2 gap-1 ${
+                      sortBy === key 
+                        ? 'bg-blue-500/20 text-blue-400' 
+                        : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
+                    }`}
+                  >
+                    {label}
+                    {sortBy === key && (
+                      sortOrder === 'asc' 
+                        ? <ArrowUpIcon className="w-3 h-3" /> 
+                        : <ArrowDownIcon className="w-3 h-3" />
+                    )}
+                  </Button>
+                ))}
+              </div>
+            </div>
+            
+            {/* Per Page */}
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-slate-500">Por página:</span>
+              <Select
+                value={usersPerPage.toString()}
+                onValueChange={(value) => setUsersPerPage(Number(value))}
+              >
+                <SelectTrigger className="w-20 h-7 text-xs bg-slate-700/50 border-slate-600 text-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-slate-800 border-slate-700">
+                  {[5, 10, 25, 50, 100].map((num) => (
+                    <SelectItem 
+                      key={num} 
+                      value={num.toString()}
+                      className="text-slate-300 focus:bg-slate-700 focus:text-white"
+                    >
+                      {num}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
           
