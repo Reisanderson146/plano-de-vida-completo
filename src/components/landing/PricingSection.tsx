@@ -301,8 +301,8 @@ const PricingSection = ({ onCheckout, onLogin, loading }: PricingSectionProps) =
             <ChevronRight className="w-6 h-6" />
           </motion.button>
 
-          {/* Animated Card Container */}
-          <div className="overflow-hidden px-14 md:px-0 min-h-[580px] relative">
+          {/* Animated Card Container with Swipe Support */}
+          <div className="overflow-hidden px-14 md:px-0 min-h-[580px] relative touch-pan-y">
             <AnimatePresence initial={false} custom={direction} mode="wait">
               <motion.div
                 key={selectedIndex}
@@ -311,7 +311,28 @@ const PricingSection = ({ onCheckout, onLogin, loading }: PricingSectionProps) =
                 initial="enter"
                 animate="center"
                 exit="exit"
-                className="w-full"
+                drag="x"
+                dragConstraints={{ left: 0, right: 0 }}
+                dragElastic={0.3}
+                onDragEnd={(e, { offset, velocity }) => {
+                  const swipeThreshold = 50;
+                  const velocityThreshold = 200;
+                  
+                  if (offset.x < -swipeThreshold || velocity.x < -velocityThreshold) {
+                    // Swiped left - go to next
+                    if (canScrollNext) {
+                      setDirection(1);
+                      setSelectedIndex(prev => prev + 1);
+                    }
+                  } else if (offset.x > swipeThreshold || velocity.x > velocityThreshold) {
+                    // Swiped right - go to previous
+                    if (canScrollPrev) {
+                      setDirection(-1);
+                      setSelectedIndex(prev => prev - 1);
+                    }
+                  }
+                }}
+                className="w-full cursor-grab active:cursor-grabbing"
               >
                 <div className="relative group pt-4">
                   {/* Animated Glow effect */}
