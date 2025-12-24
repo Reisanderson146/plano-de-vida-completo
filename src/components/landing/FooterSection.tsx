@@ -20,9 +20,17 @@ const FooterSection = () => {
             href="https://www.instagram.com/planode.vida"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mb-6"
+            className="flex items-center gap-2 text-muted-foreground hover:opacity-80 transition-opacity mb-6"
           >
-            <FaInstagram className="w-5 h-5" />
+            <FaInstagram 
+              className="w-6 h-6" 
+              style={{
+                background: 'radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+              }}
+            />
             <span>@planode.vida</span>
           </a>
 
