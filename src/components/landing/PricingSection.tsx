@@ -180,22 +180,15 @@ const PricingSection = ({ onCheckout, onLogin, loading }: PricingSectionProps) =
   const [direction, setDirection] = useState(0);
   const [showAllDescriptions, setShowAllDescriptions] = useState(false);
 
-  const canScrollPrev = selectedIndex > 0;
-  const canScrollNext = selectedIndex < plans.length - 1;
-
   const scrollPrev = useCallback(() => {
-    if (canScrollPrev) {
-      setDirection(-1);
-      setSelectedIndex(prev => prev - 1);
-    }
-  }, [canScrollPrev]);
+    setDirection(-1);
+    setSelectedIndex(prev => prev === 0 ? plans.length - 1 : prev - 1);
+  }, []);
 
   const scrollNext = useCallback(() => {
-    if (canScrollNext) {
-      setDirection(1);
-      setSelectedIndex(prev => prev + 1);
-    }
-  }, [canScrollNext]);
+    setDirection(1);
+    setSelectedIndex(prev => prev === plans.length - 1 ? 0 : prev + 1);
+  }, []);
 
   const scrollTo = useCallback((index: number) => {
     setDirection(index > selectedIndex ? 1 : -1);
@@ -281,8 +274,7 @@ const PricingSection = ({ onCheckout, onLogin, loading }: PricingSectionProps) =
           {/* Navigation Buttons */}
           <motion.button
             onClick={scrollPrev}
-            disabled={!canScrollPrev}
-            className="absolute left-0 md:-left-14 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-card border border-border shadow-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+            className="absolute left-0 md:-left-14 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-card border border-border shadow-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
             aria-label="Anterior"
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
@@ -292,8 +284,7 @@ const PricingSection = ({ onCheckout, onLogin, loading }: PricingSectionProps) =
           
           <motion.button
             onClick={scrollNext}
-            disabled={!canScrollNext}
-            className="absolute right-0 md:-right-14 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-card border border-border shadow-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+            className="absolute right-0 md:-right-14 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-card border border-border shadow-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
             aria-label="Próximo"
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
@@ -319,17 +310,13 @@ const PricingSection = ({ onCheckout, onLogin, loading }: PricingSectionProps) =
                   const velocityThreshold = 200;
                   
                   if (offset.x < -swipeThreshold || velocity.x < -velocityThreshold) {
-                    // Swiped left - go to next
-                    if (canScrollNext) {
-                      setDirection(1);
-                      setSelectedIndex(prev => prev + 1);
-                    }
+                    // Swiped left - go to next (loop)
+                    setDirection(1);
+                    setSelectedIndex(prev => prev === plans.length - 1 ? 0 : prev + 1);
                   } else if (offset.x > swipeThreshold || velocity.x > velocityThreshold) {
-                    // Swiped right - go to previous
-                    if (canScrollPrev) {
-                      setDirection(-1);
-                      setSelectedIndex(prev => prev - 1);
-                    }
+                    // Swiped right - go to previous (loop)
+                    setDirection(-1);
+                    setSelectedIndex(prev => prev === 0 ? plans.length - 1 : prev - 1);
                   }
                 }}
                 className="w-full cursor-grab active:cursor-grabbing"
