@@ -7,6 +7,7 @@ import AreasSection from "@/components/landing/AreasSection";
 import VersiculosSection from "@/components/landing/VersiculosSection";
 import FeaturesSection from "@/components/landing/FeaturesSection";
 import PricingSection from "@/components/landing/PricingSection";
+import FAQSection from "@/components/landing/FAQSection";
 import FooterSection from "@/components/landing/FooterSection";
 import { DarkModeToggle } from "@/components/theme/DarkModeToggle";
 
@@ -66,6 +67,7 @@ const LandingPage = () => {
         onLogin={handleLogin}
         loading={loading}
       />
+      <FAQSection />
       <FooterSection />
     </div>
   );
