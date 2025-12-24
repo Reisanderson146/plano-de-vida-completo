@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Check, Crown, Sparkles, Shield, Zap, Gem, User, Users, Baby, Heart, Target, Loader2, ChevronLeft, ChevronRight, X, BarChart3, Calendar, FileText, Bell, Download, History, Eye, BookOpen, Info, ArrowRight } from "lucide-react";
+import { Check, Crown, Sparkles, Shield, Zap, Gem, User, Users, Baby, Heart, Target, Loader2, ChevronLeft, ChevronRight, ChevronDown, X, BarChart3, Calendar, FileText, Bell, Download, History, Eye, BookOpen, Info, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { LucideIcon } from "lucide-react";
 import useEmblaCarousel from "embla-carousel-react";
@@ -232,23 +232,23 @@ const PricingSection = ({ onCheckout, onLogin, loading }: PricingSectionProps) =
   const currentPlan = plans[selectedIndex];
 
   return (
-    <section id="pricing" className="py-16 md:py-20 px-4 relative overflow-hidden">
+    <section id="pricing" className="py-12 md:py-16 px-4 relative overflow-hidden">
       {/* Subtle Background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full bg-primary/5 blur-3xl" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-primary/5 blur-3xl" />
       </div>
 
-      <div className="max-w-4xl mx-auto relative z-10">
+      <div className="max-w-5xl mx-auto relative z-10">
         {/* Section Header */}
         <motion.div 
-          className="text-center mb-10"
+          className="text-center mb-8"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
         >
           <motion.div 
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4"
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-3"
             initial={{ scale: 0.9, opacity: 0 }}
             whileInView={{ scale: 1, opacity: 1 }}
             viewport={{ once: true }}
@@ -258,451 +258,309 @@ const PricingSection = ({ onCheckout, onLogin, loading }: PricingSectionProps) =
             <span>Escolha seu plano</span>
           </motion.div>
           
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-3">
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
             Invista no seu{" "}
             <span className="bg-gradient-to-r from-primary to-emerald-500 bg-clip-text text-transparent">
               Futuro
             </span>
           </h2>
           
-          <p className="text-muted-foreground max-w-lg mx-auto">
-            Comece sua jornada de transformação com um plano que cabe no seu bolso
+          <p className="text-muted-foreground max-w-lg mx-auto text-sm md:text-base">
+            Comece sua jornada de transformação
           </p>
         </motion.div>
 
-        {/* Clean Card Container */}
-        <motion.div
-          className="relative rounded-2xl bg-card border border-border/60 shadow-xl shadow-black/5 p-6 md:p-8"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.4, delay: 0.15 }}
-        >
-            {/* Carousel Container */}
-            <div className="relative max-w-sm mx-auto px-10 md:px-14" style={{ perspective: "1000px" }}>
-          {/* Navigation Arrows */}
-          <button
-            onClick={scrollPrev}
-            className={cn(
-              "absolute left-0 top-1/2 z-20 group",
-              "w-10 h-10 md:w-12 md:h-12 rounded-full bg-card border border-border shadow-lg",
-              "flex items-center justify-center",
-              "transition-all duration-200 ease-out",
-              "-translate-y-1/2 hover:shadow-xl hover:border-primary/30",
-              canScrollPrev 
-                ? "hover:bg-primary/5 active:scale-95 animate-[pulse-subtle_2s_ease-in-out_infinite]" 
-                : "opacity-30 cursor-not-allowed"
-            )}
-            disabled={!canScrollPrev}
-            aria-label="Plano anterior"
-          >
-            <ChevronLeft className={cn(
-              "w-5 h-5 md:w-6 md:h-6 text-foreground transition-transform duration-200",
-              canScrollPrev && "group-hover:-translate-x-0.5"
-            )} />
-          </button>
-          
-          <button
-            onClick={scrollNext}
-            className={cn(
-              "absolute right-0 top-1/2 z-20 group",
-              "w-10 h-10 md:w-12 md:h-12 rounded-full bg-card border border-border shadow-lg",
-              "flex items-center justify-center",
-              "transition-all duration-200 ease-out",
-              "-translate-y-1/2 hover:shadow-xl hover:border-primary/30",
-              canScrollNext 
-                ? "hover:bg-primary/5 active:scale-95 animate-[pulse-subtle_2s_ease-in-out_infinite]" 
-                : "opacity-30 cursor-not-allowed"
-            )}
-            disabled={!canScrollNext}
-            aria-label="Próximo plano"
-          >
-            <ChevronRight className={cn(
-              "w-5 h-5 md:w-6 md:h-6 text-foreground transition-transform duration-200",
-              canScrollNext && "group-hover:translate-x-0.5"
-            )} />
-          </button>
-
-          {/* Animated Card Display */}
-          <div className="overflow-hidden rounded-2xl">
-            <AnimatePresence mode="wait" custom={direction}>
-              <motion.div
-                key={selectedIndex}
-                custom={direction}
-                variants={cardVariants}
-                initial="enter"
-                animate="center"
-                exit="exit"
-                className="w-full relative"
-              >
-                {/* Recommended Badge - positioned above the card */}
-                {currentPlan.recommended && (
-                  <motion.div 
-                    className="flex justify-center mb-3"
-                    initial={{ scale: 0, y: 10 }}
-                    animate={{ scale: 1, y: 0 }}
-                    transition={{ delay: 0.1, type: "spring", stiffness: 300 }}
-                  >
-                    <div className="flex items-center gap-1.5 px-4 py-1.5 bg-gradient-to-r from-violet-600 to-purple-600 rounded-full text-white font-medium text-sm shadow-lg shadow-violet-500/30">
-                      <Crown className="w-3.5 h-3.5" />
-                      <span>Recomendado</span>
-                    </div>
-                  </motion.div>
+        {/* Side by Side Plans */}
+        <div className="grid md:grid-cols-2 gap-4 md:gap-6 max-w-3xl mx-auto mb-8">
+          {plans.map((plan, index) => (
+            <motion.div
+              key={plan.id}
+              initial={{ opacity: 0, y: 30, scale: 0.95 }}
+              whileInView={{ opacity: 1, y: 0, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+              whileHover={{ y: -8, transition: { duration: 0.3 } }}
+              className="relative group"
+            >
+              {/* Glow effect on hover */}
+              <motion.div 
+                className={cn(
+                  "absolute -inset-1 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl",
+                  plan.color === 'emerald' ? "bg-primary/20" : "bg-violet-500/20"
                 )}
-                <Card className={cn(
-                  "relative overflow-hidden border-2 bg-card/80 backdrop-blur-sm shadow-xl",
-                  currentPlan.color === 'emerald' 
-                    ? "border-primary/30 shadow-emerald-500/10"
-                    : "border-violet-500/40 shadow-violet-500/20"
-                )}>
-                  {/* Animated Glow Effect */}
-                  <motion.div 
-                    className="absolute inset-0"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.5 }}
-                    style={{
-                      background: currentPlan.color === 'emerald'
-                        ? "linear-gradient(135deg, rgba(42, 140, 104, 0.08) 0%, transparent 50%, rgba(16, 185, 129, 0.08) 100%)"
-                        : "linear-gradient(135deg, rgba(139, 92, 246, 0.12) 0%, transparent 50%, rgba(168, 85, 247, 0.12) 100%)"
-                    }}
-                  />
-                  
+              />
+              
+              {/* Recommended Badge */}
+              {plan.recommended && (
+                <motion.div 
+                  className="absolute -top-3 left-1/2 -translate-x-1/2 z-10"
+                  initial={{ scale: 0, y: 10 }}
+                  whileInView={{ scale: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.3, type: "spring", stiffness: 300 }}
+                >
+                  <div className="flex items-center gap-1.5 px-4 py-1.5 bg-gradient-to-r from-violet-600 to-purple-600 rounded-full text-white font-medium text-xs shadow-lg shadow-violet-500/30">
+                    <Crown className="w-3 h-3" />
+                    <span>Mais Popular</span>
+                  </div>
+                </motion.div>
+              )}
+              
+              <Card className={cn(
+                "relative overflow-hidden border-2 bg-card shadow-lg transition-all duration-300",
+                plan.color === 'emerald' 
+                  ? "border-primary/20 hover:border-primary/50 hover:shadow-primary/10"
+                  : "border-violet-500/30 hover:border-violet-500/60 hover:shadow-violet-500/15",
+                plan.recommended && "pt-2"
+              )}>
+                {/* Animated gradient background */}
+                <motion.div 
+                  className={cn(
+                    "absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500",
+                    plan.color === 'emerald'
+                      ? "bg-gradient-to-br from-primary/5 via-transparent to-emerald-500/5"
+                      : "bg-gradient-to-br from-violet-500/8 via-transparent to-purple-500/8"
+                  )}
+                />
+                
+                {/* Shimmer effect */}
+                <motion.div
+                  className="absolute inset-0 opacity-0 group-hover:opacity-100"
+                  initial={false}
+                  animate={{
+                    background: [
+                      "linear-gradient(90deg, transparent 0%, transparent 100%)",
+                      "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.1) 50%, transparent 100%)",
+                      "linear-gradient(90deg, transparent 0%, transparent 100%)",
+                    ],
+                  }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                />
 
-                  <CardHeader className="pt-8 pb-4 text-center relative">
-                    {/* Badge */}
-                    <motion.div 
-                      className={cn(
-                        "inline-flex items-center gap-2 px-4 py-1.5 border rounded-full text-sm font-semibold mx-auto mb-4",
-                        currentPlan.color === 'emerald'
-                          ? "bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400"
-                          : "bg-gradient-to-r from-violet-500/20 to-purple-500/20 border-violet-500/30 text-violet-600 dark:text-violet-400"
-                      )}
-                      initial={{ scale: 0.8, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      transition={{ delay: 0.1 }}
-                    >
-                      <currentPlan.icon className="w-4 h-4" />
-                      <span>{currentPlan.name}</span>
-                    </motion.div>
-                    
-                    <CardTitle className={cn(
-                      "text-xl font-bold mb-4",
-                      currentPlan.color === 'emerald'
+                <CardHeader className="pt-6 pb-3 text-center relative">
+                  {/* Plan Icon with animation */}
+                  <motion.div 
+                    className={cn(
+                      "inline-flex items-center justify-center w-12 h-12 rounded-xl mx-auto mb-3",
+                      plan.color === 'emerald'
+                        ? "bg-gradient-to-br from-primary/20 to-emerald-500/20 text-primary"
+                        : "bg-gradient-to-br from-violet-500/20 to-purple-500/20 text-violet-500"
+                    )}
+                    whileHover={{ rotate: [0, -10, 10, 0], scale: 1.1 }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    <plan.icon className="w-6 h-6" />
+                  </motion.div>
+                  
+                  <CardTitle className={cn(
+                    "text-lg font-bold mb-1",
+                    plan.color === 'emerald'
+                      ? "text-foreground"
+                      : "bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent"
+                  )}>
+                    {plan.name}
+                  </CardTitle>
+                  
+                  <p className="text-xs text-muted-foreground mb-3">{plan.subtitle}</p>
+                  
+                  {/* Price */}
+                  <motion.div 
+                    className="flex items-baseline justify-center gap-1"
+                    whileHover={{ scale: 1.05 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <span className={cn(
+                      "text-3xl font-bold",
+                      plan.color === 'emerald'
                         ? "text-foreground"
                         : "bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent"
                     )}>
-                      {currentPlan.subtitle}
-                    </CardTitle>
-                    
-                    {/* Price with animation */}
-                    <motion.div 
-                      className="flex items-baseline justify-center gap-1"
-                      initial={{ scale: 0.9, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      transition={{ delay: 0.15, type: "spring", stiffness: 300 }}
-                    >
-                      <span className={cn(
-                        "text-4xl font-bold",
-                        currentPlan.color === 'emerald'
-                          ? "text-foreground"
-                          : "bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent"
-                      )}>
-                        {currentPlan.price}
-                      </span>
-                      <span className="text-muted-foreground">/mês</span>
-                    </motion.div>
-                    
-                    {currentPlan.color === 'emerald' ? (
-                      <p className="text-xs text-muted-foreground mt-2">{currentPlan.description}</p>
-                    ) : (
+                      {plan.price}
+                    </span>
+                    <span className="text-muted-foreground text-sm">/mês</span>
+                  </motion.div>
+                </CardHeader>
+
+                <CardContent className="relative space-y-3 pb-6 px-4">
+                  {/* Key benefits - compact list */}
+                  <div className="space-y-2">
+                    {plan.benefits.slice(0, 6).map((benefit, i) => (
                       <motion.div 
-                        className="mt-2 inline-flex items-center gap-1 bg-violet-500/20 text-violet-600 dark:text-violet-400 text-xs font-semibold px-2.5 py-0.5 rounded-full"
-                        initial={{ scale: 0.8, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        transition={{ delay: 0.2 }}
+                        key={i}
+                        className="flex items-center gap-2 text-sm"
+                        initial={{ opacity: 0, x: -10 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: 0.1 + i * 0.05 }}
                       >
-                        <Zap className="w-3 h-3" />
-                        {currentPlan.description}
+                        <div className={cn(
+                          "w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0",
+                          benefit.includedInBasic || plan.id === 'premium'
+                            ? plan.color === 'emerald' 
+                              ? "bg-primary/20 text-primary" 
+                              : "bg-violet-500/20 text-violet-500"
+                            : "bg-muted text-muted-foreground/50"
+                        )}>
+                          <Check className="w-3 h-3" />
+                        </div>
+                        <span className={cn(
+                          "text-sm",
+                          benefit.includedInBasic || plan.id === 'premium' 
+                            ? "text-foreground" 
+                            : "text-muted-foreground/60 line-through"
+                        )}>
+                          {benefit.text}
+                        </span>
                       </motion.div>
-                    )}
-                  </CardHeader>
-
-                  <CardContent className="relative space-y-4 pb-8">
-                    {/* Toggle to show all descriptions */}
-                    <div className="flex items-center justify-end">
-                      <button
-                        type="button"
-                        onClick={() => setShowAllDescriptions(!showAllDescriptions)}
-                        className={cn(
-                          "flex items-center gap-1.5 text-xs font-medium px-2.5 py-1.5 rounded-full transition-all",
-                          showAllDescriptions 
-                            ? "bg-primary/10 text-primary" 
-                            : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
-                        )}
-                      >
-                        <Info className="w-3.5 h-3.5" />
-                        <span>{showAllDescriptions ? 'Ocultar detalhes' : 'Ver detalhes'}</span>
-                      </button>
-                    </div>
-
-                    {/* Benefits List with staggered animation */}
-                    <motion.ul 
-                      className="space-y-2"
-                      key={`benefits-${selectedIndex}-${showAllDescriptions}`}
-                      variants={benefitsContainerVariants}
-                      initial="hidden"
-                      animate="visible"
+                    ))}
+                  </div>
+                  
+                  {/* CTA Button */}
+                  <motion.div
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <Button
+                      onClick={() => onCheckout(plan.id)}
+                      disabled={loading === plan.id}
+                      className={cn(
+                        "w-full font-semibold py-5 mt-4 transition-all duration-300",
+                        plan.color === 'emerald'
+                          ? "bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20 hover:shadow-primary/30"
+                          : "bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40"
+                      )}
                     >
-                      {currentPlan.benefits.map((benefit, benefitIndex) => {
-                        const isIncluded = currentPlan.id === 'basic' ? benefit.includedInBasic : true;
-                        
-                        return (
-                          <motion.li 
-                            key={`${currentPlan.id}-${benefitIndex}`}
-                            custom={benefitIndex}
-                            variants={benefitVariants}
-                            whileHover={isIncluded ? { 
-                              x: 6, 
-                              scale: 1.02,
-                              transition: { duration: 0.2 }
-                            } : {}}
-                            className={cn(
-                              "flex items-center gap-3 rounded-lg px-2 py-1.5 -mx-2 transition-colors duration-200",
-                              benefit.highlight && currentPlan.id === 'premium' 
-                                ? "bg-gradient-to-r from-violet-500/10 to-purple-500/10 border border-violet-500/20"
-                                : isIncluded 
-                                  ? "cursor-pointer hover:bg-muted/50" 
-                                  : "opacity-60"
-                            )}
-                          >
-                            <motion.div 
-                              className={cn(
-                                "w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 transition-transform duration-200",
-                                !isIncluded 
-                                  ? "bg-muted/50"
-                                  : benefit.highlight && currentPlan.id === 'premium'
-                                    ? "bg-gradient-to-br from-violet-500 to-purple-600"
-                                    : currentPlan.color === 'emerald'
-                                      ? "bg-emerald-500/10"
-                                      : "bg-violet-500/10"
-                              )}
-                              whileHover={isIncluded ? { scale: 1.15, rotate: 5 } : {}}
-                            >
-                              {isIncluded ? (
-                                <benefit.icon className={cn(
-                                  "w-3.5 h-3.5",
-                                  benefit.highlight && currentPlan.id === 'premium'
-                                    ? "text-white"
-                                    : currentPlan.color === 'emerald'
-                                      ? "text-emerald-600"
-                                      : "text-violet-600"
-                                )} />
-                              ) : (
-                                <X className="w-3.5 h-3.5 text-muted-foreground/50" />
-                              )}
-                            </motion.div>
-                            <div className="flex flex-col gap-0.5 flex-1">
-                              <div className="flex items-center gap-1.5">
-                                <span className={cn(
-                                  "text-sm",
-                                  !isIncluded 
-                                    ? "text-muted-foreground/50 line-through"
-                                    : benefit.highlight ? "font-semibold text-foreground" : "text-foreground"
-                                )}>
-                                  {benefit.text}
-                                </span>
-                                {isIncluded && benefitTooltips[benefit.text] && !showAllDescriptions && (
-                                  <Tooltip delayDuration={0}>
-                                    <TooltipTrigger asChild>
-                                      <button 
-                                        type="button"
-                                        className="w-5 h-5 rounded-full bg-muted/50 hover:bg-muted flex items-center justify-center transition-colors flex-shrink-0"
-                                      >
-                                        <Info className="w-3 h-3 text-muted-foreground" />
-                                      </button>
-                                    </TooltipTrigger>
-                                    <TooltipContent 
-                                      side="right" 
-                                      align="center"
-                                      className="max-w-[220px] text-xs font-normal leading-relaxed"
-                                    >
-                                      <p>{benefitTooltips[benefit.text]}</p>
-                                    </TooltipContent>
-                                  </Tooltip>
-                                )}
-                                {benefit.highlight && currentPlan.id === 'premium' && (
-                                  <motion.span 
-                                    className="text-[10px] bg-violet-500/20 text-violet-600 dark:text-violet-400 px-1.5 py-0.5 rounded-full"
-                                    initial={{ scale: 0 }}
-                                    animate={{ scale: 1 }}
-                                    transition={{ delay: 0.3 + benefitIndex * 0.05, type: "spring" as const }}
-                                  >
-                                    Exclusivo
-                                  </motion.span>
-                                )}
-                              </div>
-                              {/* Show description inline when toggle is on */}
-                              {showAllDescriptions && isIncluded && benefitTooltips[benefit.text] && (
-                                <motion.p 
-                                  className="text-[11px] text-muted-foreground leading-relaxed pl-0.5"
-                                  initial={{ opacity: 0, height: 0 }}
-                                  animate={{ opacity: 1, height: 'auto' }}
-                                  transition={{ duration: 0.2 }}
-                                >
-                                  {benefitTooltips[benefit.text]}
-                                </motion.p>
-                              )}
-                            </div>
-                          </motion.li>
-                        );
-                      })}
-                    </motion.ul>
-
-                    {/* CTA Button */}
-                    <motion.div 
-                      className="pt-4"
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.4 }}
-                    >
-                      <Button
-                        size="lg"
-                        onClick={() => onCheckout(currentPlan.id)}
-                        disabled={loading !== null}
-                        className={cn(
-                          "w-full py-6 text-lg font-semibold shadow-lg transition-all duration-300",
-                          currentPlan.color === 'emerald'
-                            ? "bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-emerald-500/20"
-                            : "bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 shadow-violet-500/25"
-                        )}
-                      >
-                        {loading === currentPlan.id ? (
-                          <div className="flex items-center gap-2">
-                            <Loader2 className="w-5 h-5 animate-spin" />
-                            <span>Processando...</span>
-                          </div>
-                        ) : (
-                          <motion.div 
-                            className="flex items-center gap-2"
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                          >
-                            <currentPlan.icon className="w-5 h-5" />
-                            <span>Assinar {currentPlan.name}</span>
-                          </motion.div>
-                        )}
-                      </Button>
-                    </motion.div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            </AnimatePresence>
-          </div>
-
-          {/* Hidden Embla container for swipe detection */}
-          <div className="absolute inset-0 z-10 opacity-0 pointer-events-none" ref={emblaRef}>
-            <div className="flex h-full touch-pan-y">
-              {plans.map((plan) => (
-                <div key={plan.id} className="flex-[0_0_100%] min-w-0" />
-              ))}
-            </div>
-          </div>
-
-          {/* Dots Navigation */}
-          <div className="flex items-center justify-center gap-4 mt-6">
-            {plans.map((plan, index) => (
-              <motion.button
-                key={plan.id}
-                onClick={() => scrollTo(index)}
-                className={cn(
-                  "rounded-full transition-colors duration-300",
-                  selectedIndex === index 
-                    ? plan.color === 'emerald' ? "bg-primary" : "bg-violet-500"
-                    : "bg-muted-foreground/30 hover:bg-muted-foreground/50"
-                )}
-                animate={{
-                  width: selectedIndex === index ? 24 : 12,
-                  height: 12,
-                }}
-                whileHover={{ scale: 1.2 }}
-                whileTap={{ scale: 0.9 }}
-                transition={{ duration: 0.2 }}
-                aria-label={`Ver plano ${plan.name}`}
-              />
-            ))}
-          </div>
-
-          {/* Plan indicator text with swipe hint on mobile */}
-          <div className="text-center mt-3">
-            <motion.p 
-              className="text-sm font-medium text-foreground"
-              key={selectedIndex}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              Plano {plans[selectedIndex]?.name}
-            </motion.p>
-            <p className="text-xs text-muted-foreground/70 mt-1 md:hidden">
-              ← Deslize para ver outros planos →
-            </p>
-            <p className="text-xs text-muted-foreground/70 mt-1 hidden md:block">
-              Clique nas setas ou nos pontos para navegar
-            </p>
-          </div>
-            </div>
-
-            {/* Already Subscriber Button */}
-            <motion.div 
-              className="text-center mt-8"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.3 }}
-            >
-              <div className="inline-flex flex-col items-center gap-2 p-4 rounded-2xl bg-gradient-to-r from-primary/5 to-emerald-500/5 border border-primary/20">
-                <p className="text-sm text-muted-foreground">Já possui uma conta?</p>
-                <Button
-                  variant="outline"
-                  size="lg"
-                  onClick={onLogin}
-                  className="border-primary/50 text-primary hover:bg-primary/10 hover:border-primary font-semibold px-8"
-                >
-                  <Check className="w-4 h-4 mr-2" />
-                  Já sou assinante - Entrar
-                </Button>
-              </div>
+                      {loading === plan.id ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <>
+                          <Zap className="w-4 h-4 mr-2" />
+                          Começar Agora
+                        </>
+                      )}
+                    </Button>
+                  </motion.div>
+                </CardContent>
+              </Card>
             </motion.div>
+          ))}
+        </div>
 
-            {/* Trust Badges */}
-            <div className="flex flex-wrap items-center justify-center gap-4 md:gap-6 mt-6">
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <Shield className="w-4 h-4 text-primary" />
-                <span>Pagamento seguro</span>
-              </div>
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <Check className="w-4 h-4 text-primary" />
-                <span>Cancele quando quiser</span>
-              </div>
-            </div>
-
-            {/* Compare Plans Link */}
-            <motion.div 
-              className="text-center mt-6"
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.4 }}
+        {/* Comparison Table */}
+        <motion.div
+          className="max-w-3xl mx-auto mb-8"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.2 }}
+        >
+          <div className="text-center mb-4">
+            <button
+              onClick={() => setShowAllDescriptions(!showAllDescriptions)}
+              className="inline-flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors font-medium"
             >
-              <Link 
-                to="/comparar-planos" 
-                className="inline-flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors font-medium group"
+              <Info className="w-4 h-4" />
+              {showAllDescriptions ? "Ocultar comparação" : "Ver comparação detalhada"}
+              <ChevronDown className={cn(
+                "w-4 h-4 transition-transform duration-300",
+                showAllDescriptions && "rotate-180"
+              )} />
+            </button>
+          </div>
+
+          <AnimatePresence>
+            {showAllDescriptions && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.3 }}
+                className="overflow-hidden"
               >
-                <span>Ver comparação detalhada dos planos</span>
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </Link>
-            </motion.div>
+                <div className="bg-card rounded-xl border border-border/60 overflow-hidden">
+                  {/* Header */}
+                  <div className="grid grid-cols-3 bg-muted/50 border-b border-border/60">
+                    <div className="p-3 text-sm font-medium text-muted-foreground">Recurso</div>
+                    <div className="p-3 text-sm font-medium text-center text-primary">Basic</div>
+                    <div className="p-3 text-sm font-medium text-center text-violet-500">Premium</div>
+                  </div>
+                  
+                  {/* Rows */}
+                  {[
+                    { name: "Plano Individual", basic: true, premium: true },
+                    { name: "Plano Familiar", basic: false, premium: true },
+                    { name: "Planos para Filhos", basic: "—", premium: "3 planos" },
+                    { name: "7 Áreas da Vida", basic: true, premium: true },
+                    { name: "Dashboard", basic: true, premium: true },
+                    { name: "Exportação PDF", basic: true, premium: true },
+                    { name: "Resumo com IA", basic: false, premium: true },
+                    { name: "Lembretes por Email", basic: false, premium: true },
+                  ].map((row, i) => (
+                    <motion.div
+                      key={row.name}
+                      className="grid grid-cols-3 border-b border-border/30 last:border-0"
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.05 }}
+                    >
+                      <div className="p-3 text-sm text-foreground">{row.name}</div>
+                      <div className="p-3 text-center">
+                        {typeof row.basic === 'boolean' ? (
+                          row.basic ? (
+                            <Check className="w-4 h-4 text-primary mx-auto" />
+                          ) : (
+                            <X className="w-4 h-4 text-muted-foreground/40 mx-auto" />
+                          )
+                        ) : (
+                          <span className="text-xs text-muted-foreground">{row.basic}</span>
+                        )}
+                      </div>
+                      <div className="p-3 text-center">
+                        {typeof row.premium === 'boolean' ? (
+                          row.premium ? (
+                            <Check className="w-4 h-4 text-violet-500 mx-auto" />
+                          ) : (
+                            <X className="w-4 h-4 text-muted-foreground/40 mx-auto" />
+                          )
+                        ) : (
+                          <span className="text-xs text-violet-500 font-medium">{row.premium}</span>
+                        )}
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
+
+        {/* Already Subscriber & Trust Badges */}
+        <motion.div 
+          className="text-center space-y-4"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.3 }}
+        >
+          <Button
+            variant="ghost"
+            onClick={onLogin}
+            className="text-primary hover:text-primary/80 hover:bg-primary/5"
+          >
+            <Check className="w-4 h-4 mr-2" />
+            Já sou assinante - Entrar
+          </Button>
+          
+          <div className="flex flex-wrap items-center justify-center gap-4">
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <Shield className="w-3.5 h-3.5 text-primary" />
+              <span>Pagamento seguro</span>
+            </div>
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <Check className="w-3.5 h-3.5 text-primary" />
+              <span>Cancele quando quiser</span>
+            </div>
+          </div>
         </motion.div>
       </div>
     </section>
