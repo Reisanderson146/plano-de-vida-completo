@@ -1,4 +1,4 @@
-import { FaInstagram } from 'react-icons/fa';
+import instagramLogo from '@/assets/instagram-logo.png';
 
 const FooterSection = () => {
   return (
@@ -20,18 +20,14 @@ const FooterSection = () => {
             href="https://www.instagram.com/planode.vida"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 text-muted-foreground hover:opacity-80 transition-opacity mb-6"
+            className="flex items-center gap-2.5 text-muted-foreground hover:text-foreground transition-all hover:scale-105 mb-6 group"
           >
-            <FaInstagram 
-              className="w-6 h-6" 
-              style={{
-                background: 'radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-              }}
+            <img 
+              src={instagramLogo} 
+              alt="Instagram" 
+              className="w-7 h-7 rounded-lg shadow-sm group-hover:shadow-md transition-shadow"
             />
-            <span>@planode.vida</span>
+            <span className="font-medium">@planode.vida</span>
           </a>
 
           {/* Divider */}

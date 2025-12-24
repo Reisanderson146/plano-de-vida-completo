@@ -152,6 +152,10 @@ export default {
           "0%, 100%": { boxShadow: "0 0 8px hsl(var(--primary) / 0.3)" },
           "50%": { boxShadow: "0 0 20px hsl(var(--primary) / 0.5)" },
         },
+        "pulse-subtle": {
+          "0%, 100%": { boxShadow: "0 4px 12px rgba(0,0,0,0.1)", opacity: "1" },
+          "50%": { boxShadow: "0 6px 20px hsl(var(--primary) / 0.25)", opacity: "0.9" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.25s ease-out",
