@@ -30,19 +30,19 @@ const AreasSection = () => {
         </div>
 
         {/* Areas Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-4 md:gap-4 touch-manipulation">
           {areas.map((area, index) => (
             <div
               key={area.name}
-              className="group relative animate-fade-in"
+              className="group relative animate-fade-in isolate"
               style={{ animationDelay: `${index * 100}ms` }}
             >
-              <div className={`absolute inset-0 bg-gradient-to-br ${area.color} rounded-2xl opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-500`} />
-              <div className="relative bg-card border border-border/50 rounded-2xl p-6 text-center hover:border-primary/30 transition-all duration-300 hover:scale-105 hover:shadow-lg">
-                <div className={`w-14 h-14 mx-auto mb-4 rounded-xl ${area.bgColor} flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
-                  <area.icon className={`w-7 h-7 bg-gradient-to-br ${area.color} bg-clip-text`} style={{ color: area.color.includes('violet') ? '#8b5cf6' : area.color.includes('blue') ? '#3b82f6' : area.color.includes('rose') ? '#f43f5e' : area.color.includes('amber') ? '#f59e0b' : area.color.includes('emerald') ? '#10b981' : area.color.includes('slate') ? '#64748b' : '#ef4444' }} />
+              <div className={`absolute inset-0 bg-gradient-to-br ${area.color} rounded-2xl opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-500 -z-10`} />
+              <div className="relative bg-card border border-border/50 rounded-2xl p-4 sm:p-6 text-center hover:border-primary/30 transition-all duration-300 hover:scale-105 hover:shadow-lg pointer-events-auto">
+                <div className={`w-12 h-12 sm:w-14 sm:h-14 mx-auto mb-3 sm:mb-4 rounded-xl ${area.bgColor} flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
+                  <area.icon className={`w-6 h-6 sm:w-7 sm:h-7 bg-gradient-to-br ${area.color} bg-clip-text`} style={{ color: area.color.includes('violet') ? '#8b5cf6' : area.color.includes('blue') ? '#3b82f6' : area.color.includes('rose') ? '#f43f5e' : area.color.includes('amber') ? '#f59e0b' : area.color.includes('emerald') ? '#10b981' : area.color.includes('slate') ? '#64748b' : '#ef4444' }} />
                 </div>
-                <h3 className="font-semibold text-foreground text-sm">{area.name}</h3>
+                <h3 className="font-semibold text-foreground text-xs sm:text-sm">{area.name}</h3>
               </div>
             </div>
           ))}
