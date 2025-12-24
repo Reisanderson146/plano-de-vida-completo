@@ -56,10 +56,14 @@ const LandingPage = () => {
     <div className="min-h-screen bg-background relative">
       {/* Header with logo left, toggle center, login right */}
       <div className="fixed top-0 left-0 right-0 z-50 grid grid-cols-3 items-center px-4 py-2 bg-background/80 backdrop-blur-md border-b border-border/50">
-        {/* Left - Logo with hover animation */}
+        {/* Left - Logo with hover animation and glow effect */}
         <div className="flex items-center">
-          <div className="transition-transform duration-300 hover:scale-105 cursor-pointer">
-            <Logo size="sm" showText singleLine />
+          <div className="relative group cursor-pointer">
+            {/* Glow effect on hover */}
+            <div className="absolute -inset-2 bg-gradient-to-r from-primary/0 via-primary/20 to-emerald-500/20 rounded-xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <div className="relative transition-transform duration-300 group-hover:scale-105">
+              <Logo size="sm" showText singleLine />
+            </div>
           </div>
         </div>
         
