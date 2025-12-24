@@ -176,7 +176,7 @@ const FeaturesSection = () => {
             <div className="flex touch-pan-y">
               {features.map((feature, index) => (
                 <div key={index} className="flex-[0_0_100%] min-w-0 px-2">
-                  <div className="group relative h-[280px]">
+                  <div className="group relative min-h-[320px]">
                     <div className={`absolute inset-0 bg-gradient-to-br ${feature.color} rounded-2xl opacity-10`} />
                     <div className="relative bg-card border border-border/50 rounded-2xl p-6 h-full flex flex-col">
                       {/* Icon */}
@@ -185,8 +185,8 @@ const FeaturesSection = () => {
                       </div>
 
                       {/* Content */}
-                      <h3 className="text-lg font-semibold text-foreground mb-2">{feature.title}</h3>
-                      <p className="text-muted-foreground text-sm leading-relaxed mb-4 flex-grow line-clamp-3">
+                      <h3 className="text-lg font-semibold text-foreground mb-3">{feature.title}</h3>
+                      <p className="text-muted-foreground text-sm leading-relaxed mb-5 flex-grow">
                         {feature.description}
                       </p>
 
