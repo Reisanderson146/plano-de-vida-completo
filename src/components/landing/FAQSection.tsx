@@ -10,7 +10,7 @@ interface FAQItem {
 
 const faqItems: FAQItem[] = [
   {
-    question: "Como funciona o período de teste?",
+    question: "Vocês oferecem teste gratuito?",
     answer: "Não oferecemos período de teste gratuito, mas nosso plano Basic custa apenas R$ 9,99/mês, permitindo que você experimente a plataforma com baixo investimento. Se não gostar, pode cancelar a qualquer momento."
   },
   {
@@ -35,7 +35,7 @@ const faqItems: FAQItem[] = [
   },
   {
     question: "Posso fazer upgrade do meu plano depois?",
-    answer: "Claro! Você pode fazer upgrade do Basic para o Premium a qualquer momento. O valor será ajustado proporcionalmente ao período restante da sua assinatura atual."
+    answer: "Sim! Você pode fazer upgrade do Basic para o Premium a qualquer momento. Temos uma tela específica para gerenciar sua assinatura e realizar a mudança de plano."
   },
   {
     question: "Como funciona o plano familiar?",
