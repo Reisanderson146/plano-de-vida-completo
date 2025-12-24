@@ -493,7 +493,7 @@ const PricingSection = ({ onCheckout, onLogin, loading }: PricingSectionProps) =
           </div>
 
           {/* Hidden Embla container for swipe detection */}
-          <div className="absolute inset-0 z-10 opacity-0" ref={emblaRef}>
+          <div className="absolute inset-0 z-10 opacity-0 pointer-events-none" ref={emblaRef}>
             <div className="flex h-full touch-pan-y">
               {plans.map((plan) => (
                 <div key={plan.id} className="flex-[0_0_100%] min-w-0" />
