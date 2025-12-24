@@ -295,7 +295,7 @@ const PricingSection = ({ onCheckout, onLogin, loading }: PricingSectionProps) =
           <div className="overflow-hidden" ref={emblaRef}>
             <div className="flex touch-pan-y">
               {plans.map((plan) => (
-                <div key={plan.id} className="flex-[0_0_85%] md:flex-[0_0_45%] min-w-0 px-2 first:pl-4 last:pr-4">
+                <div key={plan.id} className="flex-[0_0_100%] min-w-0 px-4">
                   <div className="relative group pt-4">
                     {/* Glow effect on hover */}
                     <div className={cn(
