@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Check, Shield, Zap, Heart, Target, Sparkles, BadgeCheck, Gem, Loader2, RefreshCw, X, Crown, User, Users, Baby } from 'lucide-react';
+import { Check, Shield, Zap, Heart, Target, Sparkles, BadgeCheck, Gem, Loader2, RefreshCw, X, Crown, User, Users, Baby, Instagram } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { useAuth } from '@/hooks/useAuth';
@@ -331,6 +331,19 @@ export function SubscriptionDialog({ open, onOpenChange, onSubscribed }: Subscri
               <Zap className="w-3 h-3" />
               <span>Cancele quando quiser</span>
             </div>
+          </div>
+
+          {/* Instagram */}
+          <div className="flex items-center justify-center pt-2">
+            <a
+              href="https://www.instagram.com/planode.vida"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors text-xs"
+            >
+              <Instagram className="w-4 h-4" />
+              <span>@planode.vida</span>
+            </a>
           </div>
         </div>
       </DialogContent>
