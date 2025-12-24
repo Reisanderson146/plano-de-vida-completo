@@ -23,6 +23,7 @@ import Conta from "./pages/Conta";
 import CheckoutSuccess from "./pages/CheckoutSuccess";
 import LandingPage from "./pages/LandingPage";
 import HistoricoMetas from "./pages/HistoricoMetas";
+import CompararPlanos from "./pages/CompararPlanos";
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import NotFound from "./pages/NotFound";
@@ -91,6 +92,7 @@ function AppRoutes() {
       {/* Landing Page - rota pública para não autenticados */}
       <Route path="/landing" element={<LandingPage />} />
       <Route path="/assinatura" element={<Navigate to="/landing" replace />} />
+      <Route path="/comparar-planos" element={<CompararPlanos />} />
       <Route path="/auth" element={<Auth />} />
       <Route path="/auth/callback" element={<AuthCallback />} />
       <Route path="/confirm" element={<AuthCallback />} />
