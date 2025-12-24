@@ -37,7 +37,7 @@ export function Logo({
   const isLight = variant === 'light';
 
   return (
-    <div className={cn("flex items-center gap-3 sm:gap-4", className)}>
+    <div className={cn("flex items-center gap-3 sm:gap-4 animate-fade-in", className)}>
       {/* Logo with enhanced shadow and polish */}
       {showIcon && (
         <div className="relative">
