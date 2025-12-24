@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { motion, useInView } from "framer-motion";
-import { Users, Target, TrendingUp, Heart } from "lucide-react";
+import { Users, Target, TrendingUp, Heart, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface CounterProps {
   end: number;
@@ -49,38 +50,82 @@ const Counter = ({ end, duration = 2, suffix = "", prefix = "" }: CounterProps) 
   );
 };
 
-const stats = [
-  {
-    icon: Users,
-    value: 2847,
-    suffix: "+",
-    label: "Usuários Ativos",
-    color: "primary",
-  },
-  {
-    icon: Target,
-    value: 18432,
-    suffix: "+",
-    label: "Metas Criadas",
-    color: "emerald",
-  },
-  {
-    icon: TrendingUp,
-    value: 7856,
-    suffix: "+",
-    label: "Metas Concluídas",
-    color: "violet",
-  },
-  {
-    icon: Heart,
-    value: 98,
-    suffix: "%",
-    label: "Satisfação",
-    color: "rose",
-  },
-];
+interface StatsData {
+  users: number;
+  goalsCreated: number;
+  goalsCompleted: number;
+  satisfactionRate: number;
+}
 
 const StatsCounterSection = () => {
+  const [stats, setStats] = useState<StatsData | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke('get-public-stats');
+        
+        if (error) {
+          console.error('Error fetching stats:', error);
+          // Use fallback values
+          setStats({
+            users: 100,
+            goalsCreated: 500,
+            goalsCompleted: 150,
+            satisfactionRate: 95,
+          });
+        } else {
+          setStats(data);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        // Use fallback values
+        setStats({
+          users: 100,
+          goalsCreated: 500,
+          goalsCompleted: 150,
+          satisfactionRate: 95,
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStats();
+  }, []);
+
+  const statsConfig = [
+    {
+      icon: Users,
+      value: stats?.users || 0,
+      suffix: "+",
+      label: "Usuários Ativos",
+      color: "primary",
+    },
+    {
+      icon: Target,
+      value: stats?.goalsCreated || 0,
+      suffix: "+",
+      label: "Metas Criadas",
+      color: "emerald",
+    },
+    {
+      icon: TrendingUp,
+      value: stats?.goalsCompleted || 0,
+      suffix: "+",
+      label: "Metas Concluídas",
+      color: "violet",
+    },
+    {
+      icon: Heart,
+      value: stats?.satisfactionRate || 0,
+      suffix: "%",
+      label: "Satisfação",
+      color: "rose",
+    },
+  ];
+
   return (
     <section className="py-16 md:py-20 px-4 relative overflow-hidden">
       {/* Background gradient */}
@@ -113,66 +158,72 @@ const StatsCounterSection = () => {
         </motion.div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-          {stats.map((stat, index) => (
-            <motion.div
-              key={stat.label}
-              className="relative group"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-            >
-              {/* Card with glassmorphism effect */}
-              <div className="relative p-6 md:p-8 rounded-2xl bg-card/80 backdrop-blur-sm border border-border/50 shadow-lg hover:shadow-xl transition-all duration-300 hover:border-primary/30 overflow-hidden">
-                {/* Gradient overlay on hover */}
-                <div 
-                  className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${
-                    stat.color === 'primary' ? 'bg-gradient-to-br from-primary/5 to-transparent' :
-                    stat.color === 'emerald' ? 'bg-gradient-to-br from-emerald-500/5 to-transparent' :
-                    stat.color === 'violet' ? 'bg-gradient-to-br from-violet-500/5 to-transparent' :
-                    'bg-gradient-to-br from-rose-500/5 to-transparent'
-                  }`}
-                />
+        {loading ? (
+          <div className="flex justify-center items-center py-16">
+            <Loader2 className="w-8 h-8 text-primary animate-spin" />
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+            {statsConfig.map((stat, index) => (
+              <motion.div
+                key={stat.label}
+                className="relative group"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+              >
+                {/* Card with glassmorphism effect */}
+                <div className="relative p-6 md:p-8 rounded-2xl bg-card/80 backdrop-blur-sm border border-border/50 shadow-lg hover:shadow-xl transition-all duration-300 hover:border-primary/30 overflow-hidden">
+                  {/* Gradient overlay on hover */}
+                  <div 
+                    className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${
+                      stat.color === 'primary' ? 'bg-gradient-to-br from-primary/5 to-transparent' :
+                      stat.color === 'emerald' ? 'bg-gradient-to-br from-emerald-500/5 to-transparent' :
+                      stat.color === 'violet' ? 'bg-gradient-to-br from-violet-500/5 to-transparent' :
+                      'bg-gradient-to-br from-rose-500/5 to-transparent'
+                    }`}
+                  />
 
-                {/* Icon */}
-                <div className={`inline-flex p-3 rounded-xl mb-4 ${
-                  stat.color === 'primary' ? 'bg-primary/10 text-primary' :
-                  stat.color === 'emerald' ? 'bg-emerald-500/10 text-emerald-500' :
-                  stat.color === 'violet' ? 'bg-violet-500/10 text-violet-500' :
-                  'bg-rose-500/10 text-rose-500'
-                }`}>
-                  <stat.icon className="w-5 h-5 md:w-6 md:h-6" />
+                  {/* Icon */}
+                  <div className={`inline-flex p-3 rounded-xl mb-4 ${
+                    stat.color === 'primary' ? 'bg-primary/10 text-primary' :
+                    stat.color === 'emerald' ? 'bg-emerald-500/10 text-emerald-500' :
+                    stat.color === 'violet' ? 'bg-violet-500/10 text-violet-500' :
+                    'bg-rose-500/10 text-rose-500'
+                  }`}>
+                    <stat.icon className="w-5 h-5 md:w-6 md:h-6" />
+                  </div>
+
+                  {/* Counter */}
+                  <div className={`text-3xl md:text-4xl font-bold mb-2 ${
+                    stat.color === 'primary' ? 'text-primary' :
+                    stat.color === 'emerald' ? 'text-emerald-500' :
+                    stat.color === 'violet' ? 'text-violet-500' :
+                    'text-rose-500'
+                  }`}>
+                    <Counter end={stat.value} suffix={stat.suffix} duration={2.5} />
+                  </div>
+
+                  {/* Label */}
+                  <p className="text-sm md:text-base text-muted-foreground font-medium">
+                    {stat.label}
+                  </p>
+
+                  {/* Decorative corner accent */}
+                  <div className={`absolute top-0 right-0 w-16 h-16 opacity-10 ${
+                    stat.color === 'primary' ? 'bg-primary' :
+                    stat.color === 'emerald' ? 'bg-emerald-500' :
+                    stat.color === 'violet' ? 'bg-violet-500' :
+                    'bg-rose-500'
+                  }`} style={{
+                    clipPath: 'polygon(100% 0, 0 0, 100% 100%)'
+                  }} />
                 </div>
-
-                {/* Counter */}
-                <div className={`text-3xl md:text-4xl font-bold mb-2 ${
-                  stat.color === 'primary' ? 'text-primary' :
-                  stat.color === 'emerald' ? 'text-emerald-500' :
-                  stat.color === 'violet' ? 'text-violet-500' :
-                  'text-rose-500'
-                }`}>
-                  <Counter end={stat.value} suffix={stat.suffix} duration={2.5} />
-                </div>
-
-                {/* Label */}
-                <p className="text-sm md:text-base text-muted-foreground font-medium">
-                  {stat.label}
-                </p>
-
-                {/* Decorative corner accent */}
-                <div className={`absolute top-0 right-0 w-16 h-16 opacity-10 ${
-                  stat.color === 'primary' ? 'bg-primary' :
-                  stat.color === 'emerald' ? 'bg-emerald-500' :
-                  stat.color === 'violet' ? 'bg-violet-500' :
-                  'bg-rose-500'
-                }`} style={{
-                  clipPath: 'polygon(100% 0, 0 0, 100% 100%)'
-                }} />
-              </div>
-            </motion.div>
-          ))}
-        </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
 
         {/* Bottom CTA text */}
         <motion.p
