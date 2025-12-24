@@ -22,8 +22,8 @@ interface Benefit {
   highlight?: boolean;
 }
 
-// Benefits for Basic plan - show what's included and what's not
-const basicBenefits: Benefit[] = [
+// All features - shown in both plans (with strikethrough for Basic exclusives)
+const allBenefits: Benefit[] = [
   { text: "1 Plano Individual", icon: User, includedInBasic: true },
   { text: "Planejamento das 7 áreas da vida", icon: Target, includedInBasic: true },
   { text: "Dashboard com seu progresso", icon: BarChart3, includedInBasic: true },
@@ -31,25 +31,11 @@ const basicBenefits: Benefit[] = [
   { text: "Dados seguros na nuvem", icon: Shield, includedInBasic: true },
   { text: "Exportação em PDF", icon: Download, includedInBasic: true },
   { text: "Visão por períodos de vida", icon: Calendar, includedInBasic: true },
-  { text: "Guia de uso do sistema", icon: BookOpen, includedInBasic: true },
-  { text: "1 Plano Familiar", icon: Users, includedInBasic: false },
-  { text: "3 Planos para Filhos", icon: Baby, includedInBasic: false },
-  { text: "Resumo inteligente com IA", icon: Sparkles, includedInBasic: false, highlight: true },
-  { text: "Lembretes por email", icon: Bell, includedInBasic: false },
-];
-
-// Benefits for Premium plan - all features included
-const premiumBenefits: Benefit[] = [
-  { text: "1 Plano Familiar", icon: Users, includedInBasic: false },
-  { text: "3 Planos para Filhos", icon: Baby, includedInBasic: false },
-  { text: "Resumo inteligente com IA", icon: Sparkles, includedInBasic: false, highlight: true },
-  { text: "Planejamento das 7 áreas da vida", icon: Target, includedInBasic: true },
-  { text: "Dashboard com gráficos detalhados", icon: BarChart3, includedInBasic: true },
-  { text: "Relatórios e balanço de progresso", icon: FileText, includedInBasic: true },
-  { text: "Dados seguros na nuvem", icon: Shield, includedInBasic: true },
-  { text: "Exportação profissional em PDF", icon: Download, includedInBasic: true },
-  { text: "Lembretes por email", icon: Bell, includedInBasic: false },
   { text: "Histórico de metas concluídas", icon: History, includedInBasic: true },
+  { text: "1 Plano Familiar", icon: Users, includedInBasic: false, highlight: true },
+  { text: "3 Planos para Filhos", icon: Baby, includedInBasic: false, highlight: true },
+  { text: "Resumo inteligente com IA", icon: Sparkles, includedInBasic: false, highlight: true },
+  { text: "Lembretes por email", icon: Bell, includedInBasic: false },
 ];
 
 const plans = [
@@ -60,7 +46,7 @@ const plans = [
     price: 'R$ 9,99',
     description: '1 plano individual',
     icon: Gem,
-    benefits: basicBenefits,
+    benefits: allBenefits,
     color: 'emerald',
     recommended: false,
   },
@@ -71,7 +57,7 @@ const plans = [
     price: 'R$ 29,99',
     description: '4 planos incluídos',
     icon: Crown,
-    benefits: premiumBenefits,
+    benefits: allBenefits,
     color: 'violet',
     recommended: true,
   },
@@ -382,37 +368,55 @@ const PricingSection = ({ onCheckout, onLogin, loading }: PricingSectionProps) =
                 </CardHeader>
 
                 <CardContent className="relative space-y-3 pb-6 px-4">
-                  {/* Key benefits - compact list */}
+                  {/* All benefits - show all features with proper styling */}
                   <div className="space-y-2">
-                    {plan.benefits.slice(0, 6).map((benefit, i) => (
-                      <motion.div 
-                        key={i}
-                        className="flex items-center gap-2 text-sm"
-                        initial={{ opacity: 0, x: -10 }}
-                        whileInView={{ opacity: 1, x: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: 0.1 + i * 0.05 }}
-                      >
-                        <div className={cn(
-                          "w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0",
-                          benefit.includedInBasic || plan.id === 'premium'
-                            ? plan.color === 'emerald' 
-                              ? "bg-primary/20 text-primary" 
-                              : "bg-violet-500/20 text-violet-500"
-                            : "bg-muted text-muted-foreground/50"
-                        )}>
-                          <Check className="w-3 h-3" />
-                        </div>
-                        <span className={cn(
-                          "text-sm",
-                          benefit.includedInBasic || plan.id === 'premium' 
-                            ? "text-foreground" 
-                            : "text-muted-foreground/60 line-through"
-                        )}>
-                          {benefit.text}
-                        </span>
-                      </motion.div>
-                    ))}
+                    {plan.benefits.map((benefit, i) => {
+                      const isIncluded = plan.id === 'premium' || benefit.includedInBasic;
+                      const isPremiumExclusive = !benefit.includedInBasic;
+                      
+                      return (
+                        <motion.div 
+                          key={i}
+                          className="flex items-center gap-2 text-sm"
+                          initial={{ opacity: 0, x: -10 }}
+                          whileInView={{ opacity: 1, x: 0 }}
+                          viewport={{ once: true }}
+                          transition={{ delay: 0.1 + i * 0.03 }}
+                        >
+                          <div className={cn(
+                            "w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0",
+                            isIncluded
+                              ? plan.color === 'emerald' 
+                                ? "bg-primary/20 text-primary" 
+                                : isPremiumExclusive
+                                  ? "bg-violet-500/30 text-violet-400"
+                                  : "bg-violet-500/20 text-violet-500"
+                              : "bg-muted/50 text-muted-foreground/30"
+                          )}>
+                            {isIncluded ? (
+                              <Check className="w-3 h-3" />
+                            ) : (
+                              <X className="w-3 h-3" />
+                            )}
+                          </div>
+                          <span className={cn(
+                            "text-sm",
+                            isIncluded 
+                              ? isPremiumExclusive && plan.id === 'premium'
+                                ? "text-foreground font-medium"
+                                : "text-foreground"
+                              : "text-muted-foreground/50 line-through decoration-muted-foreground/30"
+                          )}>
+                            {benefit.text}
+                          </span>
+                          {isPremiumExclusive && plan.id === 'premium' && benefit.highlight && (
+                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-violet-500/20 text-violet-400 font-medium">
+                              IA
+                            </span>
+                          )}
+                        </motion.div>
+                      );
+                    })}
                   </div>
                   
                   {/* CTA Button */}
