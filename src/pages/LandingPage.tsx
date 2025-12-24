@@ -54,8 +54,8 @@ const LandingPage = () => {
 
   return (
     <div className="min-h-screen bg-background relative">
-      {/* Header with logo left, nav center, login right */}
-      <div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-2 bg-background/80 backdrop-blur-md border-b border-border/50">
+      {/* Header - Clean: logo left, toggle center, login right */}
+      <div className="fixed top-0 left-0 right-0 z-50 grid grid-cols-3 items-center px-4 py-2 bg-background/80 backdrop-blur-md border-b border-border/50">
         {/* Left - Logo with hover animation and glow effect */}
         <div className="flex items-center">
           <div 
@@ -70,35 +70,13 @@ const LandingPage = () => {
           </div>
         </div>
         
-        {/* Center - Navigation Links + Theme Toggle */}
-        <div className="hidden md:flex items-center gap-6">
-          <nav className="flex items-center gap-1">
-            {[
-              { label: 'Áreas', id: 'areas' },
-              { label: 'Funcionalidades', id: 'features' },
-              { label: 'Preços', id: 'pricing' },
-              { label: 'FAQ', id: 'faq' },
-            ].map((item) => (
-              <button
-                key={item.id}
-                onClick={() => document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth' })}
-                className="px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-md transition-colors"
-              >
-                {item.label}
-              </button>
-            ))}
-          </nav>
-          <div className="w-px h-5 bg-border" />
-          <DarkModeToggle />
-        </div>
-
-        {/* Mobile - Theme Toggle only */}
-        <div className="flex md:hidden items-center">
+        {/* Center - Theme Toggle */}
+        <div className="flex items-center justify-center">
           <DarkModeToggle />
         </div>
         
         {/* Right - Login buttons */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center justify-end gap-3">
           <button
             onClick={handleLogin}
             className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors hidden sm:block"
