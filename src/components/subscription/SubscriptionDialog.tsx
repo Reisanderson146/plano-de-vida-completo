@@ -1,11 +1,31 @@
 import { useState, useEffect } from 'react';
-import { Check, Shield, Zap, Heart, Target, Sparkles, BadgeCheck, Gem, Loader2, RefreshCw, X, Crown, User, Users, Baby, Instagram, BarChart3, Calendar, FileText, Bell, Download, History, Eye, BookOpen } from 'lucide-react';
+import { Check, Shield, Zap, Heart, Target, Sparkles, BadgeCheck, Gem, Loader2, RefreshCw, X, Crown, User, Users, Baby, Instagram, BarChart3, Calendar, FileText, Bell, Download, History, Eye, BookOpen, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+
+// Tooltip descriptions for each benefit
+const benefitTooltips: Record<string, string> = {
+  "1 Plano Individual": "Crie metas para todas as 7 áreas da sua vida pessoal",
+  "Planejamento das 7 áreas da vida": "Espiritual, Intelectual, Familiar, Social, Financeiro, Profissional e Saúde",
+  "Dados seguros na nuvem": "Seus dados criptografados e acessíveis de qualquer dispositivo",
+  "Exportação em PDF": "Baixe seu plano em formato profissional para impressão",
+  "Dashboard com progresso": "Visualize gráficos e métricas do seu avanço em tempo real",
+  "Consulta visual do plano": "Veja seu plano completo em formato de tabela interativa",
+  "Visão por períodos de vida": "Organize suas metas por fases: 1, 5, 10+ anos",
+  "Guia de uso do sistema": "Tutorial completo para aproveitar todos os recursos",
+  "1 Plano Familiar": "Planeje o futuro da família em conjunto com seu parceiro(a)",
+  "3 Planos para Filhos": "Crie planos individuais para cada filho acompanhar suas metas",
+  "Resumo inteligente com IA": "Análise do seu progresso com sugestões personalizadas de melhoria",
+  "Relatórios e gráficos detalhados": "Relatórios visuais avançados do seu progresso",
+  "Lembretes por email": "Receba notificações das metas importantes no seu email",
+  "Histórico de metas concluídas": "Acompanhe todas as conquistas que você já realizou",
+  "Balanço de progresso anual": "Análise aprofundada por área e período de vida",
+};
 
 const basicBenefits = [
   { icon: User, text: '1 Plano Individual' },
@@ -189,12 +209,25 @@ export function SubscriptionDialog({ open, onOpenChange, onSubscribed }: Subscri
                   return (
                     <div 
                       key={index} 
-                      className="flex items-center gap-2.5 p-2 rounded-lg bg-muted/30"
+                      className="flex items-center gap-2.5 p-2 rounded-lg bg-muted/30 group"
                     >
                       <div className="w-7 h-7 rounded-full bg-emerald-500/10 flex items-center justify-center flex-shrink-0">
                         <Icon className="w-3.5 h-3.5 text-emerald-600" />
                       </div>
-                      <span className="text-foreground text-sm flex-1">{benefit.text}</span>
+                      <div className="flex items-center gap-1.5 flex-1">
+                        <span className="text-foreground text-sm">{benefit.text}</span>
+                        {benefitTooltips[benefit.text] && (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Info className="w-3 h-3 text-muted-foreground/40 group-hover:text-muted-foreground cursor-help flex-shrink-0" />
+                            </TooltipTrigger>
+                            <TooltipContent side="top" className="max-w-[180px] text-xs">
+                              {benefitTooltips[benefit.text]}
+                            </TooltipContent>
+                          </Tooltip>
+                        )}
+                      </div>
+                      <Check className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
                       <Check className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
                     </div>
                   );
@@ -247,7 +280,7 @@ export function SubscriptionDialog({ open, onOpenChange, onSubscribed }: Subscri
                     <div 
                       key={index} 
                       className={cn(
-                        "flex items-center gap-2.5 p-2 rounded-lg",
+                        "flex items-center gap-2.5 p-2 rounded-lg group",
                         benefit.highlight 
                           ? "bg-gradient-to-r from-violet-500/10 to-purple-500/10 border border-violet-500/20" 
                           : "bg-muted/30"
@@ -264,12 +297,24 @@ export function SubscriptionDialog({ open, onOpenChange, onSubscribed }: Subscri
                           benefit.highlight ? "text-white" : "text-violet-600"
                         )} />
                       </div>
-                      <span className={cn(
-                        "text-sm flex-1",
-                        benefit.highlight ? "font-semibold text-foreground" : "text-foreground"
-                      )}>
-                        {benefit.text}
-                      </span>
+                      <div className="flex items-center gap-1.5 flex-1">
+                        <span className={cn(
+                          "text-sm",
+                          benefit.highlight ? "font-semibold text-foreground" : "text-foreground"
+                        )}>
+                          {benefit.text}
+                        </span>
+                        {benefitTooltips[benefit.text] && (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Info className="w-3 h-3 text-muted-foreground/40 group-hover:text-muted-foreground cursor-help flex-shrink-0" />
+                            </TooltipTrigger>
+                            <TooltipContent side="top" className="max-w-[180px] text-xs">
+                              {benefitTooltips[benefit.text]}
+                            </TooltipContent>
+                          </Tooltip>
+                        )}
+                      </div>
                       {benefit.highlight && (
                         <span className="text-[10px] bg-violet-500/20 text-violet-600 px-1.5 py-0.5 rounded-full">
                           Exclusivo

@@ -1,11 +1,13 @@
 import { useState, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Check, Crown, Sparkles, Shield, Zap, Gem, User, Users, Baby, Heart, Target, Loader2, ChevronLeft, ChevronRight, X, BarChart3, Calendar, FileText, Bell, Download, History, Eye, BookOpen } from "lucide-react";
+import { Check, Crown, Sparkles, Shield, Zap, Gem, User, Users, Baby, Heart, Target, Loader2, ChevronLeft, ChevronRight, X, BarChart3, Calendar, FileText, Bell, Download, History, Eye, BookOpen, Info, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { LucideIcon } from "lucide-react";
 import useEmblaCarousel from "embla-carousel-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Link } from "react-router-dom";
 
 interface PricingSectionProps {
   onCheckout: (tier: 'basic' | 'premium') => void;
@@ -75,12 +77,13 @@ const plans = [
   },
 ];
 
+// Smooth spring animation for cards
 const cardVariants = {
   enter: (direction: number) => ({
-    x: direction > 0 ? 100 : -100,
+    x: direction > 0 ? 80 : -80,
     opacity: 0,
-    scale: 0.9,
-    rotateY: direction > 0 ? 10 : -10,
+    scale: 0.92,
+    rotateY: direction > 0 ? 8 : -8,
   }),
   center: {
     x: 0,
@@ -88,39 +91,48 @@ const cardVariants = {
     scale: 1,
     rotateY: 0,
     transition: {
-      duration: 0.4,
-      ease: [0.25, 0.46, 0.45, 0.94] as const,
+      type: "spring" as const,
+      stiffness: 300,
+      damping: 30,
+      mass: 1,
     },
   },
   exit: (direction: number) => ({
-    x: direction < 0 ? 100 : -100,
+    x: direction < 0 ? 80 : -80,
     opacity: 0,
-    scale: 0.9,
-    rotateY: direction < 0 ? 10 : -10,
+    scale: 0.92,
+    rotateY: direction < 0 ? 8 : -8,
     transition: {
-      duration: 0.3,
-      ease: [0.25, 0.46, 0.45, 0.94] as const,
+      type: "spring" as const,
+      stiffness: 400,
+      damping: 35,
     },
   }),
 };
 
+// Staggered benefit animations with spring physics
 const benefitVariants = {
-  hidden: { opacity: 0, x: -30, scale: 0.95 },
+  hidden: { opacity: 0, x: -20, scale: 0.96 },
   visible: (i: number) => ({
     opacity: 1,
     x: 0,
     scale: 1,
     transition: {
-      delay: 0.15 + i * 0.06,
-      duration: 0.4,
-      ease: [0.25, 0.46, 0.45, 0.94] as const,
+      type: "spring" as const,
+      stiffness: 400,
+      damping: 25,
+      delay: 0.1 + i * 0.04,
     },
   }),
   exit: { 
     opacity: 0, 
-    x: 20, 
-    scale: 0.95,
-    transition: { duration: 0.2 }
+    x: 15, 
+    scale: 0.96,
+    transition: { 
+      type: "spring" as const,
+      stiffness: 500,
+      damping: 30,
+    }
   },
 };
 
@@ -129,17 +141,37 @@ const benefitsContainerVariants = {
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.06,
-      delayChildren: 0.1,
+      staggerChildren: 0.04,
+      delayChildren: 0.08,
     },
   },
   exit: {
     opacity: 0,
     transition: {
-      staggerChildren: 0.03,
+      staggerChildren: 0.02,
       staggerDirection: -1,
     },
   },
+};
+
+// Tooltip descriptions for each benefit
+const benefitTooltips: Record<string, string> = {
+  "1 Plano Individual": "Crie metas para todas as 7 áreas da sua vida pessoal",
+  "Planejamento das 7 áreas da vida": "Espiritual, Intelectual, Familiar, Social, Financeiro, Profissional e Saúde",
+  "Dashboard com seu progresso": "Visualize gráficos e métricas do seu avanço em tempo real",
+  "Consulta visual do plano": "Veja seu plano completo em formato de tabela interativa",
+  "Dados seguros na nuvem": "Seus dados criptografados e acessíveis de qualquer dispositivo",
+  "Exportação em PDF": "Baixe seu plano em formato profissional para impressão",
+  "Visão por períodos de vida": "Organize suas metas por fases: 1, 5, 10+ anos",
+  "Guia de uso do sistema": "Tutorial completo para aproveitar todos os recursos",
+  "1 Plano Familiar": "Planeje o futuro da família em conjunto com seu parceiro(a)",
+  "3 Planos para Filhos": "Crie planos individuais para cada filho acompanhar suas metas",
+  "Resumo inteligente com IA": "Análise do seu progresso com sugestões personalizadas de melhoria",
+  "Dashboard com gráficos detalhados": "Relatórios visuais avançados do seu progresso",
+  "Relatórios e balanço de progresso": "Análise aprofundada por área e período de vida",
+  "Exportação profissional em PDF": "Design premium para compartilhar ou imprimir",
+  "Lembretes por email": "Receba notificações das metas importantes no seu email",
+  "Histórico de metas concluídas": "Acompanhe todas as conquistas que você já realizou",
 };
 
 const PricingSection = ({ onCheckout, onLogin, loading }: PricingSectionProps) => {
@@ -433,14 +465,26 @@ const PricingSection = ({ onCheckout, onLogin, loading }: PricingSectionProps) =
                                 <X className="w-3.5 h-3.5 text-muted-foreground/50" />
                               )}
                             </motion.div>
-                            <span className={cn(
-                              "text-sm flex-1",
-                              !isIncluded 
-                                ? "text-muted-foreground/50 line-through"
-                                : benefit.highlight ? "font-semibold text-foreground" : "text-foreground"
-                            )}>
-                              {benefit.text}
-                            </span>
+                            <div className="flex items-center gap-1.5 flex-1">
+                              <span className={cn(
+                                "text-sm",
+                                !isIncluded 
+                                  ? "text-muted-foreground/50 line-through"
+                                  : benefit.highlight ? "font-semibold text-foreground" : "text-foreground"
+                              )}>
+                                {benefit.text}
+                              </span>
+                              {isIncluded && benefitTooltips[benefit.text] && (
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Info className="w-3.5 h-3.5 text-muted-foreground/50 hover:text-muted-foreground cursor-help flex-shrink-0" />
+                                  </TooltipTrigger>
+                                  <TooltipContent side="top" className="max-w-[200px] text-xs">
+                                    {benefitTooltips[benefit.text]}
+                                  </TooltipContent>
+                                </Tooltip>
+                              )}
+                            </div>
                             {benefit.highlight && currentPlan.id === 'premium' && (
                               <motion.span 
                                 className="text-[10px] bg-violet-500/20 text-violet-600 dark:text-violet-400 px-1.5 py-0.5 rounded-full"
@@ -573,7 +617,7 @@ const PricingSection = ({ onCheckout, onLogin, loading }: PricingSectionProps) =
         </motion.div>
 
         {/* Trust Badges */}
-        <div className="flex items-center justify-center gap-6 mt-6">
+        <div className="flex flex-wrap items-center justify-center gap-4 md:gap-6 mt-6">
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <Shield className="w-4 h-4 text-primary" />
             <span>Pagamento seguro</span>
@@ -583,6 +627,23 @@ const PricingSection = ({ onCheckout, onLogin, loading }: PricingSectionProps) =
             <span>Cancele quando quiser</span>
           </div>
         </div>
+
+        {/* Compare Plans Link */}
+        <motion.div 
+          className="text-center mt-6"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.4 }}
+        >
+          <Link 
+            to="/comparar-planos" 
+            className="inline-flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors font-medium group"
+          >
+            <span>Ver comparação detalhada dos planos</span>
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+          </Link>
+        </motion.div>
       </div>
     </section>
   );
