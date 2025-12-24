@@ -22,8 +22,8 @@ const LandingPage = () => {
       const { data: { session } } = await supabase.auth.getSession();
       
       if (!session) {
-        // User not logged in, redirect to auth page first
-        navigate(`/auth?redirect=checkout&tier=${tier}`);
+        // User not logged in, redirect to signup page first with checkout info
+        navigate(`/auth?tab=cadastrar&redirect=checkout&tier=${tier}`);
         return;
       }
 
@@ -44,8 +44,12 @@ const LandingPage = () => {
     }
   };
 
-  const handleLogin = () => {
+  const handleSignup = () => {
     navigate("/auth?tab=cadastrar");
+  };
+
+  const handleLogin = () => {
+    navigate("/auth");
   };
 
   const scrollToPricing = () => {
@@ -84,10 +88,10 @@ const LandingPage = () => {
             Já sou assinante
           </button>
           <button
-            onClick={handleLogin}
+            onClick={handleSignup}
             className="px-4 py-2 text-sm font-medium text-primary-foreground bg-primary rounded-lg hover:bg-primary/90 transition-colors shadow-sm"
           >
-            Login
+            Cadastrar
           </button>
         </div>
       </div>
@@ -99,6 +103,7 @@ const LandingPage = () => {
       <PricingSection
         onCheckout={handleCheckout}
         onLogin={handleLogin}
+        onSignup={handleSignup}
         loading={loading}
       />
       <FAQSection />

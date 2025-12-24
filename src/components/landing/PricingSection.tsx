@@ -12,6 +12,7 @@ import { Link } from "react-router-dom";
 interface PricingSectionProps {
   onCheckout: (tier: 'basic' | 'premium') => void;
   onLogin: () => void;
+  onSignup: () => void;
   loading: 'basic' | 'premium' | null;
 }
 
@@ -175,7 +176,7 @@ const benefitTooltips: Record<string, string> = {
   "Histórico de metas concluídas": "Acompanhe todas as conquistas que você já realizou",
 };
 
-const PricingSection = ({ onCheckout, onLogin, loading }: PricingSectionProps) => {
+const PricingSection = ({ onCheckout, onLogin, onSignup, loading }: PricingSectionProps) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [direction, setDirection] = useState(0);
   const [showAllDescriptions, setShowAllDescriptions] = useState(false);
