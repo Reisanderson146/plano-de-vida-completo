@@ -232,45 +232,98 @@ const PricingSection = ({ onCheckout, onLogin, loading }: PricingSectionProps) =
   const currentPlan = plans[selectedIndex];
 
   return (
-    <section id="pricing" className="py-20 px-4 bg-gradient-to-b from-background to-muted/30 relative overflow-hidden">
-      {/* Background Effects */}
+    <section id="pricing" className="py-24 md:py-32 px-4 relative overflow-hidden">
+      {/* Dramatic Background Effects */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {/* Primary radial gradient */}
         <motion.div 
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full"
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1200px] h-[1200px] rounded-full"
           animate={{
             background: selectedIndex === 0 
-              ? "radial-gradient(circle, rgba(42, 140, 104, 0.15) 0%, transparent 70%)"
-              : "radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 70%)",
+              ? "radial-gradient(circle, rgba(42, 140, 104, 0.25) 0%, rgba(42, 140, 104, 0.1) 30%, transparent 70%)"
+              : "radial-gradient(circle, rgba(139, 92, 246, 0.25) 0%, rgba(139, 92, 246, 0.1) 30%, transparent 70%)",
           }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.8 }}
+        />
+        {/* Animated floating orbs */}
+        <motion.div 
+          className="absolute top-20 left-[10%] w-72 h-72 rounded-full bg-primary/10 blur-3xl"
+          animate={{
+            y: [0, -30, 0],
+            opacity: [0.3, 0.5, 0.3],
+          }}
+          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <motion.div 
+          className="absolute bottom-20 right-[10%] w-96 h-96 rounded-full bg-violet-500/10 blur-3xl"
+          animate={{
+            y: [0, 30, 0],
+            opacity: [0.3, 0.5, 0.3],
+          }}
+          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+        />
+        {/* Grid pattern overlay */}
+        <div 
+          className="absolute inset-0 opacity-[0.02] dark:opacity-[0.03]"
+          style={{
+            backgroundImage: `linear-gradient(to right, currentColor 1px, transparent 1px),
+                             linear-gradient(to bottom, currentColor 1px, transparent 1px)`,
+            backgroundSize: '60px 60px'
+          }}
         />
       </div>
 
       <div className="max-w-5xl mx-auto relative z-10">
-        {/* Section Header */}
+        {/* Section Header - More Impactful */}
         <motion.div 
-          className="text-center mb-8"
-          initial={{ opacity: 0, y: 20 }}
+          className="text-center mb-12 md:mb-16"
+          initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.6 }}
         >
-          <p className="text-sm font-medium text-primary mb-2 uppercase tracking-wide">
-            Conferir planos
-          </p>
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Comece sua{" "}
-            <span className="bg-gradient-to-r from-primary to-emerald-500 bg-clip-text text-transparent">
-              Jornada
+          <motion.div 
+            className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-semibold mb-6"
+            initial={{ scale: 0.9, opacity: 0 }}
+            whileInView={{ scale: 1, opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.1 }}
+          >
+            <Sparkles className="w-4 h-4" />
+            <span>Escolha seu plano</span>
+          </motion.div>
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6 leading-tight">
+            Invista no seu{" "}
+            <span className="bg-gradient-to-r from-primary via-emerald-500 to-teal-500 bg-clip-text text-transparent">
+              Futuro
             </span>
           </h2>
-          <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-            Invista no seu futuro com um plano que cabe no seu bolso.
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+            Comece sua jornada de transformação com um plano que cabe no seu bolso
           </p>
         </motion.div>
 
-        {/* Carousel Container */}
-        <div className="relative max-w-md mx-auto px-12 md:px-16" style={{ perspective: "1000px" }}>
+        {/* Outer Container Card - The "card within card" effect */}
+        <motion.div
+          className="relative p-2 md:p-3 rounded-3xl bg-gradient-to-br from-primary/20 via-emerald-500/10 to-violet-500/20 shadow-2xl shadow-primary/10"
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
+          {/* Inner glow border effect */}
+          <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-primary/30 via-transparent to-violet-500/30 opacity-50 blur-sm" />
+          
+          {/* Main content container */}
+          <div className="relative bg-card/95 backdrop-blur-xl rounded-2xl p-6 md:p-10 border border-border/50">
+            {/* Decorative corner elements */}
+            <div className="absolute top-4 left-4 w-8 h-8 border-l-2 border-t-2 border-primary/30 rounded-tl-lg" />
+            <div className="absolute top-4 right-4 w-8 h-8 border-r-2 border-t-2 border-primary/30 rounded-tr-lg" />
+            <div className="absolute bottom-4 left-4 w-8 h-8 border-l-2 border-b-2 border-primary/30 rounded-bl-lg" />
+            <div className="absolute bottom-4 right-4 w-8 h-8 border-r-2 border-b-2 border-primary/30 rounded-br-lg" />
+
+            {/* Carousel Container */}
+            <div className="relative max-w-md mx-auto px-12 md:px-16" style={{ perspective: "1000px" }}>
           {/* Navigation Arrows */}
           <button
             onClick={scrollPrev}
@@ -642,57 +695,59 @@ const PricingSection = ({ onCheckout, onLogin, loading }: PricingSectionProps) =
               Clique nas setas ou nos pontos para navegar
             </p>
           </div>
-        </div>
+            </div>
 
-        {/* Already Subscriber Button */}
-        <motion.div 
-          className="text-center mt-8"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.3 }}
-        >
-          <div className="inline-flex flex-col items-center gap-2 p-4 rounded-2xl bg-gradient-to-r from-primary/5 to-emerald-500/5 border border-primary/20">
-            <p className="text-sm text-muted-foreground">Já possui uma conta?</p>
-            <Button
-              variant="outline"
-              size="lg"
-              onClick={onLogin}
-              className="border-primary/50 text-primary hover:bg-primary/10 hover:border-primary font-semibold px-8"
+            {/* Already Subscriber Button */}
+            <motion.div 
+              className="text-center mt-8"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.3 }}
             >
-              <Check className="w-4 h-4 mr-2" />
-              Já sou assinante - Entrar
-            </Button>
-          </div>
-        </motion.div>
+              <div className="inline-flex flex-col items-center gap-2 p-4 rounded-2xl bg-gradient-to-r from-primary/5 to-emerald-500/5 border border-primary/20">
+                <p className="text-sm text-muted-foreground">Já possui uma conta?</p>
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onClick={onLogin}
+                  className="border-primary/50 text-primary hover:bg-primary/10 hover:border-primary font-semibold px-8"
+                >
+                  <Check className="w-4 h-4 mr-2" />
+                  Já sou assinante - Entrar
+                </Button>
+              </div>
+            </motion.div>
 
-        {/* Trust Badges */}
-        <div className="flex flex-wrap items-center justify-center gap-4 md:gap-6 mt-6">
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <Shield className="w-4 h-4 text-primary" />
-            <span>Pagamento seguro</span>
-          </div>
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <Check className="w-4 h-4 text-primary" />
-            <span>Cancele quando quiser</span>
-          </div>
-        </div>
+            {/* Trust Badges */}
+            <div className="flex flex-wrap items-center justify-center gap-4 md:gap-6 mt-6">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <Shield className="w-4 h-4 text-primary" />
+                <span>Pagamento seguro</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <Check className="w-4 h-4 text-primary" />
+                <span>Cancele quando quiser</span>
+              </div>
+            </div>
 
-        {/* Compare Plans Link */}
-        <motion.div 
-          className="text-center mt-6"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.4 }}
-        >
-          <Link 
-            to="/comparar-planos" 
-            className="inline-flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors font-medium group"
-          >
-            <span>Ver comparação detalhada dos planos</span>
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-          </Link>
+            {/* Compare Plans Link */}
+            <motion.div 
+              className="text-center mt-6"
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.4 }}
+            >
+              <Link 
+                to="/comparar-planos" 
+                className="inline-flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors font-medium group"
+              >
+                <span>Ver comparação detalhada dos planos</span>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </motion.div>
+          </div>
         </motion.div>
       </div>
     </section>
