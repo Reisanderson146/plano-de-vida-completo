@@ -1,6 +1,7 @@
 import { BookOpen, ChevronLeft, ChevronRight } from "lucide-react";
 import useEmblaCarousel from "embla-carousel-react";
-import { useCallback, useEffect, useState } from "react";
+import Autoplay from "embla-carousel-autoplay";
+import { useCallback, useEffect, useState, useRef } from "react";
 import { cn } from "@/lib/utils";
 
 const versiculos = [
@@ -23,11 +24,15 @@ const versiculos = [
 ];
 
 const VersiculosSection = () => {
+  const autoplayPlugin = useRef(
+    Autoplay({ delay: 5000, stopOnInteraction: false, stopOnMouseEnter: true })
+  );
+
   const [emblaRef, emblaApi] = useEmblaCarousel({ 
     loop: true,
     align: 'center',
     skipSnaps: false,
-  });
+  }, [autoplayPlugin.current]);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [canScrollPrev, setCanScrollPrev] = useState(false);
   const [canScrollNext, setCanScrollNext] = useState(false);
