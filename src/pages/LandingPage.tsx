@@ -88,10 +88,10 @@ const LandingPage = () => {
             Já sou assinante
           </button>
           <button
-            onClick={handleSignup}
+            onClick={handleLogin}
             className="px-4 py-2 text-sm font-medium text-primary-foreground bg-primary rounded-lg hover:bg-primary/90 transition-colors shadow-sm"
           >
-            Cadastrar
+            Login
           </button>
         </div>
       </div>
