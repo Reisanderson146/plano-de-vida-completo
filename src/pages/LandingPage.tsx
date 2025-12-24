@@ -10,6 +10,7 @@ import PricingSection from "@/components/landing/PricingSection";
 import FAQSection from "@/components/landing/FAQSection";
 import FooterSection from "@/components/landing/FooterSection";
 import { DarkModeToggle } from "@/components/theme/DarkModeToggle";
+import { Logo } from "@/components/Logo";
 
 const LandingPage = () => {
   const navigate = useNavigate();
@@ -54,8 +55,11 @@ const LandingPage = () => {
   return (
     <div className="min-h-screen bg-background relative">
       {/* Header with theme toggle on left and login button on right */}
-      <div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-3 bg-background/80 backdrop-blur-md border-b border-border/50">
-        <DarkModeToggle />
+      <div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-2 bg-background/80 backdrop-blur-md border-b border-border/50">
+        <div className="flex items-center gap-4">
+          <Logo size="sm" showText singleLine />
+          <DarkModeToggle />
+        </div>
         <div className="flex items-center gap-3">
           <button
             onClick={handleLogin}
