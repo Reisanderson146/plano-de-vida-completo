@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Check, Crown, Sparkles, Shield, Zap, Gem, User, Users, Baby, Heart, Target, Loader2, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { Check, Crown, Sparkles, Shield, Zap, Gem, User, Users, Baby, Heart, Target, Loader2, ChevronLeft, ChevronRight, X, BarChart3, Calendar, FileText, Bell, Download, History, Eye, BookOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { LucideIcon } from "lucide-react";
 import useEmblaCarousel from "embla-carousel-react";
@@ -20,29 +20,34 @@ interface Benefit {
   highlight?: boolean;
 }
 
-// Benefits for Basic plan
+// Benefits for Basic plan - show what's included and what's not
 const basicBenefits: Benefit[] = [
   { text: "1 Plano Individual", icon: User, includedInBasic: true },
   { text: "Planejamento das 7 áreas da vida", icon: Target, includedInBasic: true },
-  { text: "Seus dados seguros na nuvem", icon: Shield, includedInBasic: true },
-  { text: "Exportação profissional em PDF", icon: Zap, includedInBasic: true },
+  { text: "Dashboard com seu progresso", icon: BarChart3, includedInBasic: true },
+  { text: "Consulta visual do plano", icon: Eye, includedInBasic: true },
+  { text: "Dados seguros na nuvem", icon: Shield, includedInBasic: true },
+  { text: "Exportação em PDF", icon: Download, includedInBasic: true },
+  { text: "Visão por períodos de vida", icon: Calendar, includedInBasic: true },
+  { text: "Guia de uso do sistema", icon: BookOpen, includedInBasic: true },
   { text: "1 Plano Familiar", icon: Users, includedInBasic: false },
   { text: "3 Planos para Filhos", icon: Baby, includedInBasic: false },
   { text: "Resumo inteligente com IA", icon: Sparkles, includedInBasic: false, highlight: true },
-  { text: "Relatórios e gráficos de progresso", icon: Check, includedInBasic: false },
-  { text: "Lembretes por email", icon: Heart, includedInBasic: false },
+  { text: "Lembretes por email", icon: Bell, includedInBasic: false },
 ];
 
-// Benefits for Premium plan
+// Benefits for Premium plan - all features included
 const premiumBenefits: Benefit[] = [
   { text: "1 Plano Familiar", icon: Users, includedInBasic: false },
   { text: "3 Planos para Filhos", icon: Baby, includedInBasic: false },
-  { text: "Planejamento das 7 áreas da vida", icon: Target, includedInBasic: true },
-  { text: "Seus dados seguros na nuvem", icon: Shield, includedInBasic: true },
-  { text: "Exportação profissional em PDF", icon: Zap, includedInBasic: true },
   { text: "Resumo inteligente com IA", icon: Sparkles, includedInBasic: false, highlight: true },
-  { text: "Relatórios e gráficos de progresso", icon: Check, includedInBasic: false },
-  { text: "Lembretes por email", icon: Heart, includedInBasic: false },
+  { text: "Planejamento das 7 áreas da vida", icon: Target, includedInBasic: true },
+  { text: "Dashboard com gráficos detalhados", icon: BarChart3, includedInBasic: true },
+  { text: "Relatórios e balanço de progresso", icon: FileText, includedInBasic: true },
+  { text: "Dados seguros na nuvem", icon: Shield, includedInBasic: true },
+  { text: "Exportação profissional em PDF", icon: Download, includedInBasic: true },
+  { text: "Lembretes por email", icon: Bell, includedInBasic: false },
+  { text: "Histórico de metas concluídas", icon: History, includedInBasic: true },
 ];
 
 const plans = [

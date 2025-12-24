@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Check, Shield, Zap, Heart, Target, Sparkles, BadgeCheck, Gem, Loader2, RefreshCw, X, Crown, User, Users, Baby, Instagram } from 'lucide-react';
+import { Check, Shield, Zap, Heart, Target, Sparkles, BadgeCheck, Gem, Loader2, RefreshCw, X, Crown, User, Users, Baby, Instagram, BarChart3, Calendar, FileText, Bell, Download, History, Eye, BookOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { useAuth } from '@/hooks/useAuth';
@@ -9,17 +9,26 @@ import { cn } from '@/lib/utils';
 
 const basicBenefits = [
   { icon: User, text: '1 Plano Individual' },
+  { icon: Target, text: 'Planejamento das 7 áreas da vida' },
   { icon: Shield, text: 'Dados seguros na nuvem' },
-  { icon: Target, text: 'Planejamento das 7 áreas' },
-  { icon: Zap, text: 'Exportação em PDF' },
+  { icon: Download, text: 'Exportação em PDF' },
+  { icon: BarChart3, text: 'Dashboard com progresso' },
+  { icon: Eye, text: 'Consulta visual do plano' },
+  { icon: Calendar, text: 'Visão por períodos de vida' },
+  { icon: BookOpen, text: 'Guia de uso do sistema' },
 ];
 
 const premiumBenefits = [
-  { icon: User, text: '1 Plano Individual' },
   { icon: Users, text: '1 Plano Familiar' },
-  { icon: Baby, text: '2 Planos para Filhos' },
-  { icon: Sparkles, text: 'Resumo com IA', highlight: true },
-  { icon: Heart, text: 'Lembretes por email' },
+  { icon: Baby, text: '3 Planos para Filhos' },
+  { icon: Sparkles, text: 'Resumo inteligente com IA', highlight: true },
+  { icon: Target, text: 'Planejamento das 7 áreas da vida' },
+  { icon: Shield, text: 'Dados seguros na nuvem' },
+  { icon: Download, text: 'Exportação em PDF' },
+  { icon: BarChart3, text: 'Relatórios e gráficos detalhados' },
+  { icon: Bell, text: 'Lembretes por email' },
+  { icon: History, text: 'Histórico de metas concluídas' },
+  { icon: FileText, text: 'Balanço de progresso anual' },
 ];
 
 interface SubscriptionDialogProps {

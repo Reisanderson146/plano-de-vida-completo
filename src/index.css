@@ -41,14 +41,14 @@
 
     --radius: 1rem;
 
-    /* Custom area colors - refined premium palette */
-    --area-espiritual: 262 70% 55%;
-    --area-intelectual: 210 85% 52%;
-    --area-familiar: 340 72% 50%;
-    --area-social: 25 85% 50%;
-    --area-financeiro: 142 65% 38%;
-    --area-profissional: 45 85% 48%;
-    --area-saude: 173 70% 40%;
+    /* Custom area colors - vibrant premium palette */
+    --area-espiritual: 270 75% 55%;
+    --area-intelectual: 220 85% 55%;
+    --area-familiar: 330 75% 50%;
+    --area-social: 25 90% 52%;
+    --area-financeiro: 145 70% 38%;
+    --area-profissional: 40 90% 45%;
+    --area-saude: 170 80% 32%;
 
     /* Success/Warning states - softer */
     --success: 156 55% 36%;
@@ -116,14 +116,14 @@
     --input: 152 18% 20%;
     --ring: 152 55% 50%;
 
-    /* Dark mode area colors - vibrant but not harsh */
-    --area-espiritual: 262 60% 58%;
-    --area-intelectual: 210 80% 58%;
-    --area-familiar: 340 65% 55%;
-    --area-social: 25 80% 52%;
-    --area-financeiro: 142 55% 42%;
-    --area-profissional: 45 80% 52%;
-    --area-saude: 173 60% 45%;
+    /* Dark mode area colors - vibrant and visible */
+    --area-espiritual: 270 70% 62%;
+    --area-intelectual: 220 80% 62%;
+    --area-familiar: 330 70% 60%;
+    --area-social: 25 85% 58%;
+    --area-financeiro: 145 65% 48%;
+    --area-profissional: 40 85% 55%;
+    --area-saude: 170 75% 45%;
 
     /* Navbar gradient colors - dark green */
     --navbar-from: 156 50% 22%;
