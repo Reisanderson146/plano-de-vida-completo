@@ -32,15 +32,15 @@ export const AREA_BORDER_COLORS: Record<LifeArea, string> = {
   saude: 'border-area-saude',
 };
 
-// Hex colors for charts and visualizations
+// Hex colors for charts and visualizations - Premium vibrant palette
 export const AREA_HEX_COLORS: Record<LifeArea, string> = {
-  espiritual: '#8b5cf6',    // Purple
-  intelectual: '#3b82f6',   // Blue
-  familiar: '#ec4899',      // Pink
-  social: '#f97316',        // Orange
-  financeiro: '#22c55e',    // Green
-  profissional: '#06b6d4',  // Cyan
-  saude: '#ef4444',         // Red
+  espiritual: '#9333EA',    // Vivid Purple
+  intelectual: '#2563EB',   // Vibrant Blue
+  familiar: '#DB2777',      // Rich Pink
+  social: '#EA580C',        // Deep Orange
+  financeiro: '#16A34A',    // Strong Green
+  profissional: '#D97706',  // Warm Amber
+  saude: '#0D9488',         // Teal
 };
 
 // Icons for each life area
