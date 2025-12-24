@@ -1,4 +1,4 @@
-import instagramLogo from '@/assets/instagram-logo.png';
+import { Instagram } from "lucide-react";
 
 const FooterSection = () => {
   return (
@@ -20,14 +20,14 @@ const FooterSection = () => {
             href="https://www.instagram.com/planode.vida"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2.5 text-muted-foreground hover:text-foreground transition-all hover:scale-105 mb-6 group"
+            className="flex items-center gap-2.5 mb-6 group transition-all hover:scale-105"
           >
-            <img 
-              src={instagramLogo} 
-              alt="Instagram" 
-              className="w-7 h-7 rounded-lg shadow-sm group-hover:shadow-md transition-shadow"
-            />
-            <span className="font-medium">@planode.vida</span>
+            <div className="relative w-8 h-8 rounded-xl bg-gradient-to-br from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] p-[2px] shadow-lg group-hover:shadow-xl transition-shadow">
+              <div className="w-full h-full rounded-[10px] bg-card flex items-center justify-center">
+                <Instagram className="w-4 h-4 text-foreground" />
+              </div>
+            </div>
+            <span className="font-medium text-muted-foreground group-hover:text-foreground transition-colors">@planode.vida</span>
           </a>
 
           {/* Divider */}
