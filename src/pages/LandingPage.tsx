@@ -54,16 +54,25 @@ const LandingPage = () => {
 
   return (
     <div className="min-h-screen bg-background relative">
-      {/* Header with theme toggle on left and login button on right */}
-      <div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-2 bg-background/80 backdrop-blur-md border-b border-border/50">
-        <div className="flex items-center gap-4">
-          <Logo size="sm" showText singleLine />
+      {/* Header with logo left, toggle center, login right */}
+      <div className="fixed top-0 left-0 right-0 z-50 grid grid-cols-3 items-center px-4 py-2 bg-background/80 backdrop-blur-md border-b border-border/50">
+        {/* Left - Logo with hover animation */}
+        <div className="flex items-center">
+          <div className="transition-transform duration-300 hover:scale-105 cursor-pointer">
+            <Logo size="sm" showText singleLine />
+          </div>
+        </div>
+        
+        {/* Center - Theme Toggle */}
+        <div className="flex items-center justify-center">
           <DarkModeToggle />
         </div>
-        <div className="flex items-center gap-3">
+        
+        {/* Right - Login buttons */}
+        <div className="flex items-center justify-end gap-3">
           <button
             onClick={handleLogin}
-            className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors hidden sm:block"
           >
             Já sou assinante
           </button>
