@@ -175,29 +175,73 @@ const FeaturesSection = () => {
           <div className="overflow-hidden rounded-2xl" ref={emblaRef}>
             <div className="flex touch-pan-y">
               {features.map((feature, index) => (
-                <div key={index} className="flex-[0_0_100%] min-w-0 px-2">
+                <motion.div 
+                  key={index} 
+                  className="flex-[0_0_100%] min-w-0 px-2"
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ 
+                    opacity: selectedIndex === index ? 1 : 0.5,
+                    scale: selectedIndex === index ? 1 : 0.95,
+                  }}
+                  transition={{ duration: 0.4, ease: "easeOut" }}
+                >
                   <div className="group relative min-h-[320px]">
-                    <div className={`absolute inset-0 bg-gradient-to-br ${feature.color} rounded-2xl opacity-10`} />
+                    <motion.div 
+                      className={`absolute inset-0 bg-gradient-to-br ${feature.color} rounded-2xl`}
+                      animate={{ opacity: selectedIndex === index ? 0.1 : 0.05 }}
+                      transition={{ duration: 0.3 }}
+                    />
                     <div className="relative bg-card border border-border/50 rounded-2xl p-6 h-full flex flex-col">
-                      {/* Icon */}
-                      <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${feature.color} flex items-center justify-center mb-4 flex-shrink-0`}>
+                      {/* Icon with animation */}
+                      <motion.div 
+                        className={`w-12 h-12 rounded-xl bg-gradient-to-br ${feature.color} flex items-center justify-center mb-4 flex-shrink-0`}
+                        animate={{ 
+                          scale: selectedIndex === index ? 1 : 0.9,
+                          rotate: selectedIndex === index ? 0 : -5
+                        }}
+                        transition={{ duration: 0.4, type: "spring", stiffness: 300 }}
+                      >
                         <feature.icon className="w-6 h-6 text-white" />
-                      </div>
+                      </motion.div>
 
-                      {/* Content */}
-                      <h3 className="text-lg font-semibold text-foreground mb-3">{feature.title}</h3>
-                      <p className="text-muted-foreground text-sm leading-relaxed mb-5 flex-grow">
+                      {/* Content with staggered animation */}
+                      <motion.h3 
+                        className="text-lg font-semibold text-foreground mb-3"
+                        animate={{ 
+                          opacity: selectedIndex === index ? 1 : 0.7,
+                          y: selectedIndex === index ? 0 : 5
+                        }}
+                        transition={{ duration: 0.3, delay: 0.1 }}
+                      >
+                        {feature.title}
+                      </motion.h3>
+                      <motion.p 
+                        className="text-muted-foreground text-sm leading-relaxed mb-5 flex-grow"
+                        animate={{ 
+                          opacity: selectedIndex === index ? 1 : 0.6,
+                          y: selectedIndex === index ? 0 : 8
+                        }}
+                        transition={{ duration: 0.3, delay: 0.15 }}
+                      >
                         {feature.description}
-                      </p>
+                      </motion.p>
 
-                      {/* Highlight Badge */}
-                      <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 w-fit">
+                      {/* Highlight Badge with animation */}
+                      <motion.div 
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 w-fit"
+                        animate={{ 
+                          opacity: selectedIndex === index ? 1 : 0.5,
+                          scale: selectedIndex === index ? 1 : 0.95,
+                          y: selectedIndex === index ? 0 : 10
+                        }}
+                        transition={{ duration: 0.3, delay: 0.2 }}
+                      >
                         <CheckCircle2 className="w-4 h-4 text-primary" />
                         <span className="text-sm font-medium text-primary">{feature.highlight}</span>
-                      </div>
+                      </motion.div>
                     </div>
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
           </div>
