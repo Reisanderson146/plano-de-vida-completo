@@ -272,12 +272,12 @@ const PricingSection = ({ onCheckout, onLogin, loading }: PricingSectionProps) =
         </motion.div>
 
         {/* Carousel Plans */}
-        <div className="mb-8 max-w-4xl mx-auto relative">
-          {/* Navigation Buttons - Hidden on mobile */}
+        <div className="mb-8 max-w-md mx-auto relative">
+          {/* Navigation Buttons */}
           <button
             onClick={scrollPrev}
             disabled={!canScrollPrev}
-            className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 w-10 h-10 rounded-full bg-card border border-border shadow-lg items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-30"
+            className="absolute left-0 md:-left-14 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-card border border-border shadow-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-30"
             aria-label="Anterior"
           >
             <ChevronLeft className="w-5 h-5" />
@@ -286,16 +286,16 @@ const PricingSection = ({ onCheckout, onLogin, loading }: PricingSectionProps) =
           <button
             onClick={scrollNext}
             disabled={!canScrollNext}
-            className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 w-10 h-10 rounded-full bg-card border border-border shadow-lg items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-30"
+            className="absolute right-0 md:-right-14 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-card border border-border shadow-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-30"
             aria-label="Próximo"
           >
             <ChevronRight className="w-5 h-5" />
           </button>
 
-          <div className="overflow-hidden" ref={emblaRef}>
+          <div className="overflow-hidden px-12 md:px-0" ref={emblaRef}>
             <div className="flex touch-pan-y">
               {plans.map((plan) => (
-                <div key={plan.id} className="flex-[0_0_100%] min-w-0 px-4">
+                <div key={plan.id} className="flex-[0_0_100%] min-w-0 px-2">
                   <div className="relative group pt-4">
                     {/* Glow effect on hover */}
                     <div className={cn(
