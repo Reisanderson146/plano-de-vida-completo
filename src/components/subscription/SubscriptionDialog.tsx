@@ -203,13 +203,13 @@ export function SubscriptionDialog({ open, onOpenChange, onSubscribed }: Subscri
               </div>
 
               {/* Benefits */}
-              <div className="space-y-2">
+              <div className="space-y-2 max-h-[280px] overflow-y-auto scrollbar-premium pr-1">
                 {basicBenefits.map((benefit, index) => {
                   const Icon = benefit.icon;
                   return (
                     <div 
                       key={index} 
-                      className="flex items-center gap-2.5 p-2 rounded-lg bg-muted/30 group"
+                      className="flex items-center gap-2.5 p-2 rounded-lg bg-muted/30"
                     >
                       <div className="w-7 h-7 rounded-full bg-emerald-500/10 flex items-center justify-center flex-shrink-0">
                         <Icon className="w-3.5 h-3.5 text-emerald-600" />
@@ -217,17 +217,25 @@ export function SubscriptionDialog({ open, onOpenChange, onSubscribed }: Subscri
                       <div className="flex items-center gap-1.5 flex-1">
                         <span className="text-foreground text-sm">{benefit.text}</span>
                         {benefitTooltips[benefit.text] && (
-                          <Tooltip>
+                          <Tooltip delayDuration={0}>
                             <TooltipTrigger asChild>
-                              <Info className="w-3 h-3 text-muted-foreground/40 group-hover:text-muted-foreground cursor-help flex-shrink-0" />
+                              <button 
+                                type="button"
+                                className="w-4 h-4 rounded-full bg-muted hover:bg-muted-foreground/20 flex items-center justify-center transition-colors flex-shrink-0"
+                              >
+                                <Info className="w-2.5 h-2.5 text-muted-foreground" />
+                              </button>
                             </TooltipTrigger>
-                            <TooltipContent side="top" className="max-w-[180px] text-xs">
-                              {benefitTooltips[benefit.text]}
+                            <TooltipContent 
+                              side="right" 
+                              align="center"
+                              className="max-w-[200px] text-xs font-normal leading-relaxed"
+                            >
+                              <p>{benefitTooltips[benefit.text]}</p>
                             </TooltipContent>
                           </Tooltip>
                         )}
                       </div>
-                      <Check className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
                       <Check className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
                     </div>
                   );
@@ -273,14 +281,14 @@ export function SubscriptionDialog({ open, onOpenChange, onSubscribed }: Subscri
               </div>
 
               {/* Benefits */}
-              <div className="space-y-2">
+              <div className="space-y-2 max-h-[280px] overflow-y-auto scrollbar-premium pr-1">
                 {premiumBenefits.map((benefit, index) => {
                   const Icon = benefit.icon;
                   return (
                     <div 
                       key={index} 
                       className={cn(
-                        "flex items-center gap-2.5 p-2 rounded-lg group",
+                        "flex items-center gap-2.5 p-2 rounded-lg",
                         benefit.highlight 
                           ? "bg-gradient-to-r from-violet-500/10 to-purple-500/10 border border-violet-500/20" 
                           : "bg-muted/30"
@@ -305,12 +313,21 @@ export function SubscriptionDialog({ open, onOpenChange, onSubscribed }: Subscri
                           {benefit.text}
                         </span>
                         {benefitTooltips[benefit.text] && (
-                          <Tooltip>
+                          <Tooltip delayDuration={0}>
                             <TooltipTrigger asChild>
-                              <Info className="w-3 h-3 text-muted-foreground/40 group-hover:text-muted-foreground cursor-help flex-shrink-0" />
+                              <button 
+                                type="button"
+                                className="w-4 h-4 rounded-full bg-muted hover:bg-muted-foreground/20 flex items-center justify-center transition-colors flex-shrink-0"
+                              >
+                                <Info className="w-2.5 h-2.5 text-muted-foreground" />
+                              </button>
                             </TooltipTrigger>
-                            <TooltipContent side="top" className="max-w-[180px] text-xs">
-                              {benefitTooltips[benefit.text]}
+                            <TooltipContent 
+                              side="right" 
+                              align="center"
+                              className="max-w-[200px] text-xs font-normal leading-relaxed"
+                            >
+                              <p>{benefitTooltips[benefit.text]}</p>
                             </TooltipContent>
                           </Tooltip>
                         )}
