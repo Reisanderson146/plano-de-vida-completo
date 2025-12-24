@@ -22,8 +22,8 @@ interface Benefit {
   highlight?: boolean;
 }
 
-// All features - shown in both plans (with strikethrough for Basic exclusives)
-const allBenefits: Benefit[] = [
+// Benefits for Basic plan
+const basicBenefits: Benefit[] = [
   { text: "1 Plano Individual", icon: User, includedInBasic: true },
   { text: "Planejamento das 7 áreas da vida", icon: Target, includedInBasic: true },
   { text: "Dashboard com seu progresso", icon: BarChart3, includedInBasic: true },
@@ -32,9 +32,24 @@ const allBenefits: Benefit[] = [
   { text: "Exportação em PDF", icon: Download, includedInBasic: true },
   { text: "Visão por períodos de vida", icon: Calendar, includedInBasic: true },
   { text: "Histórico de metas concluídas", icon: History, includedInBasic: true },
+  { text: "1 Plano Familiar", icon: Users, includedInBasic: false },
+  { text: "3 Planos para Filhos", icon: Baby, includedInBasic: false },
+  { text: "Resumo inteligente com IA", icon: Sparkles, includedInBasic: false, highlight: true },
+  { text: "Lembretes por email", icon: Bell, includedInBasic: false },
+];
+
+// Benefits for Premium plan - NO individual plan, only Family + Kids
+const premiumBenefits: Benefit[] = [
   { text: "1 Plano Familiar", icon: Users, includedInBasic: false, highlight: true },
   { text: "3 Planos para Filhos", icon: Baby, includedInBasic: false, highlight: true },
   { text: "Resumo inteligente com IA", icon: Sparkles, includedInBasic: false, highlight: true },
+  { text: "Planejamento das 7 áreas da vida", icon: Target, includedInBasic: true },
+  { text: "Dashboard com gráficos detalhados", icon: BarChart3, includedInBasic: true },
+  { text: "Consulta visual do plano", icon: Eye, includedInBasic: true },
+  { text: "Dados seguros na nuvem", icon: Shield, includedInBasic: true },
+  { text: "Exportação profissional em PDF", icon: Download, includedInBasic: true },
+  { text: "Visão por períodos de vida", icon: Calendar, includedInBasic: true },
+  { text: "Histórico de metas concluídas", icon: History, includedInBasic: true },
   { text: "Lembretes por email", icon: Bell, includedInBasic: false },
 ];
 
@@ -46,7 +61,7 @@ const plans = [
     price: 'R$ 9,99',
     description: '1 plano individual',
     icon: Gem,
-    benefits: allBenefits,
+    benefits: basicBenefits,
     color: 'emerald',
     recommended: false,
   },
@@ -57,7 +72,7 @@ const plans = [
     price: 'R$ 29,99',
     description: '4 planos incluídos',
     icon: Crown,
-    benefits: allBenefits,
+    benefits: premiumBenefits,
     color: 'violet',
     recommended: true,
   },
@@ -547,11 +562,11 @@ const PricingSection = ({ onCheckout, onLogin, loading }: PricingSectionProps) =
           transition={{ delay: 0.3 }}
         >
           <Button
-            variant="ghost"
+            variant="outline"
             onClick={onLogin}
-            className="text-primary hover:text-primary/80 hover:bg-primary/5"
+            className="border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground font-semibold px-6 py-5 transition-all duration-300 shadow-sm hover:shadow-lg hover:shadow-primary/20"
           >
-            <Check className="w-4 h-4 mr-2" />
+            <ArrowRight className="w-4 h-4 mr-2" />
             Já sou assinante - Entrar
           </Button>
           
