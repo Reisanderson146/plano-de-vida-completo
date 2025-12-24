@@ -271,8 +271,8 @@ const PricingSection = ({ onCheckout, onLogin, loading }: PricingSectionProps) =
           </p>
         </motion.div>
 
-        {/* Side by Side Plans */}
-        <div className="grid md:grid-cols-2 gap-4 md:gap-6 max-w-3xl mx-auto mb-8">
+        {/* Desktop: Side by Side Plans */}
+        <div className="hidden md:grid md:grid-cols-2 gap-4 md:gap-6 max-w-3xl mx-auto mb-8">
           {plans.map((plan, index) => (
             <motion.div
               key={plan.id}
@@ -465,7 +465,151 @@ const PricingSection = ({ onCheckout, onLogin, loading }: PricingSectionProps) =
           ))}
         </div>
 
-        {/* Comparison Table */}
+        {/* Mobile: Carousel Plans */}
+        <div className="md:hidden mb-8">
+          <div className="overflow-hidden" ref={emblaRef}>
+            <div className="flex touch-pan-y">
+              {plans.map((plan, index) => (
+                <div key={plan.id} className="flex-[0_0_85%] min-w-0 px-2 first:pl-4 last:pr-4">
+                  <div className="relative">
+                    {/* Recommended Badge */}
+                    {plan.recommended && (
+                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
+                        <div className="flex items-center gap-1.5 px-4 py-1.5 bg-gradient-to-r from-violet-600 to-purple-600 rounded-full text-white font-medium text-xs shadow-lg shadow-violet-500/30">
+                          <Crown className="w-3 h-3" />
+                          <span>Mais Popular</span>
+                        </div>
+                      </div>
+                    )}
+                    
+                    <Card className={cn(
+                      "relative overflow-hidden border-2 bg-card shadow-lg",
+                      plan.color === 'emerald' 
+                        ? "border-primary/20"
+                        : "border-violet-500/30",
+                      plan.recommended && "pt-2"
+                    )}>
+                      <CardHeader className="pt-6 pb-3 text-center relative">
+                        <div className={cn(
+                          "inline-flex items-center justify-center w-12 h-12 rounded-xl mx-auto mb-3",
+                          plan.color === 'emerald'
+                            ? "bg-gradient-to-br from-primary/20 to-emerald-500/20 text-primary"
+                            : "bg-gradient-to-br from-violet-500/20 to-purple-500/20 text-violet-500"
+                        )}>
+                          <plan.icon className="w-6 h-6" />
+                        </div>
+                        
+                        <CardTitle className={cn(
+                          "text-lg font-bold mb-1",
+                          plan.color === 'emerald'
+                            ? "text-foreground"
+                            : "bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent"
+                        )}>
+                          {plan.name}
+                        </CardTitle>
+                        
+                        <p className="text-xs text-muted-foreground mb-3">{plan.subtitle}</p>
+                        
+                        <div className="flex items-baseline justify-center gap-1">
+                          <span className={cn(
+                            "text-3xl font-bold",
+                            plan.color === 'emerald'
+                              ? "text-foreground"
+                              : "bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent"
+                          )}>
+                            {plan.price}
+                          </span>
+                          <span className="text-muted-foreground text-sm">/mês</span>
+                        </div>
+                      </CardHeader>
+
+                      <CardContent className="space-y-2 pb-6 px-4">
+                        {plan.benefits.map((benefit, i) => {
+                          const isIncluded = plan.id === 'premium' || benefit.includedInBasic;
+                          const isPremiumExclusive = !benefit.includedInBasic;
+                          
+                          return (
+                            <div key={i} className="flex items-center gap-2 text-sm">
+                              <div className={cn(
+                                "w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0",
+                                isIncluded
+                                  ? plan.color === 'emerald' 
+                                    ? "bg-primary/20 text-primary" 
+                                    : isPremiumExclusive
+                                      ? "bg-violet-500/30 text-violet-400"
+                                      : "bg-violet-500/20 text-violet-500"
+                                  : "bg-muted/50 text-muted-foreground/30"
+                              )}>
+                                {isIncluded ? (
+                                  <Check className="w-3 h-3" />
+                                ) : (
+                                  <X className="w-3 h-3" />
+                                )}
+                              </div>
+                              <span className={cn(
+                                "text-sm",
+                                isIncluded 
+                                  ? isPremiumExclusive && plan.id === 'premium'
+                                    ? "text-foreground font-medium"
+                                    : "text-foreground"
+                                  : "text-muted-foreground/50 line-through decoration-muted-foreground/30"
+                              )}>
+                                {benefit.text}
+                              </span>
+                            </div>
+                          );
+                        })}
+                        
+                        <Button
+                          onClick={() => onCheckout(plan.id)}
+                          disabled={loading === plan.id}
+                          className={cn(
+                            "w-full font-semibold py-5 mt-4",
+                            plan.color === 'emerald'
+                              ? "bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20"
+                              : "bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white shadow-lg shadow-violet-500/25"
+                          )}
+                        >
+                          {loading === plan.id ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <>
+                              <Zap className="w-4 h-4 mr-2" />
+                              Começar Agora
+                            </>
+                          )}
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Dots Indicator */}
+          <div className="flex justify-center gap-2 mt-4">
+            {plans.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => scrollTo(index)}
+                className={cn(
+                  "w-2 h-2 rounded-full transition-all duration-300",
+                  selectedIndex === index 
+                    ? "bg-primary w-6" 
+                    : "bg-muted-foreground/30 hover:bg-muted-foreground/50"
+                )}
+                aria-label={`Ir para plano ${index + 1}`}
+              />
+            ))}
+          </div>
+
+          {/* Swipe hint */}
+          <p className="text-center text-xs text-muted-foreground mt-3">
+            Deslize para comparar os planos
+          </p>
+        </div>
+
         <motion.div
           className="max-w-3xl mx-auto mb-8"
           initial={{ opacity: 0, y: 20 }}
