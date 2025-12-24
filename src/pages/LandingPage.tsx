@@ -45,7 +45,7 @@ const LandingPage = () => {
   };
 
   const handleLogin = () => {
-    navigate("/auth");
+    navigate("/auth?tab=cadastrar");
   };
 
   const scrollToPricing = () => {

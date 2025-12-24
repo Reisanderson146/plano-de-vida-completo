@@ -765,7 +765,7 @@ export default function Auth() {
               </CardDescription>
             </CardHeader>
             <CardContent className="px-7 sm:px-9 pb-9">
-              <Tabs defaultValue="signin" className="w-full">
+              <Tabs defaultValue={searchParams.get('tab') === 'cadastrar' ? 'signup' : 'signin'} className="w-full">
                 <TabsList className="grid w-full grid-cols-2 mb-8 h-14 bg-gradient-to-r from-[#A8E6CE]/20 via-[#7BC8A4]/15 to-[#A8E6CE]/20 rounded-2xl p-1.5 border border-[#7BC8A4]/20">
                   <TabsTrigger 
                     value="signin" 
