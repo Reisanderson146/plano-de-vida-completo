@@ -275,13 +275,13 @@ const PricingSection = ({ onCheckout, onLogin, loading }: PricingSectionProps) =
           <button
             onClick={scrollPrev}
             className={cn(
-              "absolute left-0 top-1/2 z-20",
+              "absolute left-0 top-1/2 z-20 group",
               "w-10 h-10 md:w-12 md:h-12 rounded-full bg-card border border-border shadow-lg",
               "flex items-center justify-center",
               "transition-all duration-200 ease-out",
               "-translate-y-1/2 hover:shadow-xl hover:border-primary/30",
               canScrollPrev 
-                ? "hover:bg-primary/5 active:scale-95" 
+                ? "hover:bg-primary/5 active:scale-95 animate-[pulse-subtle_2s_ease-in-out_infinite]" 
                 : "opacity-30 cursor-not-allowed"
             )}
             disabled={!canScrollPrev}
@@ -296,13 +296,13 @@ const PricingSection = ({ onCheckout, onLogin, loading }: PricingSectionProps) =
           <button
             onClick={scrollNext}
             className={cn(
-              "absolute right-0 top-1/2 z-20",
+              "absolute right-0 top-1/2 z-20 group",
               "w-10 h-10 md:w-12 md:h-12 rounded-full bg-card border border-border shadow-lg",
               "flex items-center justify-center",
               "transition-all duration-200 ease-out",
               "-translate-y-1/2 hover:shadow-xl hover:border-primary/30",
               canScrollNext 
-                ? "hover:bg-primary/5 active:scale-95" 
+                ? "hover:bg-primary/5 active:scale-95 animate-[pulse-subtle_2s_ease-in-out_infinite]" 
                 : "opacity-30 cursor-not-allowed"
             )}
             disabled={!canScrollNext}
