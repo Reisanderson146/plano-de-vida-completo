@@ -1,4 +1,4 @@
-import { BookOpen, ChevronLeft, ChevronRight } from "lucide-react";
+import { BookOpen } from "lucide-react";
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
 import { useCallback, useEffect, useState, useRef } from "react";
@@ -34,17 +34,10 @@ const VersiculosSection = () => {
     skipSnaps: false,
   }, [autoplayPlugin.current]);
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [canScrollPrev, setCanScrollPrev] = useState(false);
-  const [canScrollNext, setCanScrollNext] = useState(false);
-
-  const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
-  const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
 
   const onSelect = useCallback(() => {
     if (!emblaApi) return;
     setSelectedIndex(emblaApi.selectedScrollSnap());
-    setCanScrollPrev(emblaApi.canScrollPrev());
-    setCanScrollNext(emblaApi.canScrollNext());
   }, [emblaApi]);
 
   useEffect(() => {
@@ -86,23 +79,6 @@ const VersiculosSection = () => {
 
         {/* Carousel */}
         <div className="relative">
-          {/* Navigation Buttons - Hidden on mobile */}
-          <button
-            onClick={scrollPrev}
-            className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 w-10 h-10 rounded-full bg-card border border-border shadow-lg items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-            aria-label="Anterior"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </button>
-          
-          <button
-            onClick={scrollNext}
-            className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 w-10 h-10 rounded-full bg-card border border-border shadow-lg items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-            aria-label="Próximo"
-          >
-            <ChevronRight className="w-5 h-5" />
-          </button>
-
           {/* Embla Viewport */}
           <div className="overflow-hidden" ref={emblaRef}>
             <div className="flex touch-pan-y">
@@ -111,17 +87,17 @@ const VersiculosSection = () => {
                   key={index}
                   className="flex-[0_0_100%] min-w-0 px-4"
                 >
-                  <div className="group relative">
+                  <div className="group relative h-[200px] md:h-[180px]">
                     <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-emerald-500/10 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                    <blockquote className="relative bg-card/80 backdrop-blur-sm border border-border/50 rounded-2xl p-8 hover:border-primary/30 transition-all duration-300 hover:shadow-lg">
-                      <div className="absolute top-4 left-4 text-6xl text-primary/10 font-serif">"</div>
-                      <p className="text-foreground italic leading-relaxed mb-6 relative z-10 pt-4 text-lg md:text-xl text-center">
+                    <blockquote className="relative bg-card/80 backdrop-blur-sm border border-border/50 rounded-2xl p-6 md:p-8 hover:border-primary/30 transition-all duration-300 hover:shadow-lg h-full flex flex-col justify-center">
+                      <div className="absolute top-4 left-4 text-5xl md:text-6xl text-primary/10 font-serif">"</div>
+                      <p className="text-foreground italic leading-relaxed mb-4 relative z-10 pt-2 text-base md:text-lg text-center line-clamp-4">
                         {versiculo.texto}
                       </p>
                       <footer className="flex items-center justify-center gap-2">
-                        <div className="w-8 h-0.5 bg-gradient-to-r from-primary to-emerald-500 rounded-full" />
-                        <span className="text-primary font-semibold text-sm">{versiculo.referencia}</span>
-                        <div className="w-8 h-0.5 bg-gradient-to-r from-emerald-500 to-primary rounded-full" />
+                        <div className="w-6 md:w-8 h-0.5 bg-gradient-to-r from-primary to-emerald-500 rounded-full" />
+                        <span className="text-primary font-semibold text-xs md:text-sm">{versiculo.referencia}</span>
+                        <div className="w-6 md:w-8 h-0.5 bg-gradient-to-r from-emerald-500 to-primary rounded-full" />
                       </footer>
                     </blockquote>
                   </div>

@@ -170,97 +170,34 @@ const FeaturesSection = () => {
         </motion.div>
 
         {/* Mobile Carousel */}
-        <div className="md:hidden relative max-w-sm mx-auto" style={{ perspective: "1000px" }}>
-          {/* Navigation Arrows */}
-          <motion.button
-            onClick={scrollPrev}
-            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 z-20 w-10 h-10 rounded-full bg-card border border-border shadow-lg flex items-center justify-center"
-            aria-label="Funcionalidade anterior"
-            whileHover={{ scale: 1.1, boxShadow: "0 10px 30px rgba(0,0,0,0.15)" }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <ChevronLeft className="w-5 h-5 text-foreground" />
-          </motion.button>
-          
-          <motion.button
-            onClick={scrollNext}
-            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 z-20 w-10 h-10 rounded-full bg-card border border-border shadow-lg flex items-center justify-center"
-            aria-label="Próxima funcionalidade"
-            whileHover={{ scale: 1.1, boxShadow: "0 10px 30px rgba(0,0,0,0.15)" }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <ChevronRight className="w-5 h-5 text-foreground" />
-          </motion.button>
+        <div className="md:hidden relative max-w-sm mx-auto px-4" style={{ perspective: "1000px" }}>
+          {/* Swipe-enabled Card Display */}
+          <div className="overflow-hidden rounded-2xl" ref={emblaRef}>
+            <div className="flex touch-pan-y">
+              {features.map((feature, index) => (
+                <div key={index} className="flex-[0_0_100%] min-w-0 px-2">
+                  <div className="group relative h-[280px]">
+                    <div className={`absolute inset-0 bg-gradient-to-br ${feature.color} rounded-2xl opacity-10`} />
+                    <div className="relative bg-card border border-border/50 rounded-2xl p-6 h-full flex flex-col">
+                      {/* Icon */}
+                      <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${feature.color} flex items-center justify-center mb-4 flex-shrink-0`}>
+                        <feature.icon className="w-6 h-6 text-white" />
+                      </div>
 
-          {/* Animated Card Display */}
-          <div className="overflow-hidden rounded-2xl">
-            <AnimatePresence mode="wait" custom={direction}>
-              <motion.div
-                key={selectedIndex}
-                custom={direction}
-                variants={cardVariants}
-                initial="enter"
-                animate="center"
-                exit="exit"
-                className="w-full"
-              >
-                <div className="group relative">
-                  <motion.div 
-                    className={`absolute inset-0 bg-gradient-to-br ${currentFeature.color} rounded-2xl`}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 0.1 }}
-                    transition={{ duration: 0.3 }}
-                  />
-                  <div className="relative bg-card border border-border/50 rounded-2xl p-6 h-full">
-                    {/* Icon with animation */}
-                    <motion.div 
-                      className={`w-14 h-14 rounded-xl bg-gradient-to-br ${currentFeature.color} flex items-center justify-center mb-4`}
-                      initial={{ scale: 0.8, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      transition={{ delay: 0.1, type: "spring", stiffness: 300 }}
-                    >
-                      <currentFeature.icon className="w-7 h-7 text-white" />
-                    </motion.div>
+                      {/* Content */}
+                      <h3 className="text-lg font-semibold text-foreground mb-2">{feature.title}</h3>
+                      <p className="text-muted-foreground text-sm leading-relaxed mb-4 flex-grow line-clamp-3">
+                        {feature.description}
+                      </p>
 
-                    {/* Content with staggered animation */}
-                    <motion.h3 
-                      className="text-xl font-semibold text-foreground mb-3"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.15 }}
-                    >
-                      {currentFeature.title}
-                    </motion.h3>
-                    <motion.p 
-                      className="text-muted-foreground text-sm leading-relaxed mb-5"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.2 }}
-                    >
-                      {currentFeature.description}
-                    </motion.p>
-
-                    {/* Highlight Badge */}
-                    <motion.div 
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20"
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: 0.25, type: "spring" }}
-                    >
-                      <CheckCircle2 className="w-4 h-4 text-primary" />
-                      <span className="text-sm font-medium text-primary">{currentFeature.highlight}</span>
-                    </motion.div>
+                      {/* Highlight Badge */}
+                      <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 w-fit">
+                        <CheckCircle2 className="w-4 h-4 text-primary" />
+                        <span className="text-sm font-medium text-primary">{feature.highlight}</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </motion.div>
-            </AnimatePresence>
-          </div>
-
-          {/* Hidden Embla container for swipe detection */}
-          <div className="absolute inset-0 z-10 opacity-0 pointer-events-none" ref={emblaRef}>
-            <div className="flex h-full touch-pan-y">
-              {features.map((_, i) => (
-                <div key={i} className="flex-[0_0_100%] min-w-0" />
               ))}
             </div>
           </div>
@@ -268,42 +205,24 @@ const FeaturesSection = () => {
           {/* Dots Navigation */}
           <div className="flex items-center justify-center gap-2 mt-6">
             {features.map((feature, index) => (
-              <motion.button
+              <button
                 key={index}
                 onClick={() => scrollTo(index)}
                 className={cn(
-                  "rounded-full transition-colors duration-300",
+                  "h-2.5 rounded-full transition-all duration-300",
                   selectedIndex === index 
-                    ? "bg-primary"
-                    : "bg-muted-foreground/30 hover:bg-muted-foreground/50"
+                    ? "bg-primary w-6"
+                    : "bg-muted-foreground/30 hover:bg-muted-foreground/50 w-2.5"
                 )}
-                animate={{
-                  width: selectedIndex === index ? 24 : 10,
-                  height: 10,
-                }}
-                whileHover={{ scale: 1.2 }}
-                whileTap={{ scale: 0.9 }}
-                transition={{ duration: 0.2 }}
                 aria-label={`Ver ${feature.title}`}
               />
             ))}
           </div>
 
-          {/* Feature indicator */}
-          <div className="text-center mt-3">
-            <motion.p 
-              className="text-sm font-medium text-foreground"
-              key={selectedIndex}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              {currentFeature?.title}
-            </motion.p>
-            <p className="text-xs text-muted-foreground/70 mt-1">
-              ← Deslize para ver mais →
-            </p>
-          </div>
+          {/* Swipe hint */}
+          <p className="text-center text-xs text-muted-foreground mt-4">
+            Deslize para ver mais funcionalidades
+          </p>
         </div>
 
         {/* Desktop Grid with hover animations */}

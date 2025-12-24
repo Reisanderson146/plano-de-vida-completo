@@ -271,29 +271,8 @@ const PricingSection = ({ onCheckout, onLogin, loading }: PricingSectionProps) =
 
         {/* Carousel Plans with Animation */}
         <div className="mb-8 max-w-md mx-auto relative">
-          {/* Navigation Buttons */}
-          <motion.button
-            onClick={scrollPrev}
-            className="absolute left-0 md:-left-14 top-[280px] -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-card border border-border shadow-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-            aria-label="Anterior"
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-          >
-            <ChevronLeft className="w-6 h-6" />
-          </motion.button>
-          
-          <motion.button
-            onClick={scrollNext}
-            className="absolute right-0 md:-right-14 top-[280px] -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-card border border-border shadow-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-            aria-label="Próximo"
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-          >
-            <ChevronRight className="w-6 h-6" />
-          </motion.button>
-
           {/* Animated Card Container with Swipe Support */}
-          <div className="overflow-hidden px-14 md:px-0 min-h-[580px] relative touch-pan-y">
+          <div className="overflow-hidden min-h-[580px] relative touch-pan-y">
             <AnimatePresence initial={false} custom={direction} mode="wait">
               <motion.div
                 key={selectedIndex}
