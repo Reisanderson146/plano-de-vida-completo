@@ -475,12 +475,21 @@ const PricingSection = ({ onCheckout, onLogin, loading }: PricingSectionProps) =
                                 {benefit.text}
                               </span>
                               {isIncluded && benefitTooltips[benefit.text] && (
-                                <Tooltip>
+                                <Tooltip delayDuration={0}>
                                   <TooltipTrigger asChild>
-                                    <Info className="w-3.5 h-3.5 text-muted-foreground/50 hover:text-muted-foreground cursor-help flex-shrink-0" />
+                                    <button 
+                                      type="button"
+                                      className="w-5 h-5 rounded-full bg-muted/50 hover:bg-muted flex items-center justify-center transition-colors flex-shrink-0"
+                                    >
+                                      <Info className="w-3 h-3 text-muted-foreground" />
+                                    </button>
                                   </TooltipTrigger>
-                                  <TooltipContent side="top" className="max-w-[200px] text-xs">
-                                    {benefitTooltips[benefit.text]}
+                                  <TooltipContent 
+                                    side="right" 
+                                    align="center"
+                                    className="max-w-[220px] text-xs font-normal leading-relaxed"
+                                  >
+                                    <p>{benefitTooltips[benefit.text]}</p>
                                   </TooltipContent>
                                 </Tooltip>
                               )}
