@@ -184,6 +184,7 @@ const PricingSection = ({ onCheckout, onLogin, loading }: PricingSectionProps) =
   const [direction, setDirection] = useState(0);
   const [canScrollPrev, setCanScrollPrev] = useState(false);
   const [canScrollNext, setCanScrollNext] = useState(false);
+  const [showAllDescriptions, setShowAllDescriptions] = useState(false);
 
   const scrollPrev = useCallback(() => {
     if (emblaApi) {
@@ -408,11 +409,28 @@ const PricingSection = ({ onCheckout, onLogin, loading }: PricingSectionProps) =
                     )}
                   </CardHeader>
 
-                  <CardContent className="relative space-y-6 pb-8">
+                  <CardContent className="relative space-y-4 pb-8">
+                    {/* Toggle to show all descriptions */}
+                    <div className="flex items-center justify-end">
+                      <button
+                        type="button"
+                        onClick={() => setShowAllDescriptions(!showAllDescriptions)}
+                        className={cn(
+                          "flex items-center gap-1.5 text-xs font-medium px-2.5 py-1.5 rounded-full transition-all",
+                          showAllDescriptions 
+                            ? "bg-primary/10 text-primary" 
+                            : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
+                        )}
+                      >
+                        <Info className="w-3.5 h-3.5" />
+                        <span>{showAllDescriptions ? 'Ocultar detalhes' : 'Ver detalhes'}</span>
+                      </button>
+                    </div>
+
                     {/* Benefits List with staggered animation */}
                     <motion.ul 
-                      className="space-y-3"
-                      key={`benefits-${selectedIndex}`}
+                      className="space-y-2"
+                      key={`benefits-${selectedIndex}-${showAllDescriptions}`}
                       variants={benefitsContainerVariants}
                       initial="hidden"
                       animate="visible"
@@ -465,45 +483,58 @@ const PricingSection = ({ onCheckout, onLogin, loading }: PricingSectionProps) =
                                 <X className="w-3.5 h-3.5 text-muted-foreground/50" />
                               )}
                             </motion.div>
-                            <div className="flex items-center gap-1.5 flex-1">
-                              <span className={cn(
-                                "text-sm",
-                                !isIncluded 
-                                  ? "text-muted-foreground/50 line-through"
-                                  : benefit.highlight ? "font-semibold text-foreground" : "text-foreground"
-                              )}>
-                                {benefit.text}
-                              </span>
-                              {isIncluded && benefitTooltips[benefit.text] && (
-                                <Tooltip delayDuration={0}>
-                                  <TooltipTrigger asChild>
-                                    <button 
-                                      type="button"
-                                      className="w-5 h-5 rounded-full bg-muted/50 hover:bg-muted flex items-center justify-center transition-colors flex-shrink-0"
+                            <div className="flex flex-col gap-0.5 flex-1">
+                              <div className="flex items-center gap-1.5">
+                                <span className={cn(
+                                  "text-sm",
+                                  !isIncluded 
+                                    ? "text-muted-foreground/50 line-through"
+                                    : benefit.highlight ? "font-semibold text-foreground" : "text-foreground"
+                                )}>
+                                  {benefit.text}
+                                </span>
+                                {isIncluded && benefitTooltips[benefit.text] && !showAllDescriptions && (
+                                  <Tooltip delayDuration={0}>
+                                    <TooltipTrigger asChild>
+                                      <button 
+                                        type="button"
+                                        className="w-5 h-5 rounded-full bg-muted/50 hover:bg-muted flex items-center justify-center transition-colors flex-shrink-0"
+                                      >
+                                        <Info className="w-3 h-3 text-muted-foreground" />
+                                      </button>
+                                    </TooltipTrigger>
+                                    <TooltipContent 
+                                      side="right" 
+                                      align="center"
+                                      className="max-w-[220px] text-xs font-normal leading-relaxed"
                                     >
-                                      <Info className="w-3 h-3 text-muted-foreground" />
-                                    </button>
-                                  </TooltipTrigger>
-                                  <TooltipContent 
-                                    side="right" 
-                                    align="center"
-                                    className="max-w-[220px] text-xs font-normal leading-relaxed"
+                                      <p>{benefitTooltips[benefit.text]}</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                )}
+                                {benefit.highlight && currentPlan.id === 'premium' && (
+                                  <motion.span 
+                                    className="text-[10px] bg-violet-500/20 text-violet-600 dark:text-violet-400 px-1.5 py-0.5 rounded-full"
+                                    initial={{ scale: 0 }}
+                                    animate={{ scale: 1 }}
+                                    transition={{ delay: 0.3 + benefitIndex * 0.05, type: "spring" as const }}
                                   >
-                                    <p>{benefitTooltips[benefit.text]}</p>
-                                  </TooltipContent>
-                                </Tooltip>
+                                    Exclusivo
+                                  </motion.span>
+                                )}
+                              </div>
+                              {/* Show description inline when toggle is on */}
+                              {showAllDescriptions && isIncluded && benefitTooltips[benefit.text] && (
+                                <motion.p 
+                                  className="text-[11px] text-muted-foreground leading-relaxed pl-0.5"
+                                  initial={{ opacity: 0, height: 0 }}
+                                  animate={{ opacity: 1, height: 'auto' }}
+                                  transition={{ duration: 0.2 }}
+                                >
+                                  {benefitTooltips[benefit.text]}
+                                </motion.p>
                               )}
                             </div>
-                            {benefit.highlight && currentPlan.id === 'premium' && (
-                              <motion.span 
-                                className="text-[10px] bg-violet-500/20 text-violet-600 dark:text-violet-400 px-1.5 py-0.5 rounded-full"
-                                initial={{ scale: 0 }}
-                                animate={{ scale: 1 }}
-                                transition={{ delay: 0.3 + benefitIndex * 0.05, type: "spring" }}
-                              >
-                                Exclusivo
-                              </motion.span>
-                            )}
                           </motion.li>
                         );
                       })}
