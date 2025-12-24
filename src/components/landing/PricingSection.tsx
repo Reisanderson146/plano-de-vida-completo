@@ -272,37 +272,47 @@ const PricingSection = ({ onCheckout, onLogin, loading }: PricingSectionProps) =
         {/* Carousel Container */}
         <div className="relative max-w-md mx-auto px-12 md:px-16" style={{ perspective: "1000px" }}>
           {/* Navigation Arrows */}
-          <motion.button
+          <button
             onClick={scrollPrev}
             className={cn(
-              "absolute left-0 top-1/2 -translate-y-1/2 z-20",
+              "absolute left-0 top-1/2 z-20",
               "w-10 h-10 md:w-12 md:h-12 rounded-full bg-card border border-border shadow-lg",
               "flex items-center justify-center",
-              !canScrollPrev && "opacity-30 cursor-not-allowed"
+              "transition-all duration-200 ease-out",
+              "-translate-y-1/2 hover:shadow-xl hover:border-primary/30",
+              canScrollPrev 
+                ? "hover:bg-primary/5 active:scale-95" 
+                : "opacity-30 cursor-not-allowed"
             )}
             disabled={!canScrollPrev}
             aria-label="Plano anterior"
-            whileHover={canScrollPrev ? { scale: 1.1, boxShadow: "0 10px 30px rgba(0,0,0,0.15)" } : {}}
-            whileTap={canScrollPrev ? { scale: 0.95 } : {}}
           >
-            <ChevronLeft className="w-5 h-5 md:w-6 md:h-6 text-foreground" />
-          </motion.button>
+            <ChevronLeft className={cn(
+              "w-5 h-5 md:w-6 md:h-6 text-foreground transition-transform duration-200",
+              canScrollPrev && "group-hover:-translate-x-0.5"
+            )} />
+          </button>
           
-          <motion.button
+          <button
             onClick={scrollNext}
             className={cn(
-              "absolute right-0 top-1/2 -translate-y-1/2 z-20",
+              "absolute right-0 top-1/2 z-20",
               "w-10 h-10 md:w-12 md:h-12 rounded-full bg-card border border-border shadow-lg",
               "flex items-center justify-center",
-              !canScrollNext && "opacity-30 cursor-not-allowed"
+              "transition-all duration-200 ease-out",
+              "-translate-y-1/2 hover:shadow-xl hover:border-primary/30",
+              canScrollNext 
+                ? "hover:bg-primary/5 active:scale-95" 
+                : "opacity-30 cursor-not-allowed"
             )}
             disabled={!canScrollNext}
             aria-label="Próximo plano"
-            whileHover={canScrollNext ? { scale: 1.1, boxShadow: "0 10px 30px rgba(0,0,0,0.15)" } : {}}
-            whileTap={canScrollNext ? { scale: 0.95 } : {}}
           >
-            <ChevronRight className="w-5 h-5 md:w-6 md:h-6 text-foreground" />
-          </motion.button>
+            <ChevronRight className={cn(
+              "w-5 h-5 md:w-6 md:h-6 text-foreground transition-transform duration-200",
+              canScrollNext && "group-hover:translate-x-0.5"
+            )} />
+          </button>
 
           {/* Animated Card Display */}
           <div className="overflow-hidden rounded-2xl">
