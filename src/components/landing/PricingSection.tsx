@@ -232,98 +232,195 @@ const PricingSection = ({ onCheckout, onLogin, loading }: PricingSectionProps) =
   const currentPlan = plans[selectedIndex];
 
   return (
-    <section id="pricing" className="py-24 md:py-32 px-4 relative overflow-hidden">
+    <section id="pricing" className="py-24 md:py-36 px-4 relative overflow-hidden">
       {/* Dramatic Background Effects */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {/* Primary radial gradient */}
+        {/* Primary radial gradient with animation */}
         <motion.div 
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1200px] h-[1200px] rounded-full"
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1400px] h-[1400px] rounded-full"
           animate={{
             background: selectedIndex === 0 
-              ? "radial-gradient(circle, rgba(42, 140, 104, 0.25) 0%, rgba(42, 140, 104, 0.1) 30%, transparent 70%)"
-              : "radial-gradient(circle, rgba(139, 92, 246, 0.25) 0%, rgba(139, 92, 246, 0.1) 30%, transparent 70%)",
+              ? "radial-gradient(circle, rgba(42, 140, 104, 0.3) 0%, rgba(42, 140, 104, 0.15) 25%, rgba(42, 140, 104, 0.05) 50%, transparent 70%)"
+              : "radial-gradient(circle, rgba(139, 92, 246, 0.3) 0%, rgba(139, 92, 246, 0.15) 25%, rgba(139, 92, 246, 0.05) 50%, transparent 70%)",
+            scale: [1, 1.05, 1],
           }}
-          transition={{ duration: 0.8 }}
+          transition={{ 
+            background: { duration: 0.8 },
+            scale: { duration: 8, repeat: Infinity, ease: "easeInOut" }
+          }}
         />
+        
         {/* Animated floating orbs */}
         <motion.div 
-          className="absolute top-20 left-[10%] w-72 h-72 rounded-full bg-primary/10 blur-3xl"
+          className="absolute top-10 left-[5%] w-80 h-80 rounded-full bg-primary/15 blur-3xl"
           animate={{
-            y: [0, -30, 0],
-            opacity: [0.3, 0.5, 0.3],
+            y: [0, -40, 0],
+            x: [0, 20, 0],
+            opacity: [0.4, 0.6, 0.4],
+            scale: [1, 1.1, 1],
           }}
-          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+          transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
         />
         <motion.div 
-          className="absolute bottom-20 right-[10%] w-96 h-96 rounded-full bg-violet-500/10 blur-3xl"
+          className="absolute bottom-10 right-[5%] w-96 h-96 rounded-full bg-violet-500/15 blur-3xl"
           animate={{
-            y: [0, 30, 0],
+            y: [0, 40, 0],
+            x: [0, -20, 0],
+            opacity: [0.4, 0.6, 0.4],
+            scale: [1, 1.1, 1],
+          }}
+          transition={{ duration: 9, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+        />
+        <motion.div 
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full bg-emerald-400/10 blur-3xl"
+          animate={{
+            scale: [1, 1.3, 1],
             opacity: [0.3, 0.5, 0.3],
           }}
-          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+          transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
         />
-        {/* Grid pattern overlay */}
+        
+        {/* Animated particles */}
+        {[...Array(6)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute w-2 h-2 rounded-full bg-primary/30"
+            style={{
+              left: `${15 + i * 15}%`,
+              top: `${20 + (i % 3) * 25}%`,
+            }}
+            animate={{
+              y: [0, -30, 0],
+              opacity: [0.3, 0.7, 0.3],
+              scale: [1, 1.5, 1],
+            }}
+            transition={{
+              duration: 3 + i * 0.5,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: i * 0.3,
+            }}
+          />
+        ))}
+        
+        {/* Subtle grid pattern */}
         <div 
-          className="absolute inset-0 opacity-[0.02] dark:opacity-[0.03]"
+          className="absolute inset-0 opacity-[0.015] dark:opacity-[0.025]"
           style={{
             backgroundImage: `linear-gradient(to right, currentColor 1px, transparent 1px),
                              linear-gradient(to bottom, currentColor 1px, transparent 1px)`,
-            backgroundSize: '60px 60px'
+            backgroundSize: '50px 50px'
           }}
         />
       </div>
 
       <div className="max-w-5xl mx-auto relative z-10">
-        {/* Section Header - More Impactful */}
+        {/* Section Header - Ultra Impactful */}
         <motion.div 
-          className="text-center mb-12 md:mb-16"
-          initial={{ opacity: 0, y: 30 }}
+          className="text-center mb-14 md:mb-20"
+          initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.7, ease: "easeOut" }}
         >
           <motion.div 
-            className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-semibold mb-6"
-            initial={{ scale: 0.9, opacity: 0 }}
-            whileInView={{ scale: 1, opacity: 1 }}
+            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-gradient-to-r from-primary/15 to-emerald-500/15 border border-primary/25 text-primary text-sm font-bold mb-8 shadow-lg shadow-primary/10"
+            initial={{ scale: 0.8, opacity: 0, y: 20 }}
+            whileInView={{ scale: 1, opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ delay: 0.1 }}
+            transition={{ delay: 0.15, type: "spring", stiffness: 200 }}
+            whileHover={{ scale: 1.05 }}
           >
-            <Sparkles className="w-4 h-4" />
+            <motion.div
+              animate={{ rotate: [0, 15, -15, 0] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+            >
+              <Sparkles className="w-4 h-4" />
+            </motion.div>
             <span>Escolha seu plano</span>
           </motion.div>
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6 leading-tight">
+          
+          <motion.h2 
+            className="text-4xl md:text-5xl lg:text-7xl font-extrabold text-foreground mb-8 leading-tight"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2, duration: 0.6 }}
+          >
             Invista no seu{" "}
-            <span className="bg-gradient-to-r from-primary via-emerald-500 to-teal-500 bg-clip-text text-transparent">
+            <motion.span 
+              className="bg-gradient-to-r from-primary via-emerald-400 to-teal-400 bg-clip-text text-transparent inline-block"
+              animate={{
+                backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
+              }}
+              transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
+              style={{ backgroundSize: "200% 200%" }}
+            >
               Futuro
-            </span>
-          </h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+            </motion.span>
+          </motion.h2>
+          
+          <motion.p 
+            className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto leading-relaxed"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.3, duration: 0.5 }}
+          >
             Comece sua jornada de transformação com um plano que cabe no seu bolso
-          </p>
+          </motion.p>
         </motion.div>
 
-        {/* Outer Container Card - The "card within card" effect */}
+        {/* Outer Container Card - Enhanced card-within-card effect */}
         <motion.div
-          className="relative p-2 md:p-3 rounded-3xl bg-gradient-to-br from-primary/20 via-emerald-500/10 to-violet-500/20 shadow-2xl shadow-primary/10"
-          initial={{ opacity: 0, scale: 0.95 }}
-          whileInView={{ opacity: 1, scale: 1 }}
+          className="relative p-1.5 md:p-2 rounded-[2rem] shadow-2xl"
+          initial={{ opacity: 0, scale: 0.9, y: 40 }}
+          whileInView={{ opacity: 1, scale: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.2 }}
+          transition={{ duration: 0.6, delay: 0.3, type: "spring", stiffness: 100 }}
+          style={{
+            background: selectedIndex === 0 
+              ? "linear-gradient(135deg, rgba(42, 140, 104, 0.4) 0%, rgba(16, 185, 129, 0.2) 50%, rgba(45, 212, 191, 0.3) 100%)"
+              : "linear-gradient(135deg, rgba(139, 92, 246, 0.4) 0%, rgba(168, 85, 247, 0.2) 50%, rgba(192, 132, 252, 0.3) 100%)",
+          }}
         >
-          {/* Inner glow border effect */}
-          <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-primary/30 via-transparent to-violet-500/30 opacity-50 blur-sm" />
+          {/* Animated border glow */}
+          <motion.div 
+            className="absolute inset-0 rounded-[2rem] opacity-60 blur-md"
+            animate={{
+              background: selectedIndex === 0 
+                ? ["linear-gradient(0deg, rgba(42, 140, 104, 0.5), transparent)", "linear-gradient(180deg, rgba(42, 140, 104, 0.5), transparent)", "linear-gradient(360deg, rgba(42, 140, 104, 0.5), transparent)"]
+                : ["linear-gradient(0deg, rgba(139, 92, 246, 0.5), transparent)", "linear-gradient(180deg, rgba(139, 92, 246, 0.5), transparent)", "linear-gradient(360deg, rgba(139, 92, 246, 0.5), transparent)"],
+            }}
+            transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+          />
           
           {/* Main content container */}
-          <div className="relative bg-card/95 backdrop-blur-xl rounded-2xl p-6 md:p-10 border border-border/50">
-            {/* Decorative corner elements */}
-            <div className="absolute top-4 left-4 w-8 h-8 border-l-2 border-t-2 border-primary/30 rounded-tl-lg" />
-            <div className="absolute top-4 right-4 w-8 h-8 border-r-2 border-t-2 border-primary/30 rounded-tr-lg" />
-            <div className="absolute bottom-4 left-4 w-8 h-8 border-l-2 border-b-2 border-primary/30 rounded-bl-lg" />
-            <div className="absolute bottom-4 right-4 w-8 h-8 border-r-2 border-b-2 border-primary/30 rounded-br-lg" />
+          <div className="relative bg-card/98 backdrop-blur-2xl rounded-[1.75rem] p-8 md:p-12 border border-border/30 shadow-inner">
+            {/* Decorative corner elements with animation */}
+            <motion.div 
+              className="absolute top-5 left-5 w-10 h-10 border-l-2 border-t-2 border-primary/40 rounded-tl-xl"
+              animate={{ opacity: [0.4, 0.8, 0.4] }}
+              transition={{ duration: 3, repeat: Infinity }}
+            />
+            <motion.div 
+              className="absolute top-5 right-5 w-10 h-10 border-r-2 border-t-2 border-primary/40 rounded-tr-xl"
+              animate={{ opacity: [0.4, 0.8, 0.4] }}
+              transition={{ duration: 3, repeat: Infinity, delay: 0.5 }}
+            />
+            <motion.div 
+              className="absolute bottom-5 left-5 w-10 h-10 border-l-2 border-b-2 border-primary/40 rounded-bl-xl"
+              animate={{ opacity: [0.4, 0.8, 0.4] }}
+              transition={{ duration: 3, repeat: Infinity, delay: 1 }}
+            />
+            <motion.div 
+              className="absolute bottom-5 right-5 w-10 h-10 border-r-2 border-b-2 border-primary/40 rounded-br-xl"
+              animate={{ opacity: [0.4, 0.8, 0.4] }}
+              transition={{ duration: 3, repeat: Infinity, delay: 1.5 }}
+            />
 
             {/* Carousel Container */}
-            <div className="relative max-w-md mx-auto px-12 md:px-16" style={{ perspective: "1000px" }}>
+            <div className="relative max-w-md mx-auto px-12 md:px-16" style={{ perspective: "1200px" }}>
           {/* Navigation Arrows */}
           <button
             onClick={scrollPrev}
