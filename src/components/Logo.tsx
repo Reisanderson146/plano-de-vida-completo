@@ -60,34 +60,57 @@ export function Logo({
       
       {showText && (
         singleLine ? (
-          <span className={cn(
-            "font-bold tracking-wide",
-            textSizeClasses[size],
-            isLight 
-              ? "text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.4)]" 
-              : "bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600 bg-clip-text text-transparent"
-          )}>
-            Plano de Vida
-          </span>
-        ) : (
-          <div className="flex flex-col leading-none">
+          <>
+            {/* Mobile: PV */}
             <span className={cn(
-              "font-bold tracking-tight",
+              "font-bold tracking-wide sm:hidden",
               textSizeClasses[size],
               isLight 
-                ? "text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]" 
-                : "text-foreground"
+                ? "text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.4)]" 
+                : "bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600 bg-clip-text text-transparent"
             )}>
-              Plano de
+              PV
             </span>
+            {/* Desktop: Plano de Vida */}
             <span className={cn(
-              "font-extrabold tracking-tight bg-gradient-to-r from-emerald-400 via-teal-400 to-emerald-500 bg-clip-text text-transparent",
+              "font-bold tracking-wide hidden sm:inline",
               textSizeClasses[size],
-              isLight && "drop-shadow-[0_2px_8px_rgba(16,185,129,0.4)]"
+              isLight 
+                ? "text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.4)]" 
+                : "bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600 bg-clip-text text-transparent"
             )}>
-              Vida
+              Plano de Vida
             </span>
-          </div>
+          </>
+        ) : (
+          <>
+            {/* Mobile: PV */}
+            <span className={cn(
+              "font-extrabold tracking-tight bg-gradient-to-r from-emerald-400 via-teal-400 to-emerald-500 bg-clip-text text-transparent sm:hidden",
+              textSizeClasses[size]
+            )}>
+              PV
+            </span>
+            {/* Desktop: Plano de Vida stacked */}
+            <div className="hidden sm:flex flex-col leading-none">
+              <span className={cn(
+                "font-bold tracking-tight",
+                textSizeClasses[size],
+                isLight 
+                  ? "text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]" 
+                  : "text-foreground"
+              )}>
+                Plano de
+              </span>
+              <span className={cn(
+                "font-extrabold tracking-tight bg-gradient-to-r from-emerald-400 via-teal-400 to-emerald-500 bg-clip-text text-transparent",
+                textSizeClasses[size],
+                isLight && "drop-shadow-[0_2px_8px_rgba(16,185,129,0.4)]"
+              )}>
+                Vida
+              </span>
+            </div>
+          </>
         )
       )}
     </div>
