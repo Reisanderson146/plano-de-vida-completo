@@ -53,9 +53,15 @@ const LandingPage = () => {
 
   return (
     <div className="min-h-screen bg-background relative">
-      {/* Theme Toggle - Fixed position */}
-      <div className="fixed top-4 right-4 z-50">
+      {/* Header with theme toggle on left and login button on right */}
+      <div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-3 bg-background/80 backdrop-blur-md border-b border-border/50">
         <DarkModeToggle />
+        <button
+          onClick={handleLogin}
+          className="px-4 py-2 text-sm font-medium text-primary-foreground bg-primary rounded-lg hover:bg-primary/90 transition-colors shadow-sm"
+        >
+          Login
+        </button>
       </div>
       
       <HeroSection onCtaClick={scrollToPricing} />
