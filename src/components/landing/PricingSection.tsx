@@ -274,7 +274,7 @@ const PricingSection = ({ onCheckout, onLogin, loading }: PricingSectionProps) =
           {/* Navigation Buttons */}
           <motion.button
             onClick={scrollPrev}
-            className="absolute left-0 md:-left-14 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-card border border-border shadow-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+            className="absolute left-0 md:-left-14 top-[280px] -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-card border border-border shadow-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
             aria-label="Anterior"
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
@@ -284,7 +284,7 @@ const PricingSection = ({ onCheckout, onLogin, loading }: PricingSectionProps) =
           
           <motion.button
             onClick={scrollNext}
-            className="absolute right-0 md:-right-14 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-card border border-border shadow-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+            className="absolute right-0 md:-right-14 top-[280px] -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-card border border-border shadow-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
             aria-label="Próximo"
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
