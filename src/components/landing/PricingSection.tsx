@@ -271,210 +271,41 @@ const PricingSection = ({ onCheckout, onLogin, loading }: PricingSectionProps) =
           </p>
         </motion.div>
 
-        {/* Desktop: Side by Side Plans */}
-        <div className="hidden md:grid md:grid-cols-2 gap-4 md:gap-6 max-w-3xl mx-auto mb-8">
-          {plans.map((plan, index) => (
-            <motion.div
-              key={plan.id}
-              initial={{ opacity: 0, y: 30, scale: 0.95 }}
-              whileInView={{ opacity: 1, y: 0, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              whileHover={{ y: -8, transition: { duration: 0.3 } }}
-              className="relative group"
-            >
-              {/* Glow effect on hover */}
-              <motion.div 
-                className={cn(
-                  "absolute -inset-1 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl",
-                  plan.color === 'emerald' ? "bg-primary/20" : "bg-violet-500/20"
-                )}
-              />
-              
-              {/* Recommended Badge */}
-              {plan.recommended && (
-                <motion.div 
-                  className="absolute -top-3 left-1/2 -translate-x-1/2 z-10"
-                  initial={{ scale: 0, y: 10 }}
-                  whileInView={{ scale: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: 0.3, type: "spring", stiffness: 300 }}
-                >
-                  <div className="flex items-center gap-1.5 px-4 py-1.5 bg-gradient-to-r from-violet-600 to-purple-600 rounded-full text-white font-medium text-xs shadow-lg shadow-violet-500/30">
-                    <Crown className="w-3 h-3" />
-                    <span>Mais Popular</span>
-                  </div>
-                </motion.div>
-              )}
-              
-              <Card className={cn(
-                "relative overflow-hidden border-2 bg-card shadow-lg transition-all duration-300",
-                plan.color === 'emerald' 
-                  ? "border-primary/20 hover:border-primary/50 hover:shadow-primary/10"
-                  : "border-violet-500/30 hover:border-violet-500/60 hover:shadow-violet-500/15",
-                plan.recommended && "pt-2"
-              )}>
-                {/* Animated gradient background */}
-                <motion.div 
-                  className={cn(
-                    "absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500",
-                    plan.color === 'emerald'
-                      ? "bg-gradient-to-br from-primary/5 via-transparent to-emerald-500/5"
-                      : "bg-gradient-to-br from-violet-500/8 via-transparent to-purple-500/8"
-                  )}
-                />
-                
-                {/* Shimmer effect */}
-                <motion.div
-                  className="absolute inset-0 opacity-0 group-hover:opacity-100"
-                  initial={false}
-                  animate={{
-                    background: [
-                      "linear-gradient(90deg, transparent 0%, transparent 100%)",
-                      "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.1) 50%, transparent 100%)",
-                      "linear-gradient(90deg, transparent 0%, transparent 100%)",
-                    ],
-                  }}
-                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                />
+        {/* Carousel Plans */}
+        <div className="mb-8 max-w-4xl mx-auto relative">
+          {/* Navigation Buttons - Hidden on mobile */}
+          <button
+            onClick={scrollPrev}
+            disabled={!canScrollPrev}
+            className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 w-10 h-10 rounded-full bg-card border border-border shadow-lg items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-30"
+            aria-label="Anterior"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+          
+          <button
+            onClick={scrollNext}
+            disabled={!canScrollNext}
+            className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 w-10 h-10 rounded-full bg-card border border-border shadow-lg items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-30"
+            aria-label="Próximo"
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
 
-                <CardHeader className="pt-6 pb-3 text-center relative">
-                  {/* Plan Icon with animation */}
-                  <motion.div 
-                    className={cn(
-                      "inline-flex items-center justify-center w-12 h-12 rounded-xl mx-auto mb-3",
-                      plan.color === 'emerald'
-                        ? "bg-gradient-to-br from-primary/20 to-emerald-500/20 text-primary"
-                        : "bg-gradient-to-br from-violet-500/20 to-purple-500/20 text-violet-500"
-                    )}
-                    whileHover={{ rotate: [0, -10, 10, 0], scale: 1.1 }}
-                    transition={{ duration: 0.5 }}
-                  >
-                    <plan.icon className="w-6 h-6" />
-                  </motion.div>
-                  
-                  <CardTitle className={cn(
-                    "text-lg font-bold mb-1",
-                    plan.color === 'emerald'
-                      ? "text-foreground"
-                      : "bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent"
-                  )}>
-                    {plan.name}
-                  </CardTitle>
-                  
-                  <p className="text-xs text-muted-foreground mb-3">{plan.subtitle}</p>
-                  
-                  {/* Price */}
-                  <motion.div 
-                    className="flex items-baseline justify-center gap-1"
-                    whileHover={{ scale: 1.05 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <span className={cn(
-                      "text-3xl font-bold",
-                      plan.color === 'emerald'
-                        ? "text-foreground"
-                        : "bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent"
-                    )}>
-                      {plan.price}
-                    </span>
-                    <span className="text-muted-foreground text-sm">/mês</span>
-                  </motion.div>
-                </CardHeader>
-
-                <CardContent className="relative space-y-3 pb-6 px-4">
-                  {/* All benefits - show all features with proper styling */}
-                  <div className="space-y-2">
-                    {plan.benefits.map((benefit, i) => {
-                      const isIncluded = plan.id === 'premium' || benefit.includedInBasic;
-                      const isPremiumExclusive = !benefit.includedInBasic;
-                      
-                      return (
-                        <motion.div 
-                          key={i}
-                          className="flex items-center gap-2 text-sm"
-                          initial={{ opacity: 0, x: -10 }}
-                          whileInView={{ opacity: 1, x: 0 }}
-                          viewport={{ once: true }}
-                          transition={{ delay: 0.1 + i * 0.03 }}
-                        >
-                          <div className={cn(
-                            "w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0",
-                            isIncluded
-                              ? plan.color === 'emerald' 
-                                ? "bg-primary/20 text-primary" 
-                                : isPremiumExclusive
-                                  ? "bg-violet-500/30 text-violet-400"
-                                  : "bg-violet-500/20 text-violet-500"
-                              : "bg-muted/50 text-muted-foreground/30"
-                          )}>
-                            {isIncluded ? (
-                              <Check className="w-3 h-3" />
-                            ) : (
-                              <X className="w-3 h-3" />
-                            )}
-                          </div>
-                          <span className={cn(
-                            "text-sm",
-                            isIncluded 
-                              ? isPremiumExclusive && plan.id === 'premium'
-                                ? "text-foreground font-medium"
-                                : "text-foreground"
-                              : "text-muted-foreground/50 line-through decoration-muted-foreground/30"
-                          )}>
-                            {benefit.text}
-                          </span>
-                          {isPremiumExclusive && plan.id === 'premium' && benefit.highlight && (
-                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-violet-500/20 text-violet-400 font-medium">
-                              IA
-                            </span>
-                          )}
-                        </motion.div>
-                      );
-                    })}
-                  </div>
-                  
-                  {/* CTA Button */}
-                  <motion.div
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    <Button
-                      onClick={() => onCheckout(plan.id)}
-                      disabled={loading === plan.id}
-                      className={cn(
-                        "w-full font-semibold py-5 mt-4 transition-all duration-300",
-                        plan.color === 'emerald'
-                          ? "bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20 hover:shadow-primary/30"
-                          : "bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40"
-                      )}
-                    >
-                      {loading === plan.id ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                      ) : (
-                        <>
-                          <Zap className="w-4 h-4 mr-2" />
-                          Começar Agora
-                        </>
-                      )}
-                    </Button>
-                  </motion.div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
-        </div>
-
-        {/* Mobile: Carousel Plans */}
-        <div className="md:hidden mb-8">
           <div className="overflow-hidden" ref={emblaRef}>
             <div className="flex touch-pan-y">
-              {plans.map((plan, index) => (
-                <div key={plan.id} className="flex-[0_0_85%] min-w-0 px-2 first:pl-4 last:pr-4">
-                  <div className="relative">
+              {plans.map((plan) => (
+                <div key={plan.id} className="flex-[0_0_85%] md:flex-[0_0_45%] min-w-0 px-2 first:pl-4 last:pr-4">
+                  <div className="relative group pt-4">
+                    {/* Glow effect on hover */}
+                    <div className={cn(
+                      "absolute -inset-1 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl",
+                      plan.color === 'emerald' ? "bg-primary/20" : "bg-violet-500/20"
+                    )} />
+                    
                     {/* Recommended Badge */}
                     {plan.recommended && (
-                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
+                      <div className="absolute -top-0 left-1/2 -translate-x-1/2 z-10">
                         <div className="flex items-center gap-1.5 px-4 py-1.5 bg-gradient-to-r from-violet-600 to-purple-600 rounded-full text-white font-medium text-xs shadow-lg shadow-violet-500/30">
                           <Crown className="w-3 h-3" />
                           <span>Mais Popular</span>
@@ -483,11 +314,11 @@ const PricingSection = ({ onCheckout, onLogin, loading }: PricingSectionProps) =
                     )}
                     
                     <Card className={cn(
-                      "relative overflow-hidden border-2 bg-card shadow-lg",
+                      "relative overflow-hidden border-2 bg-card shadow-lg transition-all duration-300",
                       plan.color === 'emerald' 
-                        ? "border-primary/20"
-                        : "border-violet-500/30",
-                      plan.recommended && "pt-2"
+                        ? "border-primary/20 hover:border-primary/50 hover:shadow-primary/10"
+                        : "border-violet-500/30 hover:border-violet-500/60 hover:shadow-violet-500/15",
+                      plan.recommended && "mt-2"
                     )}>
                       <CardHeader className="pt-6 pb-3 text-center relative">
                         <div className={cn(
@@ -556,6 +387,11 @@ const PricingSection = ({ onCheckout, onLogin, loading }: PricingSectionProps) =
                               )}>
                                 {benefit.text}
                               </span>
+                              {isPremiumExclusive && plan.id === 'premium' && benefit.highlight && (
+                                <span className="text-[10px] px-1.5 py-0.5 rounded bg-violet-500/20 text-violet-400 font-medium">
+                                  IA
+                                </span>
+                              )}
                             </div>
                           );
                         })}
@@ -588,7 +424,7 @@ const PricingSection = ({ onCheckout, onLogin, loading }: PricingSectionProps) =
           </div>
 
           {/* Dots Indicator */}
-          <div className="flex justify-center gap-2 mt-4">
+          <div className="flex justify-center gap-2 mt-6">
             {plans.map((_, index) => (
               <button
                 key={index}
@@ -604,8 +440,8 @@ const PricingSection = ({ onCheckout, onLogin, loading }: PricingSectionProps) =
             ))}
           </div>
 
-          {/* Swipe hint */}
-          <p className="text-center text-xs text-muted-foreground mt-3">
+          {/* Swipe hint on mobile */}
+          <p className="text-center text-xs text-muted-foreground mt-3 md:hidden">
             Deslize para comparar os planos
           </p>
         </div>
