@@ -98,7 +98,7 @@ export default function Cadastro() {
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
 
   // Subscription state from centralized hook
-  const { tier: subscriptionTier, isActive: isSubscribed, isLoading: subscriptionLoading, refresh: refreshSubscription } = useSubscription();
+  const { tier: subscriptionTier, isActive: isSubscribed, isLoading: subscriptionLoading, refresh: refreshSubscription, isAdmin } = useSubscription();
   const [planCounts, setPlanCounts] = useState<PlanCounts>({ individual: 0, familiar: 0, filho: 0 });
   const [showSubscriptionDialog, setShowSubscriptionDialog] = useState(false);
   const [pendingCreate, setPendingCreate] = useState(false);
@@ -191,15 +191,15 @@ export default function Cadastro() {
     if (!user) return;
     clearAllErrors();
 
-    // Check subscription first
-    if (!isSubscribed) {
+    // Check subscription first (admins bypass this check)
+    if (!isSubscribed && !isAdmin) {
       setPendingCreate(true);
       setShowSubscriptionDialog(true);
       return;
     }
 
-    // Check plan limits
-    const canCreate = canCreatePlanType(subscriptionTier, planType, planCounts);
+    // Check plan limits (admins bypass this check)
+    const canCreate = canCreatePlanType(subscriptionTier, planType, planCounts, isAdmin);
     if (!canCreate.allowed) {
       toast({
         title: 'Limite de planos atingido',

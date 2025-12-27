@@ -26,6 +26,7 @@ interface AISummaryProps {
   planId: string;
   period: string;
   subscriptionTier: SubscriptionTier | null;
+  isAdmin?: boolean;
   onNoteSaved?: () => void;
 }
 
@@ -72,6 +73,7 @@ export function AISummary({
   planId, 
   period, 
   subscriptionTier,
+  isAdmin = false,
   onNoteSaved 
 }: AISummaryProps) {
   const { toast } = useToast();
@@ -112,7 +114,7 @@ export function AISummary({
     return () => clearInterval(typeInterval);
   }, [summary]);
 
-  const canUseAI = hasAIAccess(subscriptionTier);
+  const canUseAI = hasAIAccess(subscriptionTier, isAdmin);
 
   // Load user's preferred style from profile
   useEffect(() => {

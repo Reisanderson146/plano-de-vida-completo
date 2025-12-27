@@ -78,7 +78,7 @@ const getStatusLabel = (percentage: number) => {
 
 export default function Balanco() {
   const { user } = useAuth();
-  const { tier: subscriptionTier } = useSubscription();
+  const { tier: subscriptionTier, isAdmin } = useSubscription();
   const { toast } = useToast();
   const { exportToPDF } = useExportReport();
   const [loading, setLoading] = useState(true);
@@ -615,6 +615,7 @@ export default function Balanco() {
           planId={selectedPlanId}
           period={getDateRangeLabel(dateRange)}
           subscriptionTier={subscriptionTier}
+          isAdmin={isAdmin}
           onNoteSaved={loadData}
         />
 

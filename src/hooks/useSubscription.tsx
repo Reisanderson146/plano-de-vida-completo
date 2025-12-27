@@ -8,6 +8,7 @@ interface SubscriptionState {
   status: string | null;
   isLoading: boolean;
   isValidating: boolean;
+  isAdmin: boolean;
 }
 
 interface UseSubscriptionReturn extends SubscriptionState {
@@ -21,6 +22,7 @@ interface UseSubscriptionReturn extends SubscriptionState {
 let globalCache: {
   tier: SubscriptionTier | null;
   status: string | null;
+  isAdmin: boolean;
   timestamp: number;
 } | null = null;
 
@@ -33,16 +35,50 @@ export function useSubscription(): UseSubscriptionReturn {
     status: globalCache?.status ?? null,
     isLoading: !globalCache,
     isValidating: false,
+    isAdmin: globalCache?.isAdmin ?? false,
   });
+
+  // Check if user is admin
+  const checkAdminStatus = useCallback(async (): Promise<boolean> => {
+    if (!user) return false;
+    
+    try {
+      const { data, error } = await supabase.rpc('is_admin');
+      if (error) {
+        console.error('Error checking admin status:', error);
+        return false;
+      }
+      return data === true;
+    } catch (error) {
+      console.error('Error checking admin status:', error);
+      return false;
+    }
+  }, [user]);
 
   // Load from local profile first (instant)
   const loadFromProfile = useCallback(async () => {
     if (!user) {
-      setState({ tier: null, status: null, isLoading: false, isValidating: false });
+      setState({ tier: null, status: null, isLoading: false, isValidating: false, isAdmin: false });
       return;
     }
 
     try {
+      // Check admin status first
+      const isAdmin = await checkAdminStatus();
+      
+      // If admin, grant full access immediately
+      if (isAdmin) {
+        setState({
+          tier: 'premium', // Admins get premium tier
+          status: 'active',
+          isLoading: false,
+          isValidating: false,
+          isAdmin: true,
+        });
+        globalCache = { tier: 'premium', status: 'active', isAdmin: true, timestamp: Date.now() };
+        return;
+      }
+
       const { data: profile } = await supabase
         .from('profiles')
         .select('subscription_status, subscription_plan')
@@ -59,20 +95,24 @@ export function useSubscription(): UseSubscriptionReturn {
           tier: tier,
           status: status,
           isLoading: false,
+          isAdmin: false,
         }));
 
         // Update global cache
-        globalCache = { tier, status, timestamp: Date.now() };
+        globalCache = { tier, status, isAdmin: false, timestamp: Date.now() };
       }
     } catch (error) {
       console.error('Error loading profile subscription:', error);
       setState(prev => ({ ...prev, isLoading: false }));
     }
-  }, [user]);
+  }, [user, checkAdminStatus]);
 
   // Validate with Stripe in background (slower but accurate)
   const validateWithStripe = useCallback(async () => {
     if (!user) return;
+
+    // Skip validation if user is admin
+    if (state.isAdmin) return;
 
     // Skip validation if cache is fresh
     if (globalCache && Date.now() - globalCache.timestamp < CACHE_TTL) {
@@ -86,7 +126,7 @@ export function useSubscription(): UseSubscriptionReturn {
       
       if (!error && data) {
         const tier = data.product_id ? getTierByProductId(data.product_id) : 
-                     data.subscription_status === 'active' ? 'basic' : null;
+                     (data.subscription_status === 'active' || data.subscription_status === 'trialing') ? 'basic' : null;
         const status = data.subscription_status || 'inactive';
 
         setState(prev => ({
@@ -97,14 +137,14 @@ export function useSubscription(): UseSubscriptionReturn {
         }));
 
         // Update global cache
-        globalCache = { tier, status, timestamp: Date.now() };
+        globalCache = { tier, status, isAdmin: false, timestamp: Date.now() };
       }
     } catch (error) {
       console.error('Error validating subscription:', error);
     } finally {
       setState(prev => ({ ...prev, isValidating: false }));
     }
-  }, [user]);
+  }, [user, state.isAdmin]);
 
   // Initial load
   useEffect(() => {
@@ -116,6 +156,7 @@ export function useSubscription(): UseSubscriptionReturn {
           status: globalCache.status,
           isLoading: false,
           isValidating: false,
+          isAdmin: globalCache.isAdmin,
         });
         return;
       }
@@ -125,7 +166,7 @@ export function useSubscription(): UseSubscriptionReturn {
         validateWithStripe();
       });
     } else {
-      setState({ tier: null, status: null, isLoading: false, isValidating: false });
+      setState({ tier: null, status: null, isLoading: false, isValidating: false, isAdmin: false });
       globalCache = null;
     }
   }, [user, loadFromProfile, validateWithStripe]);
@@ -136,9 +177,10 @@ export function useSubscription(): UseSubscriptionReturn {
     await validateWithStripe();
   }, [loadFromProfile, validateWithStripe]);
 
-  const hasAIAccess = state.tier ? SUBSCRIPTION_TIERS[state.tier]?.features.aiSummary ?? false : false;
-  const isPremium = state.tier === 'premium';
-  const isActive = state.status === 'active';
+  // Admin users always have full access
+  const hasAIAccess = state.isAdmin || (state.tier ? SUBSCRIPTION_TIERS[state.tier]?.features.aiSummary ?? false : false);
+  const isPremium = state.isAdmin || state.tier === 'premium';
+  const isActive = state.isAdmin || state.status === 'active' || state.status === 'trialing';
 
   return {
     ...state,
