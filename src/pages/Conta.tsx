@@ -324,12 +324,20 @@ export default function Conta() {
         </CardHeader>
 
         <CardContent className="space-y-6">
-          {/* Price */}
+          {/* Price with Trial Badge */}
           <div className={cn(
-            "text-center py-4 rounded-xl",
+            "text-center py-4 rounded-xl relative overflow-hidden",
             isBasic && "bg-muted/30",
             isPremium && "bg-gradient-to-br from-violet-500/10 to-purple-500/10 border border-violet-500/20"
           )}>
+            {/* Trial Badge */}
+            <div className={cn(
+              "absolute top-0 right-0 text-white text-[10px] font-bold px-2 py-0.5 rounded-bl-lg",
+              isBasic ? "bg-gradient-to-r from-emerald-500 to-teal-500" : "bg-gradient-to-r from-violet-600 to-purple-600"
+            )}>
+              7 DIAS GRÁTIS
+            </div>
+            
             <div className="flex items-baseline justify-center gap-1">
               <span className={cn(
                 "text-3xl font-bold",
@@ -340,8 +348,14 @@ export default function Conta() {
               </span>
               <span className="text-sm text-muted-foreground">/mês</span>
             </div>
+            <p className={cn(
+              "text-xs font-medium mt-1",
+              isBasic ? "text-emerald-600" : "text-violet-600"
+            )}>
+              Teste grátis, cancele quando quiser
+            </p>
             {isPremium && (
-              <div className="mt-1 inline-flex items-center gap-1 bg-violet-500/20 text-violet-600 text-xs font-semibold px-2.5 py-0.5 rounded-full">
+              <div className="mt-2 inline-flex items-center gap-1 bg-violet-500/20 text-violet-600 text-xs font-semibold px-2.5 py-0.5 rounded-full">
                 <Zap className="w-3 h-3" />
                 4 planos incluídos
               </div>
@@ -412,7 +426,7 @@ export default function Conta() {
               ) : (
                 <Crown className="w-4 h-4 mr-2" />
               )}
-              Assinar {isBasic ? 'Basic' : 'Premium'}
+              Começar 7 dias grátis
             </Button>
           ) : isCurrent ? (
             <Button 

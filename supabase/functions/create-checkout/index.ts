@@ -70,13 +70,22 @@ serve(async (req) => {
     if (customers.data.length > 0) {
       customerId = customers.data[0].id;
       logStep("Found existing customer", { customerId });
+    } else {
+      // Create a new customer
+      const newCustomer = await stripe.customers.create({
+        email: user.email,
+        metadata: {
+          user_id: user.id,
+        },
+      });
+      customerId = newCustomer.id;
+      logStep("Created new customer", { customerId });
     }
 
-    // Create checkout session
+    // Create checkout session with 7-day free trial
     const origin = req.headers.get("origin") || "https://app.planosdevida.com";
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
-      customer_email: customerId ? undefined : user.email,
       line_items: [
         {
           price: priceId,
@@ -84,6 +93,14 @@ serve(async (req) => {
         },
       ],
       mode: "subscription",
+      subscription_data: {
+        trial_period_days: 7, // 7-day free trial
+        metadata: {
+          user_id: user.id,
+          tier: tier,
+        },
+      },
+      payment_method_collection: "always", // Require credit card upfront
       success_url: `${origin}/checkout-success`,
       cancel_url: `${origin}/landing`,
       metadata: {
@@ -92,7 +109,7 @@ serve(async (req) => {
       },
     });
 
-    logStep("Checkout session created", { sessionId: session.id, url: session.url });
+    logStep("Checkout session created with 7-day trial", { sessionId: session.id, url: session.url });
 
     return new Response(JSON.stringify({ url: session.url }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

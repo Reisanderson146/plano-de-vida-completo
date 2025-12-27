@@ -372,7 +372,23 @@ const PricingSection = ({ onCheckout, onLogin, onSignup, loading }: PricingSecti
                           {currentPlan.name}
                         </CardTitle>
                         
-                        <p className="text-sm text-muted-foreground mb-4">{currentPlan.subtitle}</p>
+                        <p className="text-sm text-muted-foreground mb-2">{currentPlan.subtitle}</p>
+                        
+                        {/* Trial Badge */}
+                        <motion.div
+                          className={cn(
+                            "inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold mb-3",
+                            currentPlan.color === 'emerald'
+                              ? "bg-emerald-500/20 text-emerald-600"
+                              : "bg-violet-500/20 text-violet-600"
+                          )}
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          transition={{ delay: 0.35, type: "spring" }}
+                        >
+                          <Sparkles className="w-3 h-3" />
+                          7 DIAS GRÁTIS
+                        </motion.div>
                       </motion.div>
                       
                       <motion.div 
@@ -391,6 +407,13 @@ const PricingSection = ({ onCheckout, onLogin, onSignup, loading }: PricingSecti
                         </span>
                         <span className="text-muted-foreground text-sm">/mês</span>
                       </motion.div>
+                      
+                      <p className={cn(
+                        "text-xs mt-2",
+                        currentPlan.color === 'emerald' ? "text-emerald-600" : "text-violet-600"
+                      )}>
+                        Teste grátis, cancele quando quiser
+                      </p>
                     </CardHeader>
 
                     <CardContent className="space-y-2 pb-6 px-5">
@@ -461,7 +484,7 @@ const PricingSection = ({ onCheckout, onLogin, onSignup, loading }: PricingSecti
                           ) : (
                             <>
                               <Zap className="w-5 h-5 mr-2" />
-                              Começar Agora
+                              Começar 7 dias grátis
                             </>
                           )}
                         </Button>

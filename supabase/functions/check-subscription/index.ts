@@ -63,7 +63,12 @@ serve(async (req) => {
       // Update profile to inactive
       await supabaseClient
         .from('profiles')
-        .update({ subscription_status: 'inactive', subscription_plan: null })
+        .update({ 
+          subscription_status: 'inactive', 
+          subscription_plan: null,
+          stripe_subscription_id: null,
+          trial_end: null
+        })
         .eq('id', user.id);
 
       return new Response(JSON.stringify({ 
@@ -71,6 +76,8 @@ serve(async (req) => {
         subscription_status: 'inactive',
         subscription_plan: null,
         product_id: null,
+        is_trial: false,
+        trial_end: null,
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,
@@ -80,36 +87,62 @@ serve(async (req) => {
     const customerId = customers.data[0].id;
     logStep("Found Stripe customer", { customerId });
 
+    // Check for active or trialing subscriptions
     const subscriptions = await stripe.subscriptions.list({
       customer: customerId,
-      status: "active",
-      limit: 1,
+      limit: 10,
     });
 
-    const hasActiveSub = subscriptions.data.length > 0;
-    let subscriptionEnd = null;
+    // Find active or trialing subscription
+    const activeSubscription = subscriptions.data.find(
+      (sub: { status: string }) => sub.status === 'active' || sub.status === 'trialing'
+    );
+
+    const hasActiveSub = !!activeSubscription;
+    let subscriptionEnd: string | null = null;
     let productId = null;
     let tier: 'basic' | 'premium' | null = null;
+    let isTrial = false;
+    let trialEnd = null;
+    let subscriptionId = null;
 
-    if (hasActiveSub) {
-      const subscription = subscriptions.data[0];
+    if (hasActiveSub && activeSubscription) {
+      subscriptionId = activeSubscription.id;
       
-      // Safely handle subscription end date
-      if (subscription.current_period_end && typeof subscription.current_period_end === 'number') {
-        subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
+      // Check if it's a trial
+      isTrial = activeSubscription.status === 'trialing';
+      
+      // Get trial end date
+      if (activeSubscription.trial_end && typeof activeSubscription.trial_end === 'number') {
+        trialEnd = new Date(activeSubscription.trial_end * 1000).toISOString();
       }
       
-      productId = subscription.items?.data?.[0]?.price?.product as string || null;
+      // Safely handle subscription end date
+      if (activeSubscription.current_period_end && typeof activeSubscription.current_period_end === 'number') {
+        subscriptionEnd = new Date(activeSubscription.current_period_end * 1000).toISOString();
+      }
+      
+      productId = activeSubscription.items?.data?.[0]?.price?.product as string || null;
       tier = getTierFromProductId(productId);
       
-      logStep("Active subscription found", { subscriptionId: subscription.id, endDate: subscriptionEnd, productId, tier });
+      logStep("Active subscription found", { 
+        subscriptionId, 
+        status: activeSubscription.status,
+        endDate: subscriptionEnd, 
+        productId, 
+        tier,
+        isTrial,
+        trialEnd 
+      });
 
-      // Update profile with tier
+      // Update profile with tier and trial info
       await supabaseClient
         .from('profiles')
         .update({ 
-          subscription_status: 'active', 
-          subscription_plan: tier 
+          subscription_status: isTrial ? 'trialing' : 'active', 
+          subscription_plan: tier,
+          stripe_subscription_id: subscriptionId,
+          trial_end: trialEnd
         })
         .eq('id', user.id);
     } else {
@@ -118,16 +151,24 @@ serve(async (req) => {
       // Update profile to inactive
       await supabaseClient
         .from('profiles')
-        .update({ subscription_status: 'inactive', subscription_plan: null })
+        .update({ 
+          subscription_status: 'inactive', 
+          subscription_plan: null,
+          stripe_subscription_id: null,
+          trial_end: null
+        })
         .eq('id', user.id);
     }
 
     return new Response(JSON.stringify({
       subscribed: hasActiveSub,
-      subscription_status: hasActiveSub ? 'active' : 'inactive',
+      subscription_status: hasActiveSub ? (isTrial ? 'trialing' : 'active') : 'inactive',
       subscription_plan: tier,
       subscription_end: subscriptionEnd,
       product_id: productId,
+      is_trial: isTrial,
+      trial_end: trialEnd,
+      subscription_id: subscriptionId,
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
