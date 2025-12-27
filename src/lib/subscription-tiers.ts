@@ -53,7 +53,11 @@ export function getTierByProductId(productId: string | null): SubscriptionTier |
   return 'basic';
 }
 
-export function getPlanLimits(tier: SubscriptionTier | null) {
+export function getPlanLimits(tier: SubscriptionTier | null, isAdmin: boolean = false) {
+  // Admins have unlimited access
+  if (isAdmin) {
+    return { individual: 999, familiar: 999, filho: 999, total: 999 };
+  }
   if (!tier) return { individual: 0, familiar: 0, filho: 0, total: 0 };
   return SUBSCRIPTION_TIERS[tier].limits;
 }
@@ -61,8 +65,14 @@ export function getPlanLimits(tier: SubscriptionTier | null) {
 export function canCreatePlanType(
   tier: SubscriptionTier | null,
   planType: string,
-  currentCounts: { individual: number; familiar: number; filho: number }
+  currentCounts: { individual: number; familiar: number; filho: number },
+  isAdmin: boolean = false
 ): { allowed: boolean; reason?: string } {
+  // Admins can create any plan type without restrictions
+  if (isAdmin) {
+    return { allowed: true };
+  }
+
   if (!tier) {
     return { allowed: false, reason: 'Você precisa de uma assinatura para criar planos.' };
   }
@@ -117,7 +127,9 @@ export function canCreatePlanType(
   return { allowed: true };
 }
 
-export function hasAIAccess(tier: SubscriptionTier | null): boolean {
+export function hasAIAccess(tier: SubscriptionTier | null, isAdmin: boolean = false): boolean {
+  // Admins always have AI access
+  if (isAdmin) return true;
   if (!tier) return false;
   return SUBSCRIPTION_TIERS[tier].features.aiSummary;
 }
