@@ -11,15 +11,15 @@ interface FAQItem {
 const faqItems: FAQItem[] = [
   {
     question: "Vocês oferecem teste gratuito?",
-    answer: "Não oferecemos período de teste gratuito, mas nosso plano Basic custa apenas R$ 9,99/mês, permitindo que você experimente a plataforma com baixo investimento. Se não gostar, pode cancelar a qualquer momento."
+    answer: "Sim! Oferecemos 7 dias grátis para você experimentar a plataforma completa sem compromisso. Durante o período de teste, você terá acesso a todas as funcionalidades do plano escolhido. Após os 7 dias, a cobrança é feita automaticamente no cartão cadastrado. Se não gostar, pode cancelar antes do fim do teste sem nenhum custo."
   },
   {
     question: "Posso cancelar minha assinatura a qualquer momento?",
-    answer: "Sim! Você pode cancelar sua assinatura quando quiser, sem multas ou taxas adicionais. O acesso continua até o final do período já pago."
+    answer: "Sim! Você pode cancelar sua assinatura quando quiser, sem multas ou taxas adicionais. Se cancelar durante o período de teste de 7 dias, não será cobrado. O acesso continua até o final do período já pago."
   },
   {
     question: "Qual a diferença entre o plano Basic e Premium?",
-    answer: "O plano Basic inclui 1 plano individual para você organizar suas metas pessoais. O Premium inclui 4 planos (1 familiar + 3 para filhos), resumo inteligente com IA e lembretes por email."
+    answer: "O plano Basic inclui 1 plano individual para você organizar suas metas pessoais. O Premium inclui 4 planos (1 familiar + 3 para filhos), resumo inteligente com IA e lembretes por email. Ambos os planos têm 7 dias de teste grátis!"
   },
   {
     question: "Meus dados ficam seguros?",
@@ -40,6 +40,10 @@ const faqItems: FAQItem[] = [
   {
     question: "Como funciona o plano familiar?",
     answer: "No plano Premium, você pode criar um plano compartilhado com seu cônjuge/parceiro(a) e até 3 planos individuais para seus filhos, permitindo acompanhar o desenvolvimento de toda a família."
+  },
+  {
+    question: "Preciso informar cartão de crédito para o teste grátis?",
+    answer: "Sim, solicitamos o cartão de crédito no início para garantir uma experiência sem interrupções. Mas fique tranquilo: você não será cobrado durante os 7 dias de teste. Se cancelar antes do término, nenhum valor será debitado."
   }
 ];
 

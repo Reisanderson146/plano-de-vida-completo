@@ -343,9 +343,11 @@ export type Database = {
           id: string
           is_blocked: boolean
           preferred_ai_style: string | null
+          stripe_subscription_id: string | null
           subscription_plan: string | null
           subscription_status: string | null
           theme_id: string | null
+          trial_end: string | null
           updated_at: string
         }
         Insert: {
@@ -356,9 +358,11 @@ export type Database = {
           id: string
           is_blocked?: boolean
           preferred_ai_style?: string | null
+          stripe_subscription_id?: string | null
           subscription_plan?: string | null
           subscription_status?: string | null
           theme_id?: string | null
+          trial_end?: string | null
           updated_at?: string
         }
         Update: {
@@ -369,9 +373,11 @@ export type Database = {
           id?: string
           is_blocked?: boolean
           preferred_ai_style?: string | null
+          stripe_subscription_id?: string | null
           subscription_plan?: string | null
           subscription_status?: string | null
           theme_id?: string | null
+          trial_end?: string | null
           updated_at?: string
         }
         Relationships: []

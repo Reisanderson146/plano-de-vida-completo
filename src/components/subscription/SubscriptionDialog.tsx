@@ -193,13 +193,18 @@ export function SubscriptionDialog({ open, onOpenChange, onSubscribed }: Subscri
           {/* Basic Plan Content */}
           {selectedPlan === 'basic' && (
             <div className="space-y-4 animate-fade-in">
-              {/* Price */}
-              <div className="text-center py-3 bg-muted/30 rounded-xl">
+              {/* Price with Trial Badge */}
+              <div className="text-center py-3 bg-muted/30 rounded-xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-bl-lg">
+                  7 DIAS GRÁTIS
+                </div>
                 <div className="flex items-baseline justify-center gap-1">
                   <span className="text-3xl font-bold text-foreground">R$ 9,99</span>
                   <span className="text-sm text-muted-foreground">/mês</span>
                 </div>
-                <p className="text-xs text-muted-foreground mt-1">Para começar sua jornada</p>
+                <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium mt-1">
+                  Teste grátis por 7 dias, cancele quando quiser
+                </p>
               </div>
 
               {/* Benefits */}
@@ -256,7 +261,7 @@ export function SubscriptionDialog({ open, onOpenChange, onSubscribed }: Subscri
                 ) : (
                   <div className="flex items-center gap-2">
                     <Gem className="w-4 h-4" />
-                    Assinar Basic
+                    Começar 7 dias grátis
                   </div>
                 )}
               </Button>
@@ -266,14 +271,20 @@ export function SubscriptionDialog({ open, onOpenChange, onSubscribed }: Subscri
           {/* Premium Plan Content */}
           {selectedPlan === 'premium' && (
             <div className="space-y-4 animate-fade-in">
-              {/* Price */}
-              <div className="text-center py-3 bg-gradient-to-br from-violet-500/10 to-purple-500/10 rounded-xl border border-violet-500/20">
+              {/* Price with Trial Badge */}
+              <div className="text-center py-3 bg-gradient-to-br from-violet-500/10 to-purple-500/10 rounded-xl border border-violet-500/20 relative overflow-hidden">
+                <div className="absolute top-0 right-0 bg-gradient-to-r from-violet-600 to-purple-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-bl-lg">
+                  7 DIAS GRÁTIS
+                </div>
                 <div className="flex items-baseline justify-center gap-1">
                   <span className="text-3xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
                     R$ 29,99
                   </span>
                   <span className="text-sm text-muted-foreground">/mês</span>
                 </div>
+                <p className="text-xs text-violet-600 dark:text-violet-400 font-medium mt-1">
+                  Teste grátis por 7 dias, cancele quando quiser
+                </p>
                 <div className="mt-1 inline-flex items-center gap-1 bg-violet-500/20 text-violet-600 text-xs font-semibold px-2.5 py-0.5 rounded-full">
                   <Zap className="w-3 h-3" />
                   4 planos incluídos
@@ -357,7 +368,7 @@ export function SubscriptionDialog({ open, onOpenChange, onSubscribed }: Subscri
                 ) : (
                   <div className="flex items-center gap-2">
                     <Crown className="w-4 h-4" />
-                    Assinar Premium
+                    Começar 7 dias grátis
                   </div>
                 )}
               </Button>

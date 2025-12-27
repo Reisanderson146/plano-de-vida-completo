@@ -201,7 +201,10 @@ export default function CompararPlanos() {
               <div className="p-4 md:p-6 border-r border-border">
                 <span className="font-semibold text-foreground">Recursos</span>
               </div>
-              <div className="p-4 md:p-6 text-center border-r border-border">
+              <div className="p-4 md:p-6 text-center border-r border-border relative">
+                <div className="absolute top-2 right-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-[8px] md:text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                  7 DIAS GRÁTIS
+                </div>
                 <div className="flex flex-col items-center gap-2">
                   <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500/20 to-teal-500/20 flex items-center justify-center">
                     <Gem className="w-5 h-5 text-emerald-600" />
@@ -211,7 +214,10 @@ export default function CompararPlanos() {
                   <span className="text-xs text-muted-foreground">/mês</span>
                 </div>
               </div>
-              <div className="p-4 md:p-6 text-center bg-gradient-to-br from-violet-500/5 to-purple-500/5">
+              <div className="p-4 md:p-6 text-center bg-gradient-to-br from-violet-500/5 to-purple-500/5 relative">
+                <div className="absolute top-2 right-2 bg-gradient-to-r from-violet-600 to-purple-600 text-white text-[8px] md:text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                  7 DIAS GRÁTIS
+                </div>
                 <div className="flex flex-col items-center gap-2">
                   <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
                     <Crown className="w-5 h-5 text-white" />
