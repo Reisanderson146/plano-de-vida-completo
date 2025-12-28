@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils';
-import logoPlanoVida from '@/assets/logo-plano-vida.png';
+import logoJourney from '@/assets/logo-journey.png';
 
 interface LogoProps {
   className?: string;
@@ -42,8 +42,8 @@ export function Logo({
       {showIcon && (
         <div className="relative">
           <img 
-            src={logoPlanoVida} 
-            alt="Plano de Vida"
+            src={logoJourney} 
+            alt="Plano de Vida" 
             className={cn(
               sizeClasses[size], 
               "object-contain",
