@@ -103,13 +103,13 @@ const LandingPage = () => {
       <VersiculosSection />
       <FeaturesSection />
       <ComparisonSection />
-      <FinalCTASection onCtaClick={scrollToPricing} onLogin={handleLogin} />
       <PricingSection
         onCheckout={handleCheckout}
         onLogin={handleLogin}
         onSignup={handleSignup}
         loading={loading}
       />
+      <FinalCTASection onCtaClick={scrollToPricing} onLogin={handleLogin} />
       <FAQSection />
       <FooterSection />
     </div>
