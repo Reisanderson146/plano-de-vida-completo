@@ -423,9 +423,13 @@ export default function Balanco() {
           <div className="flex flex-col sm:flex-row gap-3 opacity-0 animate-stagger-1">
             {/* Plan Filter */}
             <Select value={selectedPlanId} onValueChange={setSelectedPlanId}>
-              <SelectTrigger className="w-full sm:w-[250px]">
-                <Folder className="w-4 h-4 mr-2 flex-shrink-0" />
-                <SelectValue placeholder="Selecione um plano" />
+              <SelectTrigger className="w-full sm:w-[250px] h-11 rounded-xl">
+                <div className="flex items-center gap-2 min-w-0 flex-1">
+                  <Folder className="w-4 h-4 flex-shrink-0 text-muted-foreground" />
+                  <span className="truncate">
+                    <SelectValue placeholder="Selecione um plano" />
+                  </span>
+                </div>
               </SelectTrigger>
               <SelectContent>
                 {plans.map(plan => {
@@ -434,11 +438,11 @@ export default function Balanco() {
                   return (
                     <SelectItem key={plan.id} value={plan.id}>
                       <div className="flex items-center gap-2">
-                        <PlanIcon className="w-4 h-4" />
-                        <span>{plan.title}</span>
-                        {plan.member_name && <span className="text-muted-foreground">({plan.member_name})</span>}
+                        <PlanIcon className="w-4 h-4 flex-shrink-0" />
+                        <span className="truncate">{plan.title}</span>
+                        {plan.member_name && <span className="text-muted-foreground truncate">({plan.member_name})</span>}
                         {plan.notes_count > 0 && (
-                          <Badge variant="secondary" className="ml-1 text-xs px-1.5 py-0">
+                          <Badge variant="secondary" className="ml-1 text-xs px-1.5 py-0 flex-shrink-0">
                             {plan.notes_count}
                           </Badge>
                         )}

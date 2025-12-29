@@ -271,14 +271,18 @@ export default function HistoricoMetas() {
           <CardContent className="pt-4">
             <div className="flex flex-wrap gap-3">
               <Select value={selectedPlanId} onValueChange={setSelectedPlanId}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Todos os planos" />
+                <SelectTrigger className="w-[200px]">
+                  <div className="flex items-center min-w-0 flex-1">
+                    <span className="truncate">
+                      <SelectValue placeholder="Todos os planos" />
+                    </span>
+                  </div>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todos os planos</SelectItem>
                   {plans.map((plan) => (
                     <SelectItem key={plan.id} value={plan.id}>
-                      {plan.title}
+                      <span className="truncate">{plan.title}</span>
                     </SelectItem>
                   ))}
                 </SelectContent>

@@ -219,8 +219,12 @@ export default function Dashboard() {
         <div className="flex flex-col sm:flex-row gap-3 opacity-0 animate-stagger-1">
           <Select value={selectedPlanId} onValueChange={handlePlanChange}>
             <SelectTrigger className="w-full sm:w-[250px] h-11 rounded-xl">
-              <Folder className="w-4 h-4 mr-2 flex-shrink-0 text-muted-foreground" />
-              <SelectValue placeholder="Selecione um plano" />
+              <div className="flex items-center gap-2 min-w-0 flex-1">
+                <Folder className="w-4 h-4 flex-shrink-0 text-muted-foreground" />
+                <span className="truncate">
+                  <SelectValue placeholder="Selecione um plano" />
+                </span>
+              </div>
             </SelectTrigger>
             <SelectContent>
               {plans.map(plan => {
@@ -229,9 +233,9 @@ export default function Dashboard() {
                 return (
                   <SelectItem key={plan.id} value={plan.id}>
                     <div className="flex items-center gap-2">
-                      <PlanIcon className="w-4 h-4" />
-                      <span>{plan.title}</span>
-                      {plan.member_name && <span className="text-muted-foreground">({plan.member_name})</span>}
+                      <PlanIcon className="w-4 h-4 flex-shrink-0" />
+                      <span className="truncate">{plan.title}</span>
+                      {plan.member_name && <span className="text-muted-foreground truncate">({plan.member_name})</span>}
                     </div>
                   </SelectItem>
                 );
