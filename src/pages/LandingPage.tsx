@@ -3,11 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import HeroSection from "@/components/landing/HeroSection";
+import AreasSection from "@/components/landing/AreasSection";
+import VersiculosSection from "@/components/landing/VersiculosSection";
+import FeaturesSection from "@/components/landing/FeaturesSection";
 import ComparisonSection from "@/components/landing/ComparisonSection";
-import FreeTierCTASection from "@/components/landing/FreeTierCTASection";
-import HowItWorksSection from "@/components/landing/HowItWorksSection";
-import BenefitsSection from "@/components/landing/BenefitsSection";
-import TrustSection from "@/components/landing/TrustSection";
 import PricingSection from "@/components/landing/PricingSection";
 import FAQSection from "@/components/landing/FAQSection";
 import FinalCTASection from "@/components/landing/FinalCTASection";
@@ -99,39 +98,19 @@ const LandingPage = () => {
         </div>
       </div>
       
-      {/* 1. Hero Section */}
       <HeroSection onCtaClick={scrollToPricing} />
-      
-      {/* 2. Comparison (Dor vs Solução) */}
+      <AreasSection />
+      <VersiculosSection />
+      <FeaturesSection />
       <ComparisonSection />
-      
-      {/* 3. Free Trial CTA (right after comparison) */}
-      <FreeTierCTASection onCtaClick={scrollToPricing} />
-      
-      {/* 4. How It Works */}
-      <HowItWorksSection />
-      
-      {/* 5. Benefits */}
-      <BenefitsSection />
-      
-      {/* 6. Trust/Security */}
-      <TrustSection />
-      
-      {/* 7. Pricing */}
       <PricingSection
         onCheckout={handleCheckout}
         onLogin={handleLogin}
         onSignup={handleSignup}
         loading={loading}
       />
-      
-      {/* 8. FAQ */}
       <FAQSection />
-      
-      {/* 9. Final CTA */}
       <FinalCTASection onCtaClick={scrollToPricing} />
-      
-      {/* 10. Footer */}
       <FooterSection />
     </div>
   );
