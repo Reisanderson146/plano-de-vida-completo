@@ -471,59 +471,38 @@ const PricingSection = ({ onCheckout, onLogin, onSignup, loading }: PricingSecti
                           {currentPlan.tagline}
                         </p>
                         
-                        {/* Trial Badge with Countdown */}
+                        {/* Trial Badge with Countdown - Clean Design */}
                         <motion.div
-                          className={cn(
-                            "inline-flex flex-col items-center gap-1 px-4 py-2 rounded-xl text-xs font-bold mb-4 border",
-                            currentPlan.color === 'emerald'
-                              ? "bg-gradient-to-r from-emerald-500/10 to-teal-500/10 text-emerald-600 border-emerald-500/20"
-                              : "bg-gradient-to-r from-violet-500/15 to-purple-500/15 text-violet-600 border-violet-500/25"
-                          )}
+                          className="flex flex-col items-center gap-2 mb-4"
                           initial={{ scale: 0 }}
                           animate={{ scale: 1 }}
                           transition={{ delay: 0.35, type: "spring" }}
                         >
-                          <div className="flex items-center gap-1.5">
-                            <motion.div
-                              animate={{ rotate: [0, 360] }}
-                              transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-                            >
-                              <Sparkles className="w-3.5 h-3.5" />
-                            </motion.div>
+                          {/* Main badge */}
+                          <div className={cn(
+                            "inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold",
+                            currentPlan.color === 'emerald'
+                              ? "bg-primary text-primary-foreground"
+                              : "bg-gradient-to-r from-violet-600 to-purple-600 text-white"
+                          )}>
+                            <Sparkles className="w-3.5 h-3.5" />
                             <span>7 DIAS GRÁTIS</span>
                           </div>
                           
-                          {/* Countdown timer */}
-                          <div className="flex items-center gap-1 mt-1">
-                            <Clock className="w-3 h-3 opacity-70" />
-                            <span className="text-[10px] opacity-90">Oferta expira em</span>
-                            <div className="flex items-center gap-0.5 font-mono">
-                              <motion.span 
-                                key={countdown.hours}
-                                initial={{ y: -8, opacity: 0 }}
-                                animate={{ y: 0, opacity: 1 }}
-                                className="bg-background/50 px-1 rounded text-[11px]"
-                              >
-                                {String(countdown.hours).padStart(2, '0')}
-                              </motion.span>
-                              <span className="text-[10px]">:</span>
-                              <motion.span 
-                                key={countdown.minutes}
-                                initial={{ y: -8, opacity: 0 }}
-                                animate={{ y: 0, opacity: 1 }}
-                                className="bg-background/50 px-1 rounded text-[11px]"
-                              >
-                                {String(countdown.minutes).padStart(2, '0')}
-                              </motion.span>
-                              <span className="text-[10px]">:</span>
-                              <motion.span 
-                                key={countdown.seconds}
-                                initial={{ y: -8, opacity: 0 }}
-                                animate={{ y: 0, opacity: 1 }}
-                                className="bg-background/50 px-1 rounded text-[11px]"
-                              >
-                                {String(countdown.seconds).padStart(2, '0')}
-                              </motion.span>
+                          {/* Countdown - Subtle and elegant */}
+                          <div className={cn(
+                            "flex items-center gap-1.5 text-[11px]",
+                            currentPlan.color === 'emerald' ? "text-primary/70" : "text-violet-500/70"
+                          )}>
+                            <Clock className="w-3 h-3" />
+                            <span>Expira em</span>
+                            <div className="flex items-center gap-0.5 font-mono font-semibold">
+                              <span className={cn(
+                                "tabular-nums",
+                                currentPlan.color === 'emerald' ? "text-primary" : "text-violet-500"
+                              )}>
+                                {String(countdown.hours).padStart(2, '0')}h {String(countdown.minutes).padStart(2, '0')}m {String(countdown.seconds).padStart(2, '0')}s
+                              </span>
                             </div>
                           </div>
                         </motion.div>
