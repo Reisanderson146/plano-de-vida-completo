@@ -84,7 +84,7 @@ const FinalCTASection = ({ onCtaClick }: FinalCTASectionProps) => {
             viewport={{ once: true }}
             transition={{ delay: 0.6 }}
           >
-            Sem cartão de crédito para começar o teste
+            Cancele a qualquer momento durante o teste
           </motion.p>
         </div>
       </motion.div>

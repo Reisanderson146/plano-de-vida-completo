@@ -103,6 +103,7 @@ const LandingPage = () => {
       <VersiculosSection />
       <FeaturesSection />
       <ComparisonSection />
+      <FinalCTASection onCtaClick={scrollToPricing} />
       <PricingSection
         onCheckout={handleCheckout}
         onLogin={handleLogin}
@@ -110,7 +111,6 @@ const LandingPage = () => {
         loading={loading}
       />
       <FAQSection />
-      <FinalCTASection onCtaClick={scrollToPricing} />
       <FooterSection />
     </div>
   );

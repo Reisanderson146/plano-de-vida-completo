@@ -3,7 +3,7 @@ import { X, Check, FileText, Bell, TrendingDown, Clock, Target, Sparkles, BarCha
 import { cn } from "@/lib/utils";
 
 const oldWayItems = [
-  { text: "Metas desorganizadas no papel ou WhatsApp", icon: FileText },
+  { text: "Metas espalhadas no papel, WhatsApp, Excel ou bloco de notas", icon: FileText },
   { text: "Esquece das metas e perde o foco", icon: Bell },
   { text: "Sem visão clara do progresso", icon: TrendingDown },
   { text: "Tempo perdido tentando se organizar", icon: Clock },
@@ -13,7 +13,6 @@ const newWayItems = [
   { text: "Plano organizado e acessível 24/7", icon: Target },
   { text: "Dashboard mostra seu avanço real", icon: BarChart3 },
   { text: "Lembretes te mantêm no caminho certo", icon: Bell },
-  { text: "IA analisa e sugere melhorias", icon: Sparkles },
   { text: "Seus dados seguros na nuvem", icon: Shield },
 ];
 
