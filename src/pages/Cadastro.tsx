@@ -12,7 +12,8 @@ import { useSubscription } from '@/hooks/useSubscription';
 import { useToast } from '@/hooks/use-toast';
 import { useFormValidation } from '@/hooks/useFormValidation';
 import { useImportPlan } from '@/hooks/useImportPlan';
-import { Loader2, Plus, User, Users, Baby, Upload, FileSpreadsheet, FileText, FileType, X, CheckCircle2, AlertTriangle, Lock, Crown } from 'lucide-react';
+import { downloadImportTemplate } from '@/lib/import-template';
+import { Loader2, Plus, User, Users, Baby, Upload, FileSpreadsheet, FileText, FileType, X, CheckCircle2, AlertTriangle, Lock, Crown, Download } from 'lucide-react';
 import { LIFE_AREAS, AREA_HEX_COLORS, LifeArea } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 import { AreaCustomizationEditor, AreaConfig } from '@/components/life-plan/AreaCustomizationEditor';
@@ -646,6 +647,20 @@ export default function Cadastro() {
                               PDF
                             </div>
                           </div>
+                          <Button
+                            type="button"
+                            variant="link"
+                            size="sm"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              downloadImportTemplate();
+                            }}
+                            className="mt-3 gap-1.5 text-primary"
+                          >
+                            <Download className="w-4 h-4" />
+                            Baixar modelo de planilha
+                          </Button>
                         </div>
                       )}
                     </label>

@@ -12,17 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { ExportPlanDialog } from '@/components/life-plan/ExportPlanDialog';
 import { LIFE_AREAS, AREA_HEX_COLORS, LifeArea } from '@/lib/constants';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+import { ConfirmDeleteDialog } from '@/components/ui/confirm-delete-dialog';
 
 interface LifePlan {
   id: string;
@@ -343,27 +333,17 @@ export default function Consulta() {
                             <Download className="w-4 h-4" />
                           )}
                         </Button>
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
+                        <ConfirmDeleteDialog
+                          trigger={
                             <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive h-9 w-9 rounded-xl">
                               <Trash2 className="w-4 h-4" />
                             </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent className="mx-4 sm:mx-auto max-w-[calc(100vw-2rem)] sm:max-w-lg rounded-2xl">
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Excluir plano?</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                Esta ação não pode ser desfeita. Todas as metas deste plano serão excluídas permanentemente.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter className="flex-col sm:flex-row gap-2">
-                              <AlertDialogCancel className="w-full sm:w-auto rounded-xl">Cancelar</AlertDialogCancel>
-                              <AlertDialogAction onClick={() => handleDelete(plan.id)} className="w-full sm:w-auto rounded-xl">
-                                Excluir
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
+                          }
+                          title="Excluir plano?"
+                          description="Esta ação não pode ser desfeita. Todas as metas deste plano serão excluídas permanentemente."
+                          confirmText={plan.title}
+                          onConfirm={() => handleDelete(plan.id)}
+                        />
                       </div>
                     </div>
                   </CardHeader>
