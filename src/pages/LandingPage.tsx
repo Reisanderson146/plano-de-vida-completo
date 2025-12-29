@@ -9,7 +9,6 @@ import FeaturesSection from "@/components/landing/FeaturesSection";
 import ComparisonSection from "@/components/landing/ComparisonSection";
 import PricingSection from "@/components/landing/PricingSection";
 import FAQSection from "@/components/landing/FAQSection";
-import FinalCTASection from "@/components/landing/FinalCTASection";
 import FooterSection from "@/components/landing/FooterSection";
 import { DarkModeToggle } from "@/components/theme/DarkModeToggle";
 import { Logo } from "@/components/Logo";
@@ -109,7 +108,6 @@ const LandingPage = () => {
         onSignup={handleSignup}
         loading={loading}
       />
-      <FinalCTASection onCtaClick={scrollToPricing} onLogin={handleLogin} />
       <FAQSection />
       <FooterSection />
     </div>
