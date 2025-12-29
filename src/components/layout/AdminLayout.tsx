@@ -1,19 +1,19 @@
 import { ReactNode } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { useAdmin } from '@/hooks/useAdmin';
 import { Button } from '@/components/ui/button';
 import { 
   Shield, 
   LogOut, 
   LayoutDashboard,
   Home,
-  Settings,
   Bell,
-  Moon,
-  Sun
+  Loader2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useState } from 'react';
+import { useEffect } from 'react';
+import { useToast } from '@/hooks/use-toast';
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -23,16 +23,58 @@ const navItems = [
   { href: '/admin/dashboard', label: 'Painel', icon: LayoutDashboard },
 ];
 
+/**
+ * Secure Admin Layout - renders only after admin status is confirmed.
+ * Prevents UI exposure to unauthorized users.
+ */
 export function AdminLayout({ children }: AdminLayoutProps) {
-  const { signOut } = useAuth();
+  const { signOut, user, loading: authLoading } = useAuth();
+  const { isAdmin, loading: adminLoading } = useAdmin();
   const location = useLocation();
   const navigate = useNavigate();
-  const [isDark, setIsDark] = useState(true);
+  const { toast } = useToast();
+
+  // Redirect non-admins after verification is complete
+  useEffect(() => {
+    if (!authLoading && !adminLoading) {
+      if (!user) {
+        navigate('/admin/login');
+      } else if (!isAdmin) {
+        toast({
+          title: 'Acesso negado',
+          description: 'Você não tem permissão para acessar esta página.',
+          variant: 'destructive',
+        });
+        navigate('/admin/login');
+      }
+    }
+  }, [user, isAdmin, authLoading, adminLoading, navigate, toast]);
 
   const handleSignOut = async () => {
     await signOut();
     navigate('/admin/login');
   };
+
+  // Show loading screen until admin status is verified
+  // This prevents any UI exposure before authorization is confirmed
+  if (authLoading || adminLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="relative">
+            <div className="w-16 h-16 rounded-full border-4 border-slate-700 border-t-amber-500 animate-spin" />
+            <Shield className="w-6 h-6 text-amber-400 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+          </div>
+          <p className="text-slate-400 text-sm animate-pulse">Verificando permissões...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Don't render anything if not admin - prevents UI flash
+  if (!isAdmin || !user) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
