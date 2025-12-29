@@ -752,23 +752,14 @@ const PricingSection = ({ onCheckout, onLogin, onSignup, loading }: PricingSecti
           </AnimatePresence>
         </motion.div>
 
-        {/* Already Subscriber & Trust Badges */}
+        {/* Trust Badges */}
         <motion.div 
-          className="text-center space-y-4"
+          className="text-center"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           transition={{ delay: 0.3 }}
         >
-          <Button
-            variant="outline"
-            onClick={onLogin}
-            className="border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground font-semibold px-6 py-5 transition-all duration-300 shadow-sm hover:shadow-lg hover:shadow-primary/20"
-          >
-            <ArrowRight className="w-4 h-4 mr-2" />
-            Já sou assinante - Entrar
-          </Button>
-          
           <div className="flex flex-wrap items-center justify-center gap-4">
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
               <Shield className="w-3.5 h-3.5 text-primary" />

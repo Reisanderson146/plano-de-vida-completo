@@ -1,12 +1,13 @@
 import { motion } from "framer-motion";
-import { Gift, ArrowRight, Sparkles } from "lucide-react";
+import { Gift, ArrowRight, Sparkles, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface FinalCTASectionProps {
   onCtaClick: () => void;
+  onLogin: () => void;
 }
 
-const FinalCTASection = ({ onCtaClick }: FinalCTASectionProps) => {
+const FinalCTASection = ({ onCtaClick, onLogin }: FinalCTASectionProps) => {
   return (
     <section className="py-16 md:py-20 px-4 relative overflow-hidden">
       {/* Gradient Background */}
@@ -58,13 +59,15 @@ const FinalCTASection = ({ onCtaClick }: FinalCTASectionProps) => {
             Cancele quando quiser, sem burocracia.
           </motion.p>
 
-          {/* CTA Button */}
+          {/* CTA Buttons */}
           <motion.div
+            className="flex flex-col items-center gap-4"
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
             transition={{ delay: 0.5, type: "spring" }}
           >
+            {/* Primary CTA */}
             <Button
               onClick={onCtaClick}
               size="lg"
@@ -74,11 +77,21 @@ const FinalCTASection = ({ onCtaClick }: FinalCTASectionProps) => {
               Começar meu teste grátis
               <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
             </Button>
+            
+            {/* Secondary - Already subscriber */}
+            <Button
+              variant="ghost"
+              onClick={onLogin}
+              className="text-muted-foreground hover:text-foreground hover:bg-transparent transition-colors"
+            >
+              <LogIn className="w-4 h-4 mr-2" />
+              Já sou assinante - Entrar
+            </Button>
           </motion.div>
 
           {/* Trust text */}
           <motion.p
-            className="text-xs text-muted-foreground mt-4"
+            className="text-xs text-muted-foreground mt-6"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
