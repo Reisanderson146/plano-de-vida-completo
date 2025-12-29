@@ -58,24 +58,26 @@ const plans = [
   {
     id: 'basic' as const,
     name: 'Basic',
-    subtitle: 'Para Começar',
+    subtitle: 'Para Você',
     price: 'R$ 9,99',
     description: '1 plano individual',
     icon: Gem,
     benefits: basicBenefits,
     color: 'emerald',
     recommended: false,
+    tagline: 'Organize sua vida pessoal',
   },
   {
     id: 'premium' as const,
     name: 'Premium',
-    subtitle: 'Para Toda Família',
+    subtitle: 'Para a Família',
     price: 'R$ 29,99',
     description: '4 planos incluídos',
     icon: Crown,
     benefits: premiumBenefits,
     color: 'violet',
     recommended: true,
+    tagline: 'Planejamento completo para todos',
   },
 ];
 
@@ -301,61 +303,107 @@ const PricingSection = ({ onCheckout, onLogin, onSignup, loading }: PricingSecti
                 }}
                 className="w-full cursor-grab active:cursor-grabbing"
               >
-                <div className="relative group pt-4">
-                  {/* Animated Glow effect */}
+                <div className="relative group pt-6">
+                  {/* Enhanced Glow effect with animation */}
                   <motion.div 
                     className={cn(
-                      "absolute -inset-2 rounded-2xl blur-xl",
-                      currentPlan.color === 'emerald' ? "bg-primary/20" : "bg-violet-500/25"
+                      "absolute -inset-3 rounded-3xl blur-2xl",
+                      currentPlan.color === 'emerald' 
+                        ? "bg-gradient-to-br from-primary/30 via-emerald-500/20 to-teal-500/30" 
+                        : "bg-gradient-to-br from-violet-500/40 via-purple-500/30 to-fuchsia-500/40"
                     )}
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.2, duration: 0.5 }}
+                    animate={currentPlan.recommended ? {
+                      opacity: [0.5, 0.8, 0.5],
+                      scale: [1, 1.02, 1],
+                    } : { opacity: 0.6 }}
+                    transition={currentPlan.recommended ? {
+                      duration: 3,
+                      repeat: Infinity,
+                      ease: "easeInOut"
+                    } : {}}
                   />
                   
-                  {/* Recommended Badge */}
+                  {/* Recommended Badge - Enhanced */}
                   {currentPlan.recommended && (
                     <motion.div 
-                      className="absolute -top-0 left-1/2 -translate-x-1/2 z-10"
+                      className="absolute -top-1 left-1/2 -translate-x-1/2 z-10"
                       initial={{ scale: 0, y: -20 }}
                       animate={{ scale: 1, y: 0 }}
                       transition={{ delay: 0.3, type: "spring", stiffness: 400 }}
                     >
-                      <div className="flex items-center gap-1.5 px-4 py-1.5 bg-gradient-to-r from-violet-600 to-purple-600 rounded-full text-white font-medium text-xs shadow-lg shadow-violet-500/30">
-                        <Crown className="w-3 h-3" />
-                        <span>Mais Popular</span>
+                      <div className="relative">
+                        {/* Badge glow */}
+                        <motion.div
+                          className="absolute inset-0 bg-gradient-to-r from-violet-600 to-purple-600 rounded-full blur-md"
+                          animate={{ opacity: [0.5, 1, 0.5] }}
+                          transition={{ duration: 2, repeat: Infinity }}
+                        />
+                        <div className="relative flex items-center gap-1.5 px-5 py-2 bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 rounded-full text-white font-bold text-xs shadow-xl shadow-violet-500/40 border border-white/20">
+                          <motion.div
+                            animate={{ rotate: [0, 15, -15, 0] }}
+                            transition={{ duration: 2, repeat: Infinity, delay: 1 }}
+                          >
+                            <Crown className="w-4 h-4" />
+                          </motion.div>
+                          <span>Mais Popular</span>
+                          <Sparkles className="w-3 h-3" />
+                        </div>
                       </div>
                     </motion.div>
                   )}
                   
                   <Card className={cn(
-                    "relative overflow-hidden border-2 bg-card shadow-xl",
+                    "relative overflow-hidden border-2 bg-card shadow-2xl",
                     currentPlan.color === 'emerald' 
-                      ? "border-primary/30 shadow-primary/10"
-                      : "border-violet-500/40 shadow-violet-500/15",
-                    currentPlan.recommended && "mt-2"
+                      ? "border-primary/40 shadow-primary/15"
+                      : "border-violet-500/50 shadow-violet-500/20",
+                    currentPlan.recommended && "mt-3"
                   )}>
-                    {/* Shimmer effect */}
+                    {/* Decorative corner elements */}
+                    <div className={cn(
+                      "absolute top-0 right-0 w-32 h-32 opacity-10",
+                      currentPlan.color === 'emerald'
+                        ? "bg-gradient-to-bl from-primary to-transparent"
+                        : "bg-gradient-to-bl from-violet-500 to-transparent"
+                    )} />
+                    <div className={cn(
+                      "absolute bottom-0 left-0 w-24 h-24 opacity-10",
+                      currentPlan.color === 'emerald'
+                        ? "bg-gradient-to-tr from-emerald-500 to-transparent"
+                        : "bg-gradient-to-tr from-purple-500 to-transparent"
+                    )} />
+
+                    {/* Animated shimmer effect */}
                     <motion.div
-                      className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
-                      initial={{ x: "-100%" }}
-                      animate={{ x: "100%" }}
-                      transition={{ delay: 0.5, duration: 0.8, ease: "easeInOut" }}
+                      className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -skew-x-12"
+                      initial={{ x: "-200%" }}
+                      animate={{ x: "200%" }}
+                      transition={{ delay: 0.5, duration: 1.2, ease: "easeInOut", repeat: Infinity, repeatDelay: 4 }}
                     />
 
-                    <CardHeader className="pt-6 pb-3 text-center relative">
+                    <CardHeader className="pt-8 pb-4 text-center relative">
+                      {/* Icon with enhanced styling */}
                       <motion.div 
                         className={cn(
-                          "inline-flex items-center justify-center w-14 h-14 rounded-xl mx-auto mb-3",
+                          "inline-flex items-center justify-center w-16 h-16 rounded-2xl mx-auto mb-4 relative",
                           currentPlan.color === 'emerald'
-                            ? "bg-gradient-to-br from-primary/20 to-emerald-500/20 text-primary"
-                            : "bg-gradient-to-br from-violet-500/20 to-purple-500/20 text-violet-500"
+                            ? "bg-gradient-to-br from-primary/20 via-emerald-500/15 to-teal-500/20 text-primary border border-primary/20"
+                            : "bg-gradient-to-br from-violet-500/25 via-purple-500/20 to-fuchsia-500/25 text-violet-500 border border-violet-500/30"
                         )}
                         initial={{ rotate: -180, scale: 0 }}
                         animate={{ rotate: 0, scale: 1 }}
                         transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
                       >
-                        <currentPlan.icon className="w-7 h-7" />
+                        {/* Icon inner glow */}
+                        <motion.div
+                          className={cn(
+                            "absolute inset-0 rounded-2xl blur-sm",
+                            currentPlan.color === 'emerald' ? "bg-primary/20" : "bg-violet-500/30"
+                          )}
+                          animate={{ opacity: [0.3, 0.6, 0.3] }}
+                          transition={{ duration: 2, repeat: Infinity }}
+                        />
+                        <currentPlan.icon className="w-8 h-8 relative z-10" />
                       </motion.div>
                       
                       <motion.div
@@ -364,33 +412,47 @@ const PricingSection = ({ onCheckout, onLogin, onSignup, loading }: PricingSecti
                         transition={{ delay: 0.25 }}
                       >
                         <CardTitle className={cn(
-                          "text-xl font-bold mb-1",
+                          "text-2xl font-bold mb-1",
                           currentPlan.color === 'emerald'
                             ? "text-foreground"
-                            : "bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent"
+                            : "bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 bg-clip-text text-transparent"
                         )}>
                           {currentPlan.name}
                         </CardTitle>
                         
-                        <p className="text-sm text-muted-foreground mb-2">{currentPlan.subtitle}</p>
+                        <p className="text-sm text-muted-foreground mb-1">{currentPlan.subtitle}</p>
                         
-                        {/* Trial Badge */}
+                        {/* Tagline */}
+                        <p className={cn(
+                          "text-xs font-medium mb-3",
+                          currentPlan.color === 'emerald' ? "text-primary/80" : "text-violet-500/80"
+                        )}>
+                          {currentPlan.tagline}
+                        </p>
+                        
+                        {/* Trial Badge - Enhanced */}
                         <motion.div
                           className={cn(
-                            "inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold mb-3",
+                            "inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold mb-4 border",
                             currentPlan.color === 'emerald'
-                              ? "bg-emerald-500/20 text-emerald-600"
-                              : "bg-violet-500/20 text-violet-600"
+                              ? "bg-gradient-to-r from-emerald-500/10 to-teal-500/10 text-emerald-600 border-emerald-500/20"
+                              : "bg-gradient-to-r from-violet-500/15 to-purple-500/15 text-violet-600 border-violet-500/25"
                           )}
                           initial={{ scale: 0 }}
                           animate={{ scale: 1 }}
                           transition={{ delay: 0.35, type: "spring" }}
                         >
-                          <Sparkles className="w-3 h-3" />
+                          <motion.div
+                            animate={{ rotate: [0, 360] }}
+                            transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                          >
+                            <Sparkles className="w-3.5 h-3.5" />
+                          </motion.div>
                           7 DIAS GRÁTIS
                         </motion.div>
                       </motion.div>
                       
+                      {/* Price - Enhanced */}
                       <motion.div 
                         className="flex items-baseline justify-center gap-1"
                         initial={{ opacity: 0, scale: 0.5 }}
@@ -398,25 +460,33 @@ const PricingSection = ({ onCheckout, onLogin, onSignup, loading }: PricingSecti
                         transition={{ delay: 0.3, type: "spring" }}
                       >
                         <span className={cn(
-                          "text-4xl font-bold",
+                          "text-5xl font-extrabold tracking-tight",
                           currentPlan.color === 'emerald'
                             ? "text-foreground"
-                            : "bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent"
+                            : "bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 bg-clip-text text-transparent"
                         )}>
                           {currentPlan.price}
                         </span>
-                        <span className="text-muted-foreground text-sm">/mês</span>
+                        <span className="text-muted-foreground text-sm font-medium">/mês</span>
                       </motion.div>
                       
                       <p className={cn(
-                        "text-xs mt-2",
-                        currentPlan.color === 'emerald' ? "text-emerald-600" : "text-violet-600"
+                        "text-xs mt-2 font-medium",
+                        currentPlan.color === 'emerald' ? "text-emerald-600/80" : "text-violet-600/80"
                       )}>
                         Teste grátis, cancele quando quiser
                       </p>
                     </CardHeader>
 
-                    <CardContent className="space-y-2 pb-6 px-5">
+                    <CardContent className="space-y-2.5 pb-6 px-5">
+                      {/* Benefits divider */}
+                      <div className={cn(
+                        "h-px w-full mb-4",
+                        currentPlan.color === 'emerald'
+                          ? "bg-gradient-to-r from-transparent via-primary/30 to-transparent"
+                          : "bg-gradient-to-r from-transparent via-violet-500/40 to-transparent"
+                      )} />
+                      
                       {currentPlan.benefits.map((benefit, i) => {
                         const isIncluded = currentPlan.id === 'premium' || benefit.includedInBasic;
                         const isPremiumExclusive = !benefit.includedInBasic;
@@ -424,7 +494,10 @@ const PricingSection = ({ onCheckout, onLogin, onSignup, loading }: PricingSecti
                         return (
                           <motion.div 
                             key={i} 
-                            className="flex items-center gap-2 text-sm"
+                            className={cn(
+                              "flex items-center gap-2.5 text-sm py-1 px-2 rounded-lg transition-colors",
+                              isIncluded && isPremiumExclusive && currentPlan.id === 'premium' && "bg-violet-500/5"
+                            )}
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.35 + i * 0.04 }}
@@ -435,7 +508,7 @@ const PricingSection = ({ onCheckout, onLogin, onSignup, loading }: PricingSecti
                                 ? currentPlan.color === 'emerald' 
                                   ? "bg-primary/20 text-primary" 
                                   : isPremiumExclusive
-                                    ? "bg-violet-500/30 text-violet-400"
+                                    ? "bg-gradient-to-br from-violet-500/30 to-purple-500/30 text-violet-400"
                                     : "bg-violet-500/20 text-violet-500"
                                 : "bg-muted/50 text-muted-foreground/30"
                             )}>
@@ -456,36 +529,51 @@ const PricingSection = ({ onCheckout, onLogin, onSignup, loading }: PricingSecti
                               {benefit.text}
                             </span>
                             {isPremiumExclusive && currentPlan.id === 'premium' && benefit.highlight && (
-                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-violet-500/20 text-violet-400 font-medium">
-                                IA
-                              </span>
+                              <motion.span 
+                                className="text-[10px] px-2 py-0.5 rounded-full bg-gradient-to-r from-violet-500/20 to-purple-500/20 text-violet-400 font-bold border border-violet-500/20"
+                                animate={{ scale: [1, 1.05, 1] }}
+                                transition={{ duration: 2, repeat: Infinity }}
+                              >
+                                ✨ IA
+                              </motion.span>
                             )}
                           </motion.div>
                         );
                       })}
                       
+                      {/* CTA Button - Enhanced */}
                       <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.6 }}
+                        className="pt-4"
                       >
                         <Button
                           onClick={() => onCheckout(currentPlan.id)}
                           disabled={loading === currentPlan.id}
                           className={cn(
-                            "w-full font-semibold py-6 mt-4 text-base",
+                            "w-full font-bold py-6 text-base relative overflow-hidden group",
                             currentPlan.color === 'emerald'
-                              ? "bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20"
-                              : "bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white shadow-lg shadow-violet-500/25"
+                              ? "bg-gradient-to-r from-primary via-emerald-600 to-teal-600 hover:from-primary/90 hover:via-emerald-600/90 hover:to-teal-600/90 text-primary-foreground shadow-lg shadow-primary/25"
+                              : "bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 hover:from-violet-700 hover:via-purple-700 hover:to-fuchsia-700 text-white shadow-lg shadow-violet-500/30"
                           )}
                         >
+                          {/* Button shimmer */}
+                          <motion.div
+                            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12"
+                            initial={{ x: "-200%" }}
+                            whileHover={{ x: "200%" }}
+                            transition={{ duration: 0.6 }}
+                          />
+                          
                           {loading === currentPlan.id ? (
                             <Loader2 className="w-5 h-5 animate-spin" />
                           ) : (
-                            <>
-                              <Zap className="w-5 h-5 mr-2" />
+                            <span className="relative z-10 flex items-center justify-center gap-2">
+                              <Zap className="w-5 h-5" />
                               Começar 7 dias grátis
-                            </>
+                              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                            </span>
                           )}
                         </Button>
                       </motion.div>
