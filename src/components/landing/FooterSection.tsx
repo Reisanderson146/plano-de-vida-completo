@@ -1,4 +1,5 @@
 import { Instagram } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const FooterSection = () => {
   return (
@@ -29,6 +30,23 @@ const FooterSection = () => {
             </div>
             <span className="font-medium text-muted-foreground group-hover:text-foreground transition-colors">@planode.vida</span>
           </a>
+
+          {/* Links */}
+          <div className="flex items-center gap-4 mb-6 text-sm">
+            <Link 
+              to="/termos-de-uso" 
+              className="text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Termos de Uso
+            </Link>
+            <span className="text-muted-foreground/50">•</span>
+            <Link 
+              to="/politica-de-privacidade" 
+              className="text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Política de Privacidade
+            </Link>
+          </div>
 
           {/* Divider */}
           <div className="w-24 h-0.5 bg-gradient-to-r from-primary/50 to-emerald-500/50 rounded-full mb-6" />
