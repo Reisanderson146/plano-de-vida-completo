@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import DOMPurify from 'dompurify';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Loader2, Sparkles, RefreshCw, Save, Lock, Crown, Heart, Zap, Scale, Check } from 'lucide-react';
@@ -9,6 +10,30 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { hasAIAccess, SubscriptionTier } from '@/lib/subscription-tiers';
 import { cn } from '@/lib/utils';
+
+/**
+ * Sanitizes AI-generated text to prevent XSS attacks.
+ * Removes any HTML/JavaScript that could be malicious while preserving plain text.
+ */
+const sanitizeAIResponse = (text: string): string => {
+  if (!text) return '';
+  
+  // Configure DOMPurify to strip all HTML tags (we only want plain text)
+  const sanitized = DOMPurify.sanitize(text, {
+    ALLOWED_TAGS: [], // No HTML tags allowed
+    ALLOWED_ATTR: [], // No attributes allowed
+    KEEP_CONTENT: true, // Keep text content from stripped tags
+  });
+  
+  // Additional cleanup: remove any remaining HTML entities that might be suspicious
+  return sanitized
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&amp;/g, '&')
+    .replace(/&quot;/g, '"')
+    .replace(/&#x27;/g, "'")
+    .replace(/&#x2F;/g, '/');
+};
 
 interface AreaStats {
   area: string;
@@ -79,9 +104,14 @@ export function AISummary({
   const { toast } = useToast();
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [summary, setSummary] = useState<string | null>(null);
+  const [rawSummary, setRawSummary] = useState<string | null>(null);
   const [displayedText, setDisplayedText] = useState<string>('');
   const [isTyping, setIsTyping] = useState(false);
+  
+  // Sanitize the AI response to prevent XSS
+  const summary = useMemo(() => {
+    return rawSummary ? sanitizeAIResponse(rawSummary) : null;
+  }, [rawSummary]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [savingPreference, setSavingPreference] = useState(false);
@@ -189,7 +219,7 @@ export function AISummary({
         throw new Error(data.error);
       }
 
-      setSummary(data.summary);
+      setRawSummary(data.summary);
     } catch (error: any) {
       console.error('Error generating summary:', error);
       toast({
