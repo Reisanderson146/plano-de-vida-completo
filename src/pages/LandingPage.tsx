@@ -103,7 +103,7 @@ const LandingPage = () => {
       <VersiculosSection />
       <FeaturesSection />
       <ComparisonSection />
-      <FinalCTASection onCtaClick={scrollToPricing} />
+      <FinalCTASection onCtaClick={scrollToPricing} onLogin={handleLogin} />
       <PricingSection
         onCheckout={handleCheckout}
         onLogin={handleLogin}
