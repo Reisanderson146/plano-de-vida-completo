@@ -1,13 +1,53 @@
 import { useState, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Check, Crown, Sparkles, Shield, Zap, Gem, User, Users, Baby, Heart, Target, Loader2, ChevronLeft, ChevronRight, ChevronDown, X, BarChart3, Calendar, FileText, Bell, Download, History, Eye, BookOpen, Info, ArrowRight } from "lucide-react";
+import { Check, Crown, Sparkles, Shield, Zap, Gem, User, Users, Baby, Heart, Target, Loader2, ChevronLeft, ChevronRight, ChevronDown, X, BarChart3, Calendar, FileText, Bell, Download, History, Eye, BookOpen, Info, ArrowRight, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { LucideIcon } from "lucide-react";
 import useEmblaCarousel from "embla-carousel-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Link } from "react-router-dom";
+
+// Countdown hook for urgency timer
+const useCountdown = () => {
+  const [timeLeft, setTimeLeft] = useState({ hours: 0, minutes: 0, seconds: 0 });
+  
+  useEffect(() => {
+    // Set end time to midnight of current day (resets daily)
+    const getEndTime = () => {
+      const now = new Date();
+      const end = new Date(now);
+      end.setHours(23, 59, 59, 999);
+      return end.getTime();
+    };
+    
+    const calculateTimeLeft = () => {
+      const now = new Date().getTime();
+      const endTime = getEndTime();
+      const difference = endTime - now;
+      
+      if (difference > 0) {
+        return {
+          hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+          minutes: Math.floor((difference / (1000 * 60)) % 60),
+          seconds: Math.floor((difference / 1000) % 60),
+        };
+      }
+      return { hours: 0, minutes: 0, seconds: 0 };
+    };
+    
+    setTimeLeft(calculateTimeLeft());
+    
+    const timer = setInterval(() => {
+      setTimeLeft(calculateTimeLeft());
+    }, 1000);
+    
+    return () => clearInterval(timer);
+  }, []);
+  
+  return timeLeft;
+};
 
 interface PricingSectionProps {
   onCheckout: (tier: 'basic' | 'premium') => void;
@@ -182,6 +222,7 @@ const PricingSection = ({ onCheckout, onLogin, onSignup, loading }: PricingSecti
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [direction, setDirection] = useState(0);
   const [showAllDescriptions, setShowAllDescriptions] = useState(false);
+  const countdown = useCountdown();
 
   const scrollPrev = useCallback(() => {
     setDirection(-1);
@@ -430,10 +471,10 @@ const PricingSection = ({ onCheckout, onLogin, onSignup, loading }: PricingSecti
                           {currentPlan.tagline}
                         </p>
                         
-                        {/* Trial Badge - Enhanced */}
+                        {/* Trial Badge with Countdown */}
                         <motion.div
                           className={cn(
-                            "inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold mb-4 border",
+                            "inline-flex flex-col items-center gap-1 px-4 py-2 rounded-xl text-xs font-bold mb-4 border",
                             currentPlan.color === 'emerald'
                               ? "bg-gradient-to-r from-emerald-500/10 to-teal-500/10 text-emerald-600 border-emerald-500/20"
                               : "bg-gradient-to-r from-violet-500/15 to-purple-500/15 text-violet-600 border-violet-500/25"
@@ -442,13 +483,49 @@ const PricingSection = ({ onCheckout, onLogin, onSignup, loading }: PricingSecti
                           animate={{ scale: 1 }}
                           transition={{ delay: 0.35, type: "spring" }}
                         >
-                          <motion.div
-                            animate={{ rotate: [0, 360] }}
-                            transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-                          >
-                            <Sparkles className="w-3.5 h-3.5" />
-                          </motion.div>
-                          7 DIAS GRÁTIS
+                          <div className="flex items-center gap-1.5">
+                            <motion.div
+                              animate={{ rotate: [0, 360] }}
+                              transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                            >
+                              <Sparkles className="w-3.5 h-3.5" />
+                            </motion.div>
+                            <span>7 DIAS GRÁTIS</span>
+                          </div>
+                          
+                          {/* Countdown timer */}
+                          <div className="flex items-center gap-1 mt-1">
+                            <Clock className="w-3 h-3 opacity-70" />
+                            <span className="text-[10px] opacity-90">Oferta expira em</span>
+                            <div className="flex items-center gap-0.5 font-mono">
+                              <motion.span 
+                                key={countdown.hours}
+                                initial={{ y: -8, opacity: 0 }}
+                                animate={{ y: 0, opacity: 1 }}
+                                className="bg-background/50 px-1 rounded text-[11px]"
+                              >
+                                {String(countdown.hours).padStart(2, '0')}
+                              </motion.span>
+                              <span className="text-[10px]">:</span>
+                              <motion.span 
+                                key={countdown.minutes}
+                                initial={{ y: -8, opacity: 0 }}
+                                animate={{ y: 0, opacity: 1 }}
+                                className="bg-background/50 px-1 rounded text-[11px]"
+                              >
+                                {String(countdown.minutes).padStart(2, '0')}
+                              </motion.span>
+                              <span className="text-[10px]">:</span>
+                              <motion.span 
+                                key={countdown.seconds}
+                                initial={{ y: -8, opacity: 0 }}
+                                animate={{ y: 0, opacity: 1 }}
+                                className="bg-background/50 px-1 rounded text-[11px]"
+                              >
+                                {String(countdown.seconds).padStart(2, '0')}
+                              </motion.span>
+                            </div>
+                          </div>
                         </motion.div>
                       </motion.div>
                       
