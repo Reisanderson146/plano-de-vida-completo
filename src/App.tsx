@@ -24,6 +24,8 @@ import CheckoutSuccess from "./pages/CheckoutSuccess";
 import LandingPage from "./pages/LandingPage";
 import HistoricoMetas from "./pages/HistoricoMetas";
 import CompararPlanos from "./pages/CompararPlanos";
+import TermosDeUso from "./pages/TermosDeUso";
+import PoliticaPrivacidade from "./pages/PoliticaPrivacidade";
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import NotFound from "./pages/NotFound";
@@ -93,6 +95,8 @@ function AppRoutes() {
       <Route path="/landing" element={<LandingPage />} />
       <Route path="/assinatura" element={<Navigate to="/landing" replace />} />
       <Route path="/comparar-planos" element={<CompararPlanos />} />
+      <Route path="/termos-de-uso" element={<TermosDeUso />} />
+      <Route path="/politica-de-privacidade" element={<PoliticaPrivacidade />} />
       <Route path="/auth" element={<Auth />} />
       <Route path="/auth/callback" element={<AuthCallback />} />
       <Route path="/confirm" element={<AuthCallback />} />
