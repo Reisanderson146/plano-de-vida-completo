@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Sparkles } from "lucide-react";
+import { ArrowRight, ChevronDown } from "lucide-react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 
@@ -22,8 +22,8 @@ const HeroSection = ({ onCtaClick }: HeroSectionProps) => {
   const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
   const scale = useTransform(scrollYProgress, [0, 0.5], [1, 0.95]);
 
-  const scrollToFeatures = () => {
-    document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
+  const scrollToHowItWorks = () => {
+    document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
@@ -73,59 +73,83 @@ const HeroSection = ({ onCtaClick }: HeroSectionProps) => {
       </motion.div>
 
       <div className="relative z-10 text-center max-w-4xl mx-auto animate-fade-in">
-        {/* Badge */}
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-8">
-          <Sparkles className="w-4 h-4 text-primary" />
-          <span className="text-sm font-medium text-primary">Planejamento de Vida com Propósito</span>
-        </div>
+        {/* Pain point badge */}
+        <motion.div 
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-destructive/10 border border-destructive/20 mb-6"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+        >
+          <span className="text-sm font-medium text-destructive/80">Chega de Excel, papel, bloco de notas</span>
+        </motion.div>
 
         {/* Main Title */}
-        <h1 className="text-5xl md:text-7xl font-bold text-foreground mb-6 tracking-tight">
-          Plano de{" "}
+        <motion.h1 
+          className="text-4xl md:text-6xl lg:text-7xl font-bold text-foreground mb-6 tracking-tight leading-tight"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          Chega de tentar se organizar{" "}
           <span className="bg-gradient-to-r from-primary to-emerald-500 bg-clip-text text-transparent">
-            Vida
+            sem resultado
           </span>
-        </h1>
+        </motion.h1>
 
-        {/* Slogan */}
-        <p className="text-xl md:text-2xl text-muted-foreground mb-8 font-light">
-          Constância que constrói resultados
-        </p>
-
-        {/* Featured Verse */}
-        <div className="relative max-w-2xl mx-auto mb-12">
-          <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 rounded-2xl blur-xl" />
-          <blockquote className="relative bg-card/50 backdrop-blur-sm border border-border/50 rounded-2xl p-6 md:p-8">
-            <p className="text-lg md:text-xl text-foreground italic leading-relaxed">
-              "Ensina-nos a contar os nossos dias, para que alcancemos coração sábio."
-            </p>
-            <footer className="mt-4 text-primary font-semibold">
-              — Salmo 90:12
-            </footer>
-          </blockquote>
-        </div>
+        {/* Subtitle */}
+        <motion.p 
+          className="text-lg md:text-xl text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+        >
+          Transforme intenção em progresso real com um sistema inteligente que organiza sua vida, 
+          acompanha sua evolução e te ajuda a crescer todos os dias.
+        </motion.p>
 
         {/* CTA Buttons */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+        <motion.div 
+          className="flex flex-col sm:flex-row gap-4 justify-center items-center"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+        >
           <Button
             size="lg"
             onClick={onCtaClick}
-            className="relative px-8 py-6 text-lg font-semibold bg-gradient-to-r from-primary to-emerald-500 hover:from-primary/90 hover:to-emerald-500/90 shadow-lg shadow-primary/25 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-primary/30"
+            className="group relative px-8 py-6 text-lg font-semibold bg-gradient-to-r from-primary to-emerald-500 hover:from-primary/90 hover:to-emerald-500/90 shadow-lg shadow-primary/25 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-primary/30"
           >
-            <span className="relative z-10">Começar Minha Jornada</span>
+            <span className="relative z-10">Começar meu Plano de Vida</span>
+            <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
             <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 animate-shimmer" />
           </Button>
           <Button
             variant="outline"
             size="lg"
-            onClick={scrollToFeatures}
-            className="px-8 py-6 text-lg border-primary/30 hover:bg-primary/5"
+            onClick={scrollToHowItWorks}
+            className="px-8 py-6 text-lg border-border hover:bg-muted/50"
           >
-            Conhecer Mais
+            Ver como funciona
+            <ChevronDown className="w-5 h-5 ml-2" />
           </Button>
-        </div>
+        </motion.div>
       </div>
 
+      {/* Scroll indicator */}
+      <motion.div 
+        className="absolute bottom-8 left-1/2 -translate-x-1/2"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1 }}
+      >
+        <motion.div
+          animate={{ y: [0, 8, 0] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+          className="w-6 h-10 rounded-full border-2 border-muted-foreground/30 flex items-start justify-center p-1"
+        >
+          <div className="w-1.5 h-3 bg-muted-foreground/50 rounded-full" />
+        </motion.div>
+      </motion.div>
     </section>
   );
 };
