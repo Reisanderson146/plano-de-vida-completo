@@ -12,7 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { LIFE_AREAS, LifeArea } from '@/lib/constants';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { Loader2, Target, Folder, User, Users, Baby, Sparkles } from 'lucide-react';
+import { Loader2, Target, Folder, User, Users, Baby, Sparkles, Plus } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { DateRangeFilter, getYearRangeFromDateRange } from '@/components/filters/DateRangeFilter';
@@ -272,26 +272,59 @@ export default function Dashboard() {
         )}
 
         {/* Area cards */}
-        <div className="overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0 scrollbar-hide">
-          <div className="flex sm:grid sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-3 sm:gap-4 min-w-max sm:min-w-0">
-            {LIFE_AREAS.map((area, index) => (
-              <div 
-                key={area.id} 
-                className="opacity-0 animate-fade-in"
-                style={{ animationDelay: `${index * 50}ms`, animationFillMode: 'forwards' }}
-              >
-                <AreaCard
-                  area={area.id}
-                  label={getAreaLabel(area.id)}
-                  total={stats[area.id].total}
-                  completed={stats[area.id].completed}
-                  customColor={getAreaColor(area.id)}
-                  planId={selectedPlanId}
-                />
+        {(() => {
+          const totalGoals = Object.values(stats).reduce((acc, s) => acc + s.total, 0);
+          if (totalGoals === 0) {
+            return (
+              <Card className="border-border/40 border-dashed">
+                <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+                  <div className="w-14 h-14 rounded-2xl bg-muted/50 flex items-center justify-center mb-4">
+                    <Target className="w-7 h-7 text-muted-foreground" />
+                  </div>
+                  <h3 className="text-base font-semibold text-foreground mb-1">
+                    Nenhuma meta no período
+                  </h3>
+                  <p className="text-sm text-muted-foreground max-w-sm">
+                    Ajuste o filtro de datas ou adicione metas ao seu plano para visualizar o progresso.
+                  </p>
+                  <Link to={`/consulta/${selectedPlanId}`}>
+                    <Button variant="outline" className="mt-4 rounded-xl gap-2">
+                      <Plus className="w-4 h-4" />
+                      Adicionar metas
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+            );
+          }
+          
+          return (
+            <div className="relative">
+              {/* Scroll indicator for mobile */}
+              <div className="absolute right-0 top-0 bottom-0 w-8 pointer-events-none z-10 bg-gradient-to-l from-background to-transparent sm:hidden" />
+              <div className="overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0 scrollbar-hide">
+                <div className="flex sm:grid sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-3 sm:gap-4 min-w-max sm:min-w-0">
+                  {LIFE_AREAS.map((area, index) => (
+                    <div 
+                      key={area.id} 
+                      className="opacity-0 animate-fade-in"
+                      style={{ animationDelay: `${index * 50}ms`, animationFillMode: 'forwards' }}
+                    >
+                      <AreaCard
+                        area={area.id}
+                        label={getAreaLabel(area.id)}
+                        total={stats[area.id].total}
+                        completed={stats[area.id].completed}
+                        customColor={getAreaColor(area.id)}
+                        planId={selectedPlanId}
+                      />
+                    </div>
+                  ))}
+                </div>
               </div>
-            ))}
-          </div>
-        </div>
+            </div>
+          );
+        })()}
 
         {/* Pending Goals and Monthly Evolution */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-stretch">
