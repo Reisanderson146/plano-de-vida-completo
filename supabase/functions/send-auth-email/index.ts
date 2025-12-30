@@ -14,34 +14,20 @@ interface AuthEmailRequest {
   redirectTo?: string;
 }
 
+// Simplified email template to avoid promotions tab
 const getEmailTemplate = (type: string, link: string, displayName: string) => {
   const year = new Date().getFullYear();
   
   const footer = `
-    <tr>
-      <td style="background-color: #f9fafb; padding: 25px 30px; text-align: center; border-top: 1px solid #e5e7eb;">
-        <p style="margin: 0; color: #9ca3af; font-size: 13px;">
-          © ${year} Plano de Vida. Todos os direitos reservados.
-        </p>
-        <p style="margin: 10px 0 0 0; color: #9ca3af; font-size: 12px;">
-          Este é um email automático.
-        </p>
-        <p style="margin: 15px 0 0 0;">
-          <a href="https://planodevida.io/configuracoes" style="color: #6b7280; font-size: 12px; text-decoration: underline;">
-            Gerenciar preferências de email
-          </a>
-          <span style="color: #d1d5db; margin: 0 8px;">|</span>
-          <a href="mailto:cancelar@planodevida.io?subject=Cancelar%20inscri%C3%A7%C3%A3o" style="color: #6b7280; font-size: 12px; text-decoration: underline;">
-            Cancelar inscrição
-          </a>
-        </p>
-      </td>
-    </tr>
+    <p style="margin: 30px 0 0 0; padding-top: 20px; border-top: 1px solid #e5e7eb; color: #9ca3af; font-size: 12px; text-align: center;">
+      Plano de Vida ${year}<br>
+      <a href="https://planodevida.io/configuracoes" style="color: #6b7280; text-decoration: underline;">Gerenciar preferencias</a>
+    </p>
   `;
 
   if (type === "recovery") {
     return {
-      subject: "🔐 Recuperação de Senha - Plano de Vida",
+      subject: "Recuperacao de Senha - Plano de Vida",
       html: `
         <!DOCTYPE html>
         <html>
@@ -49,58 +35,24 @@ const getEmailTemplate = (type: string, link: string, displayName: string) => {
           <meta charset="utf-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
         </head>
-        <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f4f4f5;">
-          <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f4f5; padding: 40px 20px;">
-            <tr>
-              <td align="center">
-                <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-                  <tr>
-                    <td style="background: linear-gradient(135deg, #2A8C68 0%, #7BC8A4 100%); padding: 40px 30px; text-align: center;">
-                      <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 700;">
-                        🔐 Recuperação de Senha
-                      </h1>
-                      <p style="margin: 10px 0 0 0; color: rgba(255,255,255,0.9); font-size: 16px;">
-                        Plano de Vida
-                      </p>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td style="padding: 40px 30px;">
-                      <p style="margin: 0 0 20px 0; color: #374151; font-size: 18px; line-height: 1.6;">
-                        Olá, <strong>${displayName}</strong>! 👋
-                      </p>
-                      <p style="margin: 0 0 25px 0; color: #6b7280; font-size: 16px; line-height: 1.7;">
-                        Recebemos uma solicitação para redefinir a senha da sua conta no <strong style="color: #2A8C68;">Plano de Vida</strong>.
-                      </p>
-                      <table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
-                        <tr>
-                          <td align="center">
-                            <a href="${link}" style="display: inline-block; background: linear-gradient(135deg, #2A8C68 0%, #7BC8A4 100%); color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 12px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 14px rgba(42, 140, 104, 0.4);">
-                              Redefinir Minha Senha →
-                            </a>
-                          </td>
-                        </tr>
-                      </table>
-                      <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; border-radius: 8px; margin: 25px 0;">
-                        <p style="margin: 0; color: #92400e; font-size: 14px;">
-                          <strong>⚠️ Atenção:</strong> Este link expira em 1 hora. Se você não solicitou esta recuperação, ignore este email.
-                        </p>
-                      </div>
-                      <p style="margin: 30px 0 0 0; color: #6b7280; font-size: 14px; line-height: 1.7;">
-                        Se o botão não funcionar, copie e cole este link no seu navegador:<br>
-                        <span style="color: #2A8C68; word-break: break-all; font-size: 12px;">${link}</span>
-                      </p>
-                      <p style="margin: 25px 0 0 0; color: #374151; font-size: 15px;">
-                        Com carinho,<br>
-                        <strong>Equipe Plano de Vida</strong> 🌱
-                      </p>
-                    </td>
-                  </tr>
-                  ${footer}
-                </table>
-              </td>
-            </tr>
-          </table>
+        <body style="margin: 0; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background-color: #ffffff; color: #374151; line-height: 1.6;">
+          <div style="max-width: 500px; margin: 0 auto;">
+            <p style="margin: 0 0 20px 0; color: #2A8C68; font-weight: 600; font-size: 18px;">Plano de Vida</p>
+            
+            <p style="margin: 0 0 15px 0;">Ola, ${displayName}.</p>
+            
+            <p style="margin: 0 0 20px 0;">Voce solicitou a recuperacao de senha da sua conta.</p>
+            
+            <p style="margin: 0 0 20px 0;">
+              <a href="${link}" style="color: #2A8C68; text-decoration: underline;">Clique aqui para redefinir sua senha</a>
+            </p>
+            
+            <p style="margin: 0 0 15px 0; color: #6b7280; font-size: 14px;">Este link expira em 1 hora. Se voce nao solicitou esta recuperacao, ignore este email.</p>
+            
+            <p style="margin: 0;">Equipe Plano de Vida</p>
+            
+            ${footer}
+          </div>
         </body>
         </html>
       `,
@@ -109,7 +61,7 @@ const getEmailTemplate = (type: string, link: string, displayName: string) => {
 
   if (type === "signup") {
     return {
-      subject: "✉️ Confirme seu email - Plano de Vida",
+      subject: "Confirme seu email - Plano de Vida",
       html: `
         <!DOCTYPE html>
         <html>
@@ -117,64 +69,24 @@ const getEmailTemplate = (type: string, link: string, displayName: string) => {
           <meta charset="utf-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
         </head>
-        <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f4f4f5;">
-          <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f4f5; padding: 40px 20px;">
-            <tr>
-              <td align="center">
-                <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-                  <tr>
-                    <td style="background: linear-gradient(135deg, #2A8C68 0%, #7BC8A4 100%); padding: 40px 30px; text-align: center;">
-                      <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 700;">
-                        ✉️ Confirme seu Email
-                      </h1>
-                      <p style="margin: 10px 0 0 0; color: rgba(255,255,255,0.9); font-size: 16px;">
-                        Bem-vindo ao Plano de Vida!
-                      </p>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td style="padding: 40px 30px;">
-                      <p style="margin: 0 0 20px 0; color: #374151; font-size: 18px; line-height: 1.6;">
-                        Olá, <strong>${displayName}</strong>! 👋
-                      </p>
-                      <p style="margin: 0 0 25px 0; color: #6b7280; font-size: 16px; line-height: 1.7;">
-                        Você está a um passo de começar sua jornada no <strong style="color: #2A8C68;">Plano de Vida</strong>! Clique no botão abaixo para confirmar seu email e ativar sua conta.
-                      </p>
-                      <table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
-                        <tr>
-                          <td align="center">
-                            <a href="${link}" style="display: inline-block; background: linear-gradient(135deg, #2A8C68 0%, #7BC8A4 100%); color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 12px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 14px rgba(42, 140, 104, 0.4);">
-                              Confirmar Meu Email →
-                            </a>
-                          </td>
-                        </tr>
-                      </table>
-                      <div style="background: #f0fdf4; border-radius: 12px; padding: 20px; margin: 25px 0;">
-                        <p style="margin: 0 0 10px 0; color: #166534; font-weight: 600; font-size: 14px;">
-                          🌟 O que você terá acesso:
-                        </p>
-                        <ul style="margin: 0; padding-left: 20px; color: #374151; font-size: 14px; line-height: 1.8;">
-                          <li>Planejamento em 7 áreas da vida</li>
-                          <li>Metas organizadas por idade</li>
-                          <li>Acompanhamento de progresso</li>
-                          <li>Exportação em PDF</li>
-                        </ul>
-                      </div>
-                      <p style="margin: 30px 0 0 0; color: #6b7280; font-size: 14px; line-height: 1.7;">
-                        Se o botão não funcionar, copie e cole este link no seu navegador:<br>
-                        <span style="color: #2A8C68; word-break: break-all; font-size: 12px;">${link}</span>
-                      </p>
-                      <p style="margin: 25px 0 0 0; color: #374151; font-size: 15px;">
-                        Com carinho,<br>
-                        <strong>Equipe Plano de Vida</strong> 🌱
-                      </p>
-                    </td>
-                  </tr>
-                  ${footer}
-                </table>
-              </td>
-            </tr>
-          </table>
+        <body style="margin: 0; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background-color: #ffffff; color: #374151; line-height: 1.6;">
+          <div style="max-width: 500px; margin: 0 auto;">
+            <p style="margin: 0 0 20px 0; color: #2A8C68; font-weight: 600; font-size: 18px;">Plano de Vida</p>
+            
+            <p style="margin: 0 0 15px 0;">Ola, ${displayName}.</p>
+            
+            <p style="margin: 0 0 20px 0;">Para ativar sua conta, confirme seu email clicando no link abaixo.</p>
+            
+            <p style="margin: 0 0 20px 0;">
+              <a href="${link}" style="color: #2A8C68; text-decoration: underline;">Confirmar meu email</a>
+            </p>
+            
+            <p style="margin: 0 0 15px 0; color: #6b7280; font-size: 14px;">Se voce nao criou esta conta, ignore este email.</p>
+            
+            <p style="margin: 0;">Equipe Plano de Vida</p>
+            
+            ${footer}
+          </div>
         </body>
         </html>
       `,
@@ -183,7 +95,7 @@ const getEmailTemplate = (type: string, link: string, displayName: string) => {
 
   // Magic link
   return {
-    subject: "🔗 Seu link de acesso - Plano de Vida",
+    subject: "Seu link de acesso - Plano de Vida",
     html: `
       <!DOCTYPE html>
       <html>
@@ -191,58 +103,24 @@ const getEmailTemplate = (type: string, link: string, displayName: string) => {
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
       </head>
-      <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f4f4f5;">
-        <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f4f5; padding: 40px 20px;">
-          <tr>
-            <td align="center">
-              <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-                <tr>
-                  <td style="background: linear-gradient(135deg, #2A8C68 0%, #7BC8A4 100%); padding: 40px 30px; text-align: center;">
-                    <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 700;">
-                      🔗 Link de Acesso
-                    </h1>
-                    <p style="margin: 10px 0 0 0; color: rgba(255,255,255,0.9); font-size: 16px;">
-                      Plano de Vida
-                    </p>
-                  </td>
-                </tr>
-                <tr>
-                  <td style="padding: 40px 30px;">
-                    <p style="margin: 0 0 20px 0; color: #374151; font-size: 18px; line-height: 1.6;">
-                      Olá, <strong>${displayName}</strong>! 👋
-                    </p>
-                    <p style="margin: 0 0 25px 0; color: #6b7280; font-size: 16px; line-height: 1.7;">
-                      Clique no botão abaixo para acessar sua conta no <strong style="color: #2A8C68;">Plano de Vida</strong>.
-                    </p>
-                    <table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
-                      <tr>
-                        <td align="center">
-                          <a href="${link}" style="display: inline-block; background: linear-gradient(135deg, #2A8C68 0%, #7BC8A4 100%); color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 12px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 14px rgba(42, 140, 104, 0.4);">
-                            Acessar Minha Conta →
-                          </a>
-                        </td>
-                      </tr>
-                    </table>
-                    <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; border-radius: 8px; margin: 25px 0;">
-                      <p style="margin: 0; color: #92400e; font-size: 14px;">
-                        <strong>⚠️ Atenção:</strong> Este link expira em 1 hora.
-                      </p>
-                    </div>
-                    <p style="margin: 30px 0 0 0; color: #6b7280; font-size: 14px; line-height: 1.7;">
-                      Se o botão não funcionar, copie e cole este link no seu navegador:<br>
-                      <span style="color: #2A8C68; word-break: break-all; font-size: 12px;">${link}</span>
-                    </p>
-                    <p style="margin: 25px 0 0 0; color: #374151; font-size: 15px;">
-                      Com carinho,<br>
-                      <strong>Equipe Plano de Vida</strong> 🌱
-                    </p>
-                  </td>
-                </tr>
-                ${footer}
-              </table>
-            </td>
-          </tr>
-        </table>
+      <body style="margin: 0; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background-color: #ffffff; color: #374151; line-height: 1.6;">
+        <div style="max-width: 500px; margin: 0 auto;">
+          <p style="margin: 0 0 20px 0; color: #2A8C68; font-weight: 600; font-size: 18px;">Plano de Vida</p>
+          
+          <p style="margin: 0 0 15px 0;">Ola, ${displayName}.</p>
+          
+          <p style="margin: 0 0 20px 0;">Use o link abaixo para acessar sua conta.</p>
+          
+          <p style="margin: 0 0 20px 0;">
+            <a href="${link}" style="color: #2A8C68; text-decoration: underline;">Acessar minha conta</a>
+          </p>
+          
+          <p style="margin: 0 0 15px 0; color: #6b7280; font-size: 14px;">Este link expira em 1 hora.</p>
+          
+          <p style="margin: 0;">Equipe Plano de Vida</p>
+          
+          ${footer}
+        </div>
       </body>
       </html>
     `,
@@ -365,10 +243,6 @@ const handler = async (req: Request): Promise<Response> => {
         to: [email],
         subject: template.subject,
         html: template.html,
-        headers: {
-          "List-Unsubscribe": "<mailto:cancelar@planodevida.io?subject=Unsubscribe>, <https://planodevida.io/configuracoes>",
-          "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
-        },
       }),
     });
 
@@ -385,20 +259,15 @@ const handler = async (req: Request): Promise<Response> => {
       status: emailResponse.ok ? "sent" : "failed",
       resend_id: emailResult?.id || null,
       user_id: linkData.user?.id || null,
-      error_message: emailResult?.error?.message || null,
+      error_message: emailResponse.ok ? null : JSON.stringify(emailResult),
     });
 
     return new Response(
-      JSON.stringify({ 
-        success: true, 
-        message: `${type} email sent to ${email}`,
-        resend_id: emailResult?.id 
-      }),
+      JSON.stringify({ success: true, message: "Email sent successfully" }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
-
   } catch (error: any) {
-    console.error("Error in send-auth-email:", error);
+    console.error("Error in send-auth-email function:", error);
     return new Response(
       JSON.stringify({ error: error.message }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
