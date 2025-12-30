@@ -155,16 +155,16 @@ const ComparisonSection = () => {
                 <div className="flex items-center gap-3 mb-6">
                   <motion.div 
                     className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-emerald-500/20 flex items-center justify-center border border-primary/20"
-                    animate={{ 
+                    animate={{
                       boxShadow: [
-                        "0 0 0 0 rgba(var(--primary), 0)",
-                        "0 0 20px 4px rgba(var(--primary), 0.2)",
-                        "0 0 0 0 rgba(var(--primary), 0)"
+                        "0 0 0 0 hsl(var(--primary) / 0)",
+                        "0 0 20px 4px hsl(var(--primary) / 0.25)",
+                        "0 0 0 0 hsl(var(--primary) / 0)"
                       ]
                     }}
-                    transition={{ 
-                      duration: 2, 
-                      repeat: Infinity 
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity
                     }}
                   >
                     <Check className="w-5 h-5 text-primary" />
