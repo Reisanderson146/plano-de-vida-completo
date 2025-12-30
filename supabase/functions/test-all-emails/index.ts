@@ -387,70 +387,61 @@ const emailTemplates = {
     )
   }),
 
-  // 12. PDF Share - Ultra simple format for inbox delivery
+  // 12. PDF Share - Clean but professional
   pdf_share: (name: string) => ({
     subject: "[TESTE] Anderson Reis compartilhou um plano com voce",
-    html: `
-      <!DOCTYPE html>
-      <html>
-      <head><meta charset="utf-8"></head>
-      <body style="margin: 0; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background-color: #ffffff; color: #374151; line-height: 1.6;">
-        <div style="max-width: 500px; margin: 0 auto;">
-          <p style="margin: 0 0 20px 0; color: #2A8C68; font-weight: 600;">Plano de Vida</p>
-          
-          <p style="margin: 0 0 15px 0;">Ola ${name},</p>
-          
-          <p style="margin: 0 0 15px 0;">Anderson Reis compartilhou o plano "Meu Plano de Vida 2024" com voce.</p>
-          
-          <p style="margin: 0 0 15px 0; color: #6b7280; font-size: 14px;">Mensagem: "Da uma olhada no meu plano!"</p>
-          
-          <p style="margin: 0 0 15px 0;">O arquivo PDF esta anexado a este email.</p>
-          
-          <p style="margin: 0;">Equipe Plano de Vida</p>
-          
-          <p style="margin: 30px 0 0 0; padding-top: 20px; border-top: 1px solid #e5e7eb; color: #9ca3af; font-size: 12px; text-align: center;">
-            Plano de Vida ${year}
-          </p>
-        </div>
-      </body>
-      </html>
-    `
+    html: generateEmailWrapper(
+      "#2A8C68",
+      "Plano Compartilhado",
+      `
+        <p style="margin: 0 0 16px 0; color: #374151; font-size: 15px; line-height: 1.6;">
+          Ola ${name},
+        </p>
+        <p style="margin: 0 0 16px 0; color: #4b5563; font-size: 15px; line-height: 1.6;">
+          Anderson Reis compartilhou um Plano de Vida com voce.
+        </p>
+        <p style="margin: 0 0 8px 0; color: #374151; font-size: 14px;">
+          <strong>Plano:</strong> Meu Plano de Vida 2024
+        </p>
+        <p style="margin: 0 0 16px 0; color: #6b7280; font-size: 13px;">
+          Mensagem: "Da uma olhada no meu plano!"
+        </p>
+        <p style="margin: 0 0 16px 0; color: #4b5563; font-size: 14px;">
+          O arquivo PDF esta anexado a este email.
+        </p>
+        <p style="margin: 20px 0 0 0; color: #4b5563; font-size: 14px;">
+          Atenciosamente,<br>Equipe Plano de Vida
+        </p>
+      `
+    )
   }),
 
-  // 13. Plan Summary - Ultra simple format for inbox delivery
+  // 13. Plan Summary - Clean but professional
   plan_summary: (name: string) => ({
     subject: "[TESTE] Resumo do seu plano",
-    html: `
-      <!DOCTYPE html>
-      <html>
-      <head><meta charset="utf-8"></head>
-      <body style="margin: 0; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background-color: #ffffff; color: #374151; line-height: 1.6;">
-        <div style="max-width: 500px; margin: 0 auto;">
-          <p style="margin: 0 0 20px 0; color: #2A8C68; font-weight: 600;">Plano de Vida</p>
-          
-          <p style="margin: 0 0 15px 0;">Ola ${name},</p>
-          
-          <p style="margin: 0 0 15px 0;">Aqui esta o resumo do seu plano.</p>
-          
-          <p style="margin: 0 0 10px 0; font-size: 14px;">Progresso: 65% (13 de 20 metas concluidas)</p>
-          
-          <p style="margin: 0 0 10px 0; font-size: 14px; color: #6b7280;">
-            Espiritual: 2 | Intelectual: 3 | Familiar: 2 | Financeiro: 4 | Profissional: 3 | Saude: 4 | Social: 2
-          </p>
-          
-          <p style="margin: 20px 0 0 0;">
-            <a href="https://planodevida.io" style="color: #2A8C68; text-decoration: underline;">Acessar meu plano</a>
-          </p>
-          
-          <p style="margin: 20px 0 0 0;">Equipe Plano de Vida</p>
-          
-          <p style="margin: 30px 0 0 0; padding-top: 20px; border-top: 1px solid #e5e7eb; color: #9ca3af; font-size: 12px; text-align: center;">
-            Plano de Vida ${year}
-          </p>
-        </div>
-      </body>
-      </html>
-    `
+    html: generateEmailWrapper(
+      "#2A8C68",
+      "Resumo do Plano",
+      `
+        <p style="margin: 0 0 16px 0; color: #374151; font-size: 15px; line-height: 1.6;">
+          Ola ${name},
+        </p>
+        <p style="margin: 0 0 16px 0; color: #4b5563; font-size: 15px; line-height: 1.6;">
+          Aqui esta o resumo do seu Plano de Vida.
+        </p>
+        <p style="margin: 0 0 12px 0; color: #374151; font-size: 14px;">
+          <strong>Progresso:</strong> 65% (13 de 20 metas)
+        </p>
+        <p style="margin: 0 0 8px 0; color: #4b5563; font-size: 13px;">Metas por area:</p>
+        <p style="margin: 0 0 16px 0; color: #6b7280; font-size: 13px; line-height: 1.6;">
+          Espiritual: 2 | Intelectual: 3 | Familiar: 2 | Financeiro: 4 | Profissional: 3 | Saude: 4 | Social: 2
+        </p>
+        ${getSimpleLink("https://planodevida.io", "Acessar meu plano")}
+        <p style="margin: 20px 0 0 0; color: #4b5563; font-size: 14px;">
+          Atenciosamente,<br>Equipe Plano de Vida
+        </p>
+      `
+    )
   }),
 };
 
