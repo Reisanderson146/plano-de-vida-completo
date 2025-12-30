@@ -56,3 +56,6 @@ verify_jwt = false
 
 [functions.send-auth-email]
 verify_jwt = false
+
+[functions.test-all-emails]
+verify_jwt = false
