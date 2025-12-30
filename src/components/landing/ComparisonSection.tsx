@@ -1,11 +1,11 @@
 import { motion } from "framer-motion";
-import { X, Check, FileText, Bell, TrendingDown, Clock, Target, BarChart3, Shield, FileSpreadsheet, StickyNote, MessageCircle } from "lucide-react";
+import { X, Check, Target, BarChart3, Shield, Bell } from "lucide-react";
 
 const oldWayItems = [
-  { text: "Metas espalhadas no papel, WhatsApp, Excel ou bloco de notas", icons: [FileText, MessageCircle, FileSpreadsheet, StickyNote] },
-  { text: "Esquece das metas e perde o foco", icons: [Bell] },
-  { text: "Sem visão clara do progresso", icons: [TrendingDown] },
-  { text: "Tempo perdido tentando se organizar", icons: [Clock] },
+  "Metas espalhadas no papel, WhatsApp, Excel ou bloco de notas",
+  "Esquece das metas e perde o foco",
+  "Sem visão clara do progresso",
+  "Tempo perdido tentando se organizar",
 ];
 
 const newWayItems = [
@@ -59,7 +59,7 @@ const ComparisonSection = () => {
               </div>
 
               <div className="space-y-4">
-                {oldWayItems.map((item, i) => (
+                {oldWayItems.map((text, i) => (
                   <motion.div
                     key={i}
                     className="flex items-start gap-3"
@@ -71,21 +71,7 @@ const ComparisonSection = () => {
                     <div className="flex-shrink-0 w-6 h-6 rounded-full bg-destructive/10 flex items-center justify-center mt-0.5">
                       <X className="w-3.5 h-3.5 text-destructive" />
                     </div>
-                    <div className="flex-1">
-                      <span className="text-muted-foreground">{item.text}</span>
-                      {item.icons && item.icons.length > 1 && (
-                        <div className="flex gap-1.5 mt-2">
-                          {item.icons.map((Icon, iconIndex) => (
-                            <div 
-                              key={iconIndex}
-                              className="w-7 h-7 rounded-lg bg-muted/50 flex items-center justify-center"
-                            >
-                              <Icon className="w-3.5 h-3.5 text-muted-foreground" />
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
+                    <span className="text-muted-foreground">{text}</span>
                   </motion.div>
                 ))}
               </div>
