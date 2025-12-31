@@ -664,8 +664,10 @@ const PricingSection = ({ onCheckout, onLogin, onSignup, loading }: PricingSecti
                           ) : (
                             <X className="w-4 h-4 text-muted-foreground/40 mx-auto" />
                           )
-                        ) : (
+                        ) : row.familiar === "—" ? (
                           <span className="text-xs text-muted-foreground">{row.familiar}</span>
+                        ) : (
+                          <span className="text-xs text-rose-500 font-medium">{row.familiar}</span>
                         )}
                       </div>
                       <div className="p-3 text-center">
