@@ -336,9 +336,9 @@ export default function Conta() {
     const PlanIcon = isBasic ? Gem : isFamiliar ? HeartHandshake : Crown;
 
     return (
-      <div className="relative pt-8">
+      <div className="relative pt-5 h-full">
         {/* Top Badge - Above Card */}
-        <div className="absolute -top-0 left-1/2 -translate-x-1/2 z-20">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 z-20">
           {isBasic && (
             <Badge className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white border-0 shadow-lg px-4 py-1">
               <Gem className="w-3 h-3 mr-1" />
@@ -360,25 +360,12 @@ export default function Conta() {
         </div>
 
         <Card className={cn(
-          "relative overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-xl h-full flex flex-col",
+          "relative overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-xl h-full flex flex-col mt-2",
           isBasic && "border-2 border-emerald-500/30",
           isFamiliar && "border-2 border-rose-500/30",
           isPremium && "border-2 border-violet-500/30",
           isCurrent && `shadow-lg ${colors.shadow} ring-1 ${colors.ring}`
         )}>
-          {isCurrent && (
-            <div className="absolute top-3 right-3 z-10">
-              <Badge variant="outline" className={cn(
-                "text-xs",
-                isBasic && "border-primary/50 text-primary bg-primary/10",
-                isFamiliar && "border-rose-500/50 text-rose-600 bg-rose-500/10",
-                isPremium && "border-violet-500/50 text-violet-600 bg-violet-500/10"
-              )}>
-                Atual
-              </Badge>
-            </div>
-          )}
-          
           <CardHeader className="pb-4 pt-6">
             <div className="flex items-center gap-3">
               <div className={cn(
@@ -388,14 +375,26 @@ export default function Conta() {
                 <PlanIcon className={cn("w-6 h-6", colors.iconColor)} />
               </div>
               <div className="flex-1">
-                <h2 className={cn(
-                  "text-xl font-bold",
-                  isBasic && "text-foreground",
-                  isFamiliar && "bg-gradient-to-r from-rose-600 to-pink-600 bg-clip-text text-transparent",
-                  isPremium && "bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent"
-                )}>
-                  Plano {planName}
-                </h2>
+                <div className="flex items-center gap-2">
+                  <h2 className={cn(
+                    "text-xl font-bold",
+                    isBasic && "text-foreground",
+                    isFamiliar && "bg-gradient-to-r from-rose-600 to-pink-600 bg-clip-text text-transparent",
+                    isPremium && "bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent"
+                  )}>
+                    Plano {planName}
+                  </h2>
+                  {isCurrent && (
+                    <Badge variant="outline" className={cn(
+                      "text-[10px] px-1.5 py-0",
+                      isBasic && "border-primary/50 text-primary bg-primary/10",
+                      isFamiliar && "border-rose-500/50 text-rose-600 bg-rose-500/10",
+                      isPremium && "border-violet-500/50 text-violet-600 bg-violet-500/10"
+                    )}>
+                      Atual
+                    </Badge>
+                  )}
+                </div>
                 <p className="text-sm text-muted-foreground">{subtitle}</p>
               </div>
             </div>
@@ -549,7 +548,7 @@ export default function Conta() {
             </div>
           </Carousel>
         ) : (
-          <div className="grid md:grid-cols-3 gap-4">
+          <div className="grid md:grid-cols-3 gap-4 items-stretch">
             <PlanCard type="basic" />
             <PlanCard type="familiar" />
             <PlanCard type="premium" />
