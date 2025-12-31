@@ -89,18 +89,20 @@ const plans = [
     recommended: false,
     tagline: 'Organize sua vida pessoal',
     badge: 'Essencial',
+    hasAI: false,
   },
   {
     id: 'familiar' as const,
     name: 'Familiar',
     subtitle: 'Para o Casal',
     price: 'R$ 15,90',
-    description: '2 planos incluídos',
+    description: '2 planos incluídos + IA',
     icon: Heart,
     color: 'rose',
     recommended: false,
     tagline: 'Planeje junto com seu cônjuge',
     badge: 'Popular',
+    hasAI: true,
   },
   {
     id: 'premium' as const,
@@ -113,6 +115,7 @@ const plans = [
     recommended: true,
     tagline: 'Para você e toda a família',
     badge: 'Completo',
+    hasAI: true,
   },
 ];
 
@@ -381,14 +384,25 @@ const PricingSection = ({ onCheckout, onLogin, onSignup, loading }: PricingSecti
                           )} />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h2 className={cn(
-                            "text-lg md:text-xl font-bold",
-                            currentPlan.color === 'emerald' && "text-foreground",
-                            currentPlan.color === 'rose' && "bg-gradient-to-r from-rose-600 to-pink-600 bg-clip-text text-transparent",
-                            currentPlan.color === 'violet' && "bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent"
-                          )}>
-                            {currentPlan.name}
-                          </h2>
+                          <div className="flex items-center gap-1.5">
+                            <h2 className={cn(
+                              "text-lg md:text-xl font-bold",
+                              currentPlan.color === 'emerald' && "text-foreground",
+                              currentPlan.color === 'rose' && "bg-gradient-to-r from-rose-600 to-pink-600 bg-clip-text text-transparent",
+                              currentPlan.color === 'violet' && "bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent"
+                            )}>
+                              {currentPlan.name}
+                            </h2>
+                            {currentPlan.hasAI && (
+                              <span className={cn(
+                                "text-[10px] text-white px-1.5 py-0.5 rounded-full font-bold",
+                                currentPlan.color === 'rose' && "bg-rose-500",
+                                currentPlan.color === 'violet' && "bg-violet-500"
+                              )}>
+                                IA
+                              </span>
+                            )}
+                          </div>
                           <p className="text-xs md:text-sm text-muted-foreground">{currentPlan.subtitle}</p>
                         </div>
                       </motion.div>
