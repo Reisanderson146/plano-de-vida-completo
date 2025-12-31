@@ -375,14 +375,14 @@ export default function Conta() {
                 <PlanIcon className={cn("w-6 h-6", colors.iconColor)} />
               </div>
               <div className="flex-1">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <h2 className={cn(
-                    "text-xl font-bold",
+                    "text-lg font-bold whitespace-nowrap",
                     isBasic && "text-foreground",
                     isFamiliar && "bg-gradient-to-r from-rose-600 to-pink-600 bg-clip-text text-transparent",
                     isPremium && "bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent"
                   )}>
-                    Plano {planName}
+                    {planName}
                   </h2>
                   {isCurrent && (
                     <Badge variant="outline" className={cn(
