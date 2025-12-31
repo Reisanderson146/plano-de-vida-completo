@@ -4,9 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Check, Crown, Sparkles, Shield, Zap, Gem, User, Users, Baby, Heart, Target, Loader2, ChevronLeft, ChevronRight, ChevronDown, X, BarChart3, Calendar, FileText, Bell, Download, History, Eye, BookOpen, Info, ArrowRight, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { LucideIcon } from "lucide-react";
-import useEmblaCarousel from "embla-carousel-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Link } from "react-router-dom";
 
 // Countdown hook for urgency timer
@@ -14,7 +12,6 @@ const useCountdown = () => {
   const [timeLeft, setTimeLeft] = useState({ hours: 0, minutes: 0, seconds: 0 });
   
   useEffect(() => {
-    // Set end time to midnight of current day (resets daily)
     const getEndTime = () => {
       const now = new Date();
       const end = new Date(now);
@@ -50,48 +47,34 @@ const useCountdown = () => {
 };
 
 interface PricingSectionProps {
-  onCheckout: (tier: 'basic' | 'premium') => void;
+  onCheckout: (tier: 'basic' | 'familiar' | 'premium') => void;
   onLogin: () => void;
   onSignup: () => void;
-  loading: 'basic' | 'premium' | null;
+  loading: 'basic' | 'familiar' | 'premium' | null;
 }
 
 interface Benefit {
   text: string;
   icon: LucideIcon;
-  includedInBasic: boolean;
+  includedIn: ('basic' | 'familiar' | 'premium')[];
   highlight?: boolean;
 }
 
-// Benefits for Basic plan
-const basicBenefits: Benefit[] = [
-  { text: "1 Plano Individual", icon: User, includedInBasic: true },
-  { text: "Planejamento das 7 áreas da vida", icon: Target, includedInBasic: true },
-  { text: "Dashboard com seu progresso", icon: BarChart3, includedInBasic: true },
-  { text: "Consulta visual do plano", icon: Eye, includedInBasic: true },
-  { text: "Dados seguros na nuvem", icon: Shield, includedInBasic: true },
-  { text: "Exportação em PDF", icon: Download, includedInBasic: true },
-  { text: "Visão por períodos de vida", icon: Calendar, includedInBasic: true },
-  { text: "Histórico de metas concluídas", icon: History, includedInBasic: true },
-  { text: "1 Plano Familiar", icon: Users, includedInBasic: false },
-  { text: "3 Planos para Filhos", icon: Baby, includedInBasic: false },
-  { text: "Resumo inteligente com IA", icon: Sparkles, includedInBasic: false, highlight: true },
-  { text: "Lembretes por email", icon: Bell, includedInBasic: false },
-];
-
-// Benefits for Premium plan - NO individual plan, only Family + Kids
-const premiumBenefits: Benefit[] = [
-  { text: "1 Plano Familiar", icon: Users, includedInBasic: false, highlight: true },
-  { text: "3 Planos para Filhos", icon: Baby, includedInBasic: false, highlight: true },
-  { text: "Resumo inteligente com IA", icon: Sparkles, includedInBasic: false, highlight: true },
-  { text: "Planejamento das 7 áreas da vida", icon: Target, includedInBasic: true },
-  { text: "Dashboard com gráficos detalhados", icon: BarChart3, includedInBasic: true },
-  { text: "Consulta visual do plano", icon: Eye, includedInBasic: true },
-  { text: "Dados seguros na nuvem", icon: Shield, includedInBasic: true },
-  { text: "Exportação profissional em PDF", icon: Download, includedInBasic: true },
-  { text: "Visão por períodos de vida", icon: Calendar, includedInBasic: true },
-  { text: "Histórico de metas concluídas", icon: History, includedInBasic: true },
-  { text: "Lembretes por email", icon: Bell, includedInBasic: false },
+// All benefits with which plans include them
+const allBenefits: Benefit[] = [
+  { text: "1 Plano Individual", icon: User, includedIn: ['basic', 'familiar', 'premium'] },
+  { text: "1 Plano Familiar", icon: Users, includedIn: ['familiar', 'premium'], highlight: true },
+  { text: "2 Planos para Filhos", icon: Baby, includedIn: ['premium'], highlight: true },
+  { text: "Resumo inteligente com IA", icon: Sparkles, includedIn: ['premium'], highlight: true },
+  { text: "Planejamento das 7 áreas da vida", icon: Target, includedIn: ['basic', 'familiar', 'premium'] },
+  { text: "Dashboard com seu progresso", icon: BarChart3, includedIn: ['basic', 'familiar', 'premium'] },
+  { text: "Consulta visual do plano", icon: Eye, includedIn: ['basic', 'familiar', 'premium'] },
+  { text: "Dados seguros na nuvem", icon: Shield, includedIn: ['basic', 'familiar', 'premium'] },
+  { text: "Exportação em PDF", icon: Download, includedIn: ['basic', 'familiar', 'premium'] },
+  { text: "Visão por períodos de vida", icon: Calendar, includedIn: ['basic', 'familiar', 'premium'] },
+  { text: "Histórico de metas concluídas", icon: History, includedIn: ['basic', 'familiar', 'premium'] },
+  { text: "Lembretes por email", icon: Bell, includedIn: ['familiar', 'premium'] },
+  { text: "Email de aniversário de casamento", icon: Heart, includedIn: ['familiar', 'premium'] },
 ];
 
 const plans = [
@@ -102,101 +85,33 @@ const plans = [
     price: 'R$ 9,99',
     description: '1 plano individual',
     icon: Gem,
-    benefits: basicBenefits,
     color: 'emerald',
     recommended: false,
     tagline: 'Organize sua vida pessoal',
+  },
+  {
+    id: 'familiar' as const,
+    name: 'Familiar',
+    subtitle: 'Para o Casal',
+    price: 'R$ 19,90',
+    description: '2 planos incluídos',
+    icon: Heart,
+    color: 'rose',
+    recommended: false,
+    tagline: 'Planeje junto com seu cônjuge',
   },
   {
     id: 'premium' as const,
     name: 'Premium',
     subtitle: 'Para a Família',
     price: 'R$ 29,99',
-    description: '4 planos incluídos',
+    description: '4 planos incluídos + IA',
     icon: Crown,
-    benefits: premiumBenefits,
     color: 'violet',
     recommended: true,
     tagline: 'Planejamento completo para todos',
   },
 ];
-
-// Smooth spring animation for cards
-const cardVariants = {
-  enter: (direction: number) => ({
-    x: direction > 0 ? 80 : -80,
-    opacity: 0,
-    scale: 0.92,
-    rotateY: direction > 0 ? 8 : -8,
-  }),
-  center: {
-    x: 0,
-    opacity: 1,
-    scale: 1,
-    rotateY: 0,
-    transition: {
-      type: "spring" as const,
-      stiffness: 300,
-      damping: 30,
-      mass: 1,
-    },
-  },
-  exit: (direction: number) => ({
-    x: direction < 0 ? 80 : -80,
-    opacity: 0,
-    scale: 0.92,
-    rotateY: direction < 0 ? 8 : -8,
-    transition: {
-      type: "spring" as const,
-      stiffness: 400,
-      damping: 35,
-    },
-  }),
-};
-
-// Staggered benefit animations with spring physics
-const benefitVariants = {
-  hidden: { opacity: 0, x: -20, scale: 0.96 },
-  visible: (i: number) => ({
-    opacity: 1,
-    x: 0,
-    scale: 1,
-    transition: {
-      type: "spring" as const,
-      stiffness: 400,
-      damping: 25,
-      delay: 0.1 + i * 0.04,
-    },
-  }),
-  exit: { 
-    opacity: 0, 
-    x: 15, 
-    scale: 0.96,
-    transition: { 
-      type: "spring" as const,
-      stiffness: 500,
-      damping: 30,
-    }
-  },
-};
-
-const benefitsContainerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.04,
-      delayChildren: 0.08,
-    },
-  },
-  exit: {
-    opacity: 0,
-    transition: {
-      staggerChildren: 0.02,
-      staggerDirection: -1,
-    },
-  },
-};
 
 // Tooltip descriptions for each benefit
 const benefitTooltips: Record<string, string> = {
@@ -207,19 +122,69 @@ const benefitTooltips: Record<string, string> = {
   "Dados seguros na nuvem": "Seus dados criptografados e acessíveis de qualquer dispositivo",
   "Exportação em PDF": "Baixe seu plano em formato profissional para impressão",
   "Visão por períodos de vida": "Organize suas metas por fases: 1, 5, 10+ anos",
-  "Guia de uso do sistema": "Tutorial completo para aproveitar todos os recursos",
   "1 Plano Familiar": "Planeje o futuro da família em conjunto com seu parceiro(a)",
-  "3 Planos para Filhos": "Crie planos individuais para cada filho acompanhar suas metas",
+  "2 Planos para Filhos": "Crie planos individuais para cada filho acompanhar suas metas",
   "Resumo inteligente com IA": "Análise do seu progresso com sugestões personalizadas de melhoria",
-  "Dashboard com gráficos detalhados": "Relatórios visuais avançados do seu progresso",
-  "Relatórios e balanço de progresso": "Análise aprofundada por área e período de vida",
-  "Exportação profissional em PDF": "Design premium para compartilhar ou imprimir",
   "Lembretes por email": "Receba notificações das metas importantes no seu email",
   "Histórico de metas concluídas": "Acompanhe todas as conquistas que você já realizou",
+  "Email de aniversário de casamento": "Receba mensagens especiais no aniversário de casamento",
+};
+
+const getColorClasses = (color: string) => {
+  switch (color) {
+    case 'emerald':
+      return {
+        glow: "bg-gradient-to-br from-primary/30 via-emerald-500/20 to-teal-500/30",
+        border: "border-primary/40 shadow-primary/15",
+        icon: "bg-gradient-to-br from-primary/20 via-emerald-500/15 to-teal-500/20 text-primary border border-primary/20",
+        iconGlow: "bg-primary/20",
+        title: "text-foreground",
+        badge: "bg-primary text-primary-foreground",
+        button: "bg-gradient-to-r from-primary via-emerald-600 to-teal-600 hover:from-primary/90 hover:via-emerald-600/90 hover:to-teal-600/90 text-primary-foreground shadow-lg shadow-primary/25",
+        check: "bg-primary/20 text-primary",
+        highlight: "text-primary/80",
+      };
+    case 'rose':
+      return {
+        glow: "bg-gradient-to-br from-rose-500/30 via-pink-500/20 to-red-500/30",
+        border: "border-rose-500/40 shadow-rose-500/15",
+        icon: "bg-gradient-to-br from-rose-500/20 via-pink-500/15 to-red-500/20 text-rose-500 border border-rose-500/20",
+        iconGlow: "bg-rose-500/20",
+        title: "bg-gradient-to-r from-rose-500 via-pink-500 to-red-500 bg-clip-text text-transparent",
+        badge: "bg-gradient-to-r from-rose-500 to-pink-500 text-white",
+        button: "bg-gradient-to-r from-rose-500 via-pink-500 to-red-500 hover:from-rose-600 hover:via-pink-600 hover:to-red-600 text-white shadow-lg shadow-rose-500/25",
+        check: "bg-rose-500/20 text-rose-500",
+        highlight: "text-rose-500/80",
+      };
+    case 'violet':
+      return {
+        glow: "bg-gradient-to-br from-violet-500/40 via-purple-500/30 to-fuchsia-500/40",
+        border: "border-violet-500/50 shadow-violet-500/20",
+        icon: "bg-gradient-to-br from-violet-500/25 via-purple-500/20 to-fuchsia-500/25 text-violet-500 border border-violet-500/30",
+        iconGlow: "bg-violet-500/30",
+        title: "bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 bg-clip-text text-transparent",
+        badge: "bg-gradient-to-r from-violet-600 to-purple-600 text-white",
+        button: "bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 hover:from-violet-700 hover:via-purple-700 hover:to-fuchsia-700 text-white shadow-lg shadow-violet-500/30",
+        check: "bg-violet-500/20 text-violet-500",
+        highlight: "text-violet-500/80",
+      };
+    default:
+      return {
+        glow: "bg-gradient-to-br from-primary/30 via-emerald-500/20 to-teal-500/30",
+        border: "border-primary/40 shadow-primary/15",
+        icon: "bg-gradient-to-br from-primary/20 via-emerald-500/15 to-teal-500/20 text-primary border border-primary/20",
+        iconGlow: "bg-primary/20",
+        title: "text-foreground",
+        badge: "bg-primary text-primary-foreground",
+        button: "bg-gradient-to-r from-primary via-emerald-600 to-teal-600 hover:from-primary/90 hover:via-emerald-600/90 hover:to-teal-600/90 text-primary-foreground shadow-lg shadow-primary/25",
+        check: "bg-primary/20 text-primary",
+        highlight: "text-primary/80",
+      };
+  }
 };
 
 const PricingSection = ({ onCheckout, onLogin, onSignup, loading }: PricingSectionProps) => {
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [selectedIndex, setSelectedIndex] = useState(1); // Start with Familiar
   const [direction, setDirection] = useState(0);
   const [showAllDescriptions, setShowAllDescriptions] = useState(false);
   const countdown = useCountdown();
@@ -240,6 +205,10 @@ const PricingSection = ({ onCheckout, onLogin, onSignup, loading }: PricingSecti
   }, [selectedIndex]);
 
   const currentPlan = plans[selectedIndex];
+  const colorClasses = getColorClasses(currentPlan.color);
+
+  // Filter benefits for current plan
+  const planBenefits = allBenefits.filter(b => b.includedIn.includes(currentPlan.id));
 
   // Animation variants for card transitions
   const cardVariants = {
@@ -333,11 +302,9 @@ const PricingSection = ({ onCheckout, onLogin, onSignup, loading }: PricingSecti
                   const velocityThreshold = 200;
                   
                   if (offset.x < -swipeThreshold || velocity.x < -velocityThreshold) {
-                    // Swiped left - go to next (loop)
                     setDirection(1);
                     setSelectedIndex(prev => prev === plans.length - 1 ? 0 : prev + 1);
                   } else if (offset.x > swipeThreshold || velocity.x > velocityThreshold) {
-                    // Swiped right - go to previous (loop)
                     setDirection(-1);
                     setSelectedIndex(prev => prev === 0 ? plans.length - 1 : prev - 1);
                   }
@@ -347,12 +314,7 @@ const PricingSection = ({ onCheckout, onLogin, onSignup, loading }: PricingSecti
                 <div className="relative group pt-6">
                   {/* Enhanced Glow effect with animation */}
                   <motion.div 
-                    className={cn(
-                      "absolute -inset-3 rounded-3xl blur-2xl",
-                      currentPlan.color === 'emerald' 
-                        ? "bg-gradient-to-br from-primary/30 via-emerald-500/20 to-teal-500/30" 
-                        : "bg-gradient-to-br from-violet-500/40 via-purple-500/30 to-fuchsia-500/40"
-                    )}
+                    className={cn("absolute -inset-3 rounded-3xl blur-2xl", colorClasses.glow)}
                     animate={currentPlan.recommended ? {
                       opacity: [0.5, 0.8, 0.5],
                       scale: [1, 1.02, 1],
@@ -373,7 +335,6 @@ const PricingSection = ({ onCheckout, onLogin, onSignup, loading }: PricingSecti
                       transition={{ delay: 0.3, type: "spring", stiffness: 400 }}
                     >
                       <div className="relative">
-                        {/* Badge glow */}
                         <motion.div
                           className="absolute inset-0 bg-gradient-to-r from-violet-600 to-purple-600 rounded-full blur-md"
                           animate={{ opacity: [0.5, 1, 0.5] }}
@@ -395,24 +356,12 @@ const PricingSection = ({ onCheckout, onLogin, onSignup, loading }: PricingSecti
                   
                   <Card className={cn(
                     "relative overflow-hidden border-2 bg-card shadow-2xl",
-                    currentPlan.color === 'emerald' 
-                      ? "border-primary/40 shadow-primary/15"
-                      : "border-violet-500/50 shadow-violet-500/20",
+                    colorClasses.border,
                     currentPlan.recommended && "mt-3"
                   )}>
                     {/* Decorative corner elements */}
-                    <div className={cn(
-                      "absolute top-0 right-0 w-32 h-32 opacity-10",
-                      currentPlan.color === 'emerald'
-                        ? "bg-gradient-to-bl from-primary to-transparent"
-                        : "bg-gradient-to-bl from-violet-500 to-transparent"
-                    )} />
-                    <div className={cn(
-                      "absolute bottom-0 left-0 w-24 h-24 opacity-10",
-                      currentPlan.color === 'emerald'
-                        ? "bg-gradient-to-tr from-emerald-500 to-transparent"
-                        : "bg-gradient-to-tr from-purple-500 to-transparent"
-                    )} />
+                    <div className={cn("absolute top-0 right-0 w-32 h-32 opacity-10", colorClasses.glow)} />
+                    <div className={cn("absolute bottom-0 left-0 w-24 h-24 opacity-10", colorClasses.glow)} />
 
                     {/* Animated shimmer effect */}
                     <motion.div
@@ -425,22 +374,13 @@ const PricingSection = ({ onCheckout, onLogin, onSignup, loading }: PricingSecti
                     <CardHeader className="pt-8 pb-4 text-center relative">
                       {/* Icon with enhanced styling */}
                       <motion.div 
-                        className={cn(
-                          "inline-flex items-center justify-center w-16 h-16 rounded-2xl mx-auto mb-4 relative",
-                          currentPlan.color === 'emerald'
-                            ? "bg-gradient-to-br from-primary/20 via-emerald-500/15 to-teal-500/20 text-primary border border-primary/20"
-                            : "bg-gradient-to-br from-violet-500/25 via-purple-500/20 to-fuchsia-500/25 text-violet-500 border border-violet-500/30"
-                        )}
+                        className={cn("inline-flex items-center justify-center w-16 h-16 rounded-2xl mx-auto mb-4 relative", colorClasses.icon)}
                         initial={{ rotate: -180, scale: 0 }}
                         animate={{ rotate: 0, scale: 1 }}
                         transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
                       >
-                        {/* Icon inner glow */}
                         <motion.div
-                          className={cn(
-                            "absolute inset-0 rounded-2xl blur-sm",
-                            currentPlan.color === 'emerald' ? "bg-primary/20" : "bg-violet-500/30"
-                          )}
+                          className={cn("absolute inset-0 rounded-2xl blur-sm", colorClasses.iconGlow)}
                           animate={{ opacity: [0.3, 0.6, 0.3] }}
                           transition={{ duration: 2, repeat: Infinity }}
                         />
@@ -452,84 +392,52 @@ const PricingSection = ({ onCheckout, onLogin, onSignup, loading }: PricingSecti
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.25 }}
                       >
-                        <CardTitle className={cn(
-                          "text-2xl font-bold mb-1",
-                          currentPlan.color === 'emerald'
-                            ? "text-foreground"
-                            : "bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 bg-clip-text text-transparent"
-                        )}>
+                        <CardTitle className={cn("text-2xl font-bold mb-1", colorClasses.title)}>
                           {currentPlan.name}
                         </CardTitle>
                         
                         <p className="text-sm text-muted-foreground mb-1">{currentPlan.subtitle}</p>
                         
-                        {/* Tagline */}
-                        <p className={cn(
-                          "text-xs font-medium mb-3",
-                          currentPlan.color === 'emerald' ? "text-primary/80" : "text-violet-500/80"
-                        )}>
+                        <p className={cn("text-xs font-medium mb-3", colorClasses.highlight)}>
                           {currentPlan.tagline}
                         </p>
                         
-                        {/* Trial Badge with Countdown - Clean Design */}
+                        {/* Trial Badge with Countdown */}
                         <motion.div
                           className="flex flex-col items-center gap-2 mb-4"
                           initial={{ scale: 0 }}
                           animate={{ scale: 1 }}
                           transition={{ delay: 0.35, type: "spring" }}
                         >
-                          {/* Main badge */}
-                          <div className={cn(
-                            "inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold",
-                            currentPlan.color === 'emerald'
-                              ? "bg-primary text-primary-foreground"
-                              : "bg-gradient-to-r from-violet-600 to-purple-600 text-white"
-                          )}>
+                          <div className={cn("inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold", colorClasses.badge)}>
                             <Sparkles className="w-3.5 h-3.5" />
                             <span>7 DIAS GRÁTIS</span>
                           </div>
                           
-                          {/* Countdown - Subtle and elegant */}
-                          <div className={cn(
-                            "flex items-center gap-1.5 text-[11px]",
-                            currentPlan.color === 'emerald' ? "text-primary/70" : "text-violet-500/70"
-                          )}>
+                          <div className={cn("flex items-center gap-1.5 text-[11px]", colorClasses.highlight)}>
                             <Clock className="w-3 h-3" />
                             <span>Expira em</span>
-                            <div className="flex items-center gap-0.5 font-mono font-semibold">
-                              <span className={cn(
-                                "tabular-nums",
-                                currentPlan.color === 'emerald' ? "text-primary" : "text-violet-500"
-                              )}>
-                                {String(countdown.hours).padStart(2, '0')}h {String(countdown.minutes).padStart(2, '0')}m {String(countdown.seconds).padStart(2, '0')}s
-                              </span>
-                            </div>
+                            <span className="font-mono font-semibold tabular-nums">
+                              {String(countdown.hours).padStart(2, '0')}h {String(countdown.minutes).padStart(2, '0')}m {String(countdown.seconds).padStart(2, '0')}s
+                            </span>
                           </div>
                         </motion.div>
                       </motion.div>
                       
-                      {/* Price - Enhanced */}
+                      {/* Price */}
                       <motion.div 
                         className="flex items-baseline justify-center gap-1"
                         initial={{ opacity: 0, scale: 0.5 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: 0.3, type: "spring" }}
                       >
-                        <span className={cn(
-                          "text-5xl font-extrabold tracking-tight",
-                          currentPlan.color === 'emerald'
-                            ? "text-foreground"
-                            : "bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 bg-clip-text text-transparent"
-                        )}>
+                        <span className={cn("text-5xl font-extrabold tracking-tight", colorClasses.title)}>
                           {currentPlan.price}
                         </span>
                         <span className="text-muted-foreground text-sm font-medium">/mês</span>
                       </motion.div>
                       
-                      <p className={cn(
-                        "text-xs mt-2 font-medium",
-                        currentPlan.color === 'emerald' ? "text-emerald-600/80" : "text-violet-600/80"
-                      )}>
+                      <p className={cn("text-xs mt-2 font-medium", colorClasses.highlight)}>
                         Teste grátis, cancele quando quiser
                       </p>
                     </CardHeader>
@@ -538,66 +446,39 @@ const PricingSection = ({ onCheckout, onLogin, onSignup, loading }: PricingSecti
                       {/* Benefits divider */}
                       <div className={cn(
                         "h-px w-full mb-4",
-                        currentPlan.color === 'emerald'
-                          ? "bg-gradient-to-r from-transparent via-primary/30 to-transparent"
-                          : "bg-gradient-to-r from-transparent via-violet-500/40 to-transparent"
+                        "bg-gradient-to-r from-transparent via-border to-transparent"
                       )} />
                       
-                      {currentPlan.benefits.map((benefit, i) => {
-                        const isIncluded = currentPlan.id === 'premium' || benefit.includedInBasic;
-                        const isPremiumExclusive = !benefit.includedInBasic;
-                        
-                        return (
-                          <motion.div 
-                            key={i} 
-                            className={cn(
-                              "flex items-center gap-2.5 text-sm py-1 px-2 rounded-lg transition-colors",
-                              isIncluded && isPremiumExclusive && currentPlan.id === 'premium' && "bg-violet-500/5"
-                            )}
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: 0.35 + i * 0.04 }}
-                          >
-                            <div className={cn(
-                              "w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0",
-                              isIncluded
-                                ? currentPlan.color === 'emerald' 
-                                  ? "bg-primary/20 text-primary" 
-                                  : isPremiumExclusive
-                                    ? "bg-gradient-to-br from-violet-500/30 to-purple-500/30 text-violet-400"
-                                    : "bg-violet-500/20 text-violet-500"
-                                : "bg-muted/50 text-muted-foreground/30"
-                            )}>
-                              {isIncluded ? (
-                                <Check className="w-3 h-3" />
-                              ) : (
-                                <X className="w-3 h-3" />
-                              )}
-                            </div>
-                            <span className={cn(
-                              "text-sm",
-                              isIncluded 
-                                ? isPremiumExclusive && currentPlan.id === 'premium'
-                                  ? "text-foreground font-medium"
-                                  : "text-foreground"
-                                : "text-muted-foreground/50 line-through decoration-muted-foreground/30"
-                            )}>
-                              {benefit.text}
-                            </span>
-                            {isPremiumExclusive && currentPlan.id === 'premium' && benefit.highlight && (
-                              <motion.span 
-                                className="text-[10px] px-2 py-0.5 rounded-full bg-gradient-to-r from-violet-500/20 to-purple-500/20 text-violet-400 font-bold border border-violet-500/20"
-                                animate={{ scale: [1, 1.05, 1] }}
-                                transition={{ duration: 2, repeat: Infinity }}
-                              >
-                                ✨ IA
-                              </motion.span>
-                            )}
-                          </motion.div>
-                        );
-                      })}
+                      {planBenefits.map((benefit, i) => (
+                        <motion.div 
+                          key={i} 
+                          className={cn(
+                            "flex items-center gap-2.5 text-sm py-1 px-2 rounded-lg transition-colors",
+                            benefit.highlight && "bg-muted/50"
+                          )}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.35 + i * 0.04 }}
+                        >
+                          <div className={cn("w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0", colorClasses.check)}>
+                            <Check className="w-3 h-3" />
+                          </div>
+                          <span className={cn("text-sm text-foreground", benefit.highlight && "font-medium")}>
+                            {benefit.text}
+                          </span>
+                          {benefit.highlight && currentPlan.id === 'premium' && benefit.text.includes('IA') && (
+                            <motion.span 
+                              className="text-[10px] px-2 py-0.5 rounded-full bg-gradient-to-r from-violet-500/20 to-purple-500/20 text-violet-500 font-bold border border-violet-500/20"
+                              animate={{ scale: [1, 1.05, 1] }}
+                              transition={{ duration: 2, repeat: Infinity }}
+                            >
+                              ✨ IA
+                            </motion.span>
+                          )}
+                        </motion.div>
+                      ))}
                       
-                      {/* CTA Button - Enhanced */}
+                      {/* CTA Button */}
                       <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -607,14 +488,8 @@ const PricingSection = ({ onCheckout, onLogin, onSignup, loading }: PricingSecti
                         <Button
                           onClick={() => onCheckout(currentPlan.id)}
                           disabled={loading === currentPlan.id}
-                          className={cn(
-                            "w-full font-bold py-6 text-base relative overflow-hidden group",
-                            currentPlan.color === 'emerald'
-                              ? "bg-gradient-to-r from-primary via-emerald-600 to-teal-600 hover:from-primary/90 hover:via-emerald-600/90 hover:to-teal-600/90 text-primary-foreground shadow-lg shadow-primary/25"
-                              : "bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 hover:from-violet-700 hover:via-purple-700 hover:to-fuchsia-700 text-white shadow-lg shadow-violet-500/30"
-                          )}
+                          className={cn("w-full font-bold py-6 text-base relative overflow-hidden group", colorClasses.button)}
                         >
-                          {/* Button shimmer */}
                           <motion.div
                             className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12"
                             initial={{ x: "-200%" }}
@@ -661,7 +536,7 @@ const PricingSection = ({ onCheckout, onLogin, onSignup, loading }: PricingSecti
 
           {/* Swipe hint on mobile */}
           <p className="text-center text-xs text-muted-foreground mt-4 md:hidden">
-            Use as setas para comparar os planos
+            Deslize para comparar os planos
           </p>
         </div>
 
@@ -697,26 +572,28 @@ const PricingSection = ({ onCheckout, onLogin, onSignup, loading }: PricingSecti
               >
                 <div className="bg-card rounded-xl border border-border/60 overflow-hidden">
                   {/* Header */}
-                  <div className="grid grid-cols-3 bg-muted/50 border-b border-border/60">
+                  <div className="grid grid-cols-4 bg-muted/50 border-b border-border/60">
                     <div className="p-3 text-sm font-medium text-muted-foreground">Recurso</div>
                     <div className="p-3 text-sm font-medium text-center text-primary">Basic</div>
+                    <div className="p-3 text-sm font-medium text-center text-rose-500">Familiar</div>
                     <div className="p-3 text-sm font-medium text-center text-violet-500">Premium</div>
                   </div>
                   
                   {/* Rows */}
                   {[
-                    { name: "Plano Individual", basic: true, premium: true },
-                    { name: "Plano Familiar", basic: false, premium: true },
-                    { name: "Planos para Filhos", basic: "—", premium: "3 planos" },
-                    { name: "7 Áreas da Vida", basic: true, premium: true },
-                    { name: "Dashboard", basic: true, premium: true },
-                    { name: "Exportação PDF", basic: true, premium: true },
-                    { name: "Resumo com IA", basic: false, premium: true },
-                    { name: "Lembretes por Email", basic: false, premium: true },
+                    { name: "Plano Individual", basic: true, familiar: true, premium: true },
+                    { name: "Plano Familiar", basic: false, familiar: true, premium: true },
+                    { name: "Planos para Filhos", basic: "—", familiar: "—", premium: "2 planos" },
+                    { name: "7 Áreas da Vida", basic: true, familiar: true, premium: true },
+                    { name: "Dashboard", basic: true, familiar: true, premium: true },
+                    { name: "Exportação PDF", basic: true, familiar: true, premium: true },
+                    { name: "Resumo com IA", basic: false, familiar: false, premium: true },
+                    { name: "Lembretes por Email", basic: false, familiar: true, premium: true },
+                    { name: "Email Aniversário", basic: false, familiar: true, premium: true },
                   ].map((row, i) => (
                     <motion.div
                       key={row.name}
-                      className="grid grid-cols-3 border-b border-border/30 last:border-0"
+                      className="grid grid-cols-4 border-b border-border/30 last:border-0"
                       initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: i * 0.05 }}
@@ -731,6 +608,17 @@ const PricingSection = ({ onCheckout, onLogin, onSignup, loading }: PricingSecti
                           )
                         ) : (
                           <span className="text-xs text-muted-foreground">{row.basic}</span>
+                        )}
+                      </div>
+                      <div className="p-3 text-center">
+                        {typeof row.familiar === 'boolean' ? (
+                          row.familiar ? (
+                            <Check className="w-4 h-4 text-rose-500 mx-auto" />
+                          ) : (
+                            <X className="w-4 h-4 text-muted-foreground/40 mx-auto" />
+                          )
+                        ) : (
+                          <span className="text-xs text-muted-foreground">{row.familiar}</span>
                         )}
                       </div>
                       <div className="p-3 text-center">
