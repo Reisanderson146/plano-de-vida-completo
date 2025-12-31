@@ -366,18 +366,18 @@ export default function Conta() {
           isPremium && "border-2 border-violet-500/30",
           isCurrent && `shadow-lg ${colors.shadow} ring-1 ${colors.ring}`
         )}>
-          <CardHeader className="pb-4 pt-6">
-            <div className="flex items-center gap-3">
+          <CardHeader className="pb-4 pt-6 min-h-[100px]">
+            <div className="flex items-start gap-3">
               <div className={cn(
-                "w-12 h-12 rounded-2xl flex items-center justify-center",
+                "w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0",
                 `bg-gradient-to-br ${colors.gradient}`
               )}>
                 <PlanIcon className={cn("w-6 h-6", colors.iconColor)} />
               </div>
-              <div className="flex-1">
-                <div className="flex items-center gap-2 flex-wrap">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
                   <h2 className={cn(
-                    "text-lg font-bold whitespace-nowrap",
+                    "text-lg font-bold",
                     isBasic && "text-foreground",
                     isFamiliar && "bg-gradient-to-r from-rose-600 to-pink-600 bg-clip-text text-transparent",
                     isPremium && "bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent"
@@ -386,7 +386,7 @@ export default function Conta() {
                   </h2>
                   {isCurrent && (
                     <Badge variant="outline" className={cn(
-                      "text-[10px] px-1.5 py-0",
+                      "text-[10px] px-1.5 py-0 flex-shrink-0",
                       isBasic && "border-primary/50 text-primary bg-primary/10",
                       isFamiliar && "border-rose-500/50 text-rose-600 bg-rose-500/10",
                       isPremium && "border-violet-500/50 text-violet-600 bg-violet-500/10"
