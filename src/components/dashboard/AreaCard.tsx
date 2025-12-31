@@ -4,7 +4,7 @@ import { AREA_HEX_COLORS, LifeArea } from '@/lib/constants';
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-
+import { AnimatedNumber } from '@/components/ui/animated-number';
 interface AreaCardProps {
   area: LifeArea;
   label: string;
@@ -136,7 +136,7 @@ export function AreaCard({ area, label, total, completed, customColor, planId }:
 
             <div className="flex items-baseline gap-1.5 mb-3">
               <span className="text-2xl font-bold text-foreground transition-transform duration-300 group-hover:scale-105">
-                {percentage}%
+                <AnimatedNumber value={percentage} suffix="%" duration={600} />
               </span>
               {isComplete && (
                 <CheckCircle2 className="w-4 h-4 text-success transition-transform duration-300 group-hover:scale-125" />
