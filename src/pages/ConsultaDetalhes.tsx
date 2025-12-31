@@ -10,8 +10,9 @@ import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, ArrowLeft, Pencil, Save, X, Settings, FileText } from 'lucide-react';
+import { Loader2, ArrowLeft, Pencil, Save, X, Settings, FileText, Lightbulb } from 'lucide-react';
 import { ExportPdfButton } from '@/components/ui/export-pdf-button';
+import { HowToCreatePlanDialog } from '@/components/life-plan/HowToCreatePlanDialog';
 import { LIFE_AREAS, AREA_HEX_COLORS, LifeArea } from '@/lib/constants';
 import { AreaCustomizationEditor, AreaConfig } from '@/components/life-plan/AreaCustomizationEditor';
 import { usePlanAreaCustomizations } from '@/hooks/usePlanAreaCustomizations';
@@ -369,6 +370,13 @@ export default function ConsultaDetalhes() {
           )}
           
           <div className="flex gap-2 flex-shrink-0">
+            <HowToCreatePlanDialog 
+              trigger={
+                <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl text-primary hover:bg-primary/5">
+                  <Lightbulb className="w-5 h-5" />
+                </Button>
+              }
+            />
             <ExportPdfButton 
               onClick={() => setExportDialogOpen(true)} 
               compact

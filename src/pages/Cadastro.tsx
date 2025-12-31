@@ -13,7 +13,8 @@ import { useToast } from '@/hooks/use-toast';
 import { useFormValidation } from '@/hooks/useFormValidation';
 import { useImportPlan } from '@/hooks/useImportPlan';
 import { downloadImportTemplate } from '@/lib/import-template';
-import { Loader2, Plus, User, Users, Baby, Upload, FileSpreadsheet, FileText, FileType, X, CheckCircle2, AlertTriangle, Lock, Crown, Download } from 'lucide-react';
+import { Loader2, Plus, User, Users, Baby, Upload, FileSpreadsheet, FileText, FileType, X, CheckCircle2, AlertTriangle, Lock, Crown, Download, Lightbulb } from 'lucide-react';
+import { HowToCreatePlanDialog } from '@/components/life-plan/HowToCreatePlanDialog';
 import { LIFE_AREAS, AREA_HEX_COLORS, LifeArea } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 import { AreaCustomizationEditor, AreaConfig } from '@/components/life-plan/AreaCustomizationEditor';
@@ -421,10 +422,22 @@ export default function Cadastro() {
     <AppLayout>
       <div className="max-w-2xl mx-auto animate-fade-in">
         <div className="mb-6">
-          <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-1">Novo Plano de Vida</h1>
-          <p className="text-sm sm:text-base text-muted-foreground">
-            Crie um novo plano e defina suas metas
-          </p>
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-1">Novo Plano de Vida</h1>
+              <p className="text-sm sm:text-base text-muted-foreground">
+                Crie um novo plano e defina suas metas
+              </p>
+            </div>
+            <HowToCreatePlanDialog 
+              trigger={
+                <Button variant="outline" size="sm" className="gap-2 rounded-xl border-primary/30 text-primary hover:bg-primary/5 self-start">
+                  <Lightbulb className="h-4 w-4" />
+                  Como criar meu plano?
+                </Button>
+              }
+            />
+          </div>
         </div>
 
         {/* Upgrade Banner for Basic users who reached limit */}
