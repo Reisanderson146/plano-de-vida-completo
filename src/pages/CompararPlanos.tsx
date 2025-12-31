@@ -204,7 +204,12 @@ export default function CompararPlanos() {
       <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
         <div className="max-w-7xl mx-auto px-4 py-3">
           {/* Breadcrumb */}
-          <nav className="flex items-center gap-1 text-sm text-muted-foreground mb-2">
+          <motion.nav 
+            className="flex items-center gap-1 text-sm text-muted-foreground mb-2"
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+          >
             <Link 
               to="/landing" 
               className="flex items-center gap-1 hover:text-foreground transition-colors"
@@ -214,7 +219,7 @@ export default function CompararPlanos() {
             </Link>
             <ChevronRight className="w-3.5 h-3.5" />
             <span className="text-foreground font-medium">Comparar Planos</span>
-          </nav>
+          </motion.nav>
           
           {/* Back button and title */}
           <div className="flex items-center justify-between">
@@ -306,13 +311,18 @@ export default function CompararPlanos() {
                 </div>
               </div>
               
-              {/* Premium */}
-              <div className="p-4 md:p-6 text-center bg-gradient-to-br from-violet-500/5 to-purple-500/5 relative">
+              {/* Premium - RECOMENDADO */}
+              <div className="p-4 md:p-6 text-center bg-gradient-to-br from-violet-500/10 to-purple-500/10 relative ring-2 ring-violet-500/50 ring-inset">
+                {/* Badge Recomendado */}
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-violet-600 to-purple-600 text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-lg shadow-violet-500/30 flex items-center gap-1">
+                  <Sparkles className="w-3 h-3" />
+                  RECOMENDADO
+                </div>
                 <div className="absolute top-2 right-2 bg-gradient-to-r from-violet-600 to-purple-600 text-white text-[8px] md:text-[10px] font-bold px-1.5 py-0.5 rounded-full">
                   7 DIAS GRÁTIS
                 </div>
-                <div className="flex flex-col items-center gap-2">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
+                <div className="flex flex-col items-center gap-2 pt-2">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-violet-500/30">
                     <Crown className="w-5 h-5 text-white" />
                   </div>
                   <div className="flex items-center gap-1">
