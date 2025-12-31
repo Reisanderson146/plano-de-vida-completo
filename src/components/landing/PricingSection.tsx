@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Check, Crown, Sparkles, Shield, Zap, Gem, User, Users, Baby, Heart, Target, Loader2, ChevronLeft, ChevronRight, ChevronDown, X, BarChart3, Calendar, FileText, Bell, Download, History, Eye, BookOpen, Info, ArrowRight, Clock } from "lucide-react";
+import { Check, Crown, Sparkles, Shield, Zap, Gem, User, Users, Baby, Heart, Target, Loader2, ChevronLeft, ChevronRight, X, BarChart3, Calendar, FileText, Bell, Download, History, Eye, BookOpen, Info, ArrowRight, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { LucideIcon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -190,7 +190,6 @@ const getColorClasses = (color: string) => {
 const PricingSection = ({ onCheckout, onLogin, onSignup, loading }: PricingSectionProps) => {
   const [selectedIndex, setSelectedIndex] = useState(1); // Start with Familiar
   const [direction, setDirection] = useState(0);
-  const [showAllDescriptions, setShowAllDescriptions] = useState(false);
   const countdown = useCountdown();
 
   const scrollPrev = useCallback(() => {
@@ -596,97 +595,15 @@ const PricingSection = ({ onCheckout, onLogin, onSignup, loading }: PricingSecti
           transition={{ delay: 0.2 }}
         >
           <div className="text-center mb-4">
-            <button
-              onClick={() => setShowAllDescriptions(!showAllDescriptions)}
+            <Link
+              to="/comparar-planos"
               className="inline-flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors font-medium"
             >
               <Info className="w-4 h-4" />
-              {showAllDescriptions ? "Ocultar comparação" : "Ver comparação detalhada"}
-              <ChevronDown className={cn(
-                "w-4 h-4 transition-transform duration-300",
-                showAllDescriptions && "rotate-180"
-              )} />
-            </button>
+              Ver comparação detalhada dos planos
+              <ArrowRight className="w-4 h-4" />
+            </Link>
           </div>
-
-          <AnimatePresence>
-            {showAllDescriptions && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.3 }}
-                className="overflow-hidden"
-              >
-                <div className="bg-card rounded-xl border border-border/60 overflow-hidden">
-                  {/* Header */}
-                  <div className="grid grid-cols-4 bg-muted/50 border-b border-border/60">
-                    <div className="p-3 text-sm font-medium text-muted-foreground">Recurso</div>
-                    <div className="p-3 text-sm font-medium text-center text-primary">Basic</div>
-                    <div className="p-3 text-sm font-medium text-center text-rose-500">Familiar</div>
-                    <div className="p-3 text-sm font-medium text-center text-violet-500">Premium</div>
-                  </div>
-                  
-                  {/* Rows */}
-                  {[
-                    { name: "Plano Individual", basic: true, familiar: false, premium: false },
-                    { name: "Plano Familiar", basic: false, familiar: true, premium: true },
-                    { name: "Planos para Filhos", basic: "—", familiar: "1 plano", premium: "3 planos" },
-                    { name: "7 Áreas da Vida", basic: true, familiar: true, premium: true },
-                    { name: "Dashboard", basic: true, familiar: true, premium: true },
-                    { name: "Exportação PDF", basic: true, familiar: true, premium: true },
-                    { name: "Resumo com IA", basic: false, familiar: true, premium: true },
-                    { name: "Notificações", basic: false, familiar: true, premium: true },
-                  ].map((row, i) => (
-                    <motion.div
-                      key={row.name}
-                      className="grid grid-cols-4 border-b border-border/30 last:border-0"
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: i * 0.05 }}
-                    >
-                      <div className="p-3 text-sm text-foreground">{row.name}</div>
-                      <div className="p-3 text-center">
-                        {typeof row.basic === 'boolean' ? (
-                          row.basic ? (
-                            <Check className="w-4 h-4 text-primary mx-auto" />
-                          ) : (
-                            <X className="w-4 h-4 text-muted-foreground/40 mx-auto" />
-                          )
-                        ) : (
-                          <span className="text-xs text-muted-foreground">{row.basic}</span>
-                        )}
-                      </div>
-                      <div className="p-3 text-center">
-                        {typeof row.familiar === 'boolean' ? (
-                          row.familiar ? (
-                            <Check className="w-4 h-4 text-rose-500 mx-auto" />
-                          ) : (
-                            <X className="w-4 h-4 text-muted-foreground/40 mx-auto" />
-                          )
-                        ) : row.familiar === "—" ? (
-                          <span className="text-xs text-muted-foreground">{row.familiar}</span>
-                        ) : (
-                          <span className="text-xs text-rose-500 font-medium">{row.familiar}</span>
-                        )}
-                      </div>
-                      <div className="p-3 text-center">
-                        {typeof row.premium === 'boolean' ? (
-                          row.premium ? (
-                            <Check className="w-4 h-4 text-violet-500 mx-auto" />
-                          ) : (
-                            <X className="w-4 h-4 text-muted-foreground/40 mx-auto" />
-                          )
-                        ) : (
-                          <span className="text-xs text-violet-500 font-medium">{row.premium}</span>
-                        )}
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
         </motion.div>
 
         {/* Already Subscriber & Trust Badges */}
