@@ -168,7 +168,7 @@ export function SubscriptionDialog({ open, onOpenChange, onSubscribed }: Subscri
       case 'basic':
         return {
           price: 'R$ 9,99',
-          badge: '7 DIAS GRÁTIS',
+          badge: 'Essencial',
           tagline: 'Teste grátis por 7 dias, cancele quando quiser',
           plansIncluded: '1 plano individual',
           color: 'emerald',
@@ -184,8 +184,8 @@ export function SubscriptionDialog({ open, onOpenChange, onSubscribed }: Subscri
         };
       case 'familiar':
         return {
-          price: 'R$ 19,90',
-          badge: '7 DIAS GRÁTIS',
+          price: 'R$ 15,90',
+          badge: 'Popular',
           tagline: 'Teste grátis por 7 dias, cancele quando quiser',
           plansIncluded: '2 planos incluídos',
           color: 'rose',
@@ -201,7 +201,7 @@ export function SubscriptionDialog({ open, onOpenChange, onSubscribed }: Subscri
         };
         return {
           price: 'R$ 29,99',
-          badge: '7 DIAS GRÁTIS',
+          badge: 'Completo',
           tagline: 'Teste grátis por 7 dias, cancele quando quiser',
           plansIncluded: '4 planos incluídos + IA',
           color: 'violet',
@@ -288,10 +288,25 @@ export function SubscriptionDialog({ open, onOpenChange, onSubscribed }: Subscri
 
           {/* Plan Content */}
           <div className="space-y-4 animate-fade-in" key={selectedPlan}>
+            {/* Plan Badge */}
+            <div className="flex justify-center">
+              <div className={cn(
+                "inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-white font-bold text-xs shadow-lg",
+                selectedPlan === 'basic' && "bg-gradient-to-r from-emerald-500 to-teal-500",
+                selectedPlan === 'familiar' && "bg-gradient-to-r from-rose-500 to-pink-500",
+                selectedPlan === 'premium' && "bg-gradient-to-r from-violet-600 to-purple-600"
+              )}>
+                {selectedPlan === 'basic' && <Gem className="w-3.5 h-3.5" />}
+                {selectedPlan === 'familiar' && <Heart className="w-3.5 h-3.5" />}
+                {selectedPlan === 'premium' && <Crown className="w-3.5 h-3.5" />}
+                {config.badge}
+              </div>
+            </div>
+
             {/* Price with Trial Badge */}
             <div className={cn("text-center py-3 rounded-xl relative overflow-hidden", config.gradientBg)}>
               <div className={cn("absolute top-0 right-0 text-white text-[10px] font-bold px-2 py-0.5 rounded-bl-lg", config.badgeBg)}>
-                {config.badge}
+                7 DIAS GRÁTIS
               </div>
               <div className="flex items-baseline justify-center gap-1">
                 <span className={cn("text-3xl font-bold", config.priceClass)}>{config.price}</span>

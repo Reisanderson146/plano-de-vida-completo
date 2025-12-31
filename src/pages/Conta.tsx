@@ -281,7 +281,7 @@ export default function Conta() {
     const isCurrent = currentPlan === type;
     
     const benefits = isBasic ? basicBenefits : isFamiliar ? familiarBenefits : premiumBenefits;
-    const price = isBasic ? '9,99' : isFamiliar ? '19,90' : '29,99';
+    const price = isBasic ? '9,99' : isFamiliar ? '15,90' : '29,99';
     const planName = isBasic ? 'Basic' : isFamiliar ? 'Familiar' : 'Premium';
     const subtitle = isBasic ? 'Para começar sua jornada' : isFamiliar ? 'Para você e seu cônjuge' : 'Para toda a família';
     const plansIncluded = isBasic ? 1 : isFamiliar ? 2 : 4;
