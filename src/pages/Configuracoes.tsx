@@ -79,32 +79,32 @@ export default function Configuracoes() {
 
   return (
     <AppLayout>
-      <div className="max-w-4xl mx-auto space-y-6">
+      <div className="max-w-4xl mx-auto space-y-4 sm:space-y-6">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Configurações</h1>
-          <p className="text-muted-foreground mt-1">Personalize seu aplicativo</p>
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">Configurações</h1>
+          <p className="text-sm sm:text-base text-muted-foreground mt-0.5 sm:mt-1">Personalize seu aplicativo</p>
         </div>
 
-        {/* Quick Links */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        {/* Quick Links - More compact on mobile */}
+        <div className="grid grid-cols-4 gap-2 sm:gap-3">
           <Link to="/meus-dados">
             <Card className="border-border/40 hover:border-border transition-colors cursor-pointer group h-full">
-              <CardContent className="flex flex-col items-center justify-center py-6 text-center">
-                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-3 group-hover:bg-primary/20 transition-colors">
-                  <User className="w-6 h-6 text-primary" />
+              <CardContent className="flex flex-col items-center justify-center py-3 sm:py-6 text-center p-2 sm:p-4">
+                <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-primary/10 flex items-center justify-center mb-1.5 sm:mb-3 group-hover:bg-primary/20 transition-colors">
+                  <User className="w-4 h-4 sm:w-6 sm:h-6 text-primary" />
                 </div>
-                <span className="text-sm font-medium text-foreground">Meus Dados</span>
+                <span className="text-[10px] sm:text-sm font-medium text-foreground leading-tight">Meus Dados</span>
               </CardContent>
             </Card>
           </Link>
           
           <Link to="/conta">
             <Card className="border-border/40 hover:border-border transition-colors cursor-pointer group h-full">
-              <CardContent className="flex flex-col items-center justify-center py-6 text-center">
-                <div className="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center mb-3 group-hover:bg-emerald-500/20 transition-colors">
-                  <CreditCard className="w-6 h-6 text-emerald-500" />
+              <CardContent className="flex flex-col items-center justify-center py-3 sm:py-6 text-center p-2 sm:p-4">
+                <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-emerald-500/10 flex items-center justify-center mb-1.5 sm:mb-3 group-hover:bg-emerald-500/20 transition-colors">
+                  <CreditCard className="w-4 h-4 sm:w-6 sm:h-6 text-emerald-500" />
                 </div>
-                <span className="text-sm font-medium text-foreground">Assinatura</span>
+                <span className="text-[10px] sm:text-sm font-medium text-foreground leading-tight">Assinatura</span>
               </CardContent>
             </Card>
           </Link>
@@ -113,44 +113,44 @@ export default function Configuracoes() {
             className="border-border/40 hover:border-border transition-colors cursor-pointer group h-full"
             onClick={handleRestartTour}
           >
-            <CardContent className="flex flex-col items-center justify-center py-6 text-center">
-              <div className="w-12 h-12 rounded-xl bg-violet-500/10 flex items-center justify-center mb-3 group-hover:bg-violet-500/20 transition-colors">
-                <RotateCcw className="w-6 h-6 text-violet-500" />
+            <CardContent className="flex flex-col items-center justify-center py-3 sm:py-6 text-center p-2 sm:p-4">
+              <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-violet-500/10 flex items-center justify-center mb-1.5 sm:mb-3 group-hover:bg-violet-500/20 transition-colors">
+                <RotateCcw className="w-4 h-4 sm:w-6 sm:h-6 text-violet-500" />
               </div>
-              <span className="text-sm font-medium text-foreground">Ver Tour</span>
+              <span className="text-[10px] sm:text-sm font-medium text-foreground leading-tight">Ver Tour</span>
             </CardContent>
           </Card>
 
           <Link to="/guia">
             <Card className="border-border/40 hover:border-border transition-colors cursor-pointer group h-full">
-              <CardContent className="flex flex-col items-center justify-center py-6 text-center">
-                <div className="w-12 h-12 rounded-xl bg-amber-500/10 flex items-center justify-center mb-3 group-hover:bg-amber-500/20 transition-colors">
-                  <Info className="w-6 h-6 text-amber-500" />
+              <CardContent className="flex flex-col items-center justify-center py-3 sm:py-6 text-center p-2 sm:p-4">
+                <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-amber-500/10 flex items-center justify-center mb-1.5 sm:mb-3 group-hover:bg-amber-500/20 transition-colors">
+                  <Info className="w-4 h-4 sm:w-6 sm:h-6 text-amber-500" />
                 </div>
-                <span className="text-sm font-medium text-foreground">Guia</span>
+                <span className="text-[10px] sm:text-sm font-medium text-foreground leading-tight">Guia</span>
               </CardContent>
             </Card>
           </Link>
         </div>
 
-        {/* Dark Mode Card */}
+        {/* Dark Mode Card - Compact */}
         <Card>
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Moon className="w-5 h-5 text-primary" />
+          <CardHeader className="pb-2 sm:pb-4 px-4 sm:px-6 pt-4 sm:pt-6">
+            <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+              <Moon className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
               Modo de Exibição
             </CardTitle>
-            <CardDescription>Escolha entre modo claro, escuro ou automático</CardDescription>
+            <CardDescription className="text-xs sm:text-sm">Modo claro, escuro ou automático</CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between p-4 rounded-xl bg-muted/50">
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-lg bg-background shadow-sm">
-                  <Moon className="w-5 h-5 text-primary" />
+          <CardContent className="px-4 sm:px-6 pb-4 sm:pb-6">
+            <div className="flex items-center justify-between p-3 sm:p-4 rounded-lg sm:rounded-xl bg-muted/50">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="p-2 sm:p-2.5 rounded-md sm:rounded-lg bg-background shadow-sm">
+                  <Moon className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
                 </div>
                 <div>
-                  <p className="font-medium">Aparência</p>
-                  <p className="text-sm text-muted-foreground">Claro, escuro ou automático</p>
+                  <p className="text-sm sm:text-base font-medium">Aparência</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">Claro, escuro ou automático</p>
                 </div>
               </div>
               <DarkModeToggle />
@@ -158,30 +158,30 @@ export default function Configuracoes() {
           </CardContent>
         </Card>
 
-        {/* Sound Settings Card */}
+        {/* Sound Settings Card - Compact */}
         <Card>
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
+          <CardHeader className="pb-2 sm:pb-4 px-4 sm:px-6 pt-4 sm:pt-6">
+            <CardTitle className="text-base sm:text-lg flex items-center gap-2">
               {getVolumeIcon()}
               Sons do Sistema
             </CardTitle>
-            <CardDescription>Configure os efeitos sonoros do aplicativo</CardDescription>
+            <CardDescription className="text-xs sm:text-sm">Configure os efeitos sonoros</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-3 sm:space-y-6 px-4 sm:px-6 pb-4 sm:pb-6">
             {/* Enable/Disable Toggle */}
-            <div className="flex items-center justify-between p-4 rounded-xl bg-muted/50">
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-lg bg-background shadow-sm">
+            <div className="flex items-center justify-between p-3 sm:p-4 rounded-lg sm:rounded-xl bg-muted/50">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="p-2 sm:p-2.5 rounded-md sm:rounded-lg bg-background shadow-sm">
                   {soundEnabled ? (
-                    <Volume2 className="w-5 h-5 text-primary" />
+                    <Volume2 className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
                   ) : (
-                    <VolumeX className="w-5 h-5 text-muted-foreground" />
+                    <VolumeX className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground" />
                   )}
                 </div>
                 <div>
-                  <p className="font-medium">Efeitos Sonoros</p>
-                  <p className="text-sm text-muted-foreground">
-                    {soundEnabled ? 'Sons ativados' : 'Sons desativados'}
+                  <p className="text-sm sm:text-base font-medium">Efeitos Sonoros</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">
+                    {soundEnabled ? 'Ativados' : 'Desativados'}
                   </p>
                 </div>
               </div>
@@ -194,20 +194,20 @@ export default function Configuracoes() {
 
             {/* Volume Slider */}
             <div className={cn(
-              "p-4 rounded-xl bg-muted/50 space-y-4 transition-opacity",
+              "p-3 sm:p-4 rounded-lg sm:rounded-xl bg-muted/50 space-y-3 sm:space-y-4 transition-opacity",
               !soundEnabled && "opacity-50 pointer-events-none"
             )}>
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="p-2.5 rounded-lg bg-background shadow-sm">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="p-2 sm:p-2.5 rounded-md sm:rounded-lg bg-background shadow-sm">
                     {getVolumeIcon()}
                   </div>
                   <div>
-                    <p className="font-medium">Volume</p>
-                    <p className="text-sm text-muted-foreground">{getVolumeLabel()}</p>
+                    <p className="text-sm sm:text-base font-medium">Volume</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">{getVolumeLabel()}</p>
                   </div>
                 </div>
-                <span className="text-sm font-medium text-primary">{Math.round(volume * 100)}%</span>
+                <span className="text-xs sm:text-sm font-medium text-primary">{Math.round(volume * 100)}%</span>
               </div>
               <Slider
                 value={[volume * 100]}
@@ -221,20 +221,20 @@ export default function Configuracoes() {
 
             {/* Sound Style Selection */}
             <div className={cn(
-              "space-y-4 transition-opacity",
+              "space-y-3 sm:space-y-4 transition-opacity",
               !soundEnabled && "opacity-50 pointer-events-none"
             )}>
-              <div className="flex items-center gap-3 px-4">
-                <div className="p-2.5 rounded-lg bg-muted/50">
-                  <Music className="w-5 h-5 text-primary" />
+              <div className="flex items-center gap-2 sm:gap-3 px-1 sm:px-4">
+                <div className="p-2 sm:p-2.5 rounded-md sm:rounded-lg bg-muted/50">
+                  <Music className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
                 </div>
                 <div>
-                  <p className="font-medium">Estilo de Som</p>
-                  <p className="text-sm text-muted-foreground">Escolha o estilo dos efeitos sonoros</p>
+                  <p className="text-sm sm:text-base font-medium">Estilo de Som</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">Escolha o estilo dos efeitos</p>
                 </div>
               </div>
               
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-2 sm:gap-3">
                 {(Object.keys(soundStyleConfigs) as SoundStyle[]).map((styleKey) => {
                   const config = soundStyleConfigs[styleKey];
                   const isSelected = style === styleKey;
@@ -245,7 +245,7 @@ export default function Configuracoes() {
                       onClick={() => setStyle(styleKey)}
                       disabled={!soundEnabled}
                       className={cn(
-                        "relative p-4 rounded-xl border-2 text-left transition-all",
+                        "relative p-3 sm:p-4 rounded-lg sm:rounded-xl border-2 text-left transition-all",
                         "hover:border-primary/50 hover:bg-muted/30",
                         isSelected 
                           ? "border-primary bg-primary/5 shadow-sm" 
@@ -253,10 +253,10 @@ export default function Configuracoes() {
                       )}
                     >
                       {isSelected && (
-                        <div className="absolute top-2 right-2 w-2 h-2 rounded-full bg-primary" />
+                        <div className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-primary" />
                       )}
-                      <p className="font-medium text-foreground">{config.label}</p>
-                      <p className="text-xs text-muted-foreground mt-1">{config.description}</p>
+                      <p className="text-xs sm:text-sm font-medium text-foreground">{config.label}</p>
+                      <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5 sm:mt-1 line-clamp-2">{config.description}</p>
                     </button>
                   );
                 })}
@@ -268,32 +268,32 @@ export default function Configuracoes() {
                 size="sm"
                 onClick={playPreviewSound}
                 disabled={!soundEnabled}
-                className="w-full gap-2"
+                className="w-full gap-2 h-9 sm:h-10 text-xs sm:text-sm"
               >
-                <Play className="w-4 h-4" />
-                Ouvir Prévia do Som
+                <Play className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                Ouvir Prévia
               </Button>
             </div>
           </CardContent>
         </Card>
 
-        {/* App Info Card */}
+        {/* App Info Card - Compact */}
         <Card>
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Info className="w-5 h-5 text-primary" />
+          <CardHeader className="pb-2 sm:pb-4 px-4 sm:px-6 pt-4 sm:pt-6">
+            <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+              <Info className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
               Sobre o Aplicativo
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="grid gap-3">
-              <div className="flex justify-between items-center p-3 rounded-lg bg-muted/30">
-                <span className="text-muted-foreground">Versão</span>
-                <span className="font-medium">1.0.0</span>
+          <CardContent className="px-4 sm:px-6 pb-4 sm:pb-6">
+            <div className="grid gap-2 sm:gap-3">
+              <div className="flex justify-between items-center p-2.5 sm:p-3 rounded-md sm:rounded-lg bg-muted/30">
+                <span className="text-xs sm:text-sm text-muted-foreground">Versão</span>
+                <span className="text-xs sm:text-sm font-medium">1.0.0</span>
               </div>
-              <div className="flex justify-between items-center p-3 rounded-lg bg-muted/30">
-                <span className="text-muted-foreground">Usuário</span>
-                <span className="font-medium truncate max-w-[200px]">{user?.email}</span>
+              <div className="flex justify-between items-center p-2.5 sm:p-3 rounded-md sm:rounded-lg bg-muted/30">
+                <span className="text-xs sm:text-sm text-muted-foreground">Usuário</span>
+                <span className="text-xs sm:text-sm font-medium truncate max-w-[150px] sm:max-w-[200px]">{user?.email}</span>
               </div>
             </div>
           </CardContent>
