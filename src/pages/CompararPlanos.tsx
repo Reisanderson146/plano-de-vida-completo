@@ -226,13 +226,7 @@ export default function CompararPlanos() {
           <div className="flex items-center justify-between">
             <Button
               variant="ghost"
-              onClick={() => {
-                if (window.history.length > 1) {
-                  navigate(-1);
-                } else {
-                  navigate('/landing');
-                }
-              }}
+              onClick={() => navigate('/landing')}
               className="gap-2 group hover:bg-primary/10 hover:text-primary transition-all duration-200"
             >
               <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-200" />
