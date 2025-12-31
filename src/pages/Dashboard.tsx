@@ -5,6 +5,7 @@ import { AreaCard } from '@/components/dashboard/AreaCard';
 import { MotivationalQuote } from '@/components/dashboard/MotivationalQuote';
 import { PendingGoalsWidget } from '@/components/dashboard/PendingGoalsWidget';
 import { MonthlyEvolutionChart } from '@/components/dashboard/MonthlyEvolutionChart';
+import { DashboardContentSkeleton } from '@/components/dashboard/DashboardSkeleton';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -38,6 +39,7 @@ const SELECTED_PLAN_STORAGE_KEY = 'selectedPlanId';
 export default function Dashboard() {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
+  const [statsLoading, setStatsLoading] = useState(false);
   const [stats, setStats] = useState<AreaStats>({
     espiritual: { total: 0, completed: 0 },
     intelectual: { total: 0, completed: 0 },
@@ -118,6 +120,7 @@ export default function Dashboard() {
   const loadStats = async () => {
     if (!selectedPlanId) return;
     
+    setStatsLoading(true);
     try {
       let query = supabase
         .from('life_goals')
@@ -161,6 +164,8 @@ export default function Dashboard() {
       setStats(newStats);
     } catch (error) {
       console.error('Error loading stats:', error);
+    } finally {
+      setStatsLoading(false);
     }
   };
 
@@ -250,87 +255,93 @@ export default function Dashboard() {
 
         {/* Animated content that changes with plan selection */}
         <AnimatedContent contentKey={`${selectedPlanId}-${dateRange?.from?.getTime()}-${dateRange?.to?.getTime()}`} className="space-y-4 sm:space-y-6">
-          {/* Area cards */}
-          {(() => {
-            const totalGoals = Object.values(stats).reduce((acc, s) => acc + s.total, 0);
-            if (totalGoals === 0) {
-              return (
-                <Card className="border-border/40 border-dashed">
-                  <CardContent className="flex flex-col items-center justify-center py-12 text-center">
-                    <div className="w-14 h-14 rounded-2xl bg-muted/50 flex items-center justify-center mb-4">
-                      <Target className="w-7 h-7 text-muted-foreground" />
-                    </div>
-                    <h3 className="text-base font-semibold text-foreground mb-1">
-                      Nenhuma meta no período
-                    </h3>
-                    <p className="text-sm text-muted-foreground max-w-sm">
-                      Ajuste o filtro de datas ou adicione metas ao seu plano para visualizar o progresso.
-                    </p>
-                    <Link to={`/consulta/${selectedPlanId}`}>
-                      <Button variant="outline" className="mt-4 rounded-xl gap-2">
-                        <Plus className="w-4 h-4" />
-                        Adicionar metas
-                      </Button>
-                    </Link>
-                  </CardContent>
-                </Card>
-              );
-            }
-            
-            return (
-              <div className="relative">
-                {/* Scroll indicator for mobile */}
-                <div className="absolute right-0 top-0 bottom-0 w-8 pointer-events-none z-10 bg-gradient-to-l from-background to-transparent sm:hidden" />
-                <div className="overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0 scrollbar-hide">
-                  <div className="flex sm:grid sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-3 sm:gap-4 min-w-max sm:min-w-0">
-                    {LIFE_AREAS.map((area, index) => (
-                      <div 
-                        key={area.id} 
-                        className="opacity-0 animate-fade-in"
-                        style={{ animationDelay: `${index * 50}ms`, animationFillMode: 'forwards' }}
-                      >
-                        <AreaCard
-                          area={area.id}
-                          label={getAreaLabel(area.id)}
-                          total={stats[area.id].total}
-                          completed={stats[area.id].completed}
-                          customColor={getAreaColor(area.id)}
-                          planId={selectedPlanId}
-                        />
+          {statsLoading ? (
+            <DashboardContentSkeleton />
+          ) : (
+            <>
+              {/* Area cards */}
+              {(() => {
+                const totalGoals = Object.values(stats).reduce((acc, s) => acc + s.total, 0);
+                if (totalGoals === 0) {
+                  return (
+                    <Card className="border-border/40 border-dashed">
+                      <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+                        <div className="w-14 h-14 rounded-2xl bg-muted/50 flex items-center justify-center mb-4">
+                          <Target className="w-7 h-7 text-muted-foreground" />
+                        </div>
+                        <h3 className="text-base font-semibold text-foreground mb-1">
+                          Nenhuma meta no período
+                        </h3>
+                        <p className="text-sm text-muted-foreground max-w-sm">
+                          Ajuste o filtro de datas ou adicione metas ao seu plano para visualizar o progresso.
+                        </p>
+                        <Link to={`/consulta/${selectedPlanId}`}>
+                          <Button variant="outline" className="mt-4 rounded-xl gap-2">
+                            <Plus className="w-4 h-4" />
+                            Adicionar metas
+                          </Button>
+                        </Link>
+                      </CardContent>
+                    </Card>
+                  );
+                }
+                
+                return (
+                  <div className="relative">
+                    {/* Scroll indicator for mobile */}
+                    <div className="absolute right-0 top-0 bottom-0 w-8 pointer-events-none z-10 bg-gradient-to-l from-background to-transparent sm:hidden" />
+                    <div className="overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0 scrollbar-hide">
+                      <div className="flex sm:grid sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-3 sm:gap-4 min-w-max sm:min-w-0">
+                        {LIFE_AREAS.map((area, index) => (
+                          <div 
+                            key={area.id} 
+                            className="opacity-0 animate-fade-in"
+                            style={{ animationDelay: `${index * 50}ms`, animationFillMode: 'forwards' }}
+                          >
+                            <AreaCard
+                              area={area.id}
+                              label={getAreaLabel(area.id)}
+                              total={stats[area.id].total}
+                              completed={stats[area.id].completed}
+                              customColor={getAreaColor(area.id)}
+                              planId={selectedPlanId}
+                            />
+                          </div>
+                        ))}
                       </div>
-                    ))}
+                    </div>
                   </div>
+                );
+              })()}
+
+              {/* Pending Goals and Monthly Evolution */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-stretch">
+                <div className="h-full">
+                  <PendingGoalsWidget selectedPlanId={selectedPlanId} onGoalCompleted={handleGoalCompleted} />
+                </div>
+                <div className="h-full">
+                  <MonthlyEvolutionChart selectedPlanId={selectedPlanId} refreshKey={chartRefreshKey} />
                 </div>
               </div>
-            );
-          })()}
 
-          {/* Pending Goals and Monthly Evolution */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-stretch">
-            <div className="h-full">
-              <PendingGoalsWidget selectedPlanId={selectedPlanId} onGoalCompleted={handleGoalCompleted} />
-            </div>
-            <div className="h-full">
-              <MonthlyEvolutionChart selectedPlanId={selectedPlanId} refreshKey={chartRefreshKey} />
-            </div>
-          </div>
-
-          {/* Progress Chart */}
-          <Card className="border-border/40">
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-lg sm:text-xl">Visão Geral do Progresso</CardTitle>
-                <Badge variant="outline" className="font-normal rounded-lg">
-                  {dateRange?.from 
-                    ? `${format(dateRange.from, 'yyyy', { locale: ptBR })}${dateRange.to && dateRange.to.getFullYear() !== dateRange.from.getFullYear() ? ` - ${format(dateRange.to, 'yyyy', { locale: ptBR })}` : ''}`
-                    : 'Todos'}
-                </Badge>
-              </div>
-            </CardHeader>
-            <CardContent className="px-3 sm:px-5">
-              <ProgressChart data={stats} />
-            </CardContent>
-          </Card>
+              {/* Progress Chart */}
+              <Card className="border-border/40">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg sm:text-xl">Visão Geral do Progresso</CardTitle>
+                    <Badge variant="outline" className="font-normal rounded-lg">
+                      {dateRange?.from 
+                        ? `${format(dateRange.from, 'yyyy', { locale: ptBR })}${dateRange.to && dateRange.to.getFullYear() !== dateRange.from.getFullYear() ? ` - ${format(dateRange.to, 'yyyy', { locale: ptBR })}` : ''}`
+                        : 'Todos'}
+                    </Badge>
+                  </div>
+                </CardHeader>
+                <CardContent className="px-3 sm:px-5">
+                  <ProgressChart data={stats} />
+                </CardContent>
+              </Card>
+            </>
+          )}
         </AnimatedContent>
       </div>
     </AppLayout>
