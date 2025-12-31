@@ -128,12 +128,11 @@ const emailTemplates = {
           Recursos disponíveis no Premium:
         </p>
         <ul style="margin: 0 0 16px 0; padding-left: 20px; color: #4b5563; font-size: 14px; line-height: 1.8;">
-          <li>1 Plano Individual</li>
           <li>1 Plano Familiar</li>
-          <li>2 Planos para Filhos</li>
+          <li>3 Planos para Filhos</li>
           <li>Resumo Inteligente com IA</li>
           <li>Relatórios de Progresso</li>
-          <li>Lembretes por Email</li>
+          <li>Notificações Personalizadas</li>
         </ul>
         ${getSimpleLink("https://planodevida.io/cadastro", "Acessar minha conta")}
         <p style="margin: 20px 0 0 0; color: #4b5563; font-size: 14px;">

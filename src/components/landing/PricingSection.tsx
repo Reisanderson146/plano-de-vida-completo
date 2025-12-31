@@ -629,15 +629,14 @@ const PricingSection = ({ onCheckout, onLogin, onSignup, loading }: PricingSecti
                   
                   {/* Rows */}
                   {[
-                    { name: "Plano Individual", basic: true, familiar: true, premium: true },
+                    { name: "Plano Individual", basic: true, familiar: false, premium: false },
                     { name: "Plano Familiar", basic: false, familiar: true, premium: true },
-                    { name: "Planos para Filhos", basic: "—", familiar: "—", premium: "2 planos" },
+                    { name: "Planos para Filhos", basic: "—", familiar: "1 plano", premium: "3 planos" },
                     { name: "7 Áreas da Vida", basic: true, familiar: true, premium: true },
                     { name: "Dashboard", basic: true, familiar: true, premium: true },
                     { name: "Exportação PDF", basic: true, familiar: true, premium: true },
-                    { name: "Resumo com IA", basic: false, familiar: false, premium: true },
-                    { name: "Lembretes por Email", basic: false, familiar: true, premium: true },
-                    { name: "Email Aniversário", basic: false, familiar: true, premium: true },
+                    { name: "Resumo com IA", basic: false, familiar: true, premium: true },
+                    { name: "Notificações", basic: false, familiar: true, premium: true },
                   ].map((row, i) => (
                     <motion.div
                       key={row.name}
