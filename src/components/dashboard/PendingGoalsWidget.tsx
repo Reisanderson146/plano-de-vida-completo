@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-import { isSoundEnabled, getSoundVolume, getSoundStyle, soundStyleConfigs } from '@/hooks/useSoundSettings';
+import { isSoundEnabled, getSoundVolume, getSoundStyle, soundStyleConfigs, isVibrationEnabled, getVibrationStyle, vibrationStyleConfigs } from '@/hooks/useSoundSettings';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -108,10 +108,15 @@ export function PendingGoalsWidget({ selectedPlanId, onGoalCompleted }: PendingG
   };
 
   const triggerHapticFeedback = () => {
+    if (!isVibrationEnabled()) return;
+    
+    const style = getVibrationStyle();
+    if (style === 'none') return;
+    
     // Check if Vibration API is supported
     if ('vibrate' in navigator) {
-      // Pattern: short buzz, pause, longer buzz for celebration feel
-      navigator.vibrate([50, 30, 100]);
+      const pattern = vibrationStyleConfigs[style].pattern;
+      navigator.vibrate(pattern);
     }
   };
 

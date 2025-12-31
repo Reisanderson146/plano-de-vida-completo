@@ -1,13 +1,13 @@
 import { Link } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Moon, Info, Volume2, VolumeX, Music, Play, User, CreditCard, RotateCcw } from 'lucide-react';
+import { Moon, Info, Volume2, VolumeX, Music, Play, User, CreditCard, RotateCcw, Vibrate, Smartphone } from 'lucide-react';
 import { DarkModeToggle } from '@/components/theme/DarkModeToggle';
 import { Switch } from '@/components/ui/switch';
 import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
-import { useSoundSettings, soundStyleConfigs, SoundStyle } from '@/hooks/useSoundSettings';
+import { useSoundSettings, soundStyleConfigs, SoundStyle, vibrationStyleConfigs, VibrationStyle } from '@/hooks/useSoundSettings';
 import { useTour } from '@/hooks/useTour';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -15,7 +15,12 @@ import { cn } from '@/lib/utils';
 export default function Configuracoes() {
   const { user } = useAuth();
   const { toast } = useToast();
-  const { soundEnabled, volume, style, toggleSound, setVolume, setStyle } = useSoundSettings();
+  const { 
+    soundEnabled, volume, style, 
+    vibrationEnabled, vibrationStyle,
+    toggleSound, setVolume, setStyle,
+    toggleVibration, setVibrationStyle 
+  } = useSoundSettings();
   const { restartTour } = useTour();
 
   const handleRestartTour = () => {
@@ -64,6 +69,21 @@ export default function Configuracoes() {
     }
   };
 
+  const testVibration = () => {
+    if (!vibrationEnabled || vibrationStyle === 'none') return;
+    
+    if ('vibrate' in navigator) {
+      const pattern = vibrationStyleConfigs[vibrationStyle].pattern;
+      navigator.vibrate(pattern);
+    } else {
+      toast({
+        title: 'Vibração não suportada',
+        description: 'Seu dispositivo não suporta vibração.',
+        variant: 'destructive',
+      });
+    }
+  };
+
   const getVolumeIcon = () => {
     if (!soundEnabled || volume === 0) return <VolumeX className="w-5 h-5 text-muted-foreground" />;
     return <Volume2 className="w-5 h-5 text-primary" />;
@@ -76,6 +96,8 @@ export default function Configuracoes() {
     if (volume < 0.7) return 'Volume médio';
     return 'Volume alto';
   };
+
+  const supportsVibration = typeof navigator !== 'undefined' && 'vibrate' in navigator;
 
   return (
     <AppLayout>
@@ -272,6 +294,110 @@ export default function Configuracoes() {
               >
                 <Play className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 Ouvir Prévia
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Vibration Settings Card */}
+        <Card>
+          <CardHeader className="pb-2 sm:pb-4 px-4 sm:px-6 pt-4 sm:pt-6">
+            <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+              <Vibrate className={cn("w-4 h-4 sm:w-5 sm:h-5", vibrationEnabled ? "text-primary" : "text-muted-foreground")} />
+              Vibração
+            </CardTitle>
+            <CardDescription className="text-xs sm:text-sm">Configure o feedback tátil</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3 sm:space-y-6 px-4 sm:px-6 pb-4 sm:pb-6">
+            {!supportsVibration && (
+              <div className="p-3 sm:p-4 rounded-lg sm:rounded-xl bg-amber-500/10 border border-amber-500/20">
+                <p className="text-xs sm:text-sm text-amber-600 dark:text-amber-400 flex items-center gap-2">
+                  <Smartphone className="w-4 h-4" />
+                  Vibração disponível apenas em dispositivos móveis
+                </p>
+              </div>
+            )}
+            
+            {/* Enable/Disable Toggle */}
+            <div className={cn(
+              "flex items-center justify-between p-3 sm:p-4 rounded-lg sm:rounded-xl bg-muted/50",
+              !supportsVibration && "opacity-50"
+            )}>
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="p-2 sm:p-2.5 rounded-md sm:rounded-lg bg-background shadow-sm">
+                  <Vibrate className={cn(
+                    "w-4 h-4 sm:w-5 sm:h-5",
+                    vibrationEnabled ? "text-primary" : "text-muted-foreground"
+                  )} />
+                </div>
+                <div>
+                  <p className="text-sm sm:text-base font-medium">Feedback Tátil</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">
+                    {vibrationEnabled ? 'Ativado' : 'Desativado'}
+                  </p>
+                </div>
+              </div>
+              <Switch
+                checked={vibrationEnabled}
+                onCheckedChange={toggleVibration}
+                disabled={!supportsVibration}
+                aria-label="Ativar vibração"
+              />
+            </div>
+
+            {/* Vibration Style Selection */}
+            <div className={cn(
+              "space-y-3 sm:space-y-4 transition-opacity",
+              (!vibrationEnabled || !supportsVibration) && "opacity-50 pointer-events-none"
+            )}>
+              <div className="flex items-center gap-2 sm:gap-3 px-1 sm:px-4">
+                <div className="p-2 sm:p-2.5 rounded-md sm:rounded-lg bg-muted/50">
+                  <Smartphone className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-sm sm:text-base font-medium">Estilo de Vibração</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">Escolha o padrão de vibração</p>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-2 sm:gap-3">
+                {(Object.keys(vibrationStyleConfigs) as VibrationStyle[]).map((styleKey) => {
+                  const config = vibrationStyleConfigs[styleKey];
+                  const isSelected = vibrationStyle === styleKey;
+                  
+                  return (
+                    <button
+                      key={styleKey}
+                      onClick={() => setVibrationStyle(styleKey)}
+                      disabled={!vibrationEnabled || !supportsVibration}
+                      className={cn(
+                        "relative p-3 sm:p-4 rounded-lg sm:rounded-xl border-2 text-left transition-all",
+                        "hover:border-primary/50 hover:bg-muted/30",
+                        isSelected 
+                          ? "border-primary bg-primary/5 shadow-sm" 
+                          : "border-border bg-background"
+                      )}
+                    >
+                      {isSelected && (
+                        <div className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-primary" />
+                      )}
+                      <p className="text-xs sm:text-sm font-medium text-foreground">{config.label}</p>
+                      <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5 sm:mt-1 line-clamp-2">{config.description}</p>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Test Vibration Button */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={testVibration}
+                disabled={!vibrationEnabled || !supportsVibration || vibrationStyle === 'none'}
+                className="w-full gap-2 h-9 sm:h-10 text-xs sm:text-sm"
+              >
+                <Vibrate className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                Testar Vibração
               </Button>
             </div>
           </CardContent>
