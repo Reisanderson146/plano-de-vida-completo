@@ -289,7 +289,7 @@ const PricingSection = ({ onCheckout, onLogin, onSignup, loading }: PricingSecti
         {/* Carousel Plans with Animation */}
         <div className="mb-8 max-w-md mx-auto relative">
           {/* Animated Card Container with Swipe Support */}
-          <div className="overflow-hidden min-h-[620px] relative touch-pan-y">
+          <div className="overflow-hidden min-h-[540px] relative touch-pan-y">
             <AnimatePresence initial={false} custom={direction} mode="wait">
               <motion.div
                 key={selectedIndex}
@@ -384,20 +384,20 @@ const PricingSection = ({ onCheckout, onLogin, onSignup, loading }: PricingSecti
                       transition={{ delay: 0.5, duration: 1.2, ease: "easeInOut", repeat: Infinity, repeatDelay: 4 }}
                     />
 
-                    <CardHeader className="pt-8 pb-4 text-center relative">
+                    <CardHeader className="pt-6 pb-3 text-center relative px-4">
                       {/* Icon with enhanced styling */}
                       <motion.div 
-                        className={cn("inline-flex items-center justify-center w-16 h-16 rounded-2xl mx-auto mb-4 relative", colorClasses.icon)}
+                        className={cn("inline-flex items-center justify-center w-14 h-14 rounded-xl mx-auto mb-3 relative", colorClasses.icon)}
                         initial={{ rotate: -180, scale: 0 }}
                         animate={{ rotate: 0, scale: 1 }}
                         transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
                       >
                         <motion.div
-                          className={cn("absolute inset-0 rounded-2xl blur-sm", colorClasses.iconGlow)}
+                          className={cn("absolute inset-0 rounded-xl blur-sm", colorClasses.iconGlow)}
                           animate={{ opacity: [0.3, 0.6, 0.3] }}
                           transition={{ duration: 2, repeat: Infinity }}
                         />
-                        <currentPlan.icon className="w-8 h-8 relative z-10" />
+                        <currentPlan.icon className="w-7 h-7 relative z-10" />
                       </motion.div>
                       
                       <motion.div
@@ -405,30 +405,30 @@ const PricingSection = ({ onCheckout, onLogin, onSignup, loading }: PricingSecti
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.25 }}
                       >
-                        <CardTitle className={cn("text-2xl font-bold mb-1", colorClasses.title)}>
+                        <CardTitle className={cn("text-xl font-bold mb-0.5", colorClasses.title)}>
                           {currentPlan.name}
                         </CardTitle>
                         
-                        <p className="text-sm text-muted-foreground mb-1">{currentPlan.subtitle}</p>
+                        <p className="text-xs text-muted-foreground mb-0.5">{currentPlan.subtitle}</p>
                         
-                        <p className={cn("text-xs font-medium mb-3", colorClasses.highlight)}>
+                        <p className={cn("text-[11px] font-medium mb-2", colorClasses.highlight)}>
                           {currentPlan.tagline}
                         </p>
                         
                         {/* Trial Badge with Countdown */}
                         <motion.div
-                          className="flex flex-col items-center gap-2 mb-4"
+                          className="flex flex-col items-center gap-1.5 mb-3"
                           initial={{ scale: 0 }}
                           animate={{ scale: 1 }}
                           transition={{ delay: 0.35, type: "spring" }}
                         >
-                          <div className={cn("inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold", colorClasses.badge)}>
-                            <Sparkles className="w-3.5 h-3.5" />
+                          <div className={cn("inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold", colorClasses.badge)}>
+                            <Sparkles className="w-3 h-3" />
                             <span>7 DIAS GRÁTIS</span>
                           </div>
                           
-                          <div className={cn("flex items-center gap-1.5 text-[11px]", colorClasses.highlight)}>
-                            <Clock className="w-3 h-3" />
+                          <div className={cn("flex items-center gap-1 text-[10px]", colorClasses.highlight)}>
+                            <Clock className="w-2.5 h-2.5" />
                             <span>Expira em</span>
                             <span className="font-mono font-semibold tabular-nums">
                               {String(countdown.hours).padStart(2, '0')}h {String(countdown.minutes).padStart(2, '0')}m {String(countdown.seconds).padStart(2, '0')}s
@@ -444,21 +444,21 @@ const PricingSection = ({ onCheckout, onLogin, onSignup, loading }: PricingSecti
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: 0.3, type: "spring" }}
                       >
-                        <span className={cn("text-5xl font-extrabold tracking-tight", colorClasses.title)}>
+                        <span className={cn("text-4xl font-extrabold tracking-tight", colorClasses.title)}>
                           {currentPlan.price}
                         </span>
-                        <span className="text-muted-foreground text-sm font-medium">/mês</span>
+                        <span className="text-muted-foreground text-xs font-medium">/mês</span>
                       </motion.div>
                       
-                      <p className={cn("text-xs mt-2 font-medium", colorClasses.highlight)}>
+                      <p className={cn("text-[10px] mt-1 font-medium", colorClasses.highlight)}>
                         Teste grátis, cancele quando quiser
                       </p>
                     </CardHeader>
 
-                    <CardContent className="space-y-2.5 pb-6 px-5 min-h-[320px] flex flex-col">
+                    <CardContent className="space-y-1.5 pb-5 px-4 min-h-[280px] flex flex-col">
                       {/* Benefits divider */}
                       <div className={cn(
-                        "h-px w-full mb-4",
+                        "h-px w-full mb-3",
                         "bg-gradient-to-r from-transparent via-border to-transparent"
                       )} />
                       
@@ -466,22 +466,22 @@ const PricingSection = ({ onCheckout, onLogin, onSignup, loading }: PricingSecti
                         <motion.div 
                           key={i} 
                           className={cn(
-                            "flex items-center gap-2.5 text-sm py-1 px-2 rounded-lg transition-colors",
+                            "flex items-center gap-2 text-xs py-0.5 px-1.5 rounded-md transition-colors",
                             benefit.highlight && "bg-muted/50"
                           )}
                           initial={{ opacity: 0, x: -20 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: 0.35 + i * 0.04 }}
                         >
-                          <div className={cn("w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0", colorClasses.check)}>
-                            <Check className="w-3 h-3" />
+                          <div className={cn("w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0", colorClasses.check)}>
+                            <Check className="w-2.5 h-2.5" />
                           </div>
-                          <span className={cn("text-sm text-foreground", benefit.highlight && "font-medium")}>
+                          <span className={cn("text-xs text-foreground leading-tight", benefit.highlight && "font-medium")}>
                             {benefit.text}
                           </span>
                           {benefit.highlight && currentPlan.id === 'premium' && benefit.text.includes('IA') && (
                             <motion.span 
-                              className="text-[10px] px-2 py-0.5 rounded-full bg-gradient-to-r from-violet-500/20 to-purple-500/20 text-violet-500 font-bold border border-violet-500/20"
+                              className="text-[9px] px-1.5 py-0.5 rounded-full bg-gradient-to-r from-violet-500/20 to-purple-500/20 text-violet-500 font-bold border border-violet-500/20"
                               animate={{ scale: [1, 1.05, 1] }}
                               transition={{ duration: 2, repeat: Infinity }}
                             >
@@ -496,12 +496,12 @@ const PricingSection = ({ onCheckout, onLogin, onSignup, loading }: PricingSecti
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.6 }}
-                        className="pt-4 mt-auto"
+                        className="pt-3 mt-auto"
                       >
                         <Button
                           onClick={() => onCheckout(currentPlan.id)}
                           disabled={loading === currentPlan.id}
-                          className={cn("w-full font-bold py-6 text-base relative overflow-hidden group", colorClasses.button)}
+                          className={cn("w-full font-bold py-5 text-sm relative overflow-hidden group", colorClasses.button)}
                         >
                           <motion.div
                             className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12"
@@ -511,12 +511,12 @@ const PricingSection = ({ onCheckout, onLogin, onSignup, loading }: PricingSecti
                           />
                           
                           {loading === currentPlan.id ? (
-                            <Loader2 className="w-5 h-5 animate-spin" />
+                            <Loader2 className="w-4 h-4 animate-spin" />
                           ) : (
-                            <span className="relative z-10 flex items-center justify-center gap-2">
-                              <Zap className="w-5 h-5" />
+                            <span className="relative z-10 flex items-center justify-center gap-1.5">
+                              <Zap className="w-4 h-4" />
                               Começar 7 dias grátis
-                              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                             </span>
                           )}
                         </Button>
