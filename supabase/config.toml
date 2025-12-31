@@ -59,3 +59,9 @@ verify_jwt = false
 
 [functions.test-all-emails]
 verify_jwt = false
+
+[functions.send-wedding-anniversary-email]
+verify_jwt = false
+
+[functions.process-wedding-anniversaries]
+verify_jwt = false

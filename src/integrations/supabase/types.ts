@@ -176,9 +176,12 @@ export type Database = {
           motto: string | null
           photo_url: string | null
           plan_type: string
+          spouse_age_1: number | null
+          spouse_age_2: number | null
           title: string
           updated_at: string
           user_id: string
+          wedding_date: string | null
         }
         Insert: {
           created_at?: string
@@ -187,9 +190,12 @@ export type Database = {
           motto?: string | null
           photo_url?: string | null
           plan_type?: string
+          spouse_age_1?: number | null
+          spouse_age_2?: number | null
           title?: string
           updated_at?: string
           user_id: string
+          wedding_date?: string | null
         }
         Update: {
           created_at?: string
@@ -198,9 +204,12 @@ export type Database = {
           motto?: string | null
           photo_url?: string | null
           plan_type?: string
+          spouse_age_1?: number | null
+          spouse_age_2?: number | null
           title?: string
           updated_at?: string
           user_id?: string
+          wedding_date?: string | null
         }
         Relationships: []
       }

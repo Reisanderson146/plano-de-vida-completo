@@ -39,6 +39,7 @@ const basicBenefits = [
 ];
 
 const premiumBenefits = [
+  { icon: User, text: '1 Plano Individual' },
   { icon: Users, text: '1 Plano Familiar' },
   { icon: Baby, text: '3 Planos para Filhos' },
   { icon: Sparkles, text: 'Resumo inteligente com IA', highlight: true },

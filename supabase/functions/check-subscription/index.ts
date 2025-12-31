@@ -10,6 +10,7 @@ const corsHeaders = {
 // Product IDs for tier identification
 const TIER_PRODUCTS = {
   basic: "prod_Tbw6ZCYRIgPNee", // Plano Basic – Plano de Vida - R$ 9,99/mês
+  familiar: "prod_familiar", // Plano Familiar – R$ 19,90/mês - TODO: Replace with real Stripe product ID
   premium: "prod_TeeUMyrZLlnteX", // Plano Premium– Plano de Vida - R$ 29,99/mês
 };
 
@@ -18,9 +19,10 @@ const logStep = (step: string, details?: any) => {
   console.log(`[CHECK-SUBSCRIPTION] ${step}${detailsStr}`);
 };
 
-function getTierFromProductId(productId: string | null): 'basic' | 'premium' | null {
+function getTierFromProductId(productId: string | null): 'basic' | 'familiar' | 'premium' | null {
   if (!productId) return null;
   if (productId === TIER_PRODUCTS.premium) return 'premium';
+  if (productId === TIER_PRODUCTS.familiar) return 'familiar';
   if (productId === TIER_PRODUCTS.basic) return 'basic';
   // Default to basic for any active subscription with unknown product
   return 'basic';
@@ -101,7 +103,7 @@ serve(async (req) => {
     const hasActiveSub = !!activeSubscription;
     let subscriptionEnd: string | null = null;
     let productId = null;
-    let tier: 'basic' | 'premium' | null = null;
+    let tier: 'basic' | 'familiar' | 'premium' | null = null;
     let isTrial = false;
     let trialEnd = null;
     let subscriptionId = null;

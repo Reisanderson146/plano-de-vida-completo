@@ -12,6 +12,9 @@ const TIERS = {
   basic: {
     priceId: "price_1SeiENRX3OjZbCrQIIbjMVMv", // Plano Basic - R$ 9,99/mês
   },
+  familiar: {
+    priceId: "price_familiar_1990", // Plano Familiar - R$ 19,90/mês - TODO: Replace with real Stripe price ID
+  },
   premium: {
     priceId: "price_1ShLBERX3OjZbCrQFUF993DL", // Plano Premium - R$ 29,99/mês
   },
@@ -52,7 +55,7 @@ serve(async (req) => {
     let tier = "basic";
     try {
       const body = await req.json();
-      if (body.tier && (body.tier === "basic" || body.tier === "premium")) {
+      if (body.tier && (body.tier === "basic" || body.tier === "familiar" || body.tier === "premium")) {
         tier = body.tier;
       }
     } catch {
