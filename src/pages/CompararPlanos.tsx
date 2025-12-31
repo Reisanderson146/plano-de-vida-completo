@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Check, X, Crown, Gem, Sparkles, Shield, Target, BarChart3, Download, Bell, History, FileText, Users, Baby, User, Calendar, Eye, BookOpen, ArrowLeft, Zap } from 'lucide-react';
+import { Check, X, Crown, Gem, Sparkles, Shield, Target, BarChart3, Download, Bell, History, FileText, Users, Baby, User, Calendar, Eye, BookOpen, ArrowLeft, Zap, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
@@ -14,8 +14,9 @@ interface Feature {
   name: string;
   description: string;
   icon: React.ElementType;
-  basic: boolean;
-  premium: boolean;
+  basic: boolean | string;
+  familiar: boolean | string;
+  premium: boolean | string;
   highlight?: boolean;
 }
 
@@ -25,27 +26,31 @@ const features: Feature[] = [
     description: 'Crie seu plano de vida pessoal com metas para todas as áreas',
     icon: User, 
     basic: true, 
-    premium: false 
+    familiar: true,
+    premium: true 
   },
   { 
     name: 'Plano Familiar', 
     description: 'Planeje o futuro da sua família em conjunto',
     icon: Users, 
     basic: false, 
+    familiar: true,
     premium: true 
   },
   { 
-    name: '3 Planos para Filhos', 
-    description: 'Crie planos individuais para até 3 filhos',
+    name: 'Planos para Filhos', 
+    description: 'Crie planos individuais para seus filhos',
     icon: Baby, 
-    basic: false, 
-    premium: true 
+    basic: '—', 
+    familiar: '—',
+    premium: '2 planos' 
   },
   { 
     name: 'Resumo com IA', 
     description: 'Análise inteligente do seu progresso com sugestões personalizadas',
     icon: Sparkles, 
     basic: false, 
+    familiar: false,
     premium: true,
     highlight: true 
   },
@@ -54,6 +59,7 @@ const features: Feature[] = [
     description: 'Planeje: Espiritual, Intelectual, Familiar, Social, Financeiro, Profissional e Saúde',
     icon: Target, 
     basic: true, 
+    familiar: true,
     premium: true 
   },
   { 
@@ -61,6 +67,7 @@ const features: Feature[] = [
     description: 'Visualize seu avanço com gráficos e métricas',
     icon: BarChart3, 
     basic: true, 
+    familiar: true,
     premium: true 
   },
   { 
@@ -68,6 +75,7 @@ const features: Feature[] = [
     description: 'Veja seu plano completo em formato de tabela interativa',
     icon: Eye, 
     basic: true, 
+    familiar: true,
     premium: true 
   },
   { 
@@ -75,6 +83,7 @@ const features: Feature[] = [
     description: 'Organize metas por fases da vida (1, 5, 10+ anos)',
     icon: Calendar, 
     basic: true, 
+    familiar: true,
     premium: true 
   },
   { 
@@ -82,6 +91,7 @@ const features: Feature[] = [
     description: 'Seus dados seguros e acessíveis de qualquer dispositivo',
     icon: Shield, 
     basic: true, 
+    familiar: true,
     premium: true 
   },
   { 
@@ -89,6 +99,7 @@ const features: Feature[] = [
     description: 'Baixe seu plano em formato profissional para impressão',
     icon: Download, 
     basic: true, 
+    familiar: true,
     premium: true 
   },
   { 
@@ -96,13 +107,7 @@ const features: Feature[] = [
     description: 'Tutorial completo para aproveitar todos os recursos',
     icon: BookOpen, 
     basic: true, 
-    premium: true 
-  },
-  { 
-    name: 'Relatórios Detalhados', 
-    description: 'Análise aprofundada do seu progresso por área e período',
-    icon: FileText, 
-    basic: false, 
+    familiar: true,
     premium: true 
   },
   { 
@@ -110,13 +115,23 @@ const features: Feature[] = [
     description: 'Receba lembretes das suas metas importantes',
     icon: Bell, 
     basic: false, 
+    familiar: true,
+    premium: true 
+  },
+  { 
+    name: 'Email Aniversário Casamento', 
+    description: 'Mensagem especial com versículo bíblico no aniversário de casamento',
+    icon: Heart, 
+    basic: false, 
+    familiar: true,
     premium: true 
   },
   { 
     name: 'Histórico de Metas', 
     description: 'Acompanhe todas as metas que você já concluiu',
     icon: History, 
-    basic: false, 
+    basic: true, 
+    familiar: true,
     premium: true 
   },
 ];
@@ -124,9 +139,9 @@ const features: Feature[] = [
 export default function CompararPlanos() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [loading, setLoading] = useState<'basic' | 'premium' | null>(null);
+  const [loading, setLoading] = useState<'basic' | 'familiar' | 'premium' | null>(null);
 
-  const handleCheckout = async (tier: 'basic' | 'premium') => {
+  const handleCheckout = async (tier: 'basic' | 'familiar' | 'premium') => {
     if (!user) {
       navigate('/auth');
       return;
@@ -152,11 +167,50 @@ export default function CompararPlanos() {
     }
   };
 
+  const renderFeatureValue = (value: boolean | string, color: 'emerald' | 'rose' | 'violet') => {
+    if (typeof value === 'string') {
+      return (
+        <span className={cn(
+          "text-xs font-medium",
+          color === 'emerald' ? "text-emerald-600" :
+          color === 'rose' ? "text-rose-600" :
+          "text-violet-600"
+        )}>
+          {value}
+        </span>
+      );
+    }
+    
+    if (value) {
+      return (
+        <div className={cn(
+          "w-6 h-6 rounded-full flex items-center justify-center",
+          color === 'emerald' ? "bg-emerald-500/20" :
+          color === 'rose' ? "bg-rose-500/20" :
+          "bg-violet-500/20"
+        )}>
+          <Check className={cn(
+            "w-4 h-4",
+            color === 'emerald' ? "text-emerald-600" :
+            color === 'rose' ? "text-rose-600" :
+            "text-violet-600"
+          )} />
+        </div>
+      );
+    }
+    
+    return (
+      <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center">
+        <X className="w-4 h-4 text-muted-foreground/50" />
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/30">
       {/* Header */}
       <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <Button
             variant="ghost"
             onClick={() => navigate(-1)}
@@ -170,7 +224,7 @@ export default function CompararPlanos() {
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Hero */}
         <motion.div 
           className="text-center mb-12"
@@ -194,13 +248,16 @@ export default function CompararPlanos() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
+          className="overflow-x-auto"
         >
-          <Card className="overflow-hidden border-2 border-border/50">
+          <Card className="overflow-hidden border-2 border-border/50 min-w-[700px]">
             {/* Table Header */}
-            <div className="grid grid-cols-[1fr,120px,120px] md:grid-cols-[1fr,180px,180px] bg-muted/50">
+            <div className="grid grid-cols-[1fr,130px,130px,130px] md:grid-cols-[1fr,160px,160px,160px] bg-muted/50">
               <div className="p-4 md:p-6 border-r border-border">
                 <span className="font-semibold text-foreground">Recursos</span>
               </div>
+              
+              {/* Basic */}
               <div className="p-4 md:p-6 text-center border-r border-border relative">
                 <div className="absolute top-2 right-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-[8px] md:text-[10px] font-bold px-1.5 py-0.5 rounded-full">
                   7 DIAS GRÁTIS
@@ -214,6 +271,23 @@ export default function CompararPlanos() {
                   <span className="text-xs text-muted-foreground">/mês</span>
                 </div>
               </div>
+              
+              {/* Familiar */}
+              <div className="p-4 md:p-6 text-center border-r border-border bg-gradient-to-br from-rose-500/5 to-pink-500/5 relative">
+                <div className="absolute top-2 right-2 bg-gradient-to-r from-rose-500 to-pink-500 text-white text-[8px] md:text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                  7 DIAS GRÁTIS
+                </div>
+                <div className="flex flex-col items-center gap-2">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-rose-500/20 to-pink-500/20 flex items-center justify-center">
+                    <Heart className="w-5 h-5 text-rose-600" />
+                  </div>
+                  <span className="font-bold text-foreground">Familiar</span>
+                  <span className="text-xl md:text-2xl font-bold bg-gradient-to-r from-rose-500 to-pink-500 bg-clip-text text-transparent">R$ 19,90</span>
+                  <span className="text-xs text-muted-foreground">/mês</span>
+                </div>
+              </div>
+              
+              {/* Premium */}
               <div className="p-4 md:p-6 text-center bg-gradient-to-br from-violet-500/5 to-purple-500/5 relative">
                 <div className="absolute top-2 right-2 bg-gradient-to-r from-violet-600 to-purple-600 text-white text-[8px] md:text-[10px] font-bold px-1.5 py-0.5 rounded-full">
                   7 DIAS GRÁTIS
@@ -225,7 +299,7 @@ export default function CompararPlanos() {
                   <div className="flex items-center gap-1">
                     <span className="font-bold text-foreground">Premium</span>
                     <span className="text-[10px] bg-violet-500 text-white px-1.5 py-0.5 rounded-full">
-                      Popular
+                      IA
                     </span>
                   </div>
                   <span className="text-xl md:text-2xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">R$ 29,99</span>
@@ -242,7 +316,7 @@ export default function CompararPlanos() {
                   <motion.div
                     key={feature.name}
                     className={cn(
-                      "grid grid-cols-[1fr,120px,120px] md:grid-cols-[1fr,180px,180px]",
+                      "grid grid-cols-[1fr,130px,130px,130px] md:grid-cols-[1fr,160px,160px,160px]",
                       feature.highlight && "bg-gradient-to-r from-violet-500/5 to-purple-500/5"
                     )}
                     initial={{ opacity: 0, x: -20 }}
@@ -276,29 +350,16 @@ export default function CompararPlanos() {
                       </div>
                     </div>
                     <div className="p-4 md:p-5 flex items-center justify-center border-r border-border">
-                      {feature.basic ? (
-                        <div className="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center">
-                          <Check className="w-4 h-4 text-emerald-600" />
-                        </div>
-                      ) : (
-                        <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center">
-                          <X className="w-4 h-4 text-muted-foreground/50" />
-                        </div>
-                      )}
+                      {renderFeatureValue(feature.basic, 'emerald')}
+                    </div>
+                    <div className="p-4 md:p-5 flex items-center justify-center border-r border-border">
+                      {renderFeatureValue(feature.familiar, 'rose')}
                     </div>
                     <div className={cn(
                       "p-4 md:p-5 flex items-center justify-center",
                       feature.highlight && "bg-gradient-to-r from-violet-500/5 to-purple-500/5"
                     )}>
-                      {feature.premium ? (
-                        <div className="w-6 h-6 rounded-full bg-violet-500/20 flex items-center justify-center">
-                          <Check className="w-4 h-4 text-violet-600" />
-                        </div>
-                      ) : (
-                        <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center">
-                          <X className="w-4 h-4 text-muted-foreground/50" />
-                        </div>
-                      )}
+                      {renderFeatureValue(feature.premium, 'violet')}
                     </div>
                   </motion.div>
                 );
@@ -306,7 +367,7 @@ export default function CompararPlanos() {
             </div>
 
             {/* Table Footer - CTAs */}
-            <div className="grid grid-cols-[1fr,120px,120px] md:grid-cols-[1fr,180px,180px] bg-muted/30 border-t-2 border-border">
+            <div className="grid grid-cols-[1fr,130px,130px,130px] md:grid-cols-[1fr,160px,160px,160px] bg-muted/30 border-t-2 border-border">
               <div className="p-4 md:p-6 border-r border-border flex items-center">
                 <p className="text-sm text-muted-foreground">
                   <Zap className="w-4 h-4 inline mr-1 text-primary" />
@@ -318,9 +379,24 @@ export default function CompararPlanos() {
                   onClick={() => handleCheckout('basic')}
                   disabled={loading !== null}
                   variant="outline"
+                  size="sm"
                   className="w-full border-emerald-500/50 text-emerald-600 hover:bg-emerald-500/10"
                 >
                   {loading === 'basic' ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    'Assinar'
+                  )}
+                </Button>
+              </div>
+              <div className="p-4 md:p-6 flex items-center justify-center border-r border-border bg-gradient-to-br from-rose-500/5 to-pink-500/5">
+                <Button
+                  onClick={() => handleCheckout('familiar')}
+                  disabled={loading !== null}
+                  size="sm"
+                  className="w-full bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600"
+                >
+                  {loading === 'familiar' ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
                   ) : (
                     'Assinar'
@@ -331,6 +407,7 @@ export default function CompararPlanos() {
                 <Button
                   onClick={() => handleCheckout('premium')}
                   disabled={loading !== null}
+                  size="sm"
                   className="w-full bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700"
                 >
                   {loading === 'premium' ? (
