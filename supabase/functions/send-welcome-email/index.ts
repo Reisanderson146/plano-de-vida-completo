@@ -90,12 +90,11 @@ const handler = async (req: Request): Promise<Response> => {
     const planName = subscriptionPlan === 'premium' ? 'Premium' : 'Basic';
     const planFeatures = subscriptionPlan === 'premium' 
       ? `
-        <li>✨ 1 Plano Individual</li>
         <li>👨‍👩‍👧‍👦 1 Plano Familiar</li>
-        <li>👶 2 Planos para Filhos</li>
+        <li>👶 3 Planos para Filhos</li>
         <li>🤖 Resumo Inteligente com IA</li>
         <li>📊 Relatórios de Progresso</li>
-        <li>📧 Lembretes por Email</li>
+        <li>🔔 Notificações Personalizadas</li>
       `
       : `
         <li>✨ 1 Plano Individual</li>
