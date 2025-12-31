@@ -96,13 +96,13 @@ export function DateRangeFilter({
         <Button
           variant="outline"
           className={cn(
-            "w-full sm:w-[240px] justify-start text-left font-normal",
+            "w-full sm:w-[220px] h-11 justify-start text-left font-normal rounded-xl",
             !value && "text-muted-foreground",
             className
           )}
         >
           <CalendarIcon className="w-4 h-4 mr-2 flex-shrink-0" />
-          {getDisplayLabel()}
+          <span className="truncate">{getDisplayLabel()}</span>
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0 bg-popover" align="start">

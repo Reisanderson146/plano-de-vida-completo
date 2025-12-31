@@ -271,7 +271,7 @@ export default function HistoricoMetas() {
           <CardContent className="pt-4">
             <div className="flex flex-wrap gap-3">
               <Select value={selectedPlanId} onValueChange={setSelectedPlanId}>
-                <SelectTrigger className="w-[200px]">
+                <SelectTrigger className="w-full sm:w-[220px] h-11 rounded-xl">
                   <div className="flex items-center min-w-0 flex-1">
                     <span className="truncate">
                       <SelectValue placeholder="Todos os planos" />

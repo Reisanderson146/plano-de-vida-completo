@@ -423,7 +423,7 @@ export default function Balanco() {
           <div className="flex flex-col sm:flex-row gap-3 opacity-0 animate-stagger-1">
             {/* Plan Filter */}
             <Select value={selectedPlanId} onValueChange={setSelectedPlanId}>
-              <SelectTrigger className="w-full sm:w-[250px] h-11 rounded-xl">
+              <SelectTrigger className="w-full sm:w-[220px] h-11 rounded-xl">
                 <div className="flex items-center gap-2 min-w-0 flex-1">
                   <Folder className="w-4 h-4 flex-shrink-0 text-muted-foreground" />
                   <span className="truncate">
