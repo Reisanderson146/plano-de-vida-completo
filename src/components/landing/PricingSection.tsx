@@ -315,56 +315,51 @@ const PricingSection = ({ onCheckout, onLogin, onSignup, loading }: PricingSecti
                 }}
                 className="w-full cursor-grab active:cursor-grabbing"
               >
-                <div className="relative pt-8 md:pt-10 h-full">
+                <div className="relative pt-6 h-full">
+                  {/* Floating Badge - Outside Card for proper visibility */}
+                  <motion.div 
+                    className="absolute -top-0 left-1/2 -translate-x-1/2 z-30"
+                    initial={{ scale: 0, y: -10 }}
+                    animate={{ scale: 1, y: 0 }}
+                    transition={{ delay: 0.3, type: "spring", stiffness: 400 }}
+                  >
+                    <div className="relative">
+                      {currentPlan.recommended && (
+                        <motion.div
+                          className="absolute inset-0 bg-gradient-to-r from-violet-600 to-purple-600 rounded-full blur-md opacity-60"
+                          animate={{ opacity: [0.4, 0.7, 0.4] }}
+                          transition={{ duration: 2, repeat: Infinity }}
+                        />
+                      )}
+                      <div className={cn(
+                        "relative flex items-center gap-1 px-3 py-1 rounded-full text-white font-bold text-[11px] shadow-lg",
+                        currentPlan.color === 'emerald' && "bg-gradient-to-r from-emerald-500 to-teal-500 shadow-emerald-500/30",
+                        currentPlan.color === 'rose' && "bg-gradient-to-r from-rose-500 to-pink-500 shadow-rose-500/30",
+                        currentPlan.color === 'violet' && "bg-gradient-to-r from-violet-600 to-purple-600 shadow-violet-500/30"
+                      )}>
+                        {currentPlan.recommended && <Crown className="w-3 h-3" />}
+                        {!currentPlan.recommended && currentPlan.color === 'emerald' && <Gem className="w-3 h-3" />}
+                        {!currentPlan.recommended && currentPlan.color === 'rose' && <Heart className="w-3 h-3" />}
+                        <span>{currentPlan.badge}</span>
+                      </div>
+                    </div>
+                  </motion.div>
+
                   <Card className={cn(
-                    "relative overflow-hidden border-2 bg-card shadow-xl transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl h-full flex flex-col",
+                    "relative overflow-visible border-2 bg-card shadow-xl transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl h-full flex flex-col mt-3",
                     currentPlan.color === 'emerald' && "border-emerald-500/30",
                     currentPlan.color === 'rose' && "border-rose-500/30",
                     currentPlan.color === 'violet' && "border-violet-500/30"
                   )}>
-                    {/* Top Badge - Inside Card Header */}
-                    <motion.div 
-                      className="absolute -top-4 left-1/2 -translate-x-1/2 z-20"
-                      initial={{ scale: 0, y: -20 }}
-                      animate={{ scale: 1, y: 0 }}
-                      transition={{ delay: 0.3, type: "spring", stiffness: 400 }}
-                    >
-                      <div className="relative">
-                        {currentPlan.recommended && (
-                          <motion.div
-                            className="absolute inset-0 bg-gradient-to-r from-violet-600 to-purple-600 rounded-full blur-md"
-                            animate={{ opacity: [0.5, 1, 0.5] }}
-                            transition={{ duration: 2, repeat: Infinity }}
-                          />
-                        )}
-                        <div className={cn(
-                          "relative flex items-center gap-1.5 px-4 md:px-5 py-1.5 md:py-2 rounded-full text-white font-bold text-xs shadow-xl border border-white/20",
-                          currentPlan.color === 'emerald' && "bg-gradient-to-r from-emerald-500 to-teal-500 shadow-emerald-500/40",
-                          currentPlan.color === 'rose' && "bg-gradient-to-r from-rose-500 to-pink-500 shadow-rose-500/40",
-                          currentPlan.color === 'violet' && "bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 shadow-violet-500/40"
-                        )}>
-                          {currentPlan.recommended && (
-                            <motion.div
-                              animate={{ rotate: [0, 15, -15, 0] }}
-                              transition={{ duration: 2, repeat: Infinity, delay: 1 }}
-                            >
-                              <Crown className="w-3 h-3 md:w-4 md:h-4" />
-                            </motion.div>
-                          )}
-                          {!currentPlan.recommended && currentPlan.color === 'emerald' && <Gem className="w-3 h-3 md:w-4 md:h-4" />}
-                          {!currentPlan.recommended && currentPlan.color === 'rose' && <Heart className="w-3 h-3 md:w-4 md:h-4" />}
-                          <span>{currentPlan.badge}</span>
-                          {currentPlan.recommended && <Sparkles className="w-3 h-3" />}
-                        </div>
-                      </div>
-                    </motion.div>
                     {/* Animated shimmer effect */}
-                    <motion.div
-                      className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -skew-x-12"
-                      initial={{ x: "-200%" }}
-                      animate={{ x: "200%" }}
-                      transition={{ delay: 0.5, duration: 1.2, ease: "easeInOut", repeat: Infinity, repeatDelay: 4 }}
-                    />
+                    <div className="absolute inset-0 overflow-hidden rounded-xl">
+                      <motion.div
+                        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -skew-x-12"
+                        initial={{ x: "-200%" }}
+                        animate={{ x: "200%" }}
+                        transition={{ delay: 0.5, duration: 1.2, ease: "easeInOut", repeat: Infinity, repeatDelay: 4 }}
+                      />
+                    </div>
 
                     <CardHeader className="pb-3 md:pb-4 pt-6 md:pt-8 min-h-[80px] md:min-h-[100px]">
                       <motion.div 
