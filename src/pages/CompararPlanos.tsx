@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Check, X, Crown, Gem, Sparkles, Shield, Target, BarChart3, Download, Bell, History, FileText, Users, Baby, User, Calendar, Eye, BookOpen, ArrowLeft, Zap, Heart, ChevronRight, Home } from 'lucide-react';
+import { Check, X, Crown, Gem, Sparkles, Shield, Target, BarChart3, Download, Bell, History, FileText, Users, Baby, User, Calendar, Eye, BookOpen, ArrowLeft, Zap, Heart, ChevronRight, Home, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
@@ -9,6 +9,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface Feature {
   name: string;
@@ -269,7 +270,40 @@ export default function CompararPlanos() {
           transition={{ duration: 0.5, delay: 0.1 }}
           className="overflow-x-auto"
         >
-          <Card className="overflow-hidden border-2 border-border/50 min-w-[700px]">
+          {/* Badge RECOMENDADO fora do card */}
+          <div className="grid grid-cols-[1fr,130px,130px,130px] md:grid-cols-[1fr,160px,160px,160px] min-w-[700px] mb-2">
+            <div />
+            <div />
+            <div />
+            <motion.div 
+              className="flex justify-center"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.3 }}
+            >
+              <div className="bg-gradient-to-r from-violet-600 to-purple-600 text-white text-[10px] font-bold px-3 py-1.5 rounded-full shadow-lg shadow-violet-500/40 flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5" />
+                RECOMENDADO
+              </div>
+            </motion.div>
+          </div>
+
+          <Card className="overflow-hidden border-2 border-border/50 min-w-[700px] relative">
+            {/* Glow effect for Premium column */}
+            <div className="absolute top-0 right-0 w-[130px] md:w-[160px] h-full pointer-events-none">
+              <motion.div 
+                className="absolute inset-0 bg-gradient-to-b from-violet-500/20 via-purple-500/10 to-violet-500/20 blur-xl"
+                animate={{ 
+                  opacity: [0.5, 0.8, 0.5],
+                }}
+                transition={{ 
+                  duration: 3, 
+                  repeat: Infinity, 
+                  ease: "easeInOut" 
+                }}
+              />
+            </div>
+
             {/* Table Header */}
             <div className="grid grid-cols-[1fr,130px,130px,130px] md:grid-cols-[1fr,160px,160px,160px] bg-muted/50">
               <div className="p-4 md:p-6 border-r border-border">
@@ -311,20 +345,25 @@ export default function CompararPlanos() {
                 </div>
               </div>
               
-              {/* Premium - RECOMENDADO */}
+              {/* Premium */}
               <div className="p-4 md:p-6 text-center bg-gradient-to-br from-violet-500/10 to-purple-500/10 relative ring-2 ring-violet-500/50 ring-inset">
-                {/* Badge Recomendado */}
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-violet-600 to-purple-600 text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-lg shadow-violet-500/30 flex items-center gap-1">
-                  <Sparkles className="w-3 h-3" />
-                  RECOMENDADO
-                </div>
                 <div className="absolute top-2 right-2 bg-gradient-to-r from-violet-600 to-purple-600 text-white text-[8px] md:text-[10px] font-bold px-1.5 py-0.5 rounded-full">
                   7 DIAS GRÁTIS
                 </div>
-                <div className="flex flex-col items-center gap-2 pt-2">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-violet-500/30">
+                <div className="flex flex-col items-center gap-2">
+                  <motion.div 
+                    className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-violet-500/40"
+                    animate={{ 
+                      boxShadow: [
+                        "0 10px 15px -3px rgba(139, 92, 246, 0.4)",
+                        "0 10px 25px -3px rgba(139, 92, 246, 0.6)",
+                        "0 10px 15px -3px rgba(139, 92, 246, 0.4)"
+                      ]
+                    }}
+                    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                  >
                     <Crown className="w-5 h-5 text-white" />
-                  </div>
+                  </motion.div>
                   <div className="flex items-center gap-1">
                     <span className="font-bold text-foreground">Premium</span>
                     <span className="text-[10px] bg-violet-500 text-white px-1.5 py-0.5 rounded-full">
@@ -365,13 +404,25 @@ export default function CompararPlanos() {
                             feature.highlight ? "text-white" : "text-muted-foreground"
                           )} />
                         </div>
-                        <div>
-                          <p className={cn(
-                            "font-medium text-sm",
-                            feature.highlight && "text-violet-700 dark:text-violet-300"
-                          )}>
-                            {feature.name}
-                          </p>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-1.5">
+                            <p className={cn(
+                              "font-medium text-sm",
+                              feature.highlight && "text-violet-700 dark:text-violet-300"
+                            )}>
+                              {feature.name}
+                            </p>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <button className="text-muted-foreground/60 hover:text-muted-foreground transition-colors">
+                                  <Info className="w-3.5 h-3.5" />
+                                </button>
+                              </TooltipTrigger>
+                              <TooltipContent side="top" className="max-w-[200px] text-center">
+                                <p className="text-xs">{feature.description}</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </div>
                           <p className="text-xs text-muted-foreground mt-0.5 hidden md:block">
                             {feature.description}
                           </p>
