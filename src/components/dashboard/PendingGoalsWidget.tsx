@@ -107,6 +107,14 @@ export function PendingGoalsWidget({ selectedPlanId, onGoalCompleted }: PendingG
     }
   };
 
+  const triggerHapticFeedback = () => {
+    // Check if Vibration API is supported
+    if ('vibrate' in navigator) {
+      // Pattern: short buzz, pause, longer buzz for celebration feel
+      navigator.vibrate([50, 30, 100]);
+    }
+  };
+
   const handleCompleteGoal = async (goalId: string, event?: React.MouseEvent) => {
     setCompletingId(goalId);
     
@@ -118,8 +126,9 @@ export function PendingGoalsWidget({ selectedPlanId, onGoalCompleted }: PendingG
 
       if (error) throw error;
 
-      // Play success sound
+      // Play success sound and haptic feedback
       playSuccessSound();
+      triggerHapticFeedback();
 
       // Get the position of the checkbox for targeted confetti
       const rect = event?.currentTarget?.getBoundingClientRect();
