@@ -7,12 +7,12 @@ import { PendingGoalsWidget } from '@/components/dashboard/PendingGoalsWidget';
 import { MonthlyEvolutionChart } from '@/components/dashboard/MonthlyEvolutionChart';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { LIFE_AREAS, LifeArea } from '@/lib/constants';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { Loader2, Target, Folder, User, Users, Baby, Sparkles, Plus } from 'lucide-react';
+import { Loader2, Target, Sparkles, Plus } from 'lucide-react';
+import { PlanSelector, PLAN_TYPE_CONFIG } from '@/components/filters/PlanSelector';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { DateRangeFilter, getYearRangeFromDateRange } from '@/components/filters/DateRangeFilter';
@@ -30,11 +30,7 @@ interface LifePlan {
   member_name: string | null;
 }
 
-const PLAN_TYPE_CONFIG = {
-  individual: { label: 'Individual', icon: User },
-  familiar: { label: 'Familiar', icon: Users },
-  filho: { label: 'Filho(a)', icon: Baby },
-};
+// PLAN_TYPE_CONFIG imported from PlanSelector
 
 const SELECTED_PLAN_STORAGE_KEY = 'selectedPlanId';
 
@@ -217,31 +213,11 @@ export default function Dashboard() {
 
         {/* Filters */}
         <div className="flex flex-col sm:flex-row gap-3 opacity-0 animate-stagger-1">
-          <Select value={selectedPlanId} onValueChange={handlePlanChange}>
-            <SelectTrigger className="w-full sm:w-[220px] h-11 rounded-xl">
-              <div className="flex items-center gap-2 min-w-0 flex-1">
-                <Folder className="w-4 h-4 flex-shrink-0 text-muted-foreground" />
-                <span className="truncate">
-                  <SelectValue placeholder="Selecione um plano" />
-                </span>
-              </div>
-            </SelectTrigger>
-            <SelectContent>
-              {plans.map(plan => {
-                const config = PLAN_TYPE_CONFIG[plan.plan_type as keyof typeof PLAN_TYPE_CONFIG] || PLAN_TYPE_CONFIG.individual;
-                const PlanIcon = config.icon;
-                return (
-                  <SelectItem key={plan.id} value={plan.id}>
-                    <div className="flex items-center gap-2">
-                      <PlanIcon className="w-4 h-4 flex-shrink-0" />
-                      <span className="truncate">{plan.title}</span>
-                      {plan.member_name && <span className="text-muted-foreground truncate">({plan.member_name})</span>}
-                    </div>
-                  </SelectItem>
-                );
-              })}
-            </SelectContent>
-          </Select>
+          <PlanSelector
+            plans={plans}
+            value={selectedPlanId}
+            onChange={handlePlanChange}
+          />
 
           <DateRangeFilter
             value={dateRange}

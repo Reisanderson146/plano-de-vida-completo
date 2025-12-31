@@ -11,8 +11,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { useExportReport } from '@/hooks/useExportReport';
 import { LIFE_AREAS, AREA_HEX_COLORS } from '@/lib/constants';
-import { Loader2, Target, CheckCircle2, AlertTriangle, TrendingDown, Plus, FileText, Folder, User, Users, Baby, Pencil, Trash2, Sparkles, ArrowRightLeft, Filter } from 'lucide-react';
+import { Loader2, Target, CheckCircle2, AlertTriangle, TrendingDown, Plus, FileText, Pencil, Trash2, Sparkles, ArrowRightLeft, Filter } from 'lucide-react';
 import { ExportPdfButton } from '@/components/ui/export-pdf-button';
+import { PlanSelector, PLAN_TYPE_CONFIG } from '@/components/filters/PlanSelector';
 import { AISummary } from '@/components/balance/AISummary';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell, LabelList } from 'recharts';
 import { format, startOfYear, endOfYear } from 'date-fns';
@@ -58,11 +59,7 @@ interface LifePlan {
   notes_count: number;
 }
 
-const PLAN_TYPE_CONFIG = {
-  individual: { label: 'Individual', icon: User },
-  familiar: { label: 'Familiar', icon: Users },
-  filho: { label: 'Filho(a)', icon: Baby },
-};
+// PLAN_TYPE_CONFIG imported from PlanSelector
 
 const getStatusColor = (percentage: number) => {
   if (percentage >= 70) return '#22c55e';
@@ -422,36 +419,12 @@ export default function Balanco() {
           {/* Filters Row */}
           <div className="flex flex-col sm:flex-row gap-3 opacity-0 animate-stagger-1">
             {/* Plan Filter */}
-            <Select value={selectedPlanId} onValueChange={setSelectedPlanId}>
-              <SelectTrigger className="w-full sm:w-[220px] h-11 rounded-xl">
-                <div className="flex items-center gap-2 min-w-0 flex-1">
-                  <Folder className="w-4 h-4 flex-shrink-0 text-muted-foreground" />
-                  <span className="truncate">
-                    <SelectValue placeholder="Selecione um plano" />
-                  </span>
-                </div>
-              </SelectTrigger>
-              <SelectContent>
-                {plans.map(plan => {
-                  const config = PLAN_TYPE_CONFIG[plan.plan_type as keyof typeof PLAN_TYPE_CONFIG] || PLAN_TYPE_CONFIG.individual;
-                  const PlanIcon = config.icon;
-                  return (
-                    <SelectItem key={plan.id} value={plan.id}>
-                      <div className="flex items-center gap-2">
-                        <PlanIcon className="w-4 h-4 flex-shrink-0" />
-                        <span className="truncate">{plan.title}</span>
-                        {plan.member_name && <span className="text-muted-foreground truncate">({plan.member_name})</span>}
-                        {plan.notes_count > 0 && (
-                          <Badge variant="secondary" className="ml-1 text-xs px-1.5 py-0 flex-shrink-0">
-                            {plan.notes_count}
-                          </Badge>
-                        )}
-                      </div>
-                    </SelectItem>
-                  );
-                })}
-              </SelectContent>
-            </Select>
+            <PlanSelector
+              plans={plans}
+              value={selectedPlanId}
+              onChange={setSelectedPlanId}
+              showNotesCount
+            />
 
             {/* Date Range Filter */}
             <DateRangeFilter
