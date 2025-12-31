@@ -336,96 +336,102 @@ export default function Conta() {
     const PlanIcon = isBasic ? Gem : isFamiliar ? HeartHandshake : Crown;
 
     return (
-      <Card className={cn(
-        "relative overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-xl h-full flex flex-col",
-        isCurrent && `border-2 ${colors.border} shadow-lg ${colors.shadow} ring-1 ${colors.ring}`,
-        !isCurrent && !isPremium && `border-border/50 ${colors.hoverBorder} ${colors.hoverShadow}`,
-        !isCurrent && isPremium && `border-2 border-violet-500/30 ${colors.hoverBorder} ${colors.hoverShadow}`
-      )}>
-        {/* Recommended Badge for Premium */}
-        {isPremium && !isCurrent && (
-          <div className="absolute top-3 right-3 z-10">
-            <Badge className="bg-gradient-to-r from-violet-600 to-purple-600 text-white border-0 shadow-lg">
-              <Crown className="w-3 h-3 mr-1" />
-              Completo
+      <div className="relative pt-8">
+        {/* Top Badge - Above Card */}
+        <div className="absolute -top-0 left-1/2 -translate-x-1/2 z-20">
+          {isBasic && (
+            <Badge className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white border-0 shadow-lg px-4 py-1">
+              <Gem className="w-3 h-3 mr-1" />
+              Essencial
             </Badge>
-          </div>
-        )}
-
-        {/* Popular Badge for Familiar */}
-        {isFamiliar && !isCurrent && (
-          <div className="absolute top-3 right-3 z-10">
-            <Badge className="bg-gradient-to-r from-rose-500 to-pink-500 text-white border-0 shadow-lg">
+          )}
+          {isFamiliar && (
+            <Badge className="bg-gradient-to-r from-rose-500 to-pink-500 text-white border-0 shadow-lg px-4 py-1">
               <Heart className="w-3 h-3 mr-1" />
               Popular
             </Badge>
-          </div>
-        )}
-        
-        <CardHeader className="pb-4 pt-6">
-          <div className="flex items-center gap-3">
-            <div className={cn(
-              "w-12 h-12 rounded-2xl flex items-center justify-center",
-              `bg-gradient-to-br ${colors.gradient}`
-            )}>
-              <PlanIcon className={cn("w-6 h-6", colors.iconColor)} />
+          )}
+          {isPremium && (
+            <Badge className="bg-gradient-to-r from-violet-600 to-purple-600 text-white border-0 shadow-lg px-4 py-1">
+              <Crown className="w-3 h-3 mr-1" />
+              Completo
+            </Badge>
+          )}
+        </div>
+
+        <Card className={cn(
+          "relative overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-xl h-full flex flex-col",
+          isBasic && "border-2 border-emerald-500/30",
+          isFamiliar && "border-2 border-rose-500/30",
+          isPremium && "border-2 border-violet-500/30",
+          isCurrent && `shadow-lg ${colors.shadow} ring-1 ${colors.ring}`
+        )}>
+          {isCurrent && (
+            <div className="absolute top-3 right-3 z-10">
+              <Badge variant="outline" className={cn(
+                "text-xs",
+                isBasic && "border-primary/50 text-primary bg-primary/10",
+                isFamiliar && "border-rose-500/50 text-rose-600 bg-rose-500/10",
+                isPremium && "border-violet-500/50 text-violet-600 bg-violet-500/10"
+              )}>
+                Atual
+              </Badge>
             </div>
-            <div className="flex-1">
-              <div className="flex items-center gap-2">
+          )}
+          
+          <CardHeader className="pb-4 pt-6">
+            <div className="flex items-center gap-3">
+              <div className={cn(
+                "w-12 h-12 rounded-2xl flex items-center justify-center",
+                `bg-gradient-to-br ${colors.gradient}`
+              )}>
+                <PlanIcon className={cn("w-6 h-6", colors.iconColor)} />
+              </div>
+              <div className="flex-1">
                 <h2 className={cn(
                   "text-xl font-bold",
-                  (isFamiliar || isPremium) && `bg-gradient-to-r ${isFamiliar ? 'from-rose-600 to-pink-600' : 'from-violet-600 to-purple-600'} bg-clip-text text-transparent`
+                  isBasic && "text-foreground",
+                  isFamiliar && "bg-gradient-to-r from-rose-600 to-pink-600 bg-clip-text text-transparent",
+                  isPremium && "bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent"
                 )}>
                   Plano {planName}
                 </h2>
-                {isCurrent && (
-                  <Badge variant="outline" className={cn(
-                    "text-xs",
-                    isBasic && "border-primary/50 text-primary",
-                    isFamiliar && "border-rose-500/50 text-rose-600",
-                    isPremium && "border-violet-500/50 text-violet-600"
-                  )}>
-                    Atual
-                  </Badge>
-                )}
+                <p className="text-sm text-muted-foreground">{subtitle}</p>
               </div>
-              <p className="text-sm text-muted-foreground">{subtitle}</p>
             </div>
-          </div>
-        </CardHeader>
+          </CardHeader>
 
-        <CardContent className="flex flex-col flex-1 space-y-6">
-          {/* Price with Trial Badge */}
-          <div className={cn("text-center py-4 rounded-xl relative overflow-hidden", colors.bgGradient)}>
-            {/* Trial Badge */}
-            <div className={cn("absolute top-0 right-0 text-white text-[10px] font-bold px-2 py-0.5 rounded-bl-lg", colors.trialBg)}>
-              7 DIAS GRÁTIS
-            </div>
-            
-            <div className="flex items-baseline justify-center gap-1">
-              <span className={cn(
-                "text-3xl font-bold",
-                isBasic && "text-foreground",
-                isFamiliar && "bg-gradient-to-r from-rose-600 to-pink-600 bg-clip-text text-transparent",
-                isPremium && "bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent"
-              )}>
-                R$ {price}
-              </span>
-              <span className="text-sm text-muted-foreground">/mês</span>
-            </div>
-            <p className={cn("text-xs font-medium mt-1", colors.iconColor)}>
-              Teste grátis, cancele quando quiser
-            </p>
-            {!isBasic && (
+          <CardContent className="flex flex-col flex-1 space-y-6">
+            {/* Price with Trial Badge */}
+            <div className={cn("text-center py-5 rounded-xl relative overflow-hidden min-h-[120px] flex flex-col justify-center", colors.bgGradient)}>
+              {/* Trial Badge */}
+              <div className={cn("absolute top-0 right-0 text-white text-[10px] font-bold px-2 py-0.5 rounded-bl-lg", colors.trialBg)}>
+                7 DIAS GRÁTIS
+              </div>
+              
+              <div className="flex items-baseline justify-center gap-1">
+                <span className={cn(
+                  "text-3xl font-bold",
+                  isBasic && "text-foreground",
+                  isFamiliar && "bg-gradient-to-r from-rose-600 to-pink-600 bg-clip-text text-transparent",
+                  isPremium && "bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent"
+                )}>
+                  R$ {price}
+                </span>
+                <span className="text-sm text-muted-foreground">/mês</span>
+              </div>
+              <p className={cn("text-xs font-medium mt-1", colors.iconColor)}>
+                Teste grátis, cancele quando quiser
+              </p>
               <div className={cn(
-                "mt-2 inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-0.5 rounded-full",
+                "mt-2 inline-flex items-center justify-center gap-1 text-xs font-semibold px-2.5 py-0.5 rounded-full mx-auto",
+                isBasic ? "bg-emerald-500/20 text-emerald-600" :
                 isFamiliar ? "bg-rose-500/20 text-rose-600" : "bg-violet-500/20 text-violet-600"
               )}>
                 <Zap className="w-3 h-3" />
-                {plansIncluded} planos incluídos
+                {plansIncluded} {plansIncluded === 1 ? 'plano incluído' : 'planos incluídos'}
               </div>
-            )}
-          </div>
+            </div>
 
           {/* Benefits */}
           <div className="space-y-2 flex-1">
@@ -511,6 +517,7 @@ export default function Conta() {
           )}
         </CardContent>
       </Card>
+      </div>
     );
   };
 
