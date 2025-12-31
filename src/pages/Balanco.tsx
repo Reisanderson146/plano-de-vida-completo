@@ -21,6 +21,7 @@ import { ptBR } from 'date-fns/locale';
 import { Badge } from '@/components/ui/badge';
 import { DateRangeFilter, getYearRangeFromDateRange } from '@/components/filters/DateRangeFilter';
 import { DateRange } from 'react-day-picker';
+import { AnimatedContent } from '@/components/ui/animated-content';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -458,381 +459,384 @@ export default function Balanco() {
           )}
         </div>
 
-        {/* Summary Cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 opacity-0 animate-stagger-2">
+        {/* Animated content that changes with plan selection */}
+        <AnimatedContent contentKey={`${selectedPlanId}-${dateRange?.from?.getTime()}-${dateRange?.to?.getTime()}`} className="space-y-6">
+          {/* Summary Cards */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+              <CardContent className="p-4 sm:p-6">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 sm:p-3 rounded-xl bg-primary/10">
+                    <Target className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Total de Metas</p>
+                    <p className="text-xl sm:text-2xl font-bold">{totalGoals}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+              <CardContent className="p-4 sm:p-6">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 sm:p-3 rounded-xl bg-green-500/10">
+                    <CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6 text-green-500" />
+                  </div>
+                  <div>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Concluídas</p>
+                    <p className="text-xl sm:text-2xl font-bold">{completedGoals}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+              <CardContent className="p-4 sm:p-6">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 sm:p-3 rounded-xl bg-green-500/10">
+                    <CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6 text-green-500" />
+                  </div>
+                  <div>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Áreas Boas</p>
+                    <p className="text-xl sm:text-2xl font-bold text-green-500">{goodAreas}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+              <CardContent className="p-4 sm:p-6">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 sm:p-3 rounded-xl bg-red-500/10">
+                    <TrendingDown className="w-5 h-5 sm:w-6 sm:h-6 text-red-500" />
+                  </div>
+                  <div>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Precisam Melhorar</p>
+                    <p className="text-xl sm:text-2xl font-bold text-red-500">{needsImprovementAreas}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Analysis Chart */}
           <Card className="bg-card/50 backdrop-blur-sm border-border/50">
-            <CardContent className="p-4 sm:p-6">
-              <div className="flex items-center gap-3">
-                <div className="p-2 sm:p-3 rounded-xl bg-primary/10">
-                  <Target className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
-                </div>
-                <div>
-                  <p className="text-xs sm:text-sm text-muted-foreground">Total de Metas</p>
-                  <p className="text-xl sm:text-2xl font-bold">{totalGoals}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-card/50 backdrop-blur-sm border-border/50">
-            <CardContent className="p-4 sm:p-6">
-              <div className="flex items-center gap-3">
-                <div className="p-2 sm:p-3 rounded-xl bg-green-500/10">
-                  <CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6 text-green-500" />
-                </div>
-                <div>
-                  <p className="text-xs sm:text-sm text-muted-foreground">Concluídas</p>
-                  <p className="text-xl sm:text-2xl font-bold">{completedGoals}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-card/50 backdrop-blur-sm border-border/50">
-            <CardContent className="p-4 sm:p-6">
-              <div className="flex items-center gap-3">
-                <div className="p-2 sm:p-3 rounded-xl bg-green-500/10">
-                  <CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6 text-green-500" />
-                </div>
-                <div>
-                  <p className="text-xs sm:text-sm text-muted-foreground">Áreas Boas</p>
-                  <p className="text-xl sm:text-2xl font-bold text-green-500">{goodAreas}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-card/50 backdrop-blur-sm border-border/50">
-            <CardContent className="p-4 sm:p-6">
-              <div className="flex items-center gap-3">
-                <div className="p-2 sm:p-3 rounded-xl bg-red-500/10">
-                  <TrendingDown className="w-5 h-5 sm:w-6 sm:h-6 text-red-500" />
-                </div>
-                <div>
-                  <p className="text-xs sm:text-sm text-muted-foreground">Precisam Melhorar</p>
-                  <p className="text-xl sm:text-2xl font-bold text-red-500">{needsImprovementAreas}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Analysis Chart */}
-        <Card className="bg-card/50 backdrop-blur-sm border-border/50">
-          <CardHeader>
-            <CardTitle className="text-lg sm:text-xl flex items-center gap-2">
-              <Target className="w-5 h-5 text-primary" />
-              Análise por Área
-              <Badge variant="outline" className="ml-auto font-normal">
-                {getDateRangeLabel(dateRange)}
-              </Badge>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <div className="h-[350px] flex items-center justify-center">
-                <Loader2 className="w-8 h-8 animate-spin text-primary" />
-              </div>
-            ) : totalGoals === 0 ? (
-              <div className="text-center py-12 text-muted-foreground">
-                <Target className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                <p>Nenhuma meta encontrada para o período selecionado.</p>
-                <p className="text-sm mt-1">Tente selecionar outro período ou adicione metas ao seu plano.</p>
-              </div>
-            ) : (
-              <div className="h-[350px] sm:h-[400px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
-                    data={chartData}
-                    layout="vertical"
-                    margin={{ top: 5, right: 60, left: 80, bottom: 5 }}
-                  >
-                    <XAxis type="number" domain={[0, 100]} tickFormatter={(v) => `${v}%`} />
-                    <YAxis type="category" dataKey="name" width={75} tick={{ fontSize: 12 }} />
-                    <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={28}>
-                      {chartData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.fill} />
-                      ))}
-                      <LabelList
-                        dataKey="value"
-                        position="right"
-                        formatter={(value: number) => `${value}%`}
-                        style={{ fontSize: 12, fontWeight: 500 }}
-                      />
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            )}
-
-            {/* Legend */}
-            <div className="flex flex-wrap justify-center gap-4 mt-4 pt-4 border-t border-border/50">
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-green-500" />
-                <span className="text-xs text-muted-foreground">≥70% Bom</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-yellow-500" />
-                <span className="text-xs text-muted-foreground">40-69% Atenção</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-red-500" />
-                <span className="text-xs text-muted-foreground">&lt;40% Melhorar</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* AI Summary */}
-        <AISummary
-          stats={stats}
-          totalGoals={totalGoals}
-          completedGoals={completedGoals}
-          planTitle={selectedPlan?.title || 'Plano de Vida'}
-          planId={selectedPlanId}
-          period={getDateRangeLabel(dateRange)}
-          subscriptionTier={subscriptionTier}
-          isAdmin={isAdmin}
-          onNoteSaved={loadData}
-        />
-
-        {/* Areas Needing Attention */}
-        {areasNeedingAttention.length > 0 && (
-          <Card className="bg-destructive/5 border-destructive/20">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg flex items-center gap-2.5 text-destructive">
-                <div className="w-9 h-9 rounded-xl bg-destructive/10 flex items-center justify-center">
-                  <AlertTriangle className="w-5 h-5" />
-                </div>
-                Áreas que Precisam de Atenção
+            <CardHeader>
+              <CardTitle className="text-lg sm:text-xl flex items-center gap-2">
+                <Target className="w-5 h-5 text-primary" />
+                Análise por Área
+                <Badge variant="outline" className="ml-auto font-normal">
+                  {getDateRangeLabel(dateRange)}
+                </Badge>
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <ul className="space-y-2">
-                {areasNeedingAttention.map(area => (
-                  <li key={area.area} className="flex items-center justify-between p-4 rounded-xl bg-background/60 border border-border/30 hover:bg-background/80 transition-colors">
-                    <div className="flex items-center gap-3">
-                      <div 
-                        className="w-3.5 h-3.5 rounded-full" 
-                        style={{ backgroundColor: AREA_HEX_COLORS[area.area] }}
-                      />
-                      <span className="font-medium text-foreground">{area.label}</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="w-20 h-2 bg-muted rounded-full overflow-hidden">
-                        <div 
-                          className="h-full bg-destructive/70 rounded-full transition-all" 
-                          style={{ width: `${area.percentage}%` }}
+              {loading ? (
+                <div className="h-[350px] flex items-center justify-center">
+                  <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                </div>
+              ) : totalGoals === 0 ? (
+                <div className="text-center py-12 text-muted-foreground">
+                  <Target className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                  <p>Nenhuma meta encontrada para o período selecionado.</p>
+                  <p className="text-sm mt-1">Tente selecionar outro período ou adicione metas ao seu plano.</p>
+                </div>
+              ) : (
+                <div className="h-[350px] sm:h-[400px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      data={chartData}
+                      layout="vertical"
+                      margin={{ top: 5, right: 60, left: 80, bottom: 5 }}
+                    >
+                      <XAxis type="number" domain={[0, 100]} tickFormatter={(v) => `${v}%`} />
+                      <YAxis type="category" dataKey="name" width={75} tick={{ fontSize: 12 }} />
+                      <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={28}>
+                        {chartData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.fill} />
+                        ))}
+                        <LabelList
+                          dataKey="value"
+                          position="right"
+                          formatter={(value: number) => `${value}%`}
+                          style={{ fontSize: 12, fontWeight: 500 }}
                         />
-                      </div>
-                      <span className="text-sm text-muted-foreground font-medium">
-                        {area.percentage}%
-                      </span>
-                    </div>
-                  </li>
-                ))}
-              </ul>
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              )}
+
+              {/* Legend */}
+              <div className="flex flex-wrap justify-center gap-4 mt-4 pt-4 border-t border-border/50">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-green-500" />
+                  <span className="text-xs text-muted-foreground">≥70% Bom</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-yellow-500" />
+                  <span className="text-xs text-muted-foreground">40-69% Atenção</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-red-500" />
+                  <span className="text-xs text-muted-foreground">&lt;40% Melhorar</span>
+                </div>
+              </div>
             </CardContent>
           </Card>
-        )}
 
-        {/* Balance Notes Section */}
-        <Card className="border-border/40">
-          <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3">
-            <CardTitle className="text-lg flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
-                <FileText className="w-5 h-5 text-primary" />
-              </div>
-              Anotações do Balanço
-              {balanceNotes.length > 0 && (
-                <Badge variant="secondary" className="ml-1">{balanceNotes.length}</Badge>
-              )}
-            </CardTitle>
-            <div className="flex items-center gap-2">
-              {/* Filter by type */}
-              <Select value={noteFilter} onValueChange={(v: NoteFilter) => setNoteFilter(v)}>
-                <SelectTrigger className="w-[140px] h-9 rounded-xl">
-                  <Filter className="w-4 h-4 mr-2" />
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todas</SelectItem>
-                  <SelectItem value="manual">
-                    <div className="flex items-center gap-2">
-                      <Pencil className="w-3 h-3" />
-                      Manuais
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="ai">
-                    <div className="flex items-center gap-2">
-                      <Sparkles className="w-3 h-3" />
-                      Geradas por IA
-                    </div>
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-              {!showNoteForm && (
-                <Button size="sm" onClick={() => setShowNoteForm(true)} className="rounded-xl h-9">
-                  <Plus className="w-4 h-4 mr-1.5" />
-                  Nova
-                </Button>
-              )}
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {/* New Note Form */}
-            {showNoteForm && (
-              <div className="p-5 rounded-2xl border border-border/50 bg-muted/30 space-y-4">
-                <Input
-                  placeholder="Título da reflexão (opcional)"
-                  value={newNoteTitle}
-                  onChange={(e) => setNewNoteTitle(e.target.value)}
-                  className="h-11 rounded-xl"
-                />
-                <Textarea
-                  placeholder="Escreva suas reflexões sobre o período..."
-                  value={newNoteContent}
-                  onChange={(e) => setNewNoteContent(e.target.value)}
-                  rows={4}
-                  className="rounded-xl resize-none"
-                />
-                <div className="flex gap-2 justify-end">
-                  <Button variant="outline" size="sm" onClick={handleCancelEdit} className="rounded-xl">
-                    Cancelar
-                  </Button>
-                  <Button 
-                    size="sm" 
-                    onClick={saveBalanceNote} 
-                    disabled={!newNoteContent.trim() || savingNote}
-                    className="rounded-xl"
-                  >
-                    {savingNote && <Loader2 className="w-4 h-4 mr-1.5 animate-spin" />}
-                    {editingNote ? 'Atualizar' : 'Salvar'}
-                  </Button>
-                </div>
-              </div>
-            )}
+          {/* AI Summary */}
+          <AISummary
+            stats={stats}
+            totalGoals={totalGoals}
+            completedGoals={completedGoals}
+            planTitle={selectedPlan?.title || 'Plano de Vida'}
+            planId={selectedPlanId}
+            period={getDateRangeLabel(dateRange)}
+            subscriptionTier={subscriptionTier}
+            isAdmin={isAdmin}
+            onNoteSaved={loadData}
+          />
 
-            {/* Notes List */}
-            {filteredNotes.length === 0 ? (
-              <div className="text-center py-10 text-muted-foreground">
-                <div className="w-14 h-14 rounded-2xl bg-muted/50 flex items-center justify-center mx-auto mb-4">
-                  <FileText className="w-7 h-7 opacity-50" />
-                </div>
-                <p className="font-medium">
-                  {balanceNotes.length === 0 ? 'Nenhuma anotação ainda' : 'Nenhuma anotação com este filtro'}
-                </p>
-                <p className="text-sm mt-1">
-                  {balanceNotes.length === 0 ? 'Registre suas reflexões sobre o período.' : 'Tente selecionar outro tipo de anotação.'}
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {filteredNotes.map(note => (
-                  <div key={note.id} className="p-4 rounded-xl border border-border/40 bg-background/60 hover:bg-background/80 transition-colors">
-                    <div className="flex items-start justify-between gap-2 mb-2">
-                      <div className="flex items-center gap-2 flex-1">
-                        {note.is_ai && (
-                          <Badge variant="secondary" className="text-xs px-1.5 py-0 gap-1">
-                            <Sparkles className="w-3 h-3" />
-                            IA
-                          </Badge>
-                        )}
-                        <h4 className="font-medium text-sm text-foreground">{note.title.replace(/^\[Balanço [^\]]+\] /, '')}</h4>
+          {/* Areas Needing Attention */}
+          {areasNeedingAttention.length > 0 && (
+            <Card className="bg-destructive/5 border-destructive/20">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg flex items-center gap-2.5 text-destructive">
+                  <div className="w-9 h-9 rounded-xl bg-destructive/10 flex items-center justify-center">
+                    <AlertTriangle className="w-5 h-5" />
+                  </div>
+                  Áreas que Precisam de Atenção
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2">
+                  {areasNeedingAttention.map(area => (
+                    <li key={area.area} className="flex items-center justify-between p-4 rounded-xl bg-background/60 border border-border/30 hover:bg-background/80 transition-colors">
+                      <div className="flex items-center gap-3">
+                        <div 
+                          className="w-3.5 h-3.5 rounded-full" 
+                          style={{ backgroundColor: AREA_HEX_COLORS[area.area] }}
+                        />
+                        <span className="font-medium text-foreground">{area.label}</span>
                       </div>
-                      <div className="flex items-center gap-1">
-                        <span className="text-xs text-muted-foreground whitespace-nowrap">
-                          {format(new Date(note.created_at), "dd/MM/yyyy", { locale: ptBR })}
+                      <div className="flex items-center gap-3">
+                        <div className="w-20 h-2 bg-muted rounded-full overflow-hidden">
+                          <div 
+                            className="h-full bg-destructive/70 rounded-full transition-all" 
+                            style={{ width: `${area.percentage}%` }}
+                          />
+                        </div>
+                        <span className="text-sm text-muted-foreground font-medium">
+                          {area.percentage}%
                         </span>
-                        
-                        {/* Move to another plan */}
-                        {plans.length > 1 && (
-                          <AlertDialog open={movingNoteId === note.id} onOpenChange={(open) => !open && setMovingNoteId(null)}>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Balance Notes Section */}
+          <Card className="border-border/40">
+            <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3">
+              <CardTitle className="text-lg flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
+                  <FileText className="w-5 h-5 text-primary" />
+                </div>
+                Anotações do Balanço
+                {balanceNotes.length > 0 && (
+                  <Badge variant="secondary" className="ml-1">{balanceNotes.length}</Badge>
+                )}
+              </CardTitle>
+              <div className="flex items-center gap-2">
+                {/* Filter by type */}
+                <Select value={noteFilter} onValueChange={(v: NoteFilter) => setNoteFilter(v)}>
+                  <SelectTrigger className="w-[140px] h-9 rounded-xl">
+                    <Filter className="w-4 h-4 mr-2" />
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todas</SelectItem>
+                    <SelectItem value="manual">
+                      <div className="flex items-center gap-2">
+                        <Pencil className="w-3 h-3" />
+                        Manuais
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="ai">
+                      <div className="flex items-center gap-2">
+                        <Sparkles className="w-3 h-3" />
+                        Geradas por IA
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+                {!showNoteForm && (
+                  <Button size="sm" onClick={() => setShowNoteForm(true)} className="rounded-xl h-9">
+                    <Plus className="w-4 h-4 mr-1.5" />
+                    Nova
+                  </Button>
+                )}
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* New Note Form */}
+              {showNoteForm && (
+                <div className="p-5 rounded-2xl border border-border/50 bg-muted/30 space-y-4">
+                  <Input
+                    placeholder="Título da reflexão (opcional)"
+                    value={newNoteTitle}
+                    onChange={(e) => setNewNoteTitle(e.target.value)}
+                    className="h-11 rounded-xl"
+                  />
+                  <Textarea
+                    placeholder="Escreva suas reflexões sobre o período..."
+                    value={newNoteContent}
+                    onChange={(e) => setNewNoteContent(e.target.value)}
+                    rows={4}
+                    className="rounded-xl resize-none"
+                  />
+                  <div className="flex gap-2 justify-end">
+                    <Button variant="outline" size="sm" onClick={handleCancelEdit} className="rounded-xl">
+                      Cancelar
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      onClick={saveBalanceNote} 
+                      disabled={!newNoteContent.trim() || savingNote}
+                      className="rounded-xl"
+                    >
+                      {savingNote && <Loader2 className="w-4 h-4 mr-1.5 animate-spin" />}
+                      {editingNote ? 'Atualizar' : 'Salvar'}
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {/* Notes List */}
+              {filteredNotes.length === 0 ? (
+                <div className="text-center py-10 text-muted-foreground">
+                  <div className="w-14 h-14 rounded-2xl bg-muted/50 flex items-center justify-center mx-auto mb-4">
+                    <FileText className="w-7 h-7 opacity-50" />
+                  </div>
+                  <p className="font-medium">
+                    {balanceNotes.length === 0 ? 'Nenhuma anotação ainda' : 'Nenhuma anotação com este filtro'}
+                  </p>
+                  <p className="text-sm mt-1">
+                    {balanceNotes.length === 0 ? 'Registre suas reflexões sobre o período.' : 'Tente selecionar outro tipo de anotação.'}
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {filteredNotes.map(note => (
+                    <div key={note.id} className="p-4 rounded-xl border border-border/40 bg-background/60 hover:bg-background/80 transition-colors">
+                      <div className="flex items-start justify-between gap-2 mb-2">
+                        <div className="flex items-center gap-2 flex-1">
+                          {note.is_ai && (
+                            <Badge variant="secondary" className="text-xs px-1.5 py-0 gap-1">
+                              <Sparkles className="w-3 h-3" />
+                              IA
+                            </Badge>
+                          )}
+                          <h4 className="font-medium text-sm text-foreground">{note.title.replace(/^\[Balanço [^\]]+\] /, '')}</h4>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <span className="text-xs text-muted-foreground whitespace-nowrap">
+                            {format(new Date(note.created_at), "dd/MM/yyyy", { locale: ptBR })}
+                          </span>
+                          
+                          {/* Move to another plan */}
+                          {plans.length > 1 && (
+                            <AlertDialog open={movingNoteId === note.id} onOpenChange={(open) => !open && setMovingNoteId(null)}>
+                              <AlertDialogTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8 rounded-lg"
+                                  onClick={() => setMovingNoteId(note.id)}
+                                  title="Mover para outro plano"
+                                >
+                                  <ArrowRightLeft className="w-3.5 h-3.5" />
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent className="rounded-2xl">
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Mover anotação</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Selecione o plano de destino para esta anotação.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <div className="py-4 space-y-2">
+                                  {plans.filter(p => p.id !== selectedPlanId).map(plan => {
+                                    const config = PLAN_TYPE_CONFIG[plan.plan_type as keyof typeof PLAN_TYPE_CONFIG] || PLAN_TYPE_CONFIG.individual;
+                                    const PlanIcon = config.icon;
+                                    return (
+                                      <Button
+                                        key={plan.id}
+                                        variant="outline"
+                                        className="w-full justify-start gap-2 rounded-xl"
+                                        onClick={() => handleMoveNote(note.id, plan.id)}
+                                      >
+                                        <PlanIcon className="w-4 h-4" />
+                                        {plan.title}
+                                        {plan.member_name && <span className="text-muted-foreground">({plan.member_name})</span>}
+                                      </Button>
+                                    );
+                                  })}
+                                </div>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel className="rounded-xl">Cancelar</AlertDialogCancel>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          )}
+
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 rounded-lg"
+                            onClick={() => handleEditNote(note)}
+                          >
+                            <Pencil className="w-3.5 h-3.5" />
+                          </Button>
+                          <AlertDialog>
                             <AlertDialogTrigger asChild>
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                className="h-8 w-8 rounded-lg"
-                                onClick={() => setMovingNoteId(note.id)}
-                                title="Mover para outro plano"
+                                className="h-8 w-8 rounded-lg text-destructive hover:text-destructive"
                               >
-                                <ArrowRightLeft className="w-3.5 h-3.5" />
+                                <Trash2 className="w-3.5 h-3.5" />
                               </Button>
                             </AlertDialogTrigger>
                             <AlertDialogContent className="rounded-2xl">
                               <AlertDialogHeader>
-                                <AlertDialogTitle>Mover anotação</AlertDialogTitle>
+                                <AlertDialogTitle>Excluir anotação?</AlertDialogTitle>
                                 <AlertDialogDescription>
-                                  Selecione o plano de destino para esta anotação.
+                                  Esta ação não pode ser desfeita. A anotação será excluída permanentemente.
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
-                              <div className="py-4 space-y-2">
-                                {plans.filter(p => p.id !== selectedPlanId).map(plan => {
-                                  const config = PLAN_TYPE_CONFIG[plan.plan_type as keyof typeof PLAN_TYPE_CONFIG] || PLAN_TYPE_CONFIG.individual;
-                                  const PlanIcon = config.icon;
-                                  return (
-                                    <Button
-                                      key={plan.id}
-                                      variant="outline"
-                                      className="w-full justify-start gap-2 rounded-xl"
-                                      onClick={() => handleMoveNote(note.id, plan.id)}
-                                    >
-                                      <PlanIcon className="w-4 h-4" />
-                                      {plan.title}
-                                      {plan.member_name && <span className="text-muted-foreground">({plan.member_name})</span>}
-                                    </Button>
-                                  );
-                                })}
-                              </div>
-                              <AlertDialogFooter>
+                              <AlertDialogFooter className="gap-2">
                                 <AlertDialogCancel className="rounded-xl">Cancelar</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => handleDeleteNote(note.id)} className="rounded-xl">
+                                  Excluir
+                                </AlertDialogAction>
                               </AlertDialogFooter>
                             </AlertDialogContent>
                           </AlertDialog>
-                        )}
-
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 rounded-lg"
-                          onClick={() => handleEditNote(note)}
-                        >
-                          <Pencil className="w-3.5 h-3.5" />
-                        </Button>
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 rounded-lg text-destructive hover:text-destructive"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent className="rounded-2xl">
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Excluir anotação?</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                Esta ação não pode ser desfeita. A anotação será excluída permanentemente.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter className="gap-2">
-                              <AlertDialogCancel className="rounded-xl">Cancelar</AlertDialogCancel>
-                              <AlertDialogAction onClick={() => handleDeleteNote(note.id)} className="rounded-xl">
-                                Excluir
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
+                        </div>
                       </div>
+                      <p className="text-sm text-muted-foreground leading-relaxed">{note.content}</p>
                     </div>
-                    <p className="text-sm text-muted-foreground leading-relaxed">{note.content}</p>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </AnimatedContent>
       </div>
     </AppLayout>
   );
