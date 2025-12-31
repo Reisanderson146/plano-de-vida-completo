@@ -289,7 +289,7 @@ const PricingSection = ({ onCheckout, onLogin, onSignup, loading }: PricingSecti
         {/* Carousel Plans with Animation */}
         <div className="mb-8 max-w-md mx-auto relative">
           {/* Animated Card Container with Swipe Support */}
-          <div className="overflow-hidden min-h-[580px] relative touch-pan-y">
+          <div className="overflow-hidden min-h-[620px] relative touch-pan-y">
             <AnimatePresence initial={false} custom={direction} mode="wait">
               <motion.div
                 key={selectedIndex}
@@ -455,7 +455,7 @@ const PricingSection = ({ onCheckout, onLogin, onSignup, loading }: PricingSecti
                       </p>
                     </CardHeader>
 
-                    <CardContent className="space-y-2.5 pb-6 px-5">
+                    <CardContent className="space-y-2.5 pb-6 px-5 min-h-[320px] flex flex-col">
                       {/* Benefits divider */}
                       <div className={cn(
                         "h-px w-full mb-4",
@@ -496,7 +496,7 @@ const PricingSection = ({ onCheckout, onLogin, onSignup, loading }: PricingSecti
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.6 }}
-                        className="pt-4"
+                        className="pt-4 mt-auto"
                       >
                         <Button
                           onClick={() => onCheckout(currentPlan.id)}
