@@ -74,8 +74,7 @@ const allBenefits: Benefit[] = [
   { text: "Exportação em PDF", icon: Download, includedIn: ['basic', 'familiar', 'premium'] },
   { text: "Visão por períodos de vida", icon: Calendar, includedIn: ['basic', 'familiar', 'premium'] },
   { text: "Histórico de metas concluídas", icon: History, includedIn: ['basic', 'familiar', 'premium'] },
-  { text: "Lembretes por email", icon: Bell, includedIn: ['familiar', 'premium'] },
-  { text: "Email de aniversário de casamento", icon: Heart, includedIn: ['familiar', 'premium'] },
+  { text: "Notificações personalizadas", icon: Bell, includedIn: ['familiar', 'premium'] },
 ];
 
 const plans = [
@@ -112,7 +111,7 @@ const plans = [
     icon: Crown,
     color: 'violet',
     recommended: true,
-    tagline: 'Planejamento completo para todos',
+    tagline: 'Para você e toda a família',
     badge: 'Completo',
   },
 ];

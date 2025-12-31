@@ -81,7 +81,7 @@ const familiarBenefits: PlanBenefit[] = [
   { icon: Target, text: 'Planejamento das 7 áreas', included: true },
   { icon: Shield, text: 'Dados seguros na nuvem', included: true },
   { icon: Zap, text: 'Exportação em PDF', included: true },
-  { icon: HeartHandshake, text: 'Email aniversário casamento', included: true },
+  { icon: Bell, text: 'Notificações personalizadas', included: true },
   { icon: Sparkles, text: 'Resumo com IA', included: true },
 ];
 
@@ -91,7 +91,7 @@ const premiumBenefits: PlanBenefit[] = [
   { icon: Target, text: 'Planejamento das 7 áreas', included: true },
   { icon: Shield, text: 'Dados seguros na nuvem', included: true },
   { icon: Zap, text: 'Exportação em PDF', included: true },
-  { icon: HeartHandshake, text: 'Email aniversário casamento', included: true },
+  { icon: Bell, text: 'Notificações personalizadas', included: true },
   { icon: Sparkles, text: 'Resumo com IA', included: true, highlight: true },
 ];
 
@@ -283,7 +283,7 @@ export default function Conta() {
     const benefits = isBasic ? basicBenefits : isFamiliar ? familiarBenefits : premiumBenefits;
     const price = isBasic ? '9,99' : isFamiliar ? '15,90' : '29,99';
     const planName = isBasic ? 'Basic' : isFamiliar ? 'Familiar' : 'Premium';
-    const subtitle = isBasic ? 'Para começar sua jornada' : isFamiliar ? 'Para você e seu cônjuge' : 'Para toda a família';
+    const subtitle = isBasic ? 'Para começar sua jornada' : isFamiliar ? 'Para você e seu cônjuge' : 'Para você e toda a família';
     const plansIncluded = isBasic ? 1 : isFamiliar ? 2 : 4;
 
     const getColors = () => {
