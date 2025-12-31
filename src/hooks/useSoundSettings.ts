@@ -3,17 +3,22 @@ import { useState, useEffect, useCallback } from 'react';
 const SOUND_SETTINGS_KEY = 'sound-settings';
 
 export type SoundStyle = 'classic' | 'modern' | 'soft' | 'minimal';
+export type VibrationStyle = 'short' | 'celebration' | 'gentle' | 'none';
 
 interface SoundSettings {
   enabled: boolean;
   volume: number; // 0 to 1
   style: SoundStyle;
+  vibrationEnabled: boolean;
+  vibrationStyle: VibrationStyle;
 }
 
 const defaultSettings: SoundSettings = {
   enabled: true,
   volume: 0.5,
   style: 'modern',
+  vibrationEnabled: true,
+  vibrationStyle: 'celebration',
 };
 
 export function useSoundSettings() {
@@ -48,14 +53,31 @@ export function useSoundSettings() {
     setSettings(prev => ({ ...prev, style }));
   }, []);
 
+  const toggleVibration = useCallback(() => {
+    setSettings(prev => ({ ...prev, vibrationEnabled: !prev.vibrationEnabled }));
+  }, []);
+
+  const setVibrationEnabled = useCallback((enabled: boolean) => {
+    setSettings(prev => ({ ...prev, vibrationEnabled: enabled }));
+  }, []);
+
+  const setVibrationStyle = useCallback((vibrationStyle: VibrationStyle) => {
+    setSettings(prev => ({ ...prev, vibrationStyle }));
+  }, []);
+
   return {
     soundEnabled: settings.enabled,
     volume: settings.volume,
     style: settings.style,
+    vibrationEnabled: settings.vibrationEnabled,
+    vibrationStyle: settings.vibrationStyle,
     toggleSound,
     setSoundEnabled,
     setVolume,
     setStyle,
+    toggleVibration,
+    setVibrationEnabled,
+    setVibrationStyle,
   };
 }
 
@@ -85,6 +107,42 @@ export function getSoundVolume(): number {
 export function getSoundStyle(): SoundStyle {
   return getSoundSettings().style;
 }
+
+export function isVibrationEnabled(): boolean {
+  return getSoundSettings().vibrationEnabled;
+}
+
+export function getVibrationStyle(): VibrationStyle {
+  return getSoundSettings().vibrationStyle;
+}
+
+// Vibration style configurations
+export const vibrationStyleConfigs: Record<VibrationStyle, {
+  label: string;
+  description: string;
+  pattern: number[];
+}> = {
+  short: {
+    label: 'Curta',
+    description: 'Vibração rápida e discreta',
+    pattern: [50],
+  },
+  celebration: {
+    label: 'Celebração',
+    description: 'Padrão festivo para conquistas',
+    pattern: [50, 30, 100],
+  },
+  gentle: {
+    label: 'Suave',
+    description: 'Vibração longa e gentil',
+    pattern: [100, 50, 100],
+  },
+  none: {
+    label: 'Desativada',
+    description: 'Sem vibração',
+    pattern: [],
+  },
+};
 
 // Sound style configurations
 export const soundStyleConfigs: Record<SoundStyle, {
