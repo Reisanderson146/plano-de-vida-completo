@@ -273,7 +273,12 @@ export default function CompararPlanos() {
                   <div className="w-10 h-10 rounded-full bg-gradient-to-br from-rose-500/20 to-pink-500/20 flex items-center justify-center">
                     <Heart className="w-5 h-5 text-rose-600" />
                   </div>
-                  <span className="font-bold text-foreground">Familiar</span>
+                  <div className="flex items-center gap-1">
+                    <span className="font-bold text-foreground">Familiar</span>
+                    <span className="text-[10px] bg-rose-500 text-white px-1.5 py-0.5 rounded-full">
+                      IA
+                    </span>
+                  </div>
                   <span className="text-xl md:text-2xl font-bold bg-gradient-to-r from-rose-500 to-pink-500 bg-clip-text text-transparent">R$ 15,90</span>
                   <span className="text-xs text-muted-foreground">/mês</span>
                 </div>
