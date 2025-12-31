@@ -15,9 +15,9 @@ import { Logo } from "@/components/Logo";
 
 const LandingPage = () => {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState<'basic' | 'premium' | null>(null);
+  const [loading, setLoading] = useState<'basic' | 'familiar' | 'premium' | null>(null);
 
-  const handleCheckout = async (tier: 'basic' | 'premium') => {
+  const handleCheckout = async (tier: 'basic' | 'familiar' | 'premium') => {
     setLoading(tier);
     try {
       const { data: { session } } = await supabase.auth.getSession();
