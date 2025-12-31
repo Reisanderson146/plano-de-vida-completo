@@ -38,23 +38,65 @@ const handler = async (req: Request): Promise<Response> => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    const previousYear = new Date().getFullYear() - 1;
-    const currentYear = new Date().getFullYear();
+    // Parse request body for test mode
+    let testEmail: string | null = null;
+    let testYear: number | null = null;
+    try {
+      const body = await req.json();
+      testEmail = body.test_email || null;
+      testYear = body.test_year || null;
+      if (testEmail) {
+        console.log(`[TEST MODE] Sending report to: ${testEmail}`);
+      }
+    } catch {
+      // No body provided, run in production mode
+    }
+
+    const previousYear = testYear || new Date().getFullYear() - 1;
+    const currentYear = testYear ? testYear + 1 : new Date().getFullYear();
 
     console.log(`Processing annual report for year ${previousYear}`);
 
-    // Get all users with profiles
-    const { data: profiles, error: profilesError } = await supabase
-      .from("profiles")
-      .select("id, full_name")
-      .eq("is_blocked", false);
+    // Get users - if test mode, find by email; otherwise get all
+    let profiles: { id: string; full_name: string | null }[] = [];
+    
+    if (testEmail) {
+      // Find user by email
+      const { data: users } = await supabase.auth.admin.listUsers();
+      const targetUser = users?.users?.find(u => u.email === testEmail);
+      
+      if (targetUser) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("id, full_name")
+          .eq("id", targetUser.id)
+          .single();
+        
+        if (profile) {
+          profiles = [profile];
+        }
+      }
+      
+      if (profiles.length === 0) {
+        return new Response(
+          JSON.stringify({ error: `User not found with email: ${testEmail}` }),
+          { status: 404, headers: { "Content-Type": "application/json", ...corsHeaders } }
+        );
+      }
+    } else {
+      const { data, error: profilesError } = await supabase
+        .from("profiles")
+        .select("id, full_name")
+        .eq("is_blocked", false);
 
-    if (profilesError) {
-      console.error("Error fetching profiles:", profilesError);
-      throw profilesError;
+      if (profilesError) {
+        console.error("Error fetching profiles:", profilesError);
+        throw profilesError;
+      }
+      profiles = data || [];
     }
 
-    console.log(`Found ${profiles?.length || 0} users to process`);
+    console.log(`Found ${profiles.length} users to process`);
 
     let successCount = 0;
     let errorCount = 0;
