@@ -481,23 +481,15 @@ export default function CompararPlanos() {
               </div>
               <div className="p-4 md:p-6 flex items-center justify-center bg-gradient-to-br from-violet-500/5 to-purple-500/5">
                 <motion.div
-                  className="w-full"
-                  animate={{ 
-                    scale: [1, 1.05, 1],
-                    boxShadow: [
-                      "0 0 0 0 rgba(139, 92, 246, 0)",
-                      "0 0 20px 4px rgba(139, 92, 246, 0.3)",
-                      "0 0 0 0 rgba(139, 92, 246, 0)"
-                    ]
-                  }}
+                  className="w-full rounded-md overflow-hidden"
+                  animate={{ scale: [1, 1.05, 1] }}
                   transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", delay: 0.6 }}
-                  style={{ borderRadius: "0.375rem" }}
                 >
                   <Button
                     onClick={() => handleCheckout('premium')}
                     disabled={loading !== null}
                     size="sm"
-                    className="w-full bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 shadow-lg shadow-violet-500/40 hover:shadow-xl hover:shadow-violet-500/50"
+                    className="w-full bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 shadow-lg shadow-violet-500/40 hover:shadow-xl hover:shadow-violet-500/50 animate-pulse"
                   >
                     {loading === 'premium' ? (
                       <Loader2 className="w-4 h-4 animate-spin" />
