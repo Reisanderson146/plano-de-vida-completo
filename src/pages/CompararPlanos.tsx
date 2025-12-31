@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Check, X, Crown, Gem, Sparkles, Shield, Target, BarChart3, Download, Bell, History, FileText, Users, Baby, User, Calendar, Eye, BookOpen, ArrowLeft, Zap, Heart } from 'lucide-react';
+import { Check, X, Crown, Gem, Sparkles, Shield, Target, BarChart3, Download, Bell, History, FileText, Users, Baby, User, Calendar, Eye, BookOpen, ArrowLeft, Zap, Heart, ChevronRight, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -202,23 +202,39 @@ export default function CompararPlanos() {
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/30">
       {/* Header */}
       <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          <Button
-            variant="ghost"
-            onClick={() => {
-              if (window.history.length > 1) {
-                navigate(-1);
-              } else {
-                navigate('/landing');
-              }
-            }}
-            className="gap-2"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Voltar
-          </Button>
-          <h1 className="text-lg font-semibold">Comparar Planos</h1>
-          <div className="w-24" />
+        <div className="max-w-7xl mx-auto px-4 py-3">
+          {/* Breadcrumb */}
+          <nav className="flex items-center gap-1 text-sm text-muted-foreground mb-2">
+            <Link 
+              to="/landing" 
+              className="flex items-center gap-1 hover:text-foreground transition-colors"
+            >
+              <Home className="w-3.5 h-3.5" />
+              <span>Início</span>
+            </Link>
+            <ChevronRight className="w-3.5 h-3.5" />
+            <span className="text-foreground font-medium">Comparar Planos</span>
+          </nav>
+          
+          {/* Back button and title */}
+          <div className="flex items-center justify-between">
+            <Button
+              variant="ghost"
+              onClick={() => {
+                if (window.history.length > 1) {
+                  navigate(-1);
+                } else {
+                  navigate('/landing');
+                }
+              }}
+              className="gap-2 group hover:bg-primary/10 hover:text-primary transition-all duration-200"
+            >
+              <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-200" />
+              Voltar
+            </Button>
+            <h1 className="text-lg font-semibold">Comparar Planos</h1>
+            <div className="w-24" />
+          </div>
         </div>
       </div>
 
