@@ -28,10 +28,10 @@ export const SUBSCRIPTION_TIERS = {
     priceId: 'price_familiar_1990', // TODO: Replace with real Stripe price ID
     productId: 'prod_familiar', // TODO: Replace with real Stripe product ID
     limits: {
-      individual: 1,
+      individual: 0,
       familiar: 1,
-      filho: 0,
-      total: 2,
+      filho: 3,
+      total: 4,
     },
     features: {
       aiSummary: true,
