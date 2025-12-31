@@ -480,24 +480,25 @@ export default function CompararPlanos() {
                 </motion.div>
               </div>
               <div className="p-4 md:p-6 flex items-center justify-center bg-gradient-to-br from-violet-500/5 to-purple-500/5">
-                <motion.div
-                  className="w-full rounded-md overflow-hidden"
-                  animate={{ scale: [1, 1.05, 1] }}
-                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", delay: 0.6 }}
-                >
+                <div className="w-full relative">
+                  {/* Glow effect behind button */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-violet-500 to-purple-500 blur-lg opacity-40 rounded-lg" />
                   <Button
                     onClick={() => handleCheckout('premium')}
                     disabled={loading !== null}
                     size="sm"
-                    className="w-full bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 shadow-lg shadow-violet-500/40 hover:shadow-xl hover:shadow-violet-500/50 animate-pulse"
+                    className="w-full relative bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 shadow-xl shadow-violet-500/50 border-2 border-violet-400/30 font-bold text-white hover:scale-105 transition-transform duration-200"
                   >
                     {loading === 'premium' ? (
                       <Loader2 className="w-4 h-4 animate-spin" />
                     ) : (
-                      'Assinar'
+                      <>
+                        <Sparkles className="w-4 h-4 mr-1.5" />
+                        Assinar
+                      </>
                     )}
                   </Button>
-                </motion.div>
+                </div>
               </div>
             </div>
           </Card>
