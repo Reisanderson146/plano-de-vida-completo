@@ -203,38 +203,27 @@ export default function CompararPlanos() {
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/30">
       {/* Header */}
       <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
-        <div className="max-w-7xl mx-auto px-4 py-3">
+        <div className="max-w-7xl mx-auto px-4 py-4">
           {/* Breadcrumb */}
           <motion.nav 
-            className="flex items-center gap-1 text-sm text-muted-foreground mb-2"
+            className="flex items-center justify-between"
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.3, ease: "easeOut" }}
           >
-            <Link 
-              to="/landing" 
-              className="flex items-center gap-1 hover:text-foreground transition-colors"
-            >
-              <Home className="w-3.5 h-3.5" />
-              <span>Início</span>
-            </Link>
-            <ChevronRight className="w-3.5 h-3.5" />
-            <span className="text-foreground font-medium">Comparar Planos</span>
-          </motion.nav>
-          
-          {/* Back button and title */}
-          <div className="flex items-center justify-between">
-            <Button
-              variant="ghost"
-              onClick={() => navigate('/landing')}
-              className="gap-2 group hover:bg-primary/10 hover:text-primary transition-all duration-200"
-            >
-              <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-200" />
-              Voltar
-            </Button>
+            <div className="flex items-center gap-1 text-sm text-muted-foreground">
+              <Link 
+                to="/landing" 
+                className="flex items-center gap-1 hover:text-foreground transition-colors"
+              >
+                <Home className="w-3.5 h-3.5" />
+                <span>Início</span>
+              </Link>
+              <ChevronRight className="w-3.5 h-3.5" />
+              <span className="text-foreground font-medium">Comparar Planos</span>
+            </div>
             <h1 className="text-lg font-semibold">Comparar Planos</h1>
-            <div className="w-24" />
-          </div>
+          </motion.nav>
         </div>
       </div>
 
