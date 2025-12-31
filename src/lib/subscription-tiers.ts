@@ -1,6 +1,7 @@
 // Subscription tier configuration
 // Basic: R$ 9,99/mês - 1 plano individual
-// Premium: R$ 29,99/mês - 1 individual + 1 familiar + 2 filhos + IA
+// Familiar: R$ 19,90/mês - 1 individual + 1 familiar (com tudo incluso)
+// Premium: R$ 29,99/mês - 1 individual + 1 familiar + 3 filhos + IA
 
 export const SUBSCRIPTION_TIERS = {
   basic: {
@@ -21,16 +22,34 @@ export const SUBSCRIPTION_TIERS = {
       cloudStorage: true,
     },
   },
+  familiar: {
+    name: 'Familiar',
+    price: 19.90,
+    priceId: 'price_familiar_1990', // TODO: Replace with real Stripe price ID
+    productId: 'prod_familiar', // TODO: Replace with real Stripe product ID
+    limits: {
+      individual: 1,
+      familiar: 1,
+      filho: 0,
+      total: 2,
+    },
+    features: {
+      aiSummary: true,
+      emailReminders: true,
+      pdfExport: true,
+      cloudStorage: true,
+    },
+  },
   premium: {
     name: 'Premium',
     price: 29.99,
     priceId: 'price_1ShLBERX3OjZbCrQFUF993DL',
     productId: 'prod_TeeUMyrZLlnteX',
     limits: {
-      individual: 0,
+      individual: 1,
       familiar: 1,
       filho: 3,
-      total: 4,
+      total: 5,
     },
     features: {
       aiSummary: true,
@@ -47,6 +66,7 @@ export function getTierByProductId(productId: string | null): SubscriptionTier |
   if (!productId) return null;
   
   if (productId === SUBSCRIPTION_TIERS.basic.productId) return 'basic';
+  if (productId === SUBSCRIPTION_TIERS.familiar.productId) return 'familiar';
   if (productId === SUBSCRIPTION_TIERS.premium.productId) return 'premium';
   
   // Fallback: if we have an unknown product, assume it's basic for now
@@ -84,7 +104,7 @@ export function canCreatePlanType(
       return { 
         allowed: false, 
         reason: tier === 'basic' 
-          ? 'Seu plano Basic permite apenas 1 plano individual. Faça upgrade para o Premium!'
+          ? 'Seu plano Basic permite apenas 1 plano individual. Faça upgrade para o Familiar!'
           : 'Você já atingiu o limite de planos individuais.'
       };
     }
@@ -94,7 +114,7 @@ export function canCreatePlanType(
     if (limits.familiar === 0) {
       return { 
         allowed: false, 
-        reason: 'Planos familiares são exclusivos do Plano Premium. Faça upgrade!'
+        reason: 'Planos familiares são exclusivos dos Planos Familiar e Premium. Faça upgrade!'
       };
     }
     if (currentCounts.familiar >= limits.familiar) {
@@ -119,7 +139,7 @@ export function canCreatePlanType(
     return { 
       allowed: false, 
       reason: tier === 'basic'
-        ? 'Seu plano Basic permite apenas 1 plano. Faça upgrade para o Premium!'
+        ? 'Seu plano Basic permite apenas 1 plano. Faça upgrade para o Familiar!'
         : 'Você já atingiu o limite total de planos.'
     };
   }

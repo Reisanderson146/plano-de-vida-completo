@@ -42,7 +42,7 @@ const PLAN_TYPES = [
     icon: Users,
     gradient: 'from-rose-500/15 to-rose-600/5',
     iconBg: 'bg-rose-500/15 text-rose-600 dark:text-rose-400',
-    premiumOnly: true
+    requiresFamiliar: true // Requires at least "familiar" tier
   },
   { 
     id: 'filho', 
@@ -87,6 +87,11 @@ export default function Cadastro() {
   const [startYear, setStartYear] = useState(new Date().getFullYear());
   const [startAge, setStartAge] = useState(30);
   const [yearsToAdd, setYearsToAdd] = useState(5);
+  
+  // Family plan fields
+  const [spouseAge1, setSpouseAge1] = useState<number | ''>('');
+  const [spouseAge2, setSpouseAge2] = useState<number | ''>('');
+  const [weddingDate, setWeddingDate] = useState<string>('');
   
   const [importedGoals, setImportedGoals] = useState<ImportedGoal[]>([]);
   const [importWarnings, setImportWarnings] = useState<string[]>([]);
@@ -237,6 +242,9 @@ export default function Cadastro() {
           plan_type: planType,
           member_name: memberName.trim() || null,
           photo_url: photoUrl,
+          spouse_age_1: planType === 'familiar' && spouseAge1 ? Number(spouseAge1) : null,
+          spouse_age_2: planType === 'familiar' && spouseAge2 ? Number(spouseAge2) : null,
+          wedding_date: planType === 'familiar' && weddingDate ? weddingDate : null,
         })
         .select()
         .single();
@@ -377,6 +385,15 @@ export default function Cadastro() {
       return;
     }
 
+    // Check if familiar plan type requires at least "familiar" tier
+    if (typeConfig?.requiresFamiliar && subscriptionTier === 'basic') {
+      toast({
+        title: 'Plano Familiar ou Premium necessário',
+        description: `Planos familiares requerem o Plano Familiar ou Premium.`,
+      });
+      return;
+    }
+
     // Check plan limits
     const canCreate = canCreatePlanType(subscriptionTier, newType, planCounts);
     if (!canCreate.allowed) {
@@ -459,8 +476,9 @@ export default function Cadastro() {
                     const Icon = type.icon;
                     const isSelected = planType === type.id;
                     const isLocked = type.premiumOnly && subscriptionTier !== 'premium';
+                    const isFamiliarLocked = type.requiresFamiliar && subscriptionTier === 'basic';
                     const canCreate = canCreatePlanType(subscriptionTier, type.id, planCounts);
-                    const isDisabled = isLocked || !canCreate.allowed;
+                    const isDisabled = isLocked || isFamiliarLocked || !canCreate.allowed;
                     
                     return (
                       <div key={type.id} className="relative">
@@ -481,7 +499,7 @@ export default function Cadastro() {
                                 : "border-border/50 hover:border-border hover:bg-muted/30"
                           )}
                         >
-                          {isLocked && (
+                          {(isLocked || isFamiliarLocked) && (
                             <div className="absolute -top-2 -right-2 p-1.5 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 shadow-lg">
                               <Crown className="w-3 h-3 text-white" />
                             </div>
@@ -490,7 +508,7 @@ export default function Cadastro() {
                             "w-12 h-12 rounded-xl flex items-center justify-center transition-colors",
                             isSelected ? type.iconBg : "bg-muted text-muted-foreground"
                           )}>
-                            {isLocked ? (
+                            {(isLocked || isFamiliarLocked) ? (
                               <Lock className="w-6 h-6" />
                             ) : (
                               <Icon className="w-6 h-6" />
@@ -504,7 +522,7 @@ export default function Cadastro() {
                               {type.label}
                             </span>
                             <span className="text-xs text-muted-foreground">
-                              {isLocked ? 'Premium' : type.description}
+                              {isLocked ? 'Premium' : isFamiliarLocked ? 'Familiar+' : type.description}
                             </span>
                           </div>
                         </Label>
@@ -542,7 +560,7 @@ export default function Cadastro() {
               {(planType === 'familiar' || planType === 'filho') && (
                 <div className="space-y-2 animate-fade-in">
                   <Label htmlFor="memberName" className="text-sm">
-                    {planType === 'filho' ? 'Nome do Filho(a)' : 'Nome do Membro'}
+                    {planType === 'filho' ? 'Nome do Filho(a)' : 'Nome do Casal'}
                   </Label>
                   <Input
                     id="memberName"
@@ -556,6 +574,61 @@ export default function Cadastro() {
                     errorMessage={getError('memberName')}
                     className="h-11 rounded-xl"
                   />
+                </div>
+              )}
+
+              {/* Spouse Ages and Wedding Date - Only for Family Plans */}
+              {planType === 'familiar' && (
+                <div className="space-y-4 animate-fade-in p-4 bg-rose-500/5 rounded-xl border border-rose-500/20">
+                  <Label className="text-sm font-medium text-rose-600 dark:text-rose-400 flex items-center gap-2">
+                    <Users className="w-4 h-4" />
+                    Informações do Casal
+                  </Label>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="spouseAge1" className="text-xs text-muted-foreground">Idade Cônjuge 1</Label>
+                      <Input
+                        id="spouseAge1"
+                        type="number"
+                        value={spouseAge1}
+                        onChange={(e) => setSpouseAge1(e.target.value ? parseInt(e.target.value) : '')}
+                        placeholder="Ex: 35"
+                        min={18}
+                        max={120}
+                        className="h-11 rounded-xl"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="spouseAge2" className="text-xs text-muted-foreground">Idade Cônjuge 2</Label>
+                      <Input
+                        id="spouseAge2"
+                        type="number"
+                        value={spouseAge2}
+                        onChange={(e) => setSpouseAge2(e.target.value ? parseInt(e.target.value) : '')}
+                        placeholder="Ex: 32"
+                        min={18}
+                        max={120}
+                        className="h-11 rounded-xl"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="weddingDate" className="text-xs text-muted-foreground">
+                      Data do Casamento (para aniversário)
+                    </Label>
+                    <Input
+                      id="weddingDate"
+                      type="date"
+                      value={weddingDate}
+                      onChange={(e) => setWeddingDate(e.target.value)}
+                      className="h-11 rounded-xl"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Enviaremos um email especial no aniversário de casamento 💒
+                    </p>
+                  </div>
                 </div>
               )}
 
