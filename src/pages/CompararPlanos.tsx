@@ -214,8 +214,9 @@ export default function CompararPlanos() {
             <div className="flex items-center gap-1 text-sm text-muted-foreground">
               <Link 
                 to="/landing" 
-                className="flex items-center gap-1 hover:text-foreground transition-colors"
+                className="flex items-center gap-1.5 hover:text-foreground transition-colors group"
               >
+                <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
                 <Home className="w-3.5 h-3.5" />
                 <span>Início</span>
               </Link>
@@ -486,22 +487,42 @@ export default function CompararPlanos() {
 
         {/* Trust Badges */}
         <motion.div 
-          className="flex flex-wrap items-center justify-center gap-6 mt-8"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
+          className="mt-12 mb-8"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5, duration: 0.4 }}
         >
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Shield className="w-4 h-4 text-primary" />
-            <span>Pagamento seguro</span>
-          </div>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Check className="w-4 h-4 text-primary" />
-            <span>Cancele quando quiser</span>
-          </div>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Zap className="w-4 h-4 text-primary" />
-            <span>Acesso imediato</span>
+          <div className="bg-muted/30 rounded-2xl p-6 md:p-8 border border-border/50">
+            <div className="flex flex-wrap items-center justify-center gap-8 md:gap-12">
+              <div className="flex flex-col items-center gap-2 text-center">
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Shield className="w-6 h-6 text-primary" />
+                </div>
+                <span className="text-sm font-medium">Pagamento 100% Seguro</span>
+                <span className="text-xs text-muted-foreground">Criptografia SSL</span>
+              </div>
+              <div className="flex flex-col items-center gap-2 text-center">
+                <div className="w-12 h-12 rounded-full bg-emerald-500/10 flex items-center justify-center">
+                  <Check className="w-6 h-6 text-emerald-600" />
+                </div>
+                <span className="text-sm font-medium">Cancele Quando Quiser</span>
+                <span className="text-xs text-muted-foreground">Sem multas ou taxas</span>
+              </div>
+              <div className="flex flex-col items-center gap-2 text-center">
+                <div className="w-12 h-12 rounded-full bg-amber-500/10 flex items-center justify-center">
+                  <Zap className="w-6 h-6 text-amber-600" />
+                </div>
+                <span className="text-sm font-medium">Acesso Imediato</span>
+                <span className="text-xs text-muted-foreground">Liberação instantânea</span>
+              </div>
+              <div className="flex flex-col items-center gap-2 text-center">
+                <div className="w-12 h-12 rounded-full bg-violet-500/10 flex items-center justify-center">
+                  <Crown className="w-6 h-6 text-violet-600" />
+                </div>
+                <span className="text-sm font-medium">7 Dias Grátis</span>
+                <span className="text-xs text-muted-foreground">Teste sem compromisso</span>
+              </div>
+            </div>
           </div>
         </motion.div>
       </div>
