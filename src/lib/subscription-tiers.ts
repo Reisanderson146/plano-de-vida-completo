@@ -1,7 +1,7 @@
 // Subscription tier configuration
 // Basic: R$ 9,99/mês - 1 plano individual
-// Familiar: R$ 19,90/mês - 1 individual + 1 familiar (com tudo incluso)
-// Premium: R$ 29,99/mês - 1 individual + 1 familiar + 3 filhos + IA
+// Familiar: R$ 19,90/mês - 1 familiar + 1 filho
+// Premium: R$ 29,99/mês - 1 familiar + 3 filhos + IA
 
 export const SUBSCRIPTION_TIERS = {
   basic: {
@@ -30,8 +30,8 @@ export const SUBSCRIPTION_TIERS = {
     limits: {
       individual: 0,
       familiar: 1,
-      filho: 3,
-      total: 4,
+      filho: 1,
+      total: 2,
     },
     features: {
       aiSummary: true,
@@ -46,10 +46,10 @@ export const SUBSCRIPTION_TIERS = {
     priceId: 'price_1ShLBERX3OjZbCrQFUF993DL',
     productId: 'prod_TeeUMyrZLlnteX',
     limits: {
-      individual: 1,
+      individual: 0,
       familiar: 1,
       filho: 3,
-      total: 5,
+      total: 4,
     },
     features: {
       aiSummary: true,
