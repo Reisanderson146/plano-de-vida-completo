@@ -62,10 +62,11 @@ interface Benefit {
 
 // All benefits with which plans include them
 const allBenefits: Benefit[] = [
-  { text: "1 Plano Individual", icon: User, includedIn: ['basic', 'familiar', 'premium'] },
+  { text: "1 Plano Individual", icon: User, includedIn: ['basic'] },
   { text: "1 Plano Familiar", icon: Users, includedIn: ['familiar', 'premium'], highlight: true },
-  { text: "2 Planos para Filhos", icon: Baby, includedIn: ['premium'], highlight: true },
-  { text: "Resumo inteligente com IA", icon: Sparkles, includedIn: ['premium'], highlight: true },
+  { text: "1 Plano para Filho", icon: Baby, includedIn: ['familiar'], highlight: true },
+  { text: "3 Planos para Filhos", icon: Baby, includedIn: ['premium'], highlight: true },
+  { text: "Resumo inteligente com IA", icon: Sparkles, includedIn: ['familiar', 'premium'], highlight: true },
   { text: "Planejamento das 7 áreas da vida", icon: Target, includedIn: ['basic', 'familiar', 'premium'] },
   { text: "Dashboard com seu progresso", icon: BarChart3, includedIn: ['basic', 'familiar', 'premium'] },
   { text: "Consulta visual do plano", icon: Eye, includedIn: ['basic', 'familiar', 'premium'] },
@@ -123,7 +124,8 @@ const benefitTooltips: Record<string, string> = {
   "Exportação em PDF": "Baixe seu plano em formato profissional para impressão",
   "Visão por períodos de vida": "Organize suas metas por fases: 1, 5, 10+ anos",
   "1 Plano Familiar": "Planeje o futuro da família em conjunto com seu parceiro(a)",
-  "2 Planos para Filhos": "Crie planos individuais para cada filho acompanhar suas metas",
+  "1 Plano para Filho": "Crie um plano individual para seu filho acompanhar suas metas",
+  "3 Planos para Filhos": "Crie planos individuais para cada filho acompanhar suas metas",
   "Resumo inteligente com IA": "Análise do seu progresso com sugestões personalizadas de melhoria",
   "Lembretes por email": "Receba notificações das metas importantes no seu email",
   "Histórico de metas concluídas": "Acompanhe todas as conquistas que você já realizou",

@@ -26,8 +26,8 @@ const features: Feature[] = [
     description: 'Crie seu plano de vida pessoal com metas para todas as áreas',
     icon: User, 
     basic: true, 
-    familiar: true,
-    premium: true 
+    familiar: false,
+    premium: false 
   },
   { 
     name: 'Plano Familiar', 
@@ -42,15 +42,15 @@ const features: Feature[] = [
     description: 'Crie planos individuais para seus filhos',
     icon: Baby, 
     basic: '—', 
-    familiar: '—',
-    premium: '2 planos' 
+    familiar: '1 plano',
+    premium: '3 planos' 
   },
   { 
     name: 'Resumo com IA', 
     description: 'Análise inteligente do seu progresso com sugestões personalizadas',
     icon: Sparkles, 
     basic: false, 
-    familiar: false,
+    familiar: true,
     premium: true,
     highlight: true 
   },

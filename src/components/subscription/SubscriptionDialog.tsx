@@ -19,7 +19,8 @@ const benefitTooltips: Record<string, string> = {
   "Visão por períodos de vida": "Organize suas metas por fases: 1, 5, 10+ anos",
   "Guia de uso do sistema": "Tutorial completo para aproveitar todos os recursos",
   "1 Plano Familiar": "Planeje o futuro da família em conjunto com seu parceiro(a)",
-  "2 Planos para Filhos": "Crie planos individuais para cada filho acompanhar suas metas",
+  "1 Plano para Filho": "Crie um plano individual para seu filho acompanhar suas metas",
+  "3 Planos para Filhos": "Crie planos individuais para cada filho acompanhar suas metas",
   "Resumo inteligente com IA": "Análise do seu progresso com sugestões personalizadas de melhoria",
   "Relatórios e gráficos detalhados": "Relatórios visuais avançados do seu progresso",
   "Lembretes por email": "Receba notificações das metas importantes no seu email",
@@ -46,21 +47,20 @@ const basicBenefits: Benefit[] = [
 ];
 
 const familiarBenefits: Benefit[] = [
-  { icon: User, text: '1 Plano Individual' },
   { icon: Users, text: '1 Plano Familiar', highlight: true },
+  { icon: Baby, text: '1 Plano para Filho', highlight: true },
   { icon: Target, text: 'Planejamento das 7 áreas da vida' },
   { icon: Shield, text: 'Dados seguros na nuvem' },
   { icon: Download, text: 'Exportação em PDF' },
   { icon: BarChart3, text: 'Dashboard com progresso' },
   { icon: Bell, text: 'Lembretes por email' },
-  { icon: Heart, text: 'Email de aniversário de casamento', highlight: true },
-  { icon: History, text: 'Histórico de metas concluídas' },
+  { icon: Heart, text: 'Email de aniversário de casamento' },
+  { icon: Sparkles, text: 'Resumo inteligente com IA', highlight: true },
 ];
 
 const premiumBenefits: Benefit[] = [
-  { icon: User, text: '1 Plano Individual' },
   { icon: Users, text: '1 Plano Familiar', highlight: true },
-  { icon: Baby, text: '2 Planos para Filhos', highlight: true },
+  { icon: Baby, text: '3 Planos para Filhos', highlight: true },
   { icon: Sparkles, text: 'Resumo inteligente com IA', highlight: true },
   { icon: Target, text: 'Planejamento das 7 áreas da vida' },
   { icon: Shield, text: 'Dados seguros na nuvem' },
@@ -199,7 +199,6 @@ export function SubscriptionDialog({ open, onOpenChange, onSubscribed }: Subscri
           buttonClass: 'bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white shadow-lg shadow-rose-500/25',
           Icon: Heart,
         };
-      case 'premium':
         return {
           price: 'R$ 29,99',
           badge: '7 DIAS GRÁTIS',
