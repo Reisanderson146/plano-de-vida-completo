@@ -205,7 +205,13 @@ export default function CompararPlanos() {
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <Button
             variant="ghost"
-            onClick={() => navigate(-1)}
+            onClick={() => {
+              if (window.history.length > 1) {
+                navigate(-1);
+              } else {
+                navigate('/landing');
+              }
+            }}
             className="gap-2"
           >
             <ArrowLeft className="w-4 h-4" />
