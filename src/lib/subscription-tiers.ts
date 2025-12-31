@@ -24,7 +24,7 @@ export const SUBSCRIPTION_TIERS = {
   },
   familiar: {
     name: 'Familiar',
-    price: 19.90,
+    price: 15.90,
     priceId: 'price_familiar_1990', // TODO: Replace with real Stripe price ID
     productId: 'prod_familiar', // TODO: Replace with real Stripe product ID
     limits: {

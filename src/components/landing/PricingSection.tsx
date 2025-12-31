@@ -89,17 +89,19 @@ const plans = [
     color: 'emerald',
     recommended: false,
     tagline: 'Organize sua vida pessoal',
+    badge: 'Essencial',
   },
   {
     id: 'familiar' as const,
     name: 'Familiar',
     subtitle: 'Para o Casal',
-    price: 'R$ 19,90',
+    price: 'R$ 15,90',
     description: '2 planos incluídos',
     icon: Heart,
     color: 'rose',
     recommended: false,
     tagline: 'Planeje junto com seu cônjuge',
+    badge: 'Popular',
   },
   {
     id: 'premium' as const,
@@ -111,6 +113,7 @@ const plans = [
     color: 'violet',
     recommended: true,
     tagline: 'Planejamento completo para todos',
+    badge: 'Completo',
   },
 ];
 
@@ -328,33 +331,42 @@ const PricingSection = ({ onCheckout, onLogin, onSignup, loading }: PricingSecti
                     } : {}}
                   />
                   
-                  {/* Recommended Badge - Enhanced */}
-                  {currentPlan.recommended && (
-                    <motion.div 
-                      className="absolute -top-1 left-1/2 -translate-x-1/2 z-10"
-                      initial={{ scale: 0, y: -20 }}
-                      animate={{ scale: 1, y: 0 }}
-                      transition={{ delay: 0.3, type: "spring", stiffness: 400 }}
-                    >
-                      <div className="relative">
+                  {/* Plan Badge - Above Card */}
+                  <motion.div 
+                    className="absolute -top-1 left-1/2 -translate-x-1/2 z-10"
+                    initial={{ scale: 0, y: -20 }}
+                    animate={{ scale: 1, y: 0 }}
+                    transition={{ delay: 0.3, type: "spring", stiffness: 400 }}
+                  >
+                    <div className="relative">
+                      {currentPlan.recommended && (
                         <motion.div
                           className="absolute inset-0 bg-gradient-to-r from-violet-600 to-purple-600 rounded-full blur-md"
                           animate={{ opacity: [0.5, 1, 0.5] }}
                           transition={{ duration: 2, repeat: Infinity }}
                         />
-                        <div className="relative flex items-center gap-1.5 px-5 py-2 bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 rounded-full text-white font-bold text-xs shadow-xl shadow-violet-500/40 border border-white/20">
+                      )}
+                      <div className={cn(
+                        "relative flex items-center gap-1.5 px-5 py-2 rounded-full text-white font-bold text-xs shadow-xl border border-white/20",
+                        currentPlan.color === 'emerald' && "bg-gradient-to-r from-emerald-500 to-teal-500 shadow-emerald-500/40",
+                        currentPlan.color === 'rose' && "bg-gradient-to-r from-rose-500 to-pink-500 shadow-rose-500/40",
+                        currentPlan.color === 'violet' && "bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 shadow-violet-500/40"
+                      )}>
+                        {currentPlan.recommended && (
                           <motion.div
                             animate={{ rotate: [0, 15, -15, 0] }}
                             transition={{ duration: 2, repeat: Infinity, delay: 1 }}
                           >
                             <Crown className="w-4 h-4" />
                           </motion.div>
-                          <span>Mais Popular</span>
-                          <Sparkles className="w-3 h-3" />
-                        </div>
+                        )}
+                        {!currentPlan.recommended && currentPlan.color === 'emerald' && <Gem className="w-4 h-4" />}
+                        {!currentPlan.recommended && currentPlan.color === 'rose' && <Heart className="w-4 h-4" />}
+                        <span>{currentPlan.badge}</span>
+                        {currentPlan.recommended && <Sparkles className="w-3 h-3" />}
                       </div>
-                    </motion.div>
-                  )}
+                    </div>
+                  </motion.div>
                   
                   <Card className={cn(
                     "relative overflow-hidden border-2 bg-card shadow-2xl",
