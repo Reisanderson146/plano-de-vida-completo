@@ -315,24 +315,10 @@ const PricingSection = ({ onCheckout, onLogin, onSignup, loading }: PricingSecti
                 }}
                 className="w-full cursor-grab active:cursor-grabbing"
               >
-                <div className="relative group pt-6">
-                  {/* Enhanced Glow effect with animation */}
+                <div className="relative pt-5 h-full">
+                  {/* Top Badge - Above Card */}
                   <motion.div 
-                    className={cn("absolute -inset-3 rounded-3xl blur-2xl", colorClasses.glow)}
-                    animate={currentPlan.recommended ? {
-                      opacity: [0.5, 0.8, 0.5],
-                      scale: [1, 1.02, 1],
-                    } : { opacity: 0.6 }}
-                    transition={currentPlan.recommended ? {
-                      duration: 3,
-                      repeat: Infinity,
-                      ease: "easeInOut"
-                    } : {}}
-                  />
-                  
-                  {/* Plan Badge - Above Card */}
-                  <motion.div 
-                    className="absolute -top-1 left-1/2 -translate-x-1/2 z-10"
+                    className="absolute top-0 left-1/2 -translate-x-1/2 z-20"
                     initial={{ scale: 0, y: -20 }}
                     animate={{ scale: 1, y: 0 }}
                     transition={{ delay: 0.3, type: "spring", stiffness: 400 }}
@@ -346,7 +332,7 @@ const PricingSection = ({ onCheckout, onLogin, onSignup, loading }: PricingSecti
                         />
                       )}
                       <div className={cn(
-                        "relative flex items-center gap-1.5 px-5 py-2 rounded-full text-white font-bold text-xs shadow-xl border border-white/20",
+                        "relative flex items-center gap-1.5 px-4 md:px-5 py-1.5 md:py-2 rounded-full text-white font-bold text-xs shadow-xl border border-white/20",
                         currentPlan.color === 'emerald' && "bg-gradient-to-r from-emerald-500 to-teal-500 shadow-emerald-500/40",
                         currentPlan.color === 'rose' && "bg-gradient-to-r from-rose-500 to-pink-500 shadow-rose-500/40",
                         currentPlan.color === 'violet' && "bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 shadow-violet-500/40"
@@ -356,26 +342,23 @@ const PricingSection = ({ onCheckout, onLogin, onSignup, loading }: PricingSecti
                             animate={{ rotate: [0, 15, -15, 0] }}
                             transition={{ duration: 2, repeat: Infinity, delay: 1 }}
                           >
-                            <Crown className="w-4 h-4" />
+                            <Crown className="w-3 h-3 md:w-4 md:h-4" />
                           </motion.div>
                         )}
-                        {!currentPlan.recommended && currentPlan.color === 'emerald' && <Gem className="w-4 h-4" />}
-                        {!currentPlan.recommended && currentPlan.color === 'rose' && <Heart className="w-4 h-4" />}
+                        {!currentPlan.recommended && currentPlan.color === 'emerald' && <Gem className="w-3 h-3 md:w-4 md:h-4" />}
+                        {!currentPlan.recommended && currentPlan.color === 'rose' && <Heart className="w-3 h-3 md:w-4 md:h-4" />}
                         <span>{currentPlan.badge}</span>
                         {currentPlan.recommended && <Sparkles className="w-3 h-3" />}
                       </div>
                     </div>
                   </motion.div>
-                  
-                  <Card className={cn(
-                    "relative overflow-hidden border-2 bg-card shadow-2xl",
-                    colorClasses.border,
-                    currentPlan.recommended && "mt-3"
-                  )}>
-                    {/* Decorative corner elements */}
-                    <div className={cn("absolute top-0 right-0 w-32 h-32 opacity-10", colorClasses.glow)} />
-                    <div className={cn("absolute bottom-0 left-0 w-24 h-24 opacity-10", colorClasses.glow)} />
 
+                  <Card className={cn(
+                    "relative overflow-hidden border-2 bg-card shadow-xl transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl h-full flex flex-col mt-2",
+                    currentPlan.color === 'emerald' && "border-emerald-500/30",
+                    currentPlan.color === 'rose' && "border-rose-500/30",
+                    currentPlan.color === 'violet' && "border-violet-500/30"
+                  )}>
                     {/* Animated shimmer effect */}
                     <motion.div
                       className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -skew-x-12"
@@ -384,124 +367,182 @@ const PricingSection = ({ onCheckout, onLogin, onSignup, loading }: PricingSecti
                       transition={{ delay: 0.5, duration: 1.2, ease: "easeInOut", repeat: Infinity, repeatDelay: 4 }}
                     />
 
-                    <CardHeader className="pt-6 md:pt-8 pb-3 md:pb-4 text-center relative px-4 md:px-6">
-                      {/* Icon with enhanced styling */}
+                    <CardHeader className="pb-3 md:pb-4 pt-6 md:pt-8 min-h-[80px] md:min-h-[100px]">
                       <motion.div 
-                        className={cn("inline-flex items-center justify-center w-14 h-14 md:w-16 md:h-16 rounded-xl mx-auto mb-3 md:mb-4 relative", colorClasses.icon)}
-                        initial={{ rotate: -180, scale: 0 }}
-                        animate={{ rotate: 0, scale: 1 }}
-                        transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-                      >
-                        <motion.div
-                          className={cn("absolute inset-0 rounded-xl blur-sm", colorClasses.iconGlow)}
-                          animate={{ opacity: [0.3, 0.6, 0.3] }}
-                          transition={{ duration: 2, repeat: Infinity }}
-                        />
-                        <currentPlan.icon className="w-7 h-7 md:w-8 md:h-8 relative z-10" />
-                      </motion.div>
-                      
-                      <motion.div
+                        className="flex items-start gap-3"
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.25 }}
+                        transition={{ delay: 0.2 }}
                       >
-                        <CardTitle className={cn("text-xl md:text-2xl font-bold mb-0.5 md:mb-1", colorClasses.title)}>
-                          {currentPlan.name}
-                        </CardTitle>
-                        
-                        <p className="text-xs md:text-sm text-muted-foreground mb-0.5 md:mb-1">{currentPlan.subtitle}</p>
-                        
-                        <p className={cn("text-[11px] md:text-xs font-medium mb-2 md:mb-3", colorClasses.highlight)}>
-                          {currentPlan.tagline}
-                        </p>
-                        
-                        {/* Trial Badge with Countdown */}
-                        <motion.div
-                          className="flex flex-col items-center gap-1.5 mb-3"
-                          initial={{ scale: 0 }}
-                          animate={{ scale: 1 }}
-                          transition={{ delay: 0.35, type: "spring" }}
-                        >
-                          <div className={cn("inline-flex items-center gap-1.5 px-3 md:px-4 py-1 md:py-1.5 rounded-full text-[10px] md:text-xs font-bold", colorClasses.badge)}>
-                            <Sparkles className="w-3 h-3 md:w-4 md:h-4" />
-                            <span>7 DIAS GRÁTIS</span>
-                          </div>
-                          
-                          <div className={cn("flex items-center gap-1 md:gap-1.5 text-[10px] md:text-xs", colorClasses.highlight)}>
-                            <Clock className="w-2.5 h-2.5 md:w-3 md:h-3" />
-                            <span>Expira em</span>
-                            <span className="font-mono font-semibold tabular-nums">
-                              {String(countdown.hours).padStart(2, '0')}h {String(countdown.minutes).padStart(2, '0')}m {String(countdown.seconds).padStart(2, '0')}s
-                            </span>
-                          </div>
-                        </motion.div>
+                        <div className={cn(
+                          "w-10 h-10 md:w-12 md:h-12 rounded-2xl flex items-center justify-center flex-shrink-0",
+                          currentPlan.color === 'emerald' && "bg-gradient-to-br from-emerald-500/20 to-teal-500/20",
+                          currentPlan.color === 'rose' && "bg-gradient-to-br from-rose-500/20 to-pink-500/20",
+                          currentPlan.color === 'violet' && "bg-gradient-to-br from-violet-500/20 to-purple-500/20"
+                        )}>
+                          <currentPlan.icon className={cn(
+                            "w-5 h-5 md:w-6 md:h-6",
+                            currentPlan.color === 'emerald' && "text-emerald-600",
+                            currentPlan.color === 'rose' && "text-rose-600",
+                            currentPlan.color === 'violet' && "text-violet-600"
+                          )} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h2 className={cn(
+                            "text-lg md:text-xl font-bold",
+                            currentPlan.color === 'emerald' && "text-foreground",
+                            currentPlan.color === 'rose' && "bg-gradient-to-r from-rose-600 to-pink-600 bg-clip-text text-transparent",
+                            currentPlan.color === 'violet' && "bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent"
+                          )}>
+                            {currentPlan.name}
+                          </h2>
+                          <p className="text-xs md:text-sm text-muted-foreground">{currentPlan.subtitle}</p>
+                        </div>
                       </motion.div>
-                      
-                      {/* Price */}
-                      <motion.div 
-                        className="flex items-baseline justify-center gap-1"
-                        initial={{ opacity: 0, scale: 0.5 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: 0.3, type: "spring" }}
-                      >
-                        <span className={cn("text-4xl md:text-5xl font-extrabold tracking-tight", colorClasses.title)}>
-                          {currentPlan.price}
-                        </span>
-                        <span className="text-muted-foreground text-xs md:text-sm font-medium">/mês</span>
-                      </motion.div>
-                      
-                      <p className={cn("text-[10px] md:text-xs mt-1 md:mt-2 font-medium", colorClasses.highlight)}>
-                        Teste grátis, cancele quando quiser
-                      </p>
                     </CardHeader>
 
-                    <CardContent className="space-y-1.5 md:space-y-2 pb-5 md:pb-6 px-4 md:px-6 min-h-[280px] md:min-h-[320px] flex flex-col">
-                      {/* Benefits divider */}
-                      <div className={cn(
-                        "h-px w-full mb-3",
-                        "bg-gradient-to-r from-transparent via-border to-transparent"
-                      )} />
-                      
-                      {planBenefits.map((benefit, i) => (
-                        <motion.div 
-                          key={i} 
-                          className={cn(
-                            "flex items-center gap-2 md:gap-2.5 text-xs md:text-sm py-0.5 md:py-1 px-1.5 md:px-2 rounded-md transition-colors",
-                            benefit.highlight && "bg-muted/50"
-                          )}
-                          initial={{ opacity: 0, x: -20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: 0.35 + i * 0.04 }}
-                        >
-                          <div className={cn("w-4 h-4 md:w-5 md:h-5 rounded-full flex items-center justify-center flex-shrink-0", colorClasses.check)}>
-                            <Check className="w-2.5 h-2.5 md:w-3 md:h-3" />
-                          </div>
-                          <span className={cn("text-xs md:text-sm text-foreground leading-tight", benefit.highlight && "font-medium")}>
-                            {benefit.text}
+                    <CardContent className="flex flex-col flex-1 space-y-4 md:space-y-5 px-4 md:px-6">
+                      {/* Price Block with Trial Badge */}
+                      <motion.div 
+                        className={cn(
+                          "text-center py-4 md:py-5 rounded-xl relative overflow-hidden min-h-[100px] md:min-h-[120px] flex flex-col justify-center",
+                          currentPlan.color === 'emerald' && "bg-muted/30",
+                          currentPlan.color === 'rose' && "bg-gradient-to-br from-rose-500/10 to-pink-500/10 border border-rose-500/20",
+                          currentPlan.color === 'violet' && "bg-gradient-to-br from-violet-500/10 to-purple-500/10 border border-violet-500/20"
+                        )}
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: 0.3 }}
+                      >
+                        {/* Trial Badge */}
+                        <div className={cn(
+                          "absolute top-0 right-0 text-white text-[9px] md:text-[10px] font-bold px-2 py-0.5 rounded-bl-lg",
+                          currentPlan.color === 'emerald' && "bg-gradient-to-r from-emerald-500 to-teal-500",
+                          currentPlan.color === 'rose' && "bg-gradient-to-r from-rose-500 to-pink-500",
+                          currentPlan.color === 'violet' && "bg-gradient-to-r from-violet-600 to-purple-600"
+                        )}>
+                          7 DIAS GRÁTIS
+                        </div>
+                        
+                        <div className="flex items-baseline justify-center gap-1">
+                          <span className={cn(
+                            "text-2xl md:text-3xl font-bold",
+                            currentPlan.color === 'emerald' && "text-foreground",
+                            currentPlan.color === 'rose' && "bg-gradient-to-r from-rose-600 to-pink-600 bg-clip-text text-transparent",
+                            currentPlan.color === 'violet' && "bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent"
+                          )}>
+                            {currentPlan.price}
                           </span>
-                          {benefit.highlight && currentPlan.id === 'premium' && benefit.text.includes('IA') && (
-                            <motion.span 
-                              className="text-[9px] px-1.5 py-0.5 rounded-full bg-gradient-to-r from-violet-500/20 to-purple-500/20 text-violet-500 font-bold border border-violet-500/20"
-                              animate={{ scale: [1, 1.05, 1] }}
-                              transition={{ duration: 2, repeat: Infinity }}
+                          <span className="text-xs md:text-sm text-muted-foreground">/mês</span>
+                        </div>
+                        <p className={cn(
+                          "text-[10px] md:text-xs font-medium mt-1",
+                          currentPlan.color === 'emerald' && "text-emerald-600",
+                          currentPlan.color === 'rose' && "text-rose-600",
+                          currentPlan.color === 'violet' && "text-violet-600"
+                        )}>
+                          Teste grátis, cancele quando quiser
+                        </p>
+                        
+                        {/* Countdown Timer */}
+                        <div className={cn(
+                          "flex items-center justify-center gap-1 text-[9px] md:text-[10px] mt-2",
+                          currentPlan.color === 'emerald' && "text-emerald-600/80",
+                          currentPlan.color === 'rose' && "text-rose-600/80",
+                          currentPlan.color === 'violet' && "text-violet-600/80"
+                        )}>
+                          <Clock className="w-2.5 h-2.5 md:w-3 md:h-3" />
+                          <span>Oferta expira em</span>
+                          <span className="font-mono font-semibold tabular-nums">
+                            {String(countdown.hours).padStart(2, '0')}:{String(countdown.minutes).padStart(2, '0')}:{String(countdown.seconds).padStart(2, '0')}
+                          </span>
+                        </div>
+                        
+                        {/* Plans Included Badge */}
+                        <div className={cn(
+                          "mt-2 inline-flex items-center justify-center gap-1 text-[10px] md:text-xs font-semibold px-2.5 py-0.5 rounded-full mx-auto",
+                          currentPlan.color === 'emerald' && "bg-emerald-500/20 text-emerald-600",
+                          currentPlan.color === 'rose' && "bg-rose-500/20 text-rose-600",
+                          currentPlan.color === 'violet' && "bg-violet-500/20 text-violet-600"
+                        )}>
+                          <Zap className="w-3 h-3" />
+                          {currentPlan.id === 'basic' ? '1 plano incluído' : currentPlan.id === 'familiar' ? '2 planos incluídos' : '4 planos incluídos'}
+                        </div>
+                      </motion.div>
+
+                      {/* Benefits */}
+                      <div className="space-y-1.5 md:space-y-2 flex-1">
+                        {planBenefits.map((benefit, i) => {
+                          const Icon = benefit.icon;
+                          const highlightBg = currentPlan.color === 'emerald' 
+                            ? "bg-gradient-to-r from-emerald-500/10 to-teal-500/10"
+                            : currentPlan.color === 'rose'
+                            ? "bg-gradient-to-r from-rose-500/10 to-pink-500/10"
+                            : "bg-gradient-to-r from-violet-500/10 to-purple-500/10";
+                          const iconBg = currentPlan.color === 'emerald' 
+                            ? "bg-emerald-500/10"
+                            : currentPlan.color === 'rose'
+                            ? "bg-rose-500/10"
+                            : "bg-violet-500/10";
+                          const iconColor = currentPlan.color === 'emerald' 
+                            ? "text-emerald-600"
+                            : currentPlan.color === 'rose'
+                            ? "text-rose-600"
+                            : "text-violet-600";
+                          
+                          return (
+                            <motion.div 
+                              key={i}
+                              className={cn(
+                                "flex items-center gap-2 md:gap-3",
+                                benefit.highlight && `p-1.5 md:p-2 -mx-1.5 md:-mx-2 rounded-lg ${highlightBg}`
+                              )}
+                              initial={{ opacity: 0, x: -20 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              transition={{ delay: 0.35 + i * 0.04 }}
                             >
-                              ✨ IA
-                            </motion.span>
-                          )}
-                        </motion.div>
-                      ))}
-                      
-                      {/* CTA Button */}
+                              <div className={cn(
+                                "w-6 h-6 md:w-7 md:h-7 rounded-lg flex items-center justify-center flex-shrink-0",
+                                iconBg
+                              )}>
+                                <Icon className={cn("w-3 h-3 md:w-3.5 md:h-3.5", iconColor)} />
+                              </div>
+                              <span className={cn(
+                                "text-xs md:text-sm flex-1 text-foreground",
+                                benefit.highlight && "font-semibold"
+                              )}>
+                                {benefit.text}
+                              </span>
+                              {benefit.highlight && currentPlan.id === 'premium' && benefit.text.includes('IA') && (
+                                <motion.span 
+                                  className="text-[8px] md:text-[9px] px-1.5 py-0.5 rounded-full bg-gradient-to-r from-violet-500/20 to-purple-500/20 text-violet-500 font-bold border border-violet-500/20"
+                                  animate={{ scale: [1, 1.05, 1] }}
+                                  transition={{ duration: 2, repeat: Infinity }}
+                                >
+                                  ✨ IA
+                                </motion.span>
+                              )}
+                            </motion.div>
+                          );
+                        })}
+                      </div>
+
+                      {/* Action Button */}
                       <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.6 }}
-                        className="pt-3 md:pt-4 mt-auto"
+                        className="pt-2 md:pt-3"
                       >
                         <Button
                           onClick={() => onCheckout(currentPlan.id)}
                           disabled={loading === currentPlan.id}
-                          className={cn("w-full font-bold py-5 md:py-6 text-sm md:text-base relative overflow-hidden group", colorClasses.button)}
+                          className={cn(
+                            "w-full font-bold py-4 md:py-5 text-sm md:text-base relative overflow-hidden group text-white",
+                            currentPlan.color === 'emerald' && "bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700",
+                            currentPlan.color === 'rose' && "bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 shadow-lg shadow-rose-500/25",
+                            currentPlan.color === 'violet' && "bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 shadow-lg shadow-violet-500/25"
+                          )}
                         >
                           <motion.div
                             className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12"
@@ -514,7 +555,7 @@ const PricingSection = ({ onCheckout, onLogin, onSignup, loading }: PricingSecti
                             <Loader2 className="w-4 h-4 md:w-5 md:h-5 animate-spin" />
                           ) : (
                             <span className="relative z-10 flex items-center justify-center gap-1.5 md:gap-2">
-                              <Zap className="w-4 h-4 md:w-5 md:h-5" />
+                              <currentPlan.icon className="w-4 h-4 md:w-5 md:h-5" />
                               Começar 7 dias grátis
                               <ArrowRight className="w-3.5 h-3.5 md:w-4 md:h-4 group-hover:translate-x-1 transition-transform" />
                             </span>
