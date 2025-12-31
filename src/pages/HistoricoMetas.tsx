@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { PlanSelector } from '@/components/filters/PlanSelector';
 import { LIFE_AREAS, AREA_HEX_COLORS, LifeArea } from '@/lib/constants';
 import { CheckCircle2, Calendar, Target, ArrowLeft, Trophy, Sparkles } from 'lucide-react';
 import { ExportPdfButton } from '@/components/ui/export-pdf-button';
@@ -270,23 +271,14 @@ export default function HistoricoMetas() {
         <Card className="border-border/40">
           <CardContent className="pt-4">
             <div className="flex flex-wrap gap-3">
-              <Select value={selectedPlanId} onValueChange={setSelectedPlanId}>
-                <SelectTrigger className="w-full sm:w-[220px] h-11 rounded-xl">
-                  <div className="flex items-center min-w-0 flex-1">
-                    <span className="truncate">
-                      <SelectValue placeholder="Todos os planos" />
-                    </span>
-                  </div>
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos os planos</SelectItem>
-                  {plans.map((plan) => (
-                    <SelectItem key={plan.id} value={plan.id}>
-                      <span className="truncate">{plan.title}</span>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <PlanSelector
+                plans={plans.map(p => ({ ...p, plan_type: 'individual' }))}
+                value={selectedPlanId}
+                onChange={setSelectedPlanId}
+                showAllOption
+                allOptionLabel="Todos os planos"
+                placeholder="Todos os planos"
+              />
 
               <Select value={selectedArea} onValueChange={setSelectedArea}>
                 <SelectTrigger className="w-[160px]">
