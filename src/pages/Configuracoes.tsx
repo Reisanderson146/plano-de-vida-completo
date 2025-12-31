@@ -1,136 +1,22 @@
-import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Moon, Info, Volume2, VolumeX, Music, Play, Bell, User, CreditCard, RotateCcw, Mail, Smartphone } from 'lucide-react';
+import { Moon, Info, Volume2, VolumeX, Music, Play, User, CreditCard, RotateCcw } from 'lucide-react';
 import { DarkModeToggle } from '@/components/theme/DarkModeToggle';
 import { Switch } from '@/components/ui/switch';
 import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
-import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/hooks/useAuth';
 import { useSoundSettings, soundStyleConfigs, SoundStyle } from '@/hooks/useSoundSettings';
 import { useTour } from '@/hooks/useTour';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-
-interface ReminderSettings {
-  goal_reminders: { enabled: boolean; email_enabled: boolean; in_app_enabled: boolean };
-  weekly_summary: { enabled: boolean; email_enabled: boolean; in_app_enabled: boolean };
-}
 
 export default function Configuracoes() {
   const { user } = useAuth();
   const { toast } = useToast();
   const { soundEnabled, volume, style, toggleSound, setVolume, setStyle } = useSoundSettings();
   const { restartTour } = useTour();
-
-  const [reminderSettings, setReminderSettings] = useState<ReminderSettings>({
-    goal_reminders: { enabled: true, email_enabled: true, in_app_enabled: true },
-    weekly_summary: { enabled: false, email_enabled: false, in_app_enabled: true },
-  });
-  const [loadingReminders, setLoadingReminders] = useState(true);
-  const [savingReminders, setSavingReminders] = useState(false);
-
-  useEffect(() => {
-    if (user) {
-      loadReminderSettings();
-    }
-  }, [user]);
-
-  const loadReminderSettings = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('reminder_settings')
-        .select('*')
-        .eq('user_id', user!.id);
-
-      if (error) throw error;
-
-      if (data && data.length > 0) {
-        const settings: ReminderSettings = {
-          goal_reminders: { enabled: true, email_enabled: true, in_app_enabled: true },
-          weekly_summary: { enabled: false, email_enabled: false, in_app_enabled: true },
-        };
-
-        data.forEach((setting) => {
-          if (setting.reminder_type === 'goal_reminders') {
-            settings.goal_reminders = {
-              enabled: setting.enabled,
-              email_enabled: setting.email_enabled,
-              in_app_enabled: setting.in_app_enabled,
-            };
-          } else if (setting.reminder_type === 'weekly_summary') {
-            settings.weekly_summary = {
-              enabled: setting.enabled,
-              email_enabled: setting.email_enabled,
-              in_app_enabled: setting.in_app_enabled,
-            };
-          }
-        });
-
-        setReminderSettings(settings);
-      }
-    } catch (error) {
-      console.error('Error loading reminder settings:', error);
-    } finally {
-      setLoadingReminders(false);
-    }
-  };
-
-  const saveReminderSetting = async (
-    type: 'goal_reminders' | 'weekly_summary',
-    field: 'enabled' | 'email_enabled' | 'in_app_enabled',
-    value: boolean
-  ) => {
-    setSavingReminders(true);
-
-    try {
-      const newSettings = {
-        ...reminderSettings[type],
-        [field]: value,
-      };
-
-      // Update local state immediately
-      setReminderSettings((prev) => ({
-        ...prev,
-        [type]: newSettings,
-      }));
-
-      // Upsert to database
-      const { error } = await supabase
-        .from('reminder_settings')
-        .upsert({
-          user_id: user!.id,
-          reminder_type: type,
-          enabled: newSettings.enabled,
-          email_enabled: newSettings.email_enabled,
-          in_app_enabled: newSettings.in_app_enabled,
-        }, {
-          onConflict: 'user_id,reminder_type'
-        });
-
-      if (error) throw error;
-
-      toast({
-        title: 'Configuração salva',
-        description: 'Suas preferências de notificação foram atualizadas.',
-      });
-    } catch (error) {
-      console.error('Error saving reminder settings:', error);
-      toast({
-        title: 'Erro ao salvar',
-        description: 'Não foi possível salvar a configuração.',
-        variant: 'destructive',
-      });
-      // Revert local state
-      loadReminderSettings();
-    } finally {
-      setSavingReminders(false);
-    }
-  };
 
   const handleRestartTour = () => {
     restartTour();
@@ -246,125 +132,6 @@ export default function Configuracoes() {
             </Card>
           </Link>
         </div>
-
-        {/* Notifications Card */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Bell className="w-5 h-5 text-primary" />
-              Notificações e Lembretes
-            </CardTitle>
-            <CardDescription>Configure como deseja receber lembretes sobre suas metas</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {loadingReminders ? (
-              <div className="space-y-4">
-                <Skeleton className="h-20 w-full rounded-xl" />
-                <Skeleton className="h-20 w-full rounded-xl" />
-              </div>
-            ) : (
-              <>
-                {/* Goal Reminders */}
-                <div className="p-4 rounded-xl bg-muted/50 space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2.5 rounded-lg bg-background shadow-sm">
-                        <Bell className="w-5 h-5 text-primary" />
-                      </div>
-                      <div>
-                        <p className="font-medium">Lembretes de Metas</p>
-                        <p className="text-sm text-muted-foreground">Notificações sobre metas próximas do prazo</p>
-                      </div>
-                    </div>
-                    <Switch
-                      checked={reminderSettings.goal_reminders.enabled}
-                      onCheckedChange={(checked) => saveReminderSetting('goal_reminders', 'enabled', checked)}
-                      disabled={savingReminders}
-                    />
-                  </div>
-                  
-                  {reminderSettings.goal_reminders.enabled && (
-                    <div className="flex flex-col sm:flex-row gap-4 pt-2 border-t border-border/50">
-                      <div className="flex items-center gap-2">
-                        <Switch
-                          checked={reminderSettings.goal_reminders.email_enabled}
-                          onCheckedChange={(checked) => saveReminderSetting('goal_reminders', 'email_enabled', checked)}
-                          disabled={savingReminders}
-                          id="goal-email"
-                        />
-                        <label htmlFor="goal-email" className="text-sm flex items-center gap-1.5 cursor-pointer">
-                          <Mail className="w-4 h-4 text-muted-foreground" />
-                          Email
-                        </label>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Switch
-                          checked={reminderSettings.goal_reminders.in_app_enabled}
-                          onCheckedChange={(checked) => saveReminderSetting('goal_reminders', 'in_app_enabled', checked)}
-                          disabled={savingReminders}
-                          id="goal-app"
-                        />
-                        <label htmlFor="goal-app" className="text-sm flex items-center gap-1.5 cursor-pointer">
-                          <Smartphone className="w-4 h-4 text-muted-foreground" />
-                          No App
-                        </label>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Weekly Summary */}
-                <div className="p-4 rounded-xl bg-muted/50 space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2.5 rounded-lg bg-background shadow-sm">
-                        <Mail className="w-5 h-5 text-emerald-500" />
-                      </div>
-                      <div>
-                        <p className="font-medium">Resumo Semanal</p>
-                        <p className="text-sm text-muted-foreground">Receba um resumo do seu progresso toda semana</p>
-                      </div>
-                    </div>
-                    <Switch
-                      checked={reminderSettings.weekly_summary.enabled}
-                      onCheckedChange={(checked) => saveReminderSetting('weekly_summary', 'enabled', checked)}
-                      disabled={savingReminders}
-                    />
-                  </div>
-                  
-                  {reminderSettings.weekly_summary.enabled && (
-                    <div className="flex flex-col sm:flex-row gap-4 pt-2 border-t border-border/50">
-                      <div className="flex items-center gap-2">
-                        <Switch
-                          checked={reminderSettings.weekly_summary.email_enabled}
-                          onCheckedChange={(checked) => saveReminderSetting('weekly_summary', 'email_enabled', checked)}
-                          disabled={savingReminders}
-                          id="summary-email"
-                        />
-                        <label htmlFor="summary-email" className="text-sm flex items-center gap-1.5 cursor-pointer">
-                          <Mail className="w-4 h-4 text-muted-foreground" />
-                          Email
-                        </label>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Switch
-                          checked={reminderSettings.weekly_summary.in_app_enabled}
-                          onCheckedChange={(checked) => saveReminderSetting('weekly_summary', 'in_app_enabled', checked)}
-                          disabled={savingReminders}
-                          id="summary-app"
-                        />
-                        <label htmlFor="summary-app" className="text-sm flex items-center gap-1.5 cursor-pointer">
-                          <Smartphone className="w-4 h-4 text-muted-foreground" />
-                          No App
-                        </label>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </>
-            )}
-          </CardContent>
-        </Card>
 
         {/* Dark Mode Card */}
         <Card>
