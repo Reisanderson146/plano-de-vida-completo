@@ -107,7 +107,7 @@ export function PendingGoalsWidget({ selectedPlanId, onGoalCompleted }: PendingG
     }
   };
 
-  const handleCompleteGoal = async (goalId: string) => {
+  const handleCompleteGoal = async (goalId: string, event?: React.MouseEvent) => {
     setCompletingId(goalId);
     
     try {
@@ -121,40 +121,63 @@ export function PendingGoalsWidget({ selectedPlanId, onGoalCompleted }: PendingG
       // Play success sound
       playSuccessSound();
 
-      // Trigger confetti with more celebration
+      // Get the position of the checkbox for targeted confetti
+      const rect = event?.currentTarget?.getBoundingClientRect();
+      const originX = rect ? (rect.left + rect.width / 2) / window.innerWidth : 0.5;
+      const originY = rect ? (rect.top + rect.height / 2) / window.innerHeight : 0.6;
+
+      // Initial burst from the checkbox position
       confetti({
-        particleCount: 80,
-        spread: 70,
-        origin: { y: 0.6 },
-        colors: ['#22c55e', '#10b981', '#059669', '#fbbf24', '#f59e0b'],
+        particleCount: 50,
+        spread: 60,
+        origin: { x: originX, y: originY },
+        colors: ['#22c55e', '#10b981', '#059669'],
+        scalar: 0.8,
+        gravity: 1.2,
       });
 
-      // Second burst for more impact
+      // Side bursts for more celebration
       setTimeout(() => {
         confetti({
-          particleCount: 40,
-          spread: 100,
-          origin: { y: 0.7, x: 0.3 },
-          colors: ['#8b5cf6', '#6366f1', '#3b82f6'],
+          particleCount: 30,
+          angle: 60,
+          spread: 55,
+          origin: { x: 0 },
+          colors: ['#fbbf24', '#f59e0b', '#d97706'],
         });
         confetti({
-          particleCount: 40,
-          spread: 100,
-          origin: { y: 0.7, x: 0.7 },
-          colors: ['#ec4899', '#f43f5e', '#ef4444'],
+          particleCount: 30,
+          angle: 120,
+          spread: 55,
+          origin: { x: 1 },
+          colors: ['#8b5cf6', '#6366f1', '#4f46e5'],
         });
       }, 150);
+
+      // Star burst
+      setTimeout(() => {
+        confetti({
+          particleCount: 20,
+          spread: 360,
+          ticks: 60,
+          origin: { x: originX, y: originY - 0.1 },
+          colors: ['#fcd34d', '#fbbf24', '#f59e0b'],
+          shapes: ['star'],
+          scalar: 1.2,
+        });
+      }, 300);
 
       // Animate removal with delay for visual feedback
       setTimeout(() => {
         setGoals((prev) => prev.filter((g) => g.id !== goalId));
-      }, 400);
+      }, 600);
       
       // Notify parent that a goal was completed
       onGoalCompleted?.();
       
       toast({
         title: '🎉 Meta concluída!',
+        description: 'Parabéns pelo progresso!',
       });
     } catch (error) {
       console.error('Error completing goal:', error);
@@ -163,7 +186,7 @@ export function PendingGoalsWidget({ selectedPlanId, onGoalCompleted }: PendingG
         variant: 'destructive',
       });
     } finally {
-      setTimeout(() => setCompletingId(null), 400);
+      setTimeout(() => setCompletingId(null), 600);
     }
   };
 
@@ -268,19 +291,45 @@ export function PendingGoalsWidget({ selectedPlanId, onGoalCompleted }: PendingG
           <div
             key={goal.id}
             className={cn(
-              "flex items-start gap-3 p-3 rounded-xl transition-all duration-500 ease-out",
+              "group relative flex items-start gap-3 p-3 rounded-xl transition-all duration-500 ease-out overflow-hidden",
               "bg-muted/30 hover:bg-muted/50",
-              completingId === goal.id && "scale-90 opacity-0 translate-x-4 bg-success/20"
+              completingId === goal.id && "scale-95 bg-success/20"
             )}
             style={{ animationDelay: `${index * 50}ms` }}
           >
-            <Checkbox
-              checked={false}
-              onCheckedChange={() => handleCompleteGoal(goal.id)}
-              disabled={completingId === goal.id}
-              className="mt-0.5"
-            />
-            <div className="flex-1 min-w-0">
+            {/* Success glow effect */}
+            {completingId === goal.id && (
+              <div className="absolute inset-0 bg-gradient-to-r from-success/30 via-success/10 to-transparent animate-pulse" />
+            )}
+            
+            {/* Completing animation overlay */}
+            {completingId === goal.id && (
+              <div className="absolute inset-0 flex items-center justify-center bg-success/10 backdrop-blur-[1px] z-10">
+                <div className="flex items-center gap-2 text-success font-medium text-sm animate-bounce">
+                  <Trophy className="w-5 h-5" />
+                  <span>Concluída!</span>
+                </div>
+              </div>
+            )}
+            
+            <div 
+              className={cn(
+                "relative cursor-pointer",
+                completingId === goal.id && "opacity-0"
+              )}
+              onClick={(e) => handleCompleteGoal(goal.id, e)}
+            >
+              <Checkbox
+                checked={false}
+                onCheckedChange={() => {}}
+                disabled={completingId === goal.id}
+                className="mt-0.5 transition-transform duration-200 hover:scale-110"
+              />
+            </div>
+            <div className={cn(
+              "flex-1 min-w-0 transition-opacity duration-300",
+              completingId === goal.id && "opacity-30"
+            )}>
               <p className="text-sm text-foreground leading-snug line-clamp-2">
                 {goal.goal_text}
               </p>
