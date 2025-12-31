@@ -338,7 +338,7 @@ export default function Conta() {
 
     return (
       <Card className={cn(
-        "relative overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-xl h-full",
+        "relative overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-xl h-full flex flex-col",
         isCurrent && `border-2 ${colors.border} shadow-lg ${colors.shadow} ring-1 ${colors.ring}`,
         !isCurrent && !isPremium && `border-border/50 ${colors.hoverBorder} ${colors.hoverShadow}`,
         !isCurrent && isPremium && `border-2 border-violet-500/30 ${colors.hoverBorder} ${colors.hoverShadow}`
@@ -395,7 +395,7 @@ export default function Conta() {
           </div>
         </CardHeader>
 
-        <CardContent className="space-y-6">
+        <CardContent className="flex flex-col flex-1 space-y-6">
           {/* Price with Trial Badge */}
           <div className={cn("text-center py-4 rounded-xl relative overflow-hidden", colors.bgGradient)}>
             {/* Trial Badge */}
@@ -429,7 +429,7 @@ export default function Conta() {
           </div>
 
           {/* Benefits */}
-          <div className="space-y-2">
+          <div className="space-y-2 flex-1">
             {benefits.map((benefit, index) => {
               const Icon = benefit.icon;
               
