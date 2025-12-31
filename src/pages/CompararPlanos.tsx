@@ -111,17 +111,9 @@ const features: Feature[] = [
     premium: true 
   },
   { 
-    name: 'Lembretes por Email', 
-    description: 'Receba lembretes das suas metas importantes',
+    name: 'Notificações', 
+    description: 'Receba notificações personalizadas',
     icon: Bell, 
-    basic: false, 
-    familiar: true,
-    premium: true 
-  },
-  { 
-    name: 'Email Aniversário Casamento', 
-    description: 'Mensagem especial com versículo bíblico no aniversário de casamento',
-    icon: Heart, 
     basic: false, 
     familiar: true,
     premium: true 

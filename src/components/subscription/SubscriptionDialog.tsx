@@ -53,8 +53,7 @@ const familiarBenefits: Benefit[] = [
   { icon: Shield, text: 'Dados seguros na nuvem' },
   { icon: Download, text: 'Exportação em PDF' },
   { icon: BarChart3, text: 'Dashboard com progresso' },
-  { icon: Bell, text: 'Lembretes por email' },
-  { icon: Heart, text: 'Email de aniversário de casamento' },
+  { icon: Bell, text: 'Notificações personalizadas' },
   { icon: Sparkles, text: 'Resumo inteligente com IA', highlight: true },
 ];
 
@@ -66,8 +65,7 @@ const premiumBenefits: Benefit[] = [
   { icon: Shield, text: 'Dados seguros na nuvem' },
   { icon: Download, text: 'Exportação em PDF' },
   { icon: BarChart3, text: 'Relatórios e gráficos detalhados' },
-  { icon: Bell, text: 'Lembretes por email' },
-  { icon: Heart, text: 'Email de aniversário de casamento' },
+  { icon: Bell, text: 'Notificações personalizadas' },
   { icon: History, text: 'Histórico de metas concluídas' },
 ];
 
