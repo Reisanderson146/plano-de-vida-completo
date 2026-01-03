@@ -442,6 +442,335 @@ const emailTemplates = {
       `
     )
   }),
+
+  // 14. Wedding Anniversary
+  wedding_anniversary: (name: string) => ({
+    subject: "[TESTE] Feliz 5º Aniversário de Casamento! - Plano de Vida",
+    html: `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8f9fa;">
+  <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
+    <div style="background: linear-gradient(135deg, #ec4899 0%, #f472b6 50%, #f9a8d4 100%); padding: 40px 30px; text-align: center;">
+      <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 700;">
+        Feliz Aniversário de Casamento!
+      </h1>
+      <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0; font-size: 16px;">
+        5 anos de uma linda jornada juntos
+      </p>
+    </div>
+    <div style="padding: 35px 30px;">
+      <p style="color: #1f2937; font-size: 16px; line-height: 1.7; margin: 0 0 20px 0;">
+        Olá, <strong>${name}</strong>!
+      </p>
+      <p style="color: #4b5563; font-size: 15px; line-height: 1.7; margin: 0 0 25px 0;">
+        Hoje, <strong>15 de março</strong>, celebramos mais um ano do seu casamento! 
+        Que Deus continue abençoando sua união com muito amor, paz e cumplicidade.
+      </p>
+      <div style="text-align: center; margin: 30px 0;">
+        <div style="display: inline-block; background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%); padding: 20px 40px; border-radius: 16px; border: 2px solid #f9a8d4;">
+          <div style="font-size: 48px; font-weight: 700; color: #db2777;">5</div>
+          <div style="font-size: 14px; color: #9d174d; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">Anos de Casados</div>
+        </div>
+      </div>
+      <div style="background: linear-gradient(135deg, #fdf4ff 0%, #fae8ff 100%); border-left: 4px solid #d946ef; padding: 20px 25px; margin: 25px 0; border-radius: 0 12px 12px 0;">
+        <p style="color: #6b21a8; font-size: 16px; font-style: italic; margin: 0 0 10px 0; line-height: 1.6;">
+          "O amor é paciente, o amor é bondoso. Não inveja, não se vangloria, não se orgulha."
+        </p>
+        <p style="color: #9333ea; font-size: 13px; font-weight: 600; margin: 0; text-align: right;">
+          — 1 Coríntios 13:4
+        </p>
+      </div>
+      <p style="color: #4b5563; font-size: 15px; line-height: 1.7; margin: 25px 0;">
+        Continue construindo seus sonhos juntos através do seu plano de vida. 
+        Cada meta alcançada em família é uma vitória compartilhada!
+      </p>
+    </div>
+    <div style="background-color: #fdf4ff; padding: 25px 30px; text-align: center; border-top: 1px solid #f3e8ff;">
+      <p style="color: #7c3aed; font-size: 13px; margin: 0;">
+        Com carinho,<br><strong>Equipe Plano de Vida</strong>
+      </p>
+    </div>
+  </div>
+</body>
+</html>
+    `
+  }),
+
+  // 15. Birthday
+  birthday: (name: string) => ({
+    subject: "[TESTE] Feliz Aniversário! - Plano de Vida",
+    html: `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8f9fa;">
+  <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
+    <div style="background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 50%, #c4b5fd 100%); padding: 40px 30px; text-align: center;">
+      <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 700;">
+        Feliz Aniversário!
+      </h1>
+      <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0; font-size: 16px;">
+        Que este novo ciclo seja repleto de conquistas
+      </p>
+    </div>
+    <div style="padding: 35px 30px;">
+      <p style="color: #1f2937; font-size: 16px; line-height: 1.7; margin: 0 0 20px 0;">
+        Olá, <strong>${name}</strong>!
+      </p>
+      <p style="color: #4b5563; font-size: 15px; line-height: 1.7; margin: 0 0 25px 0;">
+        Hoje é um dia especial! Celebramos mais um ano da sua vida e desejamos que Deus te abençoe com saúde, paz e realizações.
+      </p>
+      <div style="text-align: center; margin: 30px 0;">
+        <div style="display: inline-block; background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%); padding: 25px 45px; border-radius: 16px; border: 2px solid #c4b5fd;">
+          <div style="font-size: 42px; margin-bottom: 5px;">🎂</div>
+          <div style="font-size: 18px; color: #6d28d9; font-weight: 600;">Parabéns!</div>
+        </div>
+      </div>
+      <div style="background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%); border-left: 4px solid #8b5cf6; padding: 20px 25px; margin: 25px 0; border-radius: 0 12px 12px 0;">
+        <p style="color: #5b21b6; font-size: 16px; font-style: italic; margin: 0 0 10px 0; line-height: 1.6;">
+          "O Senhor te abençoe e te guarde; o Senhor faça resplandecer o seu rosto sobre ti e te conceda graça."
+        </p>
+        <p style="color: #7c3aed; font-size: 13px; font-weight: 600; margin: 0; text-align: right;">
+          — Números 6:24-25
+        </p>
+      </div>
+      <p style="color: #4b5563; font-size: 15px; line-height: 1.7; margin: 25px 0;">
+        Que tal aproveitar este novo ano para revisar suas metas e sonhos? Seu Plano de Vida está esperando por você!
+      </p>
+      ${getSimpleLink("https://planodevida.io", "Acessar meu plano")}
+    </div>
+    <div style="background-color: #f5f3ff; padding: 25px 30px; text-align: center; border-top: 1px solid #ede9fe;">
+      <p style="color: #6d28d9; font-size: 13px; margin: 0;">
+        Com carinho,<br><strong>Equipe Plano de Vida</strong>
+      </p>
+    </div>
+  </div>
+</body>
+</html>
+    `
+  }),
+
+  // 16. Happy New Year
+  happy_new_year: (name: string) => ({
+    subject: "[TESTE] Feliz Ano Novo! - Plano de Vida",
+    html: `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8f9fa;">
+  <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
+    <div style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%); padding: 40px 30px; text-align: center;">
+      <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 700;">
+        Feliz Ano Novo ${year}!
+      </h1>
+      <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0; font-size: 16px;">
+        Um novo ciclo de conquistas começa agora
+      </p>
+    </div>
+    <div style="padding: 35px 30px;">
+      <p style="color: #1f2937; font-size: 16px; line-height: 1.7; margin: 0 0 20px 0;">
+        Olá, <strong>${name}</strong>!
+      </p>
+      <p style="color: #4b5563; font-size: 15px; line-height: 1.7; margin: 0 0 25px 0;">
+        Que este novo ano seja repleto de bênçãos, realizações e momentos especiais ao lado de quem você ama!
+      </p>
+      <div style="text-align: center; margin: 30px 0;">
+        <div style="display: inline-block; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); padding: 20px 40px; border-radius: 16px; border: 2px solid #fbbf24;">
+          <div style="font-size: 48px; font-weight: 700; color: #b45309;">${year}</div>
+          <div style="font-size: 14px; color: #92400e; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">Novo Ano, Novas Metas</div>
+        </div>
+      </div>
+      <div style="background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border-left: 4px solid #f59e0b; padding: 20px 25px; margin: 25px 0; border-radius: 0 12px 12px 0;">
+        <p style="color: #92400e; font-size: 16px; font-style: italic; margin: 0 0 10px 0; line-height: 1.6;">
+          "Eis que faço coisa nova, e agora ela brotará; porventura não a percebereis?"
+        </p>
+        <p style="color: #b45309; font-size: 13px; font-weight: 600; margin: 0; text-align: right;">
+          — Isaías 43:19
+        </p>
+      </div>
+      <p style="color: #4b5563; font-size: 15px; line-height: 1.7; margin: 25px 0;">
+        É hora de atualizar seu Plano de Vida e definir as metas para este novo ano. Cada sonho merece um plano!
+      </p>
+      ${getSimpleLink("https://planodevida.io", "Atualizar meu plano")}
+    </div>
+    <div style="background-color: #fffbeb; padding: 25px 30px; text-align: center; border-top: 1px solid #fef3c7;">
+      <p style="color: #b45309; font-size: 13px; margin: 0;">
+        Com carinho,<br><strong>Equipe Plano de Vida</strong>
+      </p>
+    </div>
+  </div>
+</body>
+</html>
+    `
+  }),
+
+  // 17. Christmas
+  christmas: (name: string) => ({
+    subject: "[TESTE] Feliz Natal! - Plano de Vida",
+    html: `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8f9fa;">
+  <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
+    <div style="background: linear-gradient(135deg, #dc2626 0%, #ef4444 50%, #f87171 100%); padding: 40px 30px; text-align: center;">
+      <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 700;">
+        Feliz Natal!
+      </h1>
+      <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0; font-size: 16px;">
+        Celebrando o amor que nasceu para nos salvar
+      </p>
+    </div>
+    <div style="padding: 35px 30px;">
+      <p style="color: #1f2937; font-size: 16px; line-height: 1.7; margin: 0 0 20px 0;">
+        Olá, <strong>${name}</strong>!
+      </p>
+      <p style="color: #4b5563; font-size: 15px; line-height: 1.7; margin: 0 0 25px 0;">
+        Desejamos a você e sua família um Natal abençoado, cheio de paz, amor e momentos especiais ao lado de quem você ama.
+      </p>
+      <div style="text-align: center; margin: 30px 0;">
+        <div style="display: inline-block; background: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%); padding: 25px 45px; border-radius: 16px; border: 2px solid #fca5a5;">
+          <div style="font-size: 42px; margin-bottom: 5px;">🎄</div>
+          <div style="font-size: 18px; color: #b91c1c; font-weight: 600;">Feliz Natal!</div>
+        </div>
+      </div>
+      <div style="background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%); border-left: 4px solid #dc2626; padding: 20px 25px; margin: 25px 0; border-radius: 0 12px 12px 0;">
+        <p style="color: #991b1b; font-size: 16px; font-style: italic; margin: 0 0 10px 0; line-height: 1.6;">
+          "Porque um menino nos nasceu, um filho nos foi dado, e o governo está sobre os seus ombros."
+        </p>
+        <p style="color: #b91c1c; font-size: 13px; font-weight: 600; margin: 0; text-align: right;">
+          — Isaías 9:6
+        </p>
+      </div>
+      <p style="color: #4b5563; font-size: 15px; line-height: 1.7; margin: 25px 0;">
+        Que o verdadeiro espírito do Natal renove sua fé e esperança. Aproveite para refletir sobre suas conquistas e agradecer por cada bênção!
+      </p>
+    </div>
+    <div style="background-color: #fef2f2; padding: 25px 30px; text-align: center; border-top: 1px solid #fecaca;">
+      <p style="color: #b91c1c; font-size: 13px; margin: 0;">
+        Com carinho,<br><strong>Equipe Plano de Vida</strong>
+      </p>
+    </div>
+  </div>
+</body>
+</html>
+    `
+  }),
+
+  // 18. Easter
+  easter: (name: string) => ({
+    subject: "[TESTE] Feliz Páscoa! - Plano de Vida",
+    html: `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8f9fa;">
+  <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
+    <div style="background: linear-gradient(135deg, #059669 0%, #10b981 50%, #34d399 100%); padding: 40px 30px; text-align: center;">
+      <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 700;">
+        Feliz Páscoa!
+      </h1>
+      <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0; font-size: 16px;">
+        Celebrando a ressurreição e a vida nova
+      </p>
+    </div>
+    <div style="padding: 35px 30px;">
+      <p style="color: #1f2937; font-size: 16px; line-height: 1.7; margin: 0 0 20px 0;">
+        Olá, <strong>${name}</strong>!
+      </p>
+      <p style="color: #4b5563; font-size: 15px; line-height: 1.7; margin: 0 0 25px 0;">
+        Nesta Páscoa, celebramos a vitória da vida sobre a morte e a esperança que renova nossos corações. Que este tempo seja de reflexão e renovação para você e sua família.
+      </p>
+      <div style="text-align: center; margin: 30px 0;">
+        <div style="display: inline-block; background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); padding: 25px 45px; border-radius: 16px; border: 2px solid #6ee7b7;">
+          <div style="font-size: 42px; margin-bottom: 5px;">✝️</div>
+          <div style="font-size: 18px; color: #047857; font-weight: 600;">Ele Vive!</div>
+        </div>
+      </div>
+      <div style="background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border-left: 4px solid #10b981; padding: 20px 25px; margin: 25px 0; border-radius: 0 12px 12px 0;">
+        <p style="color: #065f46; font-size: 16px; font-style: italic; margin: 0 0 10px 0; line-height: 1.6;">
+          "Eu sou a ressurreição e a vida. Aquele que crê em mim, ainda que morra, viverá."
+        </p>
+        <p style="color: #047857; font-size: 13px; font-weight: 600; margin: 0; text-align: right;">
+          — João 11:25
+        </p>
+      </div>
+      <p style="color: #4b5563; font-size: 15px; line-height: 1.7; margin: 25px 0;">
+        Assim como a Páscoa representa renovação, que tal renovar suas metas e sonhos no seu Plano de Vida?
+      </p>
+      ${getSimpleLink("https://planodevida.io", "Acessar meu plano")}
+    </div>
+    <div style="background-color: #ecfdf5; padding: 25px 30px; text-align: center; border-top: 1px solid #d1fae5;">
+      <p style="color: #047857; font-size: 13px; margin: 0;">
+        Com carinho,<br><strong>Equipe Plano de Vida</strong>
+      </p>
+    </div>
+  </div>
+</body>
+</html>
+    `
+  }),
+
+  // 19. Annual Report
+  annual_report: (name: string) => ({
+    subject: "[TESTE] Seu Relatório Anual - Plano de Vida",
+    html: generateEmailWrapper(
+      "#2A8C68",
+      "Relatório Anual ${year - 1}",
+      `
+        <p style="margin: 0 0 16px 0; color: #374151; font-size: 15px; line-height: 1.6;">
+          Olá ${name},
+        </p>
+        <p style="margin: 0 0 16px 0; color: #4b5563; font-size: 15px; line-height: 1.6;">
+          Aqui está o resumo das suas conquistas em ${year - 1}!
+        </p>
+        <div style="background: #d1fae5; padding: 16px; border-radius: 8px; margin: 16px 0;">
+          <p style="margin: 0 0 8px 0; color: #065f46; font-size: 24px; font-weight: bold; text-align: center;">
+            75%
+          </p>
+          <p style="margin: 0; color: #047857; font-size: 14px; text-align: center;">
+            15 de 20 metas concluídas
+          </p>
+        </div>
+        <p style="margin: 0 0 12px 0; color: #4b5563; font-size: 14px;">
+          <strong>Destaques por área:</strong>
+        </p>
+        <ul style="margin: 0 0 16px 0; padding-left: 20px; color: #4b5563; font-size: 14px; line-height: 1.8;">
+          <li>Espiritual: 3/3 (100%)</li>
+          <li>Intelectual: 2/3 (67%)</li>
+          <li>Familiar: 3/3 (100%)</li>
+          <li>Social: 2/3 (67%)</li>
+          <li>Financeiro: 2/3 (67%)</li>
+          <li>Profissional: 2/3 (67%)</li>
+          <li>Saúde: 1/2 (50%)</li>
+        </ul>
+        <p style="margin: 0 0 16px 0; color: #4b5563; font-size: 14px; line-height: 1.6;">
+          Parabéns pelas conquistas! Seu plano foi atualizado para ${year}. Continue construindo sua história!
+        </p>
+        ${getSimpleLink("https://planodevida.io", "Ver meu plano atualizado")}
+        <p style="margin: 20px 0 0 0; color: #4b5563; font-size: 14px;">
+          Atenciosamente,<br>Equipe Plano de Vida
+        </p>
+      `
+    )
+  }),
 };
 
 const handler = async (req: Request): Promise<Response> => {
