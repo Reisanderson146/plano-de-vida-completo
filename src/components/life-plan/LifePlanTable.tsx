@@ -1208,7 +1208,15 @@ export function LifePlanTable({ goals, onUpdateGoal, onDeleteGoal, onAddGoal, on
             </Card>
           ) : (
             <Button 
-              onClick={() => setAddingRow(true)} 
+              onClick={() => {
+                // Calculate next year and age based on existing periods
+                const lastPeriod = periods.length > 0 ? periods[periods.length - 1] : null;
+                const nextYear = lastPeriod ? lastPeriod.year + 1 : new Date().getFullYear();
+                const nextAge = lastPeriod ? lastPeriod.age + 1 : 30;
+                setNewRowYear(nextYear);
+                setNewRowAge(nextAge);
+                setAddingRow(true);
+              }} 
               variant="outline" 
               className="w-full sm:w-auto h-12 rounded-xl border-dashed border-2 hover:border-primary/50 hover:bg-primary/5 gap-2 text-muted-foreground hover:text-primary transition-all duration-200"
             >
