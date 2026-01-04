@@ -21,6 +21,7 @@ interface Profile {
   id: string;
   full_name: string | null;
   birth_year: number | null;
+  birth_date: string | null;
   avatar_url: string | null;
 }
 
@@ -35,6 +36,7 @@ export default function MeusDados() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [fullName, setFullName] = useState('');
   const [birthYear, setBirthYear] = useState('');
+  const [birthDate, setBirthDate] = useState('');
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
   useEffect(() => {
@@ -56,9 +58,10 @@ export default function MeusDados() {
       if (error) throw error;
 
       if (data) {
-        setProfile(data);
+        setProfile(data as Profile);
         setFullName(data.full_name || '');
         setBirthYear(data.birth_year?.toString() || '');
+        setBirthDate((data as any).birth_date || '');
         setAvatarUrl(data.avatar_url);
       }
     } catch (error) {
@@ -188,11 +191,16 @@ export default function MeusDados() {
     setSaving(true);
 
     try {
-      const updates = {
+      const updates: Record<string, any> = {
         full_name: fullName.trim() || null,
         birth_year: birthYear ? parseInt(birthYear) : null,
         updated_at: new Date().toISOString(),
       };
+
+      // Add birth_date if provided
+      if (birthDate) {
+        updates.birth_date = birthDate;
+      }
 
       const { error } = await supabase
         .from('profiles')
@@ -347,24 +355,32 @@ export default function MeusDados() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="birthYear" className="flex items-center gap-2">
+              <Label htmlFor="birthDate" className="flex items-center gap-2">
                 <Calendar className="w-4 h-4 text-muted-foreground" />
-                Ano de Nascimento
+                Data de Nascimento
               </Label>
               <Input
-                id="birthYear"
-                type="number"
-                placeholder="Ex: 1990"
-                value={birthYear}
-                onChange={(e) => setBirthYear(e.target.value)}
-                min={1900}
-                max={currentYear}
+                id="birthDate"
+                type="date"
+                value={birthDate}
+                onChange={(e) => {
+                  setBirthDate(e.target.value);
+                  // Also update birth year when date changes
+                  if (e.target.value) {
+                    const year = new Date(e.target.value).getFullYear();
+                    setBirthYear(year.toString());
+                  }
+                }}
+                max={new Date().toISOString().split('T')[0]}
               />
               {calculatedAge !== null && calculatedAge > 0 && (
                 <p className="text-sm text-muted-foreground">
                   Idade atual: <span className="font-medium text-foreground">{calculatedAge} anos</span>
                 </p>
               )}
+              <p className="text-xs text-muted-foreground">
+                Usada para envio de felicitações de aniversário
+              </p>
             </div>
 
             <div className="pt-4">
